@@ -44,6 +44,11 @@ dependencies {
 
     //Firebase SDK for Google Analytics
     implementation 'com.google.firebase:firebase-analytics:17.2.3'
+    //Firebase Authentication and Realtime Database
+    implementation 'com.google.firebase:firebase-auth:19.2.0'
+    //Firebase Realtime Database
+    implementation 'com.google.firebase:firebase-database:19.2.1'
+
 }
 
 tasks.withType(Test) {

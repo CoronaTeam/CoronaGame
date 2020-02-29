@@ -8,12 +8,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:807375232223:android:0974163311b74c1cd69d6a",
+        "mobilesdk_app_id": "1:807375232223:android:0c193c7c65c11df3d69d6a",
         "android_client_info": {
           "package_name": "ch.epfl.sdp"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "807375232223-i3gha6seobgj5d7h1uik2e7l5d47bp8v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ch.epfl.sdp",
+            "certificate_hash": "4f14f3e4fdc9d015687206d923e7a887a9dee0c1"
+          }
+        },
         {
           "client_id": "807375232223-ej3i9feuhhp42gltm67nmkh5l7u8uoki.apps.googleusercontent.com",
           "client_type": 3

@@ -10,13 +10,15 @@
         android:id="@+id/sign_in_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="462dp"
         android:layout_marginBottom="214dp"
         android:clickable="true"
         android:onClick="onClick"
         android:text="SignIn"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
 
 <!--><com.google.android.gms.common.SignInButton xmlns:android="http://schemas.android.com/apk/res/android"

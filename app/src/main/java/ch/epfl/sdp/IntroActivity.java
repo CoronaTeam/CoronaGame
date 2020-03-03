@@ -47,6 +47,8 @@ public class IntroActivity extends AppIntro2 {
                 DESC_COLOR
         ));
 
+        showSkipButton(false);
+
     }
 
     @Override

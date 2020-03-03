@@ -1,5 +1,6 @@
 package ch.epfl.sdp;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -7,6 +8,7 @@ import com.github.paolorotolo.appintro.AppIntro2;
 import com.github.paolorotolo.appintro.AppIntro2Fragment;
 
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 public class IntroActivity extends AppIntro2 {
 
@@ -44,5 +46,14 @@ public class IntroActivity extends AppIntro2 {
                 TITLE_COLOR,
                 DESC_COLOR
         ));
+
+    }
+
+    @Override
+    public void onDonePressed(Fragment currentFragment) {
+        super.onDonePressed(currentFragment);
+
+        // Navigate to main screen
+        startActivity(new Intent(this, MainActivity.class));
     }
 }

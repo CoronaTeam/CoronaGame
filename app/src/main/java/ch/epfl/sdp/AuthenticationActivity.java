@@ -24,7 +24,7 @@ import com.google.android.gms.tasks.Task;
  */
 public class AuthenticationActivity extends AppCompatActivity {
     public static final int RC_SIGN_IN = 0; //any number, but common for the app
-    GoogleSignInClient gsc;
+    GoogleSignInClient googleSignInClient;
     ImageView imageView;
     TextView name,email,id;
     Button signOut;
@@ -44,7 +44,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                 .requestEmail()
                 .build();
         // Build a GoogleSignInClient with the options specified by gso.
-        gsc = GoogleSignIn.getClient(this, gso);
+        googleSignInClient = GoogleSignIn.getClient(this, gso);
         findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
@@ -75,7 +75,7 @@ public class AuthenticationActivity extends AppCompatActivity {
 
         }else{
             // hide the sign-in button, launch your main activity -> already registered
-            Intent intent = new Intent(AuthenticationActivity.this, MainActivity.class);// New activity
+            Intent intent = new Intent(AuthenticationActivity.this, AccountGettingActivity.class);// New activity
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); //clears this activity's stack
             startActivity(intent);
             finish(); // Launches MainActivity
@@ -83,7 +83,7 @@ public class AuthenticationActivity extends AppCompatActivity {
     }
 
     private void signIn() {
-        Intent signInIntent = gsc.getSignInIntent();
+        Intent signInIntent = googleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
     @Override

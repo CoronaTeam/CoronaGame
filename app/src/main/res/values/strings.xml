@@ -3,4 +3,13 @@
     <string name="coronagame">CoronaGame</string>
     <string name="user_id">User ID</string>
     <string name="launch_game">Launch Game</string>
+    <string name="title_activity_firebase">FirebaseActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 </resources>

@@ -4,12 +4,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -23,7 +25,7 @@ public class AccountGettingActivity extends AppCompatActivity {
     TextView name;
     TextView email;
     TextView lastName;
-
+    ImageView img;
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -33,7 +35,7 @@ public class AccountGettingActivity extends AppCompatActivity {
         name = findViewById(R.id.name);
         email = findViewById(R.id.email);
         lastName = findViewById(R.id.lastName);
-
+        img = findViewById(R.id.imageView);
 
         signOut = findViewById(R.id.button_sign_out);
         signOut.setOnClickListener(new View.OnClickListener(){
@@ -58,10 +60,11 @@ public class AccountGettingActivity extends AppCompatActivity {
             String personFamilyName = acct.getFamilyName();
             String personEmail = acct.getEmail();
             String personId = acct.getId(); // To use in order to uniquely identify people
-          //  Uri personPhoto = acct.getPhotoUrl();
+            Uri personPhoto = acct.getPhotoUrl();
             name.setText(personName);
             lastName.setText(personFamilyName);
             email.setText(personEmail);
+            Glide.with(this).load(String.valueOf(personPhoto)).into(img);
         }
     }
     private void signOut() {

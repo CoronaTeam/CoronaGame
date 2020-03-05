@@ -1,6 +1,10 @@
 apply plugin: 'com.android.application'
 apply plugin: 'jacoco'
 
+def apikeyPropertiesFile = rootProject.file("app/secrets.properties");
+def apikeyProperties = new Properties()
+apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
+
 jacoco {
     toolVersion = "0.8.4"
 }
@@ -15,7 +19,7 @@ android {
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
-
+        buildConfigField("String", "mapboxAPIKey", apikeyProperties['mapboxAPIKey'])
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 

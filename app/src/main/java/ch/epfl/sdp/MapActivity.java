@@ -39,7 +39,9 @@ public class MapActivity extends AppCompatActivity {
 
         // Mapbox access token is configured here. This needs to be called either in your application
         // object or in the same activity which contains the mapview.
-        Mapbox.getInstance(this, "pk.eyJ1IjoiaWNlZm8iLCJhIjoiY2s3ZXp2MGRxMDVyZTNlcDg4ZmFsMXR0MyJ9.wHJpgkdf3BDFUowDPr_DcA");
+        Mapbox.getInstance(this, BuildConfig.mapboxAPIKey);
+
+       // Mapbox.getInstance(this, "pk.eyJ1IjoiaWNlZm8iLCJhIjoiY2s3ZXp2MGRxMDVyZTNlcDg4ZmFsMXR0MyJ9.wHJpgkdf3BDFUowDPr_DcA");
 
         // This contains the MapView in XML and needs to be called after the access token is configured.
         setContentView(R.layout.activity_map);

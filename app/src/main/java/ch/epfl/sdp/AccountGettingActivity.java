@@ -1,5 +1,6 @@
 package ch.epfl.sdp;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -19,6 +20,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+/**
+ * Class AccounteGettingactivity
+ * @author lucas
+ */
 public class AccountGettingActivity extends AppCompatActivity {
     Button signOut;
     GoogleSignInClient mGoogleSignInClient;
@@ -56,10 +61,10 @@ public class AccountGettingActivity extends AppCompatActivity {
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
         if (acct != null) {
             String personName = acct.getDisplayName();
-            String personGivenName = acct.getGivenName();
+          //  String personGivenName = acct.getGivenName();
             String personFamilyName = acct.getFamilyName();
             String personEmail = acct.getEmail();
-            String personId = acct.getId(); // To use in order to uniquely identify people
+          //  String personId = acct.getId(); // Use this in order to uniquely identify people
             Uri personPhoto = acct.getPhotoUrl();
             name.setText(personName);
             lastName.setText(personFamilyName);
@@ -73,9 +78,12 @@ public class AccountGettingActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         Toast.makeText(AccountGettingActivity.this,"Signed out successfully!", Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(AccountGettingActivity.this, AuthenticationActivity.class);// New activity
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); //clears this activity's stack
+                        startActivity(intent);
                         finish();
                     }
                 });
-    }
 
+    }
 }

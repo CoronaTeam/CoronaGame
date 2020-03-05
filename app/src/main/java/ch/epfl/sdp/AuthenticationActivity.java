@@ -4,9 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,33 +17,27 @@ import com.google.android.gms.tasks.Task;
 
 /**
  *  AuthenticationActivity : handling the signIn process via google play
- *
- *    -> this class is always triggered when beginning the app
+ *  @author lucas
  */
 public class AuthenticationActivity extends AppCompatActivity {
     public static final int RC_SIGN_IN = 0; //any number, but common for the app
     GoogleSignInClient googleSignInClient;
-    ImageView imageView;
-    TextView name,email,id;
-    Button signOut;
-
+    View signIn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authentication);
-
-       // imageView = findViewById(R.id.imageView);
-
+        signIn = findViewById(R.id.sign_in_button);
 
 
         // Configure sign-in to request the user's ID, email address, and basic
-// profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
         // Build a GoogleSignInClient with the options specified by gso.
         googleSignInClient = GoogleSignIn.getClient(this, gso);
-        findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener(){
+        signIn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
                 switch (v.getId()) {
@@ -72,13 +64,16 @@ public class AuthenticationActivity extends AppCompatActivity {
     private void updateUI(GoogleSignInAccount account) {
         if(account == null){
             //display the Google Sign-in button -> not yet registered
+            signIn.setVisibility(View.VISIBLE);
+            Toast.makeText(AuthenticationActivity.this,"I am in update UI Null !", Toast.LENGTH_LONG).show();
 
         }else{
             // hide the sign-in button, launch your main activity -> already registered
+            signIn.setVisibility(View.INVISIBLE);
             Intent intent = new Intent(AuthenticationActivity.this, AccountGettingActivity.class);// New activity
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); //clears this activity's stack
             startActivity(intent);
-            finish(); // Launches MainActivity
+            finish(); // Launches next Activity
         }
     }
 
@@ -111,7 +106,6 @@ public class AuthenticationActivity extends AppCompatActivity {
             updateUI(null);
         }
     }
-
 }
 
 

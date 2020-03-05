@@ -15,4 +15,7 @@
     <string name="download">Download</string>
     <string name="send">Send</string>
     <string name="enter_text">Enter text</string>
+    <string name="name">Name</string>
+    <string name="age">Age</string>
+    <string name="DocumentSnapshot_successfully_added">DocumentSnapshot successfully added</string>
 </resources>

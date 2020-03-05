@@ -18,10 +18,5 @@ public class MainActivityTest {
     @Rule
     public final ActivityTestRule<MainActivity> mActivityRule =
             new ActivityTestRule<>(MainActivity.class);
-    @Test
-    public void testCanGreetUsers() {
-        onView(withId(R.id.userIDText)).perform(typeText("from my unit test")).perform(closeSoftKeyboard());
-        onView(withId(R.id.launchButton)).perform(click());
-        // onView(withId(R.id.greetingMessage)).check(matches(withText("Hello from my unit test!")));
-    }
+
 }

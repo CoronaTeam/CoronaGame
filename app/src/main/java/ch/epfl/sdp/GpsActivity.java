@@ -45,6 +45,7 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
 
     private boolean updateLocationPermissions() {
         if (!hasLocationPermissions()) {
+            /* This is the correct implementation. Could not test it!
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                 // Need to explicitly ask for location permission
                 new AlertDialog.Builder(this)
@@ -68,6 +69,12 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         LOCATION_REQUEST_CODE);
             }
+             */
+            ActivityCompat.requestPermissions(
+                    GpsActivity.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_REQUEST_CODE);
+
             return false;
         } else {
             return true;
@@ -83,12 +90,6 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
                     MIN_UP_INTERVAL_MILLISECS,
                     MIN_UP_INTERVAL_METERS,
                     this);
-        }
-    }
-
-    private void unregisterLocationUpdates() {
-        if (hasLocationPermissions()) {
-            locationManager.removeUpdates(this);
         }
     }
 

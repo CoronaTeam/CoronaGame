@@ -47,6 +47,23 @@ tasks.withType(Test) {
     jacoco.excludes = ['jdk.internal.*']
 }
 
+def adb = android.getAdbExe().toString()
+tasks.whenTaskAdded { task ->
+    if (task.name.startsWith('jacocoDebug')) {
+        task.doLast {
+            android.applicationVariants.all { variant ->
+                "${adb} devices".execute().text.eachLine {
+                    if (it.endsWith("device")) {
+                        def device = it.split()[0]
+                        println "Granting test permissions on device ${device}\n"
+                        "${adb} shell appops set ${variant.applicationId} android:mock_location allow".execute()
+                    }
+                }
+            }
+        }
+    }
+}
+
 task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'createDebugCoverageReport']) {
 
     reports {

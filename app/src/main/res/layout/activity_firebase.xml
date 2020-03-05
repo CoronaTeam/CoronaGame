@@ -7,7 +7,7 @@
     tools:context=".FirebaseActivity">
 
     <TextView
-        android:id="@+id/TitleTextView"
+        android:id="@+id/FirebaseTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="55dp"

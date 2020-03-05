@@ -17,5 +17,6 @@ public class FirebaseActivity extends AppCompatActivity {
         Intent intent = getIntent();
     }
 
+    
 
 }

@@ -65,7 +65,6 @@ public class AuthenticationActivity extends AppCompatActivity {
         if(account == null){
             //display the Google Sign-in button -> not yet registered
             signIn.setVisibility(View.VISIBLE);
-            Toast.makeText(AuthenticationActivity.this,"I am in update UI Null !", Toast.LENGTH_LONG).show();
 
         }else{
             // hide the sign-in button, launch your main activity -> already registered

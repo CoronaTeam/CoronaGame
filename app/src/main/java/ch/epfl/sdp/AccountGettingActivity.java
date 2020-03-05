@@ -36,7 +36,6 @@ public class AccountGettingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account_getting);
 
-
         name = findViewById(R.id.name);
         email = findViewById(R.id.email);
         lastName = findViewById(R.id.lastName);
@@ -53,18 +52,20 @@ public class AccountGettingActivity extends AppCompatActivity {
                 }
             }
         });
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
+        getAndShowAccountInfo(GoogleSignIn.getLastSignedInAccount(this));
+
+    }
+
+    private void getAndShowAccountInfo(GoogleSignInAccount acct) {
         if (acct != null) {
             String personName = acct.getDisplayName();
-          //  String personGivenName = acct.getGivenName();
+            //  String personGivenName = acct.getGivenName();
             String personFamilyName = acct.getFamilyName();
             String personEmail = acct.getEmail();
-          //  String personId = acct.getId(); // Use this in order to uniquely identify people
+            //  String personId = acct.getId(); // Use this in order to uniquely identify people
             Uri personPhoto = acct.getPhotoUrl();
             name.setText(personName);
             lastName.setText(personFamilyName);
@@ -72,6 +73,7 @@ public class AccountGettingActivity extends AppCompatActivity {
             Glide.with(this).load(String.valueOf(personPhoto)).into(img);
         }
     }
+
     private void signOut() {
         mGoogleSignInClient.signOut()
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {

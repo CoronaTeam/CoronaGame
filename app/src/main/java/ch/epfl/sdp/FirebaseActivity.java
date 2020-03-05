@@ -1,6 +1,5 @@
 package ch.epfl.sdp;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -17,20 +16,19 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.common.net.InternetDomainName;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 public class FirebaseActivity extends AppCompatActivity {
     private static final String TAG = "FirebaseActivity";
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,9 +39,9 @@ public class FirebaseActivity extends AppCompatActivity {
         Intent intent = getIntent();
     }
 
-    public void addUser(View view){
+    public void addUser(View view) {
         final TextView outputView = findViewById(R.id.FirebaseUploadConfirmation);
-        if (isOnline()){
+        if (isOnline()) {
             //Create a new user with a first and last name
             Map<String, Object> user = new HashMap<>();
             user.put("Name", "Ada Lovelace");
@@ -72,9 +70,9 @@ public class FirebaseActivity extends AppCompatActivity {
 
     }
 
-    public void readData(View view){
+    public void readData(View view) {
         final TextView outputView = findViewById(R.id.FirebaseDownloadResult);
-        if(isOnline()){
+        if (isOnline()) {
             db.collection("Players")
                     .get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -90,7 +88,7 @@ public class FirebaseActivity extends AppCompatActivity {
                             }
                         }
                     });
-        }else{
+        } else {
             outputView.setText(R.string.Can_t_Download_Offline);
         }
 
@@ -102,15 +100,6 @@ public class FirebaseActivity extends AppCompatActivity {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         return (networkInfo != null && networkInfo.isConnected());
     }
-
-
-
-
-
-
-
-
-
 
 
 }

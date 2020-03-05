@@ -15,26 +15,27 @@ public class FirebaseActivityTest {
 
 
     @Test
-    public void testDetectNoInternetConnection(){
+    public void testDetectNoInternetConnection() {
 
     }
 
     @Test
-    public void testDataDownloadIsDisplayed(){
-
-    }
-    @Test
-    public void testHandleDataDownloadWithNoInternetConnection(){
+    public void testDataDownloadIsDisplayed() {
 
     }
 
     @Test
-    public void testDataIsCorrectlyUploaded(){
+    public void testHandleDataDownloadWithNoInternetConnection() {
 
     }
 
     @Test
-    public void testDataUploadIsDisplayed(){
+    public void testDataIsCorrectlyUploaded() {
+
+    }
+
+    @Test
+    public void testDataUploadIsDisplayed() {
 
     }
 

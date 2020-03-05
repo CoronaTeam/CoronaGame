@@ -7,7 +7,6 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 
 
-
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -20,7 +19,6 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, FirebaseActivity.class);
         startActivity(intent);
     }
-
 
 
 }

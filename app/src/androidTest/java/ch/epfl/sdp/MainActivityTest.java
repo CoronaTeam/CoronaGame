@@ -36,7 +36,7 @@ public class MainActivityTest {
     }
 
     @Test
-    public void testCanGoBackFromFirebaseActivity(){
+    public void testCanGoBackFromFirebaseActivity() {
         onView(withId(R.id.launchButton)).perform(click());
         ViewInteraction appCompatImageButton = onView(
                 allOf(withContentDescription("Navigate up"),
@@ -50,8 +50,6 @@ public class MainActivityTest {
         appCompatImageButton.perform(click());
         onView(withId(R.id.launchButton)).check(matches(isDisplayed()));
     }
-
-
 
 
     /*************************PRIVATE METHODS****************************/

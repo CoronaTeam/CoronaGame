@@ -8,9 +8,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.espresso.IdlingResource;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -24,6 +27,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 
 public class FirebaseActivity extends AppCompatActivity {
     private static final String TAG = "FirebaseActivity";
@@ -45,11 +49,12 @@ public class FirebaseActivity extends AppCompatActivity {
             //Create a new user with a first and last name
             Map<String, Object> user = new HashMap<>();
             user.put("Name", "Ada Lovelace");
-            user.put("Age", 19);
+            int age = new Random().nextInt();
+            user.put("Age", age);
             user.put("Infected", false);
 
             // Add a new document with a generated ID
-            db.collection("Users")
+            db.collection("Players")
                     .add(user)
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
@@ -73,7 +78,7 @@ public class FirebaseActivity extends AppCompatActivity {
     public void readData(View view) {
         final TextView outputView = findViewById(R.id.FirebaseDownloadResult);
         if (isOnline()) {
-            db.collection("Players")
+            db.collection("LastPositions")
                     .get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
@@ -97,9 +102,8 @@ public class FirebaseActivity extends AppCompatActivity {
     public boolean isOnline() {
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
+        assert connMgr != null;
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         return (networkInfo != null && networkInfo.isConnected());
     }
-
-
 }

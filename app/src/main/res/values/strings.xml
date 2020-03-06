@@ -20,4 +20,5 @@
     <string name="DocumentSnapshot_successfully_added">DocumentSnapshot successfully added</string>
     <string name="Can_t_Upload_Offline">Can\'t upload while offline</string>
     <string name="Can_t_Download_Offline">Can\'t download while offline</string>
+    <string name="error_unknown_error">Unknown error</string>
 </resources>

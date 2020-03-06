@@ -22,7 +22,7 @@
         android:id="@+id/userIDText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="323dp"
+        android:layout_marginTop="168dp"
         android:autofillHints=""
         android:ems="10"
         android:hint="@string/user_id"

@@ -29,10 +29,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 
+import static ch.epfl.sdp.MainActivity.IS_ONLINE;
+
 public class FirebaseActivity extends AppCompatActivity {
     private static final String TAG = "FirebaseActivity";
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,12 +46,12 @@ public class FirebaseActivity extends AppCompatActivity {
 
     public void addUser(View view) {
         final TextView outputView = findViewById(R.id.FirebaseUploadConfirmation);
-        if (isConnected()) {
+        if (IS_ONLINE) {
             //Create a new user with a first and last name
             Map<String, Object> user = new HashMap<>();
-            user.put("Name", "Ada Lovelace");
+            user.put("Name", "Bob Bobby");
             int age = new Random().nextInt();
-            user.put("Age", age);
+            user.put("Age", 23);
             user.put("Infected", false);
 
             // Add a new document with a generated ID
@@ -77,7 +78,7 @@ public class FirebaseActivity extends AppCompatActivity {
 
     public void readData(View view) {
         final TextView outputView = findViewById(R.id.FirebaseDownloadResult);
-        if (isConnected()) {
+        if (IS_ONLINE) {
             db.collection("LastPositions")
                     .get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -97,23 +98,5 @@ public class FirebaseActivity extends AppCompatActivity {
             outputView.setText(R.string.Can_t_Download_Offline);
         }
 
-    }
-
-    public boolean isOnline() {
-        ConnectivityManager connMgr = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
-        assert connMgr != null;
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        return (networkInfo != null && networkInfo.isConnected());
-    }
-
-    public boolean isConnected(){
-        ConnectivityManager cm =
-                (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        boolean isConnected = activeNetwork != null &&
-                activeNetwork.isConnectedOrConnecting();
-        return isConnected;
     }
 }

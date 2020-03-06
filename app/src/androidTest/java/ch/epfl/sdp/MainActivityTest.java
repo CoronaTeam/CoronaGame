@@ -32,12 +32,22 @@ public class MainActivityTest {
     @Test
     public void testCanGoToFirebaseActivity() {
         onView(withId(R.id.launchButton)).perform(click());
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         onView(withId(R.id.FirebaseTextView)).check(matches(isDisplayed()));
     }
 
     @Test
     public void testCanGoBackFromFirebaseActivity() {
         onView(withId(R.id.launchButton)).perform(click());
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         ViewInteraction appCompatImageButton = onView(
                 allOf(withContentDescription("Navigate up"),
                         childAtPosition(
@@ -48,6 +58,11 @@ public class MainActivityTest {
                                 1),
                         isDisplayed()));
         appCompatImageButton.perform(click());
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         onView(withId(R.id.launchButton)).check(matches(isDisplayed()));
     }
 

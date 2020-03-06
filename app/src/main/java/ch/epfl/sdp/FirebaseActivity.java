@@ -45,7 +45,7 @@ public class FirebaseActivity extends AppCompatActivity {
 
     public void addUser(View view) {
         final TextView outputView = findViewById(R.id.FirebaseUploadConfirmation);
-        if (isOnline()) {
+        if (isConnected()) {
             //Create a new user with a first and last name
             Map<String, Object> user = new HashMap<>();
             user.put("Name", "Ada Lovelace");
@@ -77,7 +77,7 @@ public class FirebaseActivity extends AppCompatActivity {
 
     public void readData(View view) {
         final TextView outputView = findViewById(R.id.FirebaseDownloadResult);
-        if (isOnline()) {
+        if (isConnected()) {
             db.collection("LastPositions")
                     .get()
                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -105,5 +105,15 @@ public class FirebaseActivity extends AppCompatActivity {
         assert connMgr != null;
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         return (networkInfo != null && networkInfo.isConnected());
+    }
+
+    public boolean isConnected(){
+        ConnectivityManager cm =
+                (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+        return isConnected;
     }
 }

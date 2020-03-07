@@ -17,6 +17,7 @@ import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.Log;
 
+import androidx.core.content.ContextCompat;
 import androidx.test.espresso.Espresso;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -60,24 +61,17 @@ public class FirebaseActivityTest {
 
     @Before
     public void setupMockFirebase(){
-        InstrumentationRegistry.getInstrumentation().getUiAutomation().executeShellCommand("appops set ch.epfl.sdp.test android:mock_internet allow");
-        InstrumentationRegistry.getInstrumentation().getUiAutomation().executeShellCommand("appops set ch.epfl.sdp android:mock_internet allow");
-
         String internetPermission = "android.permission.ACCESS_INTERNET";
-        if (mActivityRule.getActivity().getBaseContext().checkSelfPermission(internetPermission) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(mActivityRule.getActivity().getBaseContext(),
+                internetPermission) != PackageManager.PERMISSION_GRANTED) {
             Log.e("ABORT", "Aborting test -- not having internet permission!!!!");
         }
-
     }
 
     @Test
     public void testDataDownloadIsDisplayed() {
         onView(withId(R.id.FirebaseDownloadButton)).perform(click());
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        waitingForTravis();
         onView(withId(R.id.FirebaseDownloadResult)).check(matches(withText("User#000 => {Position=GeoPoint { latitude=0.0, longitude=0.0 }, Time=Timestamp(seconds=1583276400, nanoseconds=0)}")));
     }
 
@@ -89,11 +83,7 @@ public class FirebaseActivityTest {
     @Test
     public void testDataUploadIsDisplayed() {
         onView(withId(R.id.FirebaseUploadButton)).perform(click());
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        waitingForTravis();
         onView(withId(R.id.FirebaseUploadConfirmation)).check(matches(withText("DocumentSnapshot successfully added")));
     }
 
@@ -110,7 +100,6 @@ public class FirebaseActivityTest {
         IS_ONLINE = false;
         onView(withId(R.id.FirebaseDownloadButton)).perform(click());
         onView(withId(R.id.FirebaseDownloadResult)).check(matches(withText("Can't download while offline")));
-        IS_ONLINE = true;
     }
 
     @Test
@@ -126,5 +115,13 @@ public class FirebaseActivityTest {
     @After
     public void restoreOnline(){
         IS_ONLINE = true;
+    }
+
+    private void waitingForTravis() {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -1,19 +1,13 @@
 package ch.epfl.sdp;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.test.espresso.IdlingResource;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -42,6 +36,7 @@ public class FirebaseActivity extends AppCompatActivity {
 
         // Get the Intent that started this activity and extract the string
         Intent intent = getIntent();
+
     }
 
     public void addUser(View view) {
@@ -51,7 +46,7 @@ public class FirebaseActivity extends AppCompatActivity {
             Map<String, Object> user = new HashMap<>();
             user.put("Name", "Bob Bobby");
             int age = new Random().nextInt();
-            user.put("Age", 23);
+            user.put("Age", 24);
             user.put("Infected", false);
 
             // Add a new document with a generated ID
@@ -100,3 +95,4 @@ public class FirebaseActivity extends AppCompatActivity {
 
     }
 }
+

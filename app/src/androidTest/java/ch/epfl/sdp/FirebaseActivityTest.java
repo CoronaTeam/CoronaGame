@@ -10,7 +10,6 @@ import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -33,6 +32,7 @@ public class FirebaseActivityTest {
     public final ActivityTestRule<FirebaseActivity> mActivityRule =
             new ActivityTestRule<>(FirebaseActivity.class);
 
+
     @Before
     public void setupMockFirebase() {
         String internetPermission = "android.permission.ACCESS_INTERNET";
@@ -42,17 +42,16 @@ public class FirebaseActivityTest {
         }
     }
 
-    @Test @Ignore("Travis can't download from firebase")
+    @Test //@Ignore("Travis can't download from firebase")
     public void testDataDownloadIsDisplayed() {
         clickWaitAndCheckText(R.id.FirebaseDownloadButton,
                 R.id.FirebaseDownloadResult,
                 "User#000 => {Position=GeoPoint { latitude=0.0, longitude=0.0 }, Time=Timestamp(seconds=1583276400, nanoseconds=0)}",
-                4000);
+                10000);
     }
 
     @Test
     public void testDataIsCorrectlyUploaded() {
-
     }
 
     @Test

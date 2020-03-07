@@ -21,4 +21,5 @@
     <string name="Can_t_Upload_Offline">Can\'t upload while offline</string>
     <string name="Can_t_Download_Offline">Can\'t download while offline</string>
     <string name="error_unknown_error">Unknown error</string>
+    <string name="Error_adding_doc">Error adding the document</string>
 </resources>

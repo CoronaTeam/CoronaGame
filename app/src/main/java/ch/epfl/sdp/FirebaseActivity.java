@@ -1,5 +1,6 @@
 package ch.epfl.sdp;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,6 +29,7 @@ import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 public class FirebaseActivity extends AppCompatActivity {
     private static final String TAG = "FirebaseActivity";
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirestoreInteractor fs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,10 +38,25 @@ public class FirebaseActivity extends AppCompatActivity {
 
         // Get the Intent that started this activity and extract the string
         Intent intent = getIntent();
-
+        fs = new FirestoreInteractor(FirebaseFirestore.getInstance());
     }
 
-    public void addUser(View view) {
+
+    public void addUser1(View view){
+        final TextView outputView = findViewById(R.id.FirebaseUploadConfirmation);
+        if (IS_ONLINE) {
+            fs.addUser(new Callback() {
+                @Override
+                public void onCallback(String value) {
+                    outputView.setText(value);
+                }
+            });
+        } else {
+            outputView.setText(R.string.Can_t_Upload_Offline);
+        }
+    }
+
+    public void addUser2(View view) {
         final TextView outputView = findViewById(R.id.FirebaseUploadConfirmation);
         if (IS_ONLINE) {
             //Create a new user with a first and last name
@@ -61,7 +78,7 @@ public class FirebaseActivity extends AppCompatActivity {
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    outputView.setText("Error adding the document");
+                    outputView.setText(R.string.Error_adding_doc);
                     Log.w(TAG, "Error adding document", e);
                 }
             });

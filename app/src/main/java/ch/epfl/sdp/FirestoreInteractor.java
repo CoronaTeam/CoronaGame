@@ -1,31 +1,33 @@
 package ch.epfl.sdp;
 
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 
 import static android.content.ContentValues.TAG;
-import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 
 public class FirestoreInteractor {
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirebaseFirestore db;
 
-    public FirestoreInteractor(FirebaseFirestore firebaseFirestore){
+    public FirestoreInteractor(FirebaseFirestore firebaseFirestore) {
         db = firebaseFirestore;
     }
 
-    public void addUser(final Callback callback) {
+    public void addFirestoreUser(final Callback callback) {
         //Create a new user with a first and last name
         Map<String, Object> user = new HashMap<>();
         user.put("Name", "Bob Bobby");
@@ -39,19 +41,36 @@ public class FirestoreInteractor {
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
-                        callback.onCallback("Document snapshot successfully added");
+                        callback.onCallback("Document snapshot successfully added to firestore.");
                         Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                callback.onCallback("Error adding document");
+                callback.onCallback("Error adding document to firestore.");
                 Log.w(TAG, "Error adding document", e);
             }
         });
     }
 
-
+    public void readFirestoreData(final Callback callback) {
+        db.collection("LastPositions")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                                callback.onCallback(document.getId() + " => " + document.getData());
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                            }
+                        } else {
+                            callback.onCallback("Error getting firestone documents.");
+                            Log.w(TAG, "Error getting documents.", task.getException());
+                        }
+                    }
+                });
+    }
 
 
 }

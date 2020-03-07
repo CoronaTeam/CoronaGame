@@ -10,6 +10,7 @@ import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -42,7 +43,7 @@ public class FirebaseActivityTest {
         }
     }
 
-    @Test //@Ignore("Travis can't download from firebase")
+    @Test
     public void testDataDownloadIsDisplayed() {
         clickWaitAndCheckText(R.id.FirebaseDownloadButton,
                 R.id.FirebaseDownloadResult,
@@ -51,18 +52,14 @@ public class FirebaseActivityTest {
     }
 
     @Test
-    public void testDataIsCorrectlyUploaded() {
-    }
-
-    @Test
     public void testDataUploadIsDisplayed() {
         clickWaitAndCheckText(R.id.FirebaseUploadButton,
                 R.id.FirebaseUploadConfirmation,
-                "DocumentSnapshot successfully added",
-                4000);
+                "Document snapshot successfully added to firestore.",
+                5000);
     }
 
-    @Test
+    @Test @Ignore("Need to find how disable internet connection")
     public void testDetectNoInternetConnectionWhenUpload() {
         IS_ONLINE = false;
         clickWaitAndCheckText(R.id.FirebaseUploadButton,
@@ -71,7 +68,7 @@ public class FirebaseActivityTest {
                 0);
     }
 
-    @Test
+    @Test @Ignore("Need to find how disable internet connection")
     public void testDetectNoInternetConnectionWhenDownload() {
         IS_ONLINE = false;
         clickWaitAndCheckText(R.id.FirebaseDownloadButton,
@@ -80,13 +77,13 @@ public class FirebaseActivityTest {
                 0);
     }
 
-    @Test
-    public void testUploadHandleDatabaseError() {
+    @Test @Ignore("Not implemented")
+    public void testHandleUploadDatabaseError() {
 
 
     }
 
-    @Test
+    @Test @Ignore("Not implemented")
     public void testHandleDownloadDatabaseError() {
 
     }

@@ -42,7 +42,7 @@ public class FirebaseActivityTest {
         }
     }
 
-    @Test
+    @Test @Ignore("Travis can't download from firebase")
     public void testDataDownloadIsDisplayed() {
         clickWaitAndCheckText(R.id.FirebaseDownloadButton,
                 R.id.FirebaseDownloadResult,
@@ -72,7 +72,7 @@ public class FirebaseActivityTest {
                 0);
     }
 
-    @Test @Ignore("Travis can't download from firebase")
+    @Test
     public void testDetectNoInternetConnectionWhenDownload() {
         IS_ONLINE = false;
         clickWaitAndCheckText(R.id.FirebaseDownloadButton,

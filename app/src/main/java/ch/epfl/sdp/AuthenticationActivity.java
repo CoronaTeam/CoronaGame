@@ -16,7 +16,9 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
 /**
- *  AuthenticationActivity : handling the signIn process via google play
+ *  AuthenticationActivity : handling the signIn process via google play. This class will check if a user has been already logged in.
+ *                          If not, it displays the sign In button and if this latter is pressed, a window built by google is shown.
+ *                           Then, the class AccountGettingActivity manages the account information use.
  *  @author lucas
  */
 public class AuthenticationActivity extends AppCompatActivity {
@@ -106,5 +108,3 @@ public class AuthenticationActivity extends AppCompatActivity {
         }
     }
 }
-
-

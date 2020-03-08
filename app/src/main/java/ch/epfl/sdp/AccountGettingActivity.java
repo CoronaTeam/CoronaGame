@@ -21,7 +21,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 /**
- * Class AccounteGettingactivity
+ * Class AccounteGettingactivity : once logged in google, this class will be able to retrieve given user information.
  * @author lucas
  */
 public class AccountGettingActivity extends AppCompatActivity {
@@ -67,6 +67,7 @@ public class AccountGettingActivity extends AppCompatActivity {
             String personEmail = acct.getEmail();
             //  String personId = acct.getId(); // Use this in order to uniquely identify people
             Uri personPhoto = acct.getPhotoUrl();
+
             name.setText(personName);
             lastName.setText(personFamilyName);
             email.setText(personEmail);

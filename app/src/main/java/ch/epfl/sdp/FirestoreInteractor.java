@@ -20,14 +20,15 @@ import java.util.Random;
 
 import static android.content.ContentValues.TAG;
 
-public class FirestoreInteractor {
+public class FirestoreInteractor implements Firestore {
     private FirebaseFirestore db;
 
     public FirestoreInteractor(FirebaseFirestore firebaseFirestore) {
         db = firebaseFirestore;
     }
 
-    public void addFirestoreUser(final Callback callback) {
+    @Override
+    public void addFirestoreUser(final Callback<String> callback) {
         //Create a new user with a first and last name
         Map<String, Object> user = new HashMap<>();
         user.put("Name", "Bob Bobby");
@@ -47,13 +48,14 @@ public class FirestoreInteractor {
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                callback.onCallback("Error adding document to firestore.");
+                callback.onCallback("Error while adding document to firestore.");
                 Log.w(TAG, "Error adding document", e);
             }
         });
     }
 
-    public void readFirestoreData(final Callback callback) {
+    @Override
+    public void readFirestoreData(final Callback<String> callback) {
         db.collection("LastPositions")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {

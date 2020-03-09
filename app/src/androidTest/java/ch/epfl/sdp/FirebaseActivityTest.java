@@ -8,17 +8,12 @@ import androidx.core.content.ContextCompat;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
-import com.google.firebase.firestore.FirebaseFirestore;
-
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
-import static androidx.test.espresso.Espresso.onIdle;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -31,8 +26,6 @@ import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 public class FirebaseActivityTest {
 
     private ConnectivityManager cm;
-    public FirebaseFirestore mockFF = Mockito.mock(FirebaseFirestore.class);
-
 
     @Rule
     public GrantPermissionRule internetPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.INTERNET);
@@ -49,8 +42,6 @@ public class FirebaseActivityTest {
                 internetPermission) != PackageManager.PERMISSION_GRANTED) {
             Log.e("ABORT", "Aborting test -- not having internet permission!!!!");
         }
-
-
     }
 
     @Test
@@ -93,18 +84,13 @@ public class FirebaseActivityTest {
     }
 
     @Test
+    @Ignore("Not implemented")
     public void testHandleUploadDatabaseError() {
-        Mockito.when(mockFF.collection("players").add(null)).thenAnswer(new Answer<String>(){
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                throw new Exception();
-            }
-        });
     }
 
     @Test
+    @Ignore("Not implemented")
     public void testHandleDownloadDatabaseError() {
-
     }
 
 

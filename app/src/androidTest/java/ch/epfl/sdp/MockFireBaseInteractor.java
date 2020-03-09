@@ -20,10 +20,10 @@ import java.util.Random;
 
 import static android.content.ContentValues.TAG;
 
-public class FirestoreInteractor {
+public class MockFireBaseInteractor {
     private FirebaseFirestore db;
 
-    public FirestoreInteractor(FirebaseFirestore firebaseFirestore) {
+    public MockFireBaseInteractor(FirebaseFirestore firebaseFirestore) {
         db = firebaseFirestore;
     }
 

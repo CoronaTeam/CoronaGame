@@ -15,8 +15,7 @@ import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
 public class FirebaseActivity extends AppCompatActivity {
     private static final String TAG = "FirebaseActivity";
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private FirestoreInteractor fs;
-    private final TextView outputView = findViewById(R.id.FirebaseUploadConfirmation);
+    FirestoreInteractor fs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,11 +27,12 @@ public class FirebaseActivity extends AppCompatActivity {
         fs = new FirestoreInteractor(FirebaseFirestore.getInstance());
     }
 
-    public void demoUpload(View view) {
+    public void addUser1(View view) {
+        final TextView outputView = findViewById(R.id.FirebaseUploadConfirmation);
         checkNetworkStatus(this);
         if (IS_ONLINE) {
             outputView.setText("Uploading ...");
-            fs.addFirestoreUser(new Callback<String>() {
+            fs.addFirestoreUser(new Callback() {
                 @Override
                 public void onCallback(String value) {
                     outputView.setText(value);
@@ -43,11 +43,12 @@ public class FirebaseActivity extends AppCompatActivity {
         }
     }
 
-    public void demoDownload(View view) {
+    public void readData1(View view) {
+        final TextView outputView = findViewById(R.id.FirebaseDownloadResult);
         checkNetworkStatus(this);
         if (IS_ONLINE) {
             outputView.setText("Downloading ...");
-            fs.readFirestoreData(new Callback<String>() {
+            fs.readFirestoreData(new Callback() {
                 @Override
                 public void onCallback(String value) {
                     outputView.setText(value);

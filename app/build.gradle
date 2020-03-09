@@ -39,12 +39,6 @@ android {
             includeAndroidResources = true
         }
     }
-
-    compileOptions {
-        sourceCompatibility 1.8
-        targetCompatibility 1.8
-    }
-
 }
 
 dependencies {
@@ -62,8 +56,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-web:3.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-idling-resource:3.2.0'
     androidTestImplementation 'androidx.test:rules:1.2.0'
-    androidTestImplementation 'org.mockito:mockito-core:3.2.4'
-    testImplementation 'org.mockito:mockito-core:3.2.4'
 
 
     //Firebase SDK for Google Analytics

@@ -12,7 +12,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import static ch.epfl.sdp.MainActivity.IS_NETWORK_DEBUG;
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
+import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
 
 public class FirebaseActivity extends AppCompatActivity {
     private static final String TAG = "FirebaseActivity";
@@ -31,7 +33,7 @@ public class FirebaseActivity extends AppCompatActivity {
 
     public void addUser1(View view) {
         final TextView outputView = findViewById(R.id.FirebaseUploadConfirmation);
-        checkNetworkStatus();
+        checkNetworkStatus(this);
         if (IS_ONLINE) {
             outputView.setText("Uploading ...");
             fs.addFirestoreUser(new Callback() {
@@ -47,7 +49,7 @@ public class FirebaseActivity extends AppCompatActivity {
 
     public void readData1(View view) {
         final TextView outputView = findViewById(R.id.FirebaseDownloadResult);
-        checkNetworkStatus();
+        checkNetworkStatus(this);
         if (IS_ONLINE) {
             outputView.setText("Downloading ...");
             fs.readFirestoreData(new Callback() {
@@ -59,15 +61,6 @@ public class FirebaseActivity extends AppCompatActivity {
         } else {
             outputView.setText(R.string.Can_t_Download_Offline);
         }
-    }
-
-    public void checkNetworkStatus() {
-        ConnectivityManager cm =
-                (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
-        assert cm != null;
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        IS_ONLINE = (activeNetwork != null &&
-                activeNetwork.isConnectedOrConnecting());
     }
 }
 

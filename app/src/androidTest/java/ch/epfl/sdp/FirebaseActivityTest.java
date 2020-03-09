@@ -8,11 +8,17 @@ import androidx.core.content.ContextCompat;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -20,6 +26,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
+import static ch.epfl.sdp.MainActivity.IS_NETWORK_DEBUG;
 
 
 public class FirebaseActivityTest {
@@ -35,7 +42,7 @@ public class FirebaseActivityTest {
 
 
     @Before
-    public void setupMockFirebase() {
+    public void setup() {
         String internetPermission = "android.permission.ACCESS_INTERNET";
         if (ContextCompat.checkSelfPermission(mActivityRule.getActivity().getBaseContext(),
                 internetPermission) != PackageManager.PERMISSION_GRANTED) {
@@ -59,17 +66,20 @@ public class FirebaseActivityTest {
                 5000);
     }
 
-    @Test @Ignore("Need to find how disable internet connection")
+    @Test
     public void testDetectNoInternetConnectionWhenUpload() {
+        IS_NETWORK_DEBUG = true;
         IS_ONLINE = false;
         clickWaitAndCheckText(R.id.FirebaseUploadButton,
                 R.id.FirebaseUploadConfirmation,
                 "Can't upload while offline",
                 0);
+        IS_ONLINE = true;
     }
 
-    @Test @Ignore("Need to find how disable internet connection")
+    @Test
     public void testDetectNoInternetConnectionWhenDownload() {
+        IS_NETWORK_DEBUG = true;
         IS_ONLINE = false;
         clickWaitAndCheckText(R.id.FirebaseDownloadButton,
                 R.id.FirebaseDownloadResult,
@@ -77,20 +87,21 @@ public class FirebaseActivityTest {
                 0);
     }
 
-    @Test @Ignore("Not implemented")
+    @Test
+    @Ignore("Not implemented")
     public void testHandleUploadDatabaseError() {
-
-
     }
 
-    @Test @Ignore("Not implemented")
+    @Test
+    @Ignore("Not implemented")
     public void testHandleDownloadDatabaseError() {
-
     }
+
 
     @After
     public void restoreOnline() {
         IS_ONLINE = true;
+        IS_NETWORK_DEBUG = false;
     }
 
     private void clickWaitAndCheckText(int buttonID, int textID, String expectedText, int waitingTime) {

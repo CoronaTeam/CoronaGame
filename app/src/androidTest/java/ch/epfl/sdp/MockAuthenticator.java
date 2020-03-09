@@ -20,10 +20,10 @@ import java.util.Random;
 
 import static android.content.ContentValues.TAG;
 
-public class FirestoreInteractor {
+public class MockAuthenticator {
     private FirebaseFirestore db;
 
-    public FirestoreInteractor(FirebaseFirestore firebaseFirestore) {
+    public MockAuthenticator(FirebaseFirestore firebaseFirestore) {
         db = firebaseFirestore;
     }
 
@@ -55,22 +55,20 @@ public class FirestoreInteractor {
 
     public void readFirestoreData(final Callback callback) {
         db.collection("LastPositions")
-            .get()
-            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                            callback.onCallback(document.getId() + " => " + document.getData());
-                            Log.d(TAG, document.getId() + " => " + document.getData());
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                                callback.onCallback(document.getId() + " => " + document.getData());
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                            }
+                        } else {
+                            callback.onCallback("Error getting firestone documents.");
+                            Log.w(TAG, "Error getting documents.", task.getException());
                         }
-                    } else {
-                        callback.onCallback("Error getting firestone documents.");
-                        Log.w(TAG, "Error getting documents.", task.getException());
                     }
-                }
-            });
+                });
     }
-
-
 }

@@ -8,25 +8,19 @@ import androidx.core.content.ContextCompat;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mock;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 import static ch.epfl.sdp.MainActivity.IS_NETWORK_DEBUG;
+import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 
 
 public class FirebaseActivityTest {
@@ -75,6 +69,7 @@ public class FirebaseActivityTest {
                 "Can't upload while offline",
                 0);
         IS_ONLINE = true;
+        IS_NETWORK_DEBUG = false;
     }
 
     @Test
@@ -85,6 +80,7 @@ public class FirebaseActivityTest {
                 R.id.FirebaseDownloadResult,
                 "Can't download while offline",
                 0);
+        IS_NETWORK_DEBUG = false;
     }
 
     @Test

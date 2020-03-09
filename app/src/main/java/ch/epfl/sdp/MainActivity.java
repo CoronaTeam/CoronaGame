@@ -1,6 +1,5 @@
 package ch.epfl.sdp;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -28,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static void checkNetworkStatus(AppCompatActivity activity) {
-        if (!IS_NETWORK_DEBUG){
+        if (!IS_NETWORK_DEBUG) {
             ConnectivityManager cm =
                     (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
             assert cm != null;

@@ -21,7 +21,10 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
 import static org.hamcrest.Matchers.allOf;
+import static ch.epfl.sdp.MainActivity.IS_NETWORK_DEBUG;
+import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 
 @RunWith(AndroidJUnit4.class)
 public class MainActivityTest {
@@ -65,6 +68,7 @@ public class MainActivityTest {
         }
         onView(withId(R.id.launchButton)).check(matches(isDisplayed()));
     }
+
 
 
     /*************************PRIVATE METHODS****************************/

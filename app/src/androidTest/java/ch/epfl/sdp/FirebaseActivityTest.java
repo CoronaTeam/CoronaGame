@@ -13,6 +13,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
+import org.mockito.quality.Strictness;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -21,14 +24,18 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static ch.epfl.sdp.MainActivity.IS_NETWORK_DEBUG;
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 
 
 public class FirebaseActivityTest {
 
     private ConnectivityManager cm;
 
+
     @Rule
-    public GrantPermissionRule internetPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.INTERNET);
+    public GrantPermissionRule internetPermissionRule =
+            GrantPermissionRule.grant(android.Manifest.permission.INTERNET);
 
     @Rule
     public final ActivityTestRule<FirebaseActivity> mActivityRule =
@@ -82,17 +89,6 @@ public class FirebaseActivityTest {
                 0);
         IS_NETWORK_DEBUG = false;
     }
-
-    @Test
-    @Ignore("Not implemented")
-    public void testHandleUploadDatabaseError() {
-    }
-
-    @Test
-    @Ignore("Not implemented")
-    public void testHandleDownloadDatabaseError() {
-    }
-
 
     @After
     public void restoreOnline() {

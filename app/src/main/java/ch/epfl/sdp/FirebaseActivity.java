@@ -25,6 +25,7 @@ public class FirebaseActivity extends AppCompatActivity {
         // Get the Intent that started this activity and extract the string
         Intent intent = getIntent();
         fs = new FirestoreInteractor(FirebaseFirestore.getInstance());
+
     }
 
     public void addUser1(View view) {
@@ -32,12 +33,7 @@ public class FirebaseActivity extends AppCompatActivity {
         checkNetworkStatus(this);
         if (IS_ONLINE) {
             outputView.setText("Uploading ...");
-            fs.addFirestoreUser(new Callback() {
-                @Override
-                public void onCallback(String value) {
-                    outputView.setText(value);
-                }
-            });
+            fs.writeDocument(outputView::setText);
         } else {
             outputView.setText(R.string.Can_t_Upload_Offline);
         }
@@ -48,12 +44,7 @@ public class FirebaseActivity extends AppCompatActivity {
         checkNetworkStatus(this);
         if (IS_ONLINE) {
             outputView.setText("Downloading ...");
-            fs.readFirestoreData(new Callback() {
-                @Override
-                public void onCallback(String value) {
-                    outputView.setText(value);
-                }
-            });
+            fs.readDocument(outputView::setText);
         } else {
             outputView.setText(R.string.Can_t_Download_Offline);
         }

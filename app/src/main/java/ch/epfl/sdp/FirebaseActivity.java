@@ -24,7 +24,14 @@ public class FirebaseActivity extends AppCompatActivity {
 
         // Get the Intent that started this activity and extract the string
         Intent intent = getIntent();
-        fs = new FirestoreInteractor(FirebaseFirestore.getInstance());
+        FirestoreWrapper wrapper;
+        if (intent.hasExtra("wrapper")){
+            wrapper = (FirestoreWrapper) intent.getSerializableExtra("wrapper");
+        }else{
+            wrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
+        }
+
+        fs = new FirestoreInteractor(wrapper);
 
     }
 

@@ -2,7 +2,6 @@ package ch.epfl.sdp;
 
 import android.util.Log;
 
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.HashMap;
@@ -12,10 +11,10 @@ import java.util.Objects;
 import static android.content.ContentValues.TAG;
 
 public class FirestoreInteractor implements Firestore {
-    private CoronaFirestore db;
+    private FirestoreWrapper db;
 
-    public FirestoreInteractor(CoronaFirestore coronaFirestoreFirestore) {
-        db = coronaFirestoreFirestore;
+    public FirestoreInteractor(FirestoreWrapper firestoreFirestoreWrapper) {
+        db = firestoreFirestoreWrapper;
     }
 
     //TODO: extend with arg map
@@ -35,7 +34,6 @@ public class FirestoreInteractor implements Firestore {
             Log.w(TAG, "Error adding document", e);
         });
     }
-
 
 
     public void readDocument(Callback callback) {

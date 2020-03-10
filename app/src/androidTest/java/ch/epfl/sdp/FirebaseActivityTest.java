@@ -1,5 +1,6 @@
 package ch.epfl.sdp;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.util.Log;
@@ -7,6 +8,13 @@ import android.util.Log;
 import androidx.core.content.ContextCompat;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import org.junit.After;
 import org.junit.Before;
@@ -16,6 +24,8 @@ import org.junit.Test;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.quality.Strictness;
+
+import java.util.Map;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -39,8 +49,14 @@ public class FirebaseActivityTest {
 
     @Rule
     public final ActivityTestRule<FirebaseActivity> mActivityRule =
-            new ActivityTestRule<>(FirebaseActivity.class);
-
+            new ActivityTestRule<FirebaseActivity>(FirebaseActivity.class) {
+                @Override
+                protected Intent getActivityIntent() {
+                    Intent testIntent = new Intent();
+                    testIntent.putExtra("wrapper", new MockFirestoreWrapper());
+                    return testIntent;
+                }
+            };
 
     @Before
     public void setup() {
@@ -107,6 +123,39 @@ public class FirebaseActivityTest {
             Thread.sleep(time);
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+    }
+
+    private class MockFirestoreWrapper implements FirestoreWrapper{
+
+        @Override
+        public <A, B> FirestoreWrapper add(Map<A, B> map) {
+            return null;
+        }
+
+        @Override
+        public FirestoreWrapper collection(String collectionPath) {
+            return null;
+        }
+
+        @Override
+        public FirestoreWrapper addOnSuccessListener(OnSuccessListener<? super DocumentReference> onSuccessListener) {
+            return null;
+        }
+
+        @Override
+        public FirestoreWrapper addOnFailureListener(OnFailureListener onFailureListener) {
+            return null;
+        }
+
+        @Override
+        public FirestoreWrapper addOnCompleteListener(OnCompleteListener<QuerySnapshot> onCompleteListener) {
+            return null;
+        }
+
+        @Override
+        public FirestoreWrapper get() {
+            return null;
         }
     }
 }

@@ -38,11 +38,11 @@ public class AccountGettingActivityTest {
     public void imageViewDoDisplayImage(){
         //onView(withId(R.id.imageView)).check(matches(withDrawable(new DrawableMatcher(User.default_uri))));
         ImageView contentImage = mActivityRule.getActivity().findViewById(R.id.imageView);
-        customWait(1000);
+        customWait(5000);
         assertNotNull(contentImage.getDrawable());  //checking that the image is not null is sufficient
     }
 
-    private void customWait(int i) {
+    private void customWait(int i) { // this function is to be replaced with a better one
         int k =0;
         while(k<i){
             k+=1;
@@ -54,6 +54,7 @@ public class AccountGettingActivityTest {
         onView(withId(R.id.button_sign_out)).perform(click());
         assertSame(getActivity().getClass(),AuthenticationActivity.class);
     }
+    //found on the internet for getting activities
     public static Activity getActivity() {
         try {
             Class activityThreadClass = Class.forName("android.app.ActivityThread");

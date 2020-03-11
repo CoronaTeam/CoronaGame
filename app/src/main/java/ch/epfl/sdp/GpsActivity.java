@@ -42,28 +42,32 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         locationBroker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, this);
     }
 
+    private void displayNewLocation(Location newLocation) {
+        latitudeBox.setText(String.valueOf(newLocation.getLatitude()), TextView.BufferType.SPANNABLE);
+        longitudeBox.setText(String.valueOf(newLocation.getLongitude()), TextView.BufferType.SPANNABLE);
+
+        if (prevLocation == null) {
+            prevLocation = newLocation;
+        }
+
+        double differenceThreshold = 0.0001;
+        if (Math.abs(newLocation.getLatitude() - prevLocation.getLatitude()) > differenceThreshold ||
+                Math.abs(newLocation.getLongitude() - prevLocation.getLongitude()) > differenceThreshold) {
+            prevLocation = newLocation;
+            Calendar now = Calendar.getInstance();
+            trackerAdapter.insert(String.format("Last seen on %d:%d:%d @ %f, %f",
+                    now.get(Calendar.HOUR_OF_DAY),
+                    now.get(Calendar.MINUTE),
+                    now.get(Calendar.SECOND),
+                    newLocation.getLatitude(),
+                    newLocation.getLongitude()), 0);
+        }
+    }
+
     @Override
     public void onLocationChanged(Location location) {
         if (locationBroker.hasPermissions(GPS)) {
-            latitudeBox.setText(String.valueOf(location.getLatitude()), TextView.BufferType.SPANNABLE);
-            longitudeBox.setText(String.valueOf(location.getLongitude()), TextView.BufferType.SPANNABLE);
-
-            if (prevLocation == null) {
-                prevLocation = location;
-            }
-
-            double differenceThreshold = 0.0001;
-            if (Math.abs(location.getLatitude() - prevLocation.getLatitude()) > differenceThreshold ||
-                    Math.abs(location.getLongitude() - prevLocation.getLongitude()) > differenceThreshold) {
-                prevLocation = location;
-                Calendar now = Calendar.getInstance();
-                trackerAdapter.insert(String.format("Last seen on %d:%d:%d @ %f, %f",
-                        now.get(Calendar.HOUR_OF_DAY),
-                        now.get(Calendar.MINUTE),
-                        now.get(Calendar.SECOND),
-                        location.getLatitude(),
-                        location.getLongitude()), 0);
-            }
+            displayNewLocation(location);
         } else {
             Toast.makeText(this, "Missing permission", Toast.LENGTH_LONG).show();
         }

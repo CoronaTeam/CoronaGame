@@ -37,7 +37,8 @@ public class AccountGettingActivityTest {
     @Test
     public void imageViewDoDisplayImage(){
         //onView(withId(R.id.imageView)).check(matches(withDrawable(new DrawableMatcher(User.default_uri))));
-        ImageView contentImage = mActivityRule.getActivity().findViewById(R.id.imageView);
+
+        ImageView contentImage = getActivity().findViewById(R.id.imageView);
         customWait(5000);
         assertNotNull(contentImage.getDrawable());  //checking that the image is not null is sufficient
     }

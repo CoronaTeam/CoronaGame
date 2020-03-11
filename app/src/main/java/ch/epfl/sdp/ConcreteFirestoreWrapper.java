@@ -3,7 +3,10 @@ package ch.epfl.sdp;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -11,40 +14,54 @@ import java.util.Map;
 
 public class ConcreteFirestoreWrapper implements FirestoreWrapper {
 
-    private final FirebaseFirestore fbfs;
+    private final FirebaseFirestore firebaseFirestore;
+    private String collectionPath;
+    private CollectionReference collectionReference;
+    private Task<DocumentReference> documentReferenceTask;
+    private Task<QuerySnapshot> querySnapshotTask;
+    private DocumentReference documentReference;
 
 
-    public ConcreteFirestoreWrapper(FirebaseFirestore realFF) {
-        fbfs = realFF;
+    public ConcreteFirestoreWrapper(FirebaseFirestore realFirestone) {
+        firebaseFirestore = realFirestone;
+    }
+
+    @Override
+    public FirestoreWrapper collection(String newCollectionPath) {
+        this.collectionPath = newCollectionPath;
+        this.collectionReference = firebaseFirestore.collection(newCollectionPath);
+        return this;
     }
 
     @Override
     public <A, B> FirestoreWrapper add(Map<A, B> map) {
-        return null;
-    }
-
-    @Override
-    public FirestoreWrapper collection(String collectionPath) {
-        return null;
+        this.documentReferenceTask = collectionReference.add(map);
+        return this;
     }
 
     @Override
     public FirestoreWrapper addOnSuccessListener(OnSuccessListener<? super DocumentReference> onSuccessListener) {
-        return null;
+        documentReferenceTask.addOnSuccessListener(onSuccessListener);
+        return this;
     }
 
     @Override
     public FirestoreWrapper addOnFailureListener(OnFailureListener onFailureListener) {
-        return null;
+        documentReferenceTask.addOnFailureListener(onFailureListener);
+        return this;
     }
 
     @Override
     public FirestoreWrapper addOnCompleteListener(OnCompleteListener<QuerySnapshot> onCompleteListener) {
-        return null;
+        querySnapshotTask.addOnCompleteListener(onCompleteListener);
+        return this;
     }
+
 
     @Override
     public FirestoreWrapper get() {
-        return null;
+        this.querySnapshotTask = collectionReference.get();
+        return this;
     }
+
 }

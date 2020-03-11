@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class FirestoreInteractorTest {
+public class ConcreteFirestoreInteractorInteractorTest {
 
 
     private class MockFirestoreWrapper implements FirestoreWrapper{
@@ -50,7 +50,7 @@ public class FirestoreInteractorTest {
     }
 
 
-    private Firestore mockFSI = new FirestoreInteractor(new MockFirestoreWrapper());
+    private FirestoreInteractor mockFSI = new ConcreteFirestoreInteractor(new MockFirestoreWrapper());
     private Map<String, Object> user = new HashMap<>();
 
     private void init() {

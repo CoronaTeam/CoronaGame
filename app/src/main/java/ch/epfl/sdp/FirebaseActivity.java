@@ -14,8 +14,7 @@ import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
 
 public class FirebaseActivity extends AppCompatActivity {
     private static final String TAG = "FirebaseActivity";
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    FirestoreInteractor fs;
+    ConcreteFirestoreInteractor fs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,8 +29,7 @@ public class FirebaseActivity extends AppCompatActivity {
         }else{
             wrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
         }
-
-        fs = new FirestoreInteractor(wrapper);
+        fs = new ConcreteFirestoreInteractor(wrapper);
 
     }
 

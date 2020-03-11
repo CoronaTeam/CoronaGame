@@ -2,14 +2,13 @@ package ch.epfl.sdp;
 
 import android.net.Uri;
 
-import ch.epfl.sdp.Account;
-
 public class User implements Account {
     public static String DEFAULT_DISPLAY_NAME = "MyDisplayName";
     public static String DEFAULT_FAMILY_NAME = "MyFamilyName";
     public static String DEFAULT_EMAIL = "MyEmal@epfl.ch";
    // public static String url_string = "https://pbs.twimg.com/profile_images/1173987553885556736/WuLwZF3C_400x400.jpg";
-    public static Uri DEFAULT_URI = Uri.parse("https://pbs.twimg.com/profile_images/1173987553885556736/WuLwZF3C_400x400.jpg");
+    public static Uri DEFAULT_URI = Uri.parse("https://i.pinimg.com/236x/51/bf/9c/51bf9c7fdf0d4303140c4949afd1d7b8--baby-kitty-little-kitty.jpg");
+     //      Uri.parse("https://pbs.twimg.com/profile_images/1173987553885556736/WuLwZF3C_400x400.jpg");
     String displayName;
     String familyName;
     String email;

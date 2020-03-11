@@ -56,14 +56,21 @@ public class AccountGettingActivity extends AppCompatActivity {
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
+        showAccountOrCreateAGenericOneForTesting(acct);
+    }
+
+    /*
+    Thank's to this method, the method onCreate is less than 25 lines long ! Thank you CodeClimate :)
+    PS: this method will only be accessed with a null account if we are in test mode.
+    @requires : test mode OR account non-null.
+     */
+    private void showAccountOrCreateAGenericOneForTesting(GoogleSignInAccount acct) {
         if(acct == null){
-            User u = new User();//;
+            User u = new User();//generic test user
             getAndShowAccountInfo(new AccountFactory(u));
         }else{
             getAndShowAccountInfo(new AccountFactory(acct));
         }
-
-
     }
 
     private void getAndShowAccountInfo(Account acct) {

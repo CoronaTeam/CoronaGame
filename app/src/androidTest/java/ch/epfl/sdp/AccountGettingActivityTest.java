@@ -33,14 +33,20 @@ public class AccountGettingActivityTest {
         onView(withId(R.id.email)).check(matches(withText(User.DEFAULT_EMAIL)));
 
         // assertTrue(onView(withId(R.id.name)).toString().equals(User.default_display_Name));
-
-
     }
     @Test
     public void imageViewDoDisplayImage(){
         //onView(withId(R.id.imageView)).check(matches(withDrawable(new DrawableMatcher(User.default_uri))));
         ImageView contentImage = mActivityRule.getActivity().findViewById(R.id.imageView);
+        customWait(1000);
         assertNotNull(contentImage.getDrawable());  //checking that the image is not null is sufficient
+    }
+
+    private void customWait(int i) {
+        int k =0;
+        while(k<i){
+            k+=1;
+        }
     }
 
     @Test

@@ -55,11 +55,18 @@ public class AccountGettingActivity extends AppCompatActivity {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        getAndShowAccountInfo(GoogleSignIn.getLastSignedInAccount(this));
+        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
+        if(acct == null){
+            User u = new User();//;
+            getAndShowAccountInfo(new AccountFactory(u));
+        }else{
+            getAndShowAccountInfo(new AccountFactory(acct));
+        }
+
 
     }
 
-    private void getAndShowAccountInfo(GoogleSignInAccount acct) {
+    private void getAndShowAccountInfo(Account acct) {
         if (acct != null) {
             String personName = acct.getDisplayName();
             //  String personGivenName = acct.getGivenName();
@@ -72,6 +79,7 @@ public class AccountGettingActivity extends AppCompatActivity {
             lastName.setText(personFamilyName);
             email.setText(personEmail);
             Glide.with(this).load(String.valueOf(personPhoto)).into(img);
+
         }
     }
 

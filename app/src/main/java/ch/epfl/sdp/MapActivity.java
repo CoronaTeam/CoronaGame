@@ -103,4 +103,8 @@ public class MapActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
     }
+
+    protected void OnDidFinishLoadingMapListener(MapView.OnDidFinishLoadingMapListener listener){
+        mapView.addOnDidFinishLoadingMapListener(listener);
+    }
 }

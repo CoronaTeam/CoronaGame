@@ -1,5 +1,6 @@
 package ch.epfl.sdp;
 
+import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 
@@ -22,7 +23,8 @@ public class MainActivityTest {
     public void dummyTest() {
         System.out.println("hello");
         //onView(withId(R.id.userIDText)).perform(typeText("from my unit test")).perform(closeSoftKeyboard());
-        //onView(withId(R.id.launchButton)).perform(click());
+        onView(withId(R.id.launchButton)).perform(click());
+        Espresso.pressBack();
         // onView(withId(R.id.greetingMessage)).check(matches(withText("Hello from my unit test!")));
     }
 }

@@ -1,89 +1,98 @@
 package ch.epfl.sdp;
 
-import android.Manifest;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.SystemClock;
-import android.util.Log;
 
-import androidx.test.espresso.Espresso;
-import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collections;
+import org.junit.rules.ExpectedException;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.pressBack;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
-import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.core.IsNot.not;
+import static ch.epfl.sdp.LocationBroker.Provider.GPS;
+import static ch.epfl.sdp.LocationBroker.Provider.NETWORK;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 
 public class GpsActivityTest {
 
-    private LocationManager lm;
-
     @Rule
     public final ActivityTestRule<GpsActivity> mActivityRule =
-            new ActivityTestRule<>(GpsActivity.class);
+            new ActivityTestRule<>(GpsActivity.class, true, false);
 
     @Rule
     public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
 
-    @Before
-    public void setupMockLocation()  {
-
-        InstrumentationRegistry.getInstrumentation().getUiAutomation().executeShellCommand("appops set ch.epfl.sdp.test android:mock_location allow");
-        InstrumentationRegistry.getInstrumentation().getUiAutomation().executeShellCommand("appops set ch.epfl.sdp android:mock_location allow");
+    @Rule
+    public ExpectedException illegalArgument = ExpectedException.none();
 
 
-        String locationPermission = "android.permission.ACCESS_FINE_LOCATION";
-        if (mActivityRule.getActivity().getBaseContext().checkSelfPermission(locationPermission) != PackageManager.PERMISSION_GRANTED) {
-            Log.e("ABORT", "Aborting test -- not having permission!!!!");
-            onView(withText(startsWith("Yes"))).perform(click());
-            onView(withText("ALLOW")).perform(click());
+    private class MockBroker implements LocationBroker {
+        LocationListener listeners = null;
+
+        Location fakeLocation;
+        boolean fakeStatus = true;
+
+        void setFakeLocation(Location location) throws Throwable {
+            fakeLocation = location;
+            mActivityRule.runOnUiThread(() ->listeners.onLocationChanged(location));
         }
 
-        lm = (LocationManager) mActivityRule.getActivity().getSystemService(Context.LOCATION_SERVICE);
-        assert lm != null;
+        void setProviderStatus(boolean status) throws Throwable {
+            fakeStatus = status;
+            if (listeners != null) {
+                if (fakeStatus) {
+                    mActivityRule.runOnUiThread(() -> listeners.onProviderEnabled(LocationManager.GPS_PROVIDER));
+                } else {
+                    mActivityRule.runOnUiThread(() -> listeners.onProviderDisabled(LocationManager.GPS_PROVIDER));
+                }
+            }
+        }
 
-        lm.addTestProvider(
-                LocationManager.GPS_PROVIDER,
-                false,
-                false,
-                false,
-                false,
-                true,
-                true,
-                true,
-                0,
-                1);
+        @Override
+        public boolean isProviderEnabled(Provider provider) {
+            return fakeStatus;
+        }
 
-        lm.setTestProviderEnabled(LocationManager.GPS_PROVIDER, true);
-    }
+        @Override
+        public boolean requestLocationUpdates(Provider provider, long minTimeDelay, float minSpaceDist, LocationListener listener) {
+            if (provider == GPS) {
+                listeners = listener;
+            }
+            return true;
+        }
 
-    @After
-    public void disableMockLocation() {
-        lm.removeTestProvider(LocationManager.GPS_PROVIDER);
+        @Override
+        public void removeUpdates(LocationListener listener) {
+            listeners = null;
+        }
+
+        @Override
+        public Location getLastKnownLocation(Provider provider) {
+            return fakeLocation;
+        }
+
+        @Override
+        public boolean hasPermissions(Provider provider) {
+            return true;
+        }
+
+        @Override
+        public void requestPermissions(int requestCode) {
+            // Trivial since always has permissions
+        }
     }
 
     @TargetApi(17)
@@ -101,10 +110,17 @@ public class GpsActivityTest {
         return l;
     }
 
-    @Test
-    public void locationIsUpdated() throws InterruptedException {
+    private void startActivityWithBroker(LocationBroker br) {
+        mActivityRule.launchActivity(new Intent());
+        mActivityRule.getActivity().setLocationBroker(br);
+    }
 
-        lm.setTestProviderEnabled(LocationManager.GPS_PROVIDER, true);
+    @Test
+    public void locationIsUpdated() throws Throwable {
+        MockBroker mockBroker = new MockBroker();
+        startActivityWithBroker(mockBroker);
+
+        mockBroker.setProviderStatus(true);
 
         double currLatitude, currLongitude;
         currLatitude = 46.5188;
@@ -114,40 +130,87 @@ public class GpsActivityTest {
             double variation = Math.random() * .1;
             if (Math.random() < .5) {
                 currLatitude += variation;
+                currLatitude = Math.floor(currLatitude * 100)/100;
             } else {
                 currLongitude += variation;
+                currLongitude = Math.floor(currLongitude * 100)/100;
             }
-            lm.setTestProviderLocation(LocationManager.GPS_PROVIDER, buildLocation(currLatitude, currLongitude));
+            mockBroker.setFakeLocation(buildLocation(currLatitude, currLongitude));
             Thread.sleep(1000);
-            onView(withId(R.id.gpsLatitude)).check(matches(withText(startsWith(Double.toString(Math.floor(currLatitude * 100)/100)))));
-            onView(withId(R.id.gpsLongitude)).check(matches(withText(startsWith(Double.toString(Math.floor(currLongitude * 100)/100)))));
+            onView(withId(R.id.gpsLatitude)).check(matches(withText(startsWith(Double.toString(currLatitude)))));
+            onView(withId(R.id.gpsLongitude)).check(matches(withText(startsWith(Double.toString(currLongitude)))));
         }
     }
 
     @Test
-    public void changesInSignalProviderAreDetected() throws InterruptedException {
-        lm.setTestProviderEnabled(LocationManager.GPS_PROVIDER, false);
-        Log.e("[TEST]", "Disabled location");
-        Thread.sleep(1000);
+    public void detectsLackOfSignal() throws Throwable {
+        MockBroker withoutSignal = new MockBroker() {
+
+            @Override
+            public void setProviderStatus(boolean status) throws Throwable {
+                super.setProviderStatus(false);
+            }
+
+            @Override
+            public boolean isProviderEnabled(Provider provider) {
+                return false;
+            }
+        };
+        startActivityWithBroker(withoutSignal);
+
+        withoutSignal.setProviderStatus(false);
+
+        onView(withId(R.id.gpsLatitude)).check(matches(withText(startsWith("Missing GPS signal"))));
+    }
+
+
+    @Test
+    public void UiReactsWhenSwitchingGps() throws Throwable {
+        MockBroker mockBroker = new MockBroker();
+        startActivityWithBroker(mockBroker);
+
+        mockBroker.setProviderStatus(false);
         onView(withId(R.id.gpsLatitude)).check(matches(withText(startsWith("Missing GPS signal"))));
 
-        lm.setTestProviderEnabled(LocationManager.GPS_PROVIDER, true);
-        lm.setTestProviderLocation(LocationManager.GPS_PROVIDER, buildLocation(12, 19));
-        Thread.sleep(1000);
-        onView(withId(R.id.gpsLatitude)).check(matches(withText(not(startsWith("Missing GPS signal")))));
+        mockBroker.setProviderStatus(true);
+        mockBroker.setFakeLocation(buildLocation(12, 19));
+        onView(withId(R.id.gpsLatitude)).check(matches(withText(startsWith(Double.toString(12)))));
+        onView(withId(R.id.gpsLongitude)).check(matches(withText(startsWith(Double.toString(19)))));
     }
 
     @Test
-    public void reactionWhenEnabled() {
-        lm.setTestProviderEnabled(LocationManager.GPS_PROVIDER, true);
-        mActivityRule.getActivity().onProviderEnabled("something else");
+    public void asksForPermissions() throws Throwable {
+        Boolean asked = false;
+        MockBroker withoutPermissions = new MockBroker() {
+            private boolean fakePermissions = false;
+            @Override
+            public boolean hasPermissions(Provider provider) {
+                return fakePermissions;
+            }
+
+            @Override
+            public void requestPermissions(int requestCode) {
+                fakePermissions = true;
+                ((AppCompatActivity) listeners).onRequestPermissionsResult(requestCode, new String[]{"GPS"}, new int[]{PackageManager.PERMISSION_GRANTED});
+            }
+        };
+        startActivityWithBroker(withoutPermissions);
+
+        withoutPermissions.setProviderStatus(true);
+        withoutPermissions.setFakeLocation(buildLocation(2, 3));
+
+        onView(withId(R.id.gpsLatitude)).check(matches(withText(startsWith(Double.toString(2)))));
+        onView(withId(R.id.gpsLongitude)).check(matches(withText(startsWith(Double.toString(3)))));
     }
 
     @Test
-    public void canRefreshPermissions() throws InterruptedException {
-        lm.setTestProviderEnabled(LocationManager.GPS_PROVIDER, false);
-        mActivityRule.getActivity().onRequestPermissionsResult(2020, new String[]{"gps"}, new int[]{PackageManager.PERMISSION_GRANTED});
-        Thread.sleep(1000);
-        onView(withId(R.id.gpsLatitude)).check(matches(withText(startsWith("Missing GPS signal"))));
+    public void concreteBrokerFailsPermissionsTest() {
+        mActivityRule.launchActivity(new Intent());
+
+        ConcreteLocationBroker concreteBroker = new ConcreteLocationBroker(
+                (LocationManager) mActivityRule.getActivity().getSystemService(Context.LOCATION_SERVICE), mActivityRule.getActivity());
+
+        illegalArgument.expect(IllegalArgumentException.class);
+        concreteBroker.hasPermissions(NETWORK);
     }
 }

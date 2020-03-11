@@ -22,37 +22,41 @@ public class FirebaseActivity extends AppCompatActivity {
         setContentView(R.layout.activity_firebase);
 
         // Get the Intent that started this activity and extract the string
-        Intent intent = getIntent();
         FirestoreWrapper wrapper;
-        if (intent.hasExtra("wrapper")){
+        Intent intent = getIntent();
+        if (intent.hasExtra("wrapper")) {
             wrapper = (FirestoreWrapper) intent.getSerializableExtra("wrapper");
-        }else{
+        } else {
             wrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
         }
         fs = new ConcreteFirestoreInteractor(wrapper);
 
     }
 
-    public void addUser1(View view) {
-        final TextView outputView = findViewById(R.id.FirebaseUploadConfirmation);
+    public void addUser(View view) {
+        databaseOperation(R.id.FirebaseUploadConfirmation, R.string.uploading,
+                R.string.Can_t_Upload_Offline, e -> fs.writeDocument(e::setText));
+    }
+
+    public void readData(View view) {
+        databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
+                R.string.Can_t_Download_Offline, e -> fs.readDocument(e::setText));
+    }
+
+    private void databaseOperation(int outputViewID, int duringOperation,
+                                   int offlineMessage, Operation op) {
+        final TextView outputView = findViewById(outputViewID);
         checkNetworkStatus(this);
         if (IS_ONLINE) {
-            outputView.setText("Uploading ...");
-            fs.writeDocument(outputView::setText);
+            outputView.setText(duringOperation);
+            op.apply(outputView);
         } else {
-            outputView.setText(R.string.Can_t_Upload_Offline);
+            outputView.setText(offlineMessage);
         }
     }
 
-    public void readData1(View view) {
-        final TextView outputView = findViewById(R.id.FirebaseDownloadResult);
-        checkNetworkStatus(this);
-        if (IS_ONLINE) {
-            outputView.setText("Downloading ...");
-            fs.readDocument(outputView::setText);
-        } else {
-            outputView.setText(R.string.Can_t_Download_Offline);
-        }
+    interface Operation {
+        void apply(TextView output);
     }
 }
 

@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class ConcreteFirestoreInteractorInteractorTest {
+public class ConcreteFirestoreInteractorTest {
 
 
     private class MockFirestoreWrapper implements FirestoreWrapper{

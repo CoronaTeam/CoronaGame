@@ -22,4 +22,6 @@
     <string name="Can_t_Download_Offline">Can\'t download while offline</string>
     <string name="error_unknown_error">Unknown error</string>
     <string name="Error_adding_doc">Error adding the document</string>
+    <string name="uploading">Uploading ...</string>
+    <string name="downloading">Downloading ...</string>
 </resources>

@@ -1,10 +1,12 @@
 package ch.epfl.sdp;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.util.Log;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
@@ -127,6 +129,8 @@ public class FirebaseActivityTest {
     }
 
     private class MockFirestoreWrapper implements FirestoreWrapper{
+
+
 
         @Override
         public <A, B> FirestoreWrapper add(Map<A, B> map) {

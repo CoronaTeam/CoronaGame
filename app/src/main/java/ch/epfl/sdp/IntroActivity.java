@@ -16,39 +16,67 @@ public class IntroActivity extends AppIntro2 {
     private static int TITLE_COLOR = Color.rgb(0, 0, 0);
     private static int DESC_COLOR = Color.rgb(30, 30, 30);
 
+    private static class Slide {
+        final String title, description;
+        final int drawable;
+        final int backgroundColor, titleColor, descriptionColor;
+
+        Slide(
+                String title, String description,
+                int drawable,
+                int backgroundColor, int titleColor, int descriptionColor
+        ) {
+            this.title = title;
+            this.description = description;
+            this.drawable = drawable;
+            this.backgroundColor = backgroundColor;
+            this.titleColor = titleColor;
+            this.descriptionColor = descriptionColor;
+        }
+    }
+
+    private static Slide[] slides = {
+            new Slide(
+                    "Page 1",
+                    "Description 1",
+                    R.drawable.ic_launcher_foreground,
+                    BG_COLOR,
+                    TITLE_COLOR,
+                    DESC_COLOR
+            ),
+            new Slide(
+                    "Page 2",
+                    "Description 2",
+                    R.drawable.ic_launcher_foreground,
+                    BG_COLOR,
+                    TITLE_COLOR,
+                    DESC_COLOR
+            ),
+            new Slide(
+                    "Page 3",
+                    "Description 3",
+                    R.drawable.ic_launcher_foreground,
+                    BG_COLOR,
+                    TITLE_COLOR,
+                    DESC_COLOR
+            )
+    };
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        addSlide(AppIntro2Fragment.newInstance(
-                "Page 1",
-                "Description 1",
-                R.drawable.ic_launcher_foreground,
-                BG_COLOR,
-                TITLE_COLOR,
-                DESC_COLOR
-        ));
-
-        addSlide(AppIntro2Fragment.newInstance(
-                "Page 2",
-                "Description 2",
-                R.drawable.ic_launcher_foreground,
-                BG_COLOR,
-                TITLE_COLOR,
-                DESC_COLOR
-        ));
-
-        addSlide(AppIntro2Fragment.newInstance(
-                "Page 3",
-                "Description 3",
-                R.drawable.ic_launcher_foreground,
-                BG_COLOR,
-                TITLE_COLOR,
-                DESC_COLOR
-        ));
-
+        for (Slide slide : slides) {
+            addSlide(AppIntro2Fragment.newInstance(
+                    slide.title,
+                    slide.description,
+                    slide.drawable,
+                    slide.backgroundColor,
+                    slide.titleColor,
+                    slide.descriptionColor
+            ));
+        }
         showSkipButton(false);
-
     }
 
     @Override

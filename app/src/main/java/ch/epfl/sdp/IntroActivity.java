@@ -39,7 +39,7 @@ public class IntroActivity extends AppIntro2 {
             new Slide(
                     "Page 1",
                     "Description 1",
-                    R.drawable.ic_launcher_foreground,
+                    R.drawable.one,
                     BG_COLOR,
                     TITLE_COLOR,
                     DESC_COLOR
@@ -47,7 +47,7 @@ public class IntroActivity extends AppIntro2 {
             new Slide(
                     "Page 2",
                     "Description 2",
-                    R.drawable.ic_launcher_foreground,
+                    R.drawable.two,
                     BG_COLOR,
                     TITLE_COLOR,
                     DESC_COLOR
@@ -55,7 +55,7 @@ public class IntroActivity extends AppIntro2 {
             new Slide(
                     "Page 3",
                     "Description 3",
-                    R.drawable.ic_launcher_foreground,
+                    R.drawable.three,
                     BG_COLOR,
                     TITLE_COLOR,
                     DESC_COLOR

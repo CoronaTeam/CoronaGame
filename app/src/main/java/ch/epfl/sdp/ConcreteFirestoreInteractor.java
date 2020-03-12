@@ -33,7 +33,7 @@ public class ConcreteFirestoreInteractor implements FirestoreInteractor {
                     Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
                 }).addOnFailureListener(e -> {
             callback.onCallback("Error adding document to firestore.");
-            Log.w(TAG, "Error adding document", e);
+            Log.w(TAG, "Error while adding document", e);
         });
     }
 

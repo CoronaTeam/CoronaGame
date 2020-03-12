@@ -14,9 +14,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
-    /** Called when the user taps the Send button */
+    /** Called when the user taps the DisplayMap button */
     public void setMapView(View view) {
         Intent intent = new Intent(this, MapActivity.class);
+        startActivity(intent);
+    }
+
+    /** Called when the user taps the DisplayGps button */
+    public void setGPSView(View view) {
+        Intent intent = new Intent(this, GpsActivity.class);
         startActivity(intent);
     }
 

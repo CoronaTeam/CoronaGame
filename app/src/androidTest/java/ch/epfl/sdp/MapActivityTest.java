@@ -2,7 +2,6 @@ package ch.epfl.sdp;
 
 import android.app.Activity;
 
-import androidx.lifecycle.Lifecycle;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.espresso.Espresso;
 import androidx.test.rule.ActivityTestRule;
@@ -64,7 +63,7 @@ public class MapActivityTest {
     public void dummyTest() throws Exception{
         System.out.println("hello");
         //onView(withId(R.id.userIDText)).perform(typeText("from my unit test")).perform(closeSoftKeyboard());
-        onView(withId(R.id.launchButton)).perform(click());
+        onView(withId(R.id.launchMap)).perform(click());
         ConditionWatcher.waitForCondition(new LoadingDialogInstruction());
         Espresso.pressBack();
         // onView(withId(R.id.greetingMessage)).check(matches(withText("Hello from my unit test!")));

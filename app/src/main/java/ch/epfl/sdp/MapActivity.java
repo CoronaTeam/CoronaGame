@@ -1,11 +1,7 @@
 package ch.epfl.sdp;
 
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
-import com.mapbox.geojson.Feature;
-import com.mapbox.geojson.FeatureCollection;
-import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -16,8 +12,6 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.plugins.annotation.Circle;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions;
-import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,13 +24,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.widget.Toast;
 
-import androidx.annotation.VisibleForTesting;
-
 import static ch.epfl.sdp.LocationBroker.Provider.GPS;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconSize;
 
 public class MapActivity extends AppCompatActivity implements LocationListener{
 
@@ -54,12 +42,6 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
     CircleManager symbolManager;
     Circle symbol;
 
-    @VisibleForTesting
-    void setLocationBroker(LocationBroker testBroker) {
-        locationBroker = testBroker;
-        locationBroker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, this);
-    }
-
     @Override
     public void onLocationChanged(Location location) {
         if (locationBroker.hasPermissions(GPS)) {
@@ -76,13 +58,9 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
         // check if this is the first time we are executing this handler, the best way to do this is
         // check if marker is null
 
-
-// Add symbol at specified lat/lon
-
         if (map != null && map.getStyle() != null) {
             symbol.setLatLng(location);
             symbolManager.update(symbol);
-            //symbol = symbolManager.create(new CircleOptions().withLatLng(location));
             map.animateCamera(CameraUpdateFactory.newLatLng(location));
         }
     }
@@ -159,33 +137,13 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
                         symbol = symbolManager.create(new CircleOptions()
                                 .withLatLng(prevLocation));
 
-                        //initSpaceStationSymbolLayer(style);
                         updateMarkerPosition(prevLocation);
-                        //Toast.makeText(SpaceStationLocationActivity.this, R.string.space_station_toast, Toast.LENGTH_SHORT).show();
-                        // Map is set up and the style has loaded. Now you can add data or make other map adjustments.
                     }
 
                 });
             }
         });
     }
-
-    private void initSpaceStationSymbolLayer(@NonNull Style style) {
-        style.addImage("space-station-icon-id",
-                BitmapFactory.decodeResource(
-                        this.getResources(), R.drawable.location));
-
-        style.addSource(new GeoJsonSource("source-id"));
-
-        style.addLayer(new SymbolLayer("layer-id", "source-id").withProperties(
-                iconImage("space-station-icon-id"),
-                iconIgnorePlacement(true),
-                iconAllowOverlap(true),
-                iconSize(.2f)
-        ));
-    }
-
-
 
     // Add the mapView lifecycle to the activity's lifecycle methods
     @Override

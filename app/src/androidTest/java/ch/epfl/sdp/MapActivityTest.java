@@ -10,6 +10,7 @@ import com.azimolabs.conditionwatcher.ConditionWatcher;
 import com.azimolabs.conditionwatcher.Instruction;
 import com.mapbox.mapboxsdk.maps.MapView;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -60,6 +61,7 @@ public class MapActivityTest {
     public final ActivityTestRule<MainActivity> mActivityRule =
             new ActivityTestRule<>(MainActivity.class);
     @Test
+    @Ignore
     public void dummyTest() throws Exception{
         System.out.println("hello");
         //onView(withId(R.id.userIDText)).perform(typeText("from my unit test")).perform(closeSoftKeyboard());

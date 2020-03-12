@@ -26,4 +26,9 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /** Called when the user taps the DisplayGps button */
+    public void setIntroView(View view) {
+        Intent intent = new Intent(this, IntroActivity.class);
+        startActivity(intent);
+    }
 }

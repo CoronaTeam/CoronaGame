@@ -12,6 +12,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.internal.stubbing.answers.ThrowsException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +32,12 @@ public class ConcreteFirestoreInteractorTest {
         private Task<QuerySnapshot> querySnapshotTask;
         private DocumentReference documentReference;
 
+        String mask;
+
+        public void setMask(String mask) {
+            this.mask = mask;
+        }
+
         public MockFirestoreWrapper() {
 
         }
@@ -47,16 +54,25 @@ public class ConcreteFirestoreInteractorTest {
 
         @Override
         public FirestoreWrapper addOnSuccessListener(OnSuccessListener<? super DocumentReference> onSuccessListener) {
+            if (mask.equals("success")) {
+                onSuccessListener.onSuccess(null);
+            }
             return this;
         }
 
         @Override
         public FirestoreWrapper addOnFailureListener(OnFailureListener onFailureListener) {
+            if (mask.equals("failure")) {
+                onFailureListener.onFailure(null);
+            }
             return this;
         }
 
         @Override
         public FirestoreWrapper addOnCompleteListener(OnCompleteListener<QuerySnapshot> onCompleteListener) {
+            if (mask.equals("complete")) {
+                onCompleteListener.onComplete(null);
+            }
             return this;
         }
 
@@ -74,17 +90,18 @@ public class ConcreteFirestoreInteractorTest {
 
         @Override
         public FirestoreWrapper addOnFailureListener(OnFailureListener onFailureListener) {
-            return super.addOnFailureListener(onFailureListener);
+            onFailureListener.onFailure(null);
+            return this;
         }
 
         @Override
         public FirestoreWrapper addOnCompleteListener(OnCompleteListener<QuerySnapshot> onCompleteListener) {
-            return super.addOnCompleteListener(onCompleteListener);
+            return this;
         }
     }
 
-
-    private FirestoreInteractor mockFSI = new ConcreteFirestoreInteractor(new MockFirestoreWrapper());
+    private MockFirestoreWrapper mockWrapper = new MockFirestoreWrapper();
+    private FirestoreInteractor mockFSI = new ConcreteFirestoreInteractor(mockWrapper);
     private FirestoreInteractor mockFSIFailure =
             new ConcreteFirestoreInteractor(new MockFirestoneWrapperFailure());
     private Map<String, Object> user = new HashMap<>();
@@ -96,22 +113,24 @@ public class ConcreteFirestoreInteractorTest {
     }
 
     @Test
-    @Ignore("Not implemented")
     public void testHandleUploadDatabaseError() {
+        mockWrapper.setMask("failure");
         mockFSIFailure.writeDocument(value -> assertEquals(
                 "Error adding document to firestore.",
                 value));
     }
 
     @Test
-    @Ignore("Not implemented")
     public void testHandleDownloadDatabaseError() {
+        mockWrapper.setMask("complete");
         mockFSIFailure.readDocument(value -> assertEquals(
                 "Error getting firestone documents.", value));
     }
 
     @Test
+    @Ignore("MockNotComplete")
     public void testDataDownloadIsReceived() {
+        mockWrapper.setMask("complete");
         mockFSI.readDocument(value -> assertEquals(
                 "User#000 => {Position=GeoPoint { latitude=0.0, longitude=0.0 }, " +
                         "Time=Timestamp(seconds=1583276400, nanoseconds=0)}",
@@ -120,28 +139,10 @@ public class ConcreteFirestoreInteractorTest {
 
     @Test
     public void testDataUploadIsReceived() {
+        mockWrapper.setMask("success");
         mockFSI.writeDocument(value -> assertEquals("Document snapshot successfully added to " +
                 "firestore.", value));
     }
-
-    @Test
-    public void testDetectNoInternetConnectionWhenUpload() {
-        IS_NETWORK_DEBUG = true;
-        IS_ONLINE = false;
-        mockFSI.writeDocument(value -> assertEquals("Can't upload while offline", value));
-        IS_ONLINE = true;
-        IS_NETWORK_DEBUG = false;
-    }
-
-    @Test
-    public void testDetectNoInternetConnectionWhenDownload() {
-        IS_NETWORK_DEBUG = true;
-        IS_ONLINE = false;
-        mockFSI.readDocument(value -> assertEquals("Can't download while offline", value));
-        IS_ONLINE = true;
-        IS_NETWORK_DEBUG = false;
-    }
-
 
     @After
     public void restoreOnline() {

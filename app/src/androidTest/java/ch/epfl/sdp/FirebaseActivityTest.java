@@ -47,19 +47,11 @@ public class FirebaseActivityTest {
             GrantPermissionRule.grant(android.Manifest.permission.INTERNET);
 
     @Rule
-    public ActivityTestRule<MainActivity> mActivityRule =
-            new ActivityTestRule<>(MainActivity.class, true, false);
+    public ActivityTestRule<FirebaseActivity> mActivityRule =
+            new ActivityTestRule<>(FirebaseActivity.class);
 
-    @Before @Ignore
+    @Before
     public void setup() {
-        Context targetContext = InstrumentationRegistry.getInstrumentation()
-                .getTargetContext();
-        Intent intent = new Intent(targetContext, FirebaseActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("wrapper", new MockFirestoreWrapper());
-        intent.putExtras(bundle);
-        mActivityRule.launchActivity(intent);
-
         String internetPermission = "android.permission.ACCESS_INTERNET";
         if (ContextCompat.checkSelfPermission(mActivityRule.getActivity().getBaseContext(),
                 internetPermission) != PackageManager.PERMISSION_GRANTED) {
@@ -67,7 +59,7 @@ public class FirebaseActivityTest {
         }
     }
 
-    @Test @Ignore
+    @Test
     public void testDataDownloadIsDisplayed() {
         clickWaitAndCheckText(R.id.FirebaseDownloadButton,
                 R.id.FirebaseDownloadResult,
@@ -75,7 +67,7 @@ public class FirebaseActivityTest {
                 10000);
     }
 
-    @Test @Ignore
+    @Test
     public void testDataUploadIsDisplayed() {
         clickWaitAndCheckText(R.id.FirebaseUploadButton,
                 R.id.FirebaseUploadConfirmation,
@@ -83,7 +75,7 @@ public class FirebaseActivityTest {
                 5000);
     }
 
-    @Test @Ignore
+    @Test
     public void testDetectNoInternetConnectionWhenUpload() {
         IS_NETWORK_DEBUG = true;
         IS_ONLINE = false;
@@ -95,7 +87,7 @@ public class FirebaseActivityTest {
         IS_NETWORK_DEBUG = false;
     }
 
-    @Test @Ignore
+    @Test
     public void testDetectNoInternetConnectionWhenDownload() {
         IS_NETWORK_DEBUG = true;
         IS_ONLINE = false;
@@ -106,7 +98,7 @@ public class FirebaseActivityTest {
         IS_NETWORK_DEBUG = false;
     }
 
-    @After @Ignore
+    @After
     public void restoreOnline() {
         IS_ONLINE = true;
         IS_NETWORK_DEBUG = false;

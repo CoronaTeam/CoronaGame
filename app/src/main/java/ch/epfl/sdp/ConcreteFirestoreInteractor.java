@@ -30,10 +30,8 @@ public class ConcreteFirestoreInteractor implements FirestoreInteractor {
                 .add(user)
                 .addOnSuccessListener(documentReference -> {
                     callback.onCallback("Document snapshot successfully added to firestore.");
-                    Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
                 }).addOnFailureListener(e -> {
             callback.onCallback("Error adding document to firestore.");
-            Log.w(TAG, "Error while adding document", e);
         });
     }
 
@@ -46,11 +44,9 @@ public class ConcreteFirestoreInteractor implements FirestoreInteractor {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
                             callback.onCallback(document.getId() + " => " + document.getData());
-                            Log.d(TAG, document.getId() + " => " + document.getData());
                         }
                     } else {
                         callback.onCallback("Error getting firestone documents.");
-                        Log.w(TAG, "Error getting documents.", task.getException());
                     }
                 });
     }

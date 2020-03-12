@@ -50,7 +50,9 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     androidTestImplementation 'androidx.test:rules:1.2.0'
-    androidTestImplementation 'com.azimolabs.conditionwatcher:conditionwatcher:0.2' // Permet d'attendre qu'une condition devienne vrai
+    androidTestImplementation 'com.azimolabs.conditionwatcher:conditionwatcher:0.2'
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v8:0.7.0'
+// Permet d'attendre qu'une condition devienne vrai
 }
 
 tasks.withType(Test) {

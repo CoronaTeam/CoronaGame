@@ -34,6 +34,19 @@ public class AccountGettingActivityTest {
 
         // assertTrue(onView(withId(R.id.name)).toString().equals(User.default_display_Name));
     }
+    @Test
+    public void imageViewDoDisplayImage(){
+        //onView(withId(R.id.imageView)).check(matches(withDrawable(new DrawableMatcher(User.default_uri))));
+
+        ImageView contentImage = getActivity().findViewById(R.id.imageView);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        assertNotNull(contentImage.getDrawable());  //checking that the image is not null is sufficient
+    }
+
 
 
     @Test

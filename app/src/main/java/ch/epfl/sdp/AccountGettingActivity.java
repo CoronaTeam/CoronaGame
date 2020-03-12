@@ -18,6 +18,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.Scopes;
+import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.games.Games;
+import com.google.android.gms.games.PlayersClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
@@ -31,6 +35,7 @@ public class AccountGettingActivity extends AppCompatActivity {
     TextView name;
     TextView email;
     TextView lastName;
+    //TextView playerIdView;
     ImageView img;
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -41,6 +46,7 @@ public class AccountGettingActivity extends AppCompatActivity {
         email = findViewById(R.id.email);
         lastName = findViewById(R.id.lastName);
         img = findViewById(R.id.imageView);
+        //playerIdView = findViewById(R.id.playerIdView);
 
         signOut = findViewById(R.id.button_sign_out);
         signOut.setOnClickListener(new View.OnClickListener(){
@@ -82,10 +88,14 @@ public class AccountGettingActivity extends AppCompatActivity {
             String personEmail = acct.getEmail();
             //  String personId = acct.getId(); // Use this in order to uniquely identify people
             Uri personPhoto = acct.getPhotoUrl();
+            //PlayersClient pc = Games.getPlayersClient(this, acct.getAccount());
+            //String playerId = String.valueOf(pc.getCurrentPlayerId());
+            //String playerId = acct.getPlayerId(this);
 
             name.setText(personName);
             lastName.setText(personFamilyName);
             email.setText(personEmail);
+            //playerIdView.setText(playerId);
             Glide.with(this).load(String.valueOf(personPhoto)).into(img);
 
         }

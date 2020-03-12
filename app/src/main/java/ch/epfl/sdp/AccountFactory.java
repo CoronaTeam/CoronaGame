@@ -2,9 +2,12 @@ package ch.epfl.sdp;
 
 //import Account;
 
+import android.app.Activity;
 import android.net.Uri;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.games.Games;
+import com.google.android.gms.games.PlayersClient;
 
 public class AccountFactory implements Account {
     private GoogleSignInAccount googleSignInAccount = null;
@@ -58,5 +61,20 @@ public class AccountFactory implements Account {
         }else{
             return googleSignInAccount.getPhotoUrl();
         }
+    }
+
+    @Override
+    public String getPlayerId(Activity activity) {
+        if(user != null){
+            return user.getPlayerId(activity);
+        }else{
+            PlayersClient pc = Games.getPlayersClient(activity, googleSignInAccount);
+            return String.valueOf(pc.getCurrentPlayerId());
+        }
+    }
+
+    @Override
+    public GoogleSignInAccount getAccount() {
+        return googleSignInAccount;
     }
 }

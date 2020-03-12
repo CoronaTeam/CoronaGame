@@ -4,4 +4,10 @@
     <string name="coronagame">CoronaGame</string>
     <string name="user_id">User ID</string>
     <string name="launch_game">Launch Game</string>
+    <string name="location_permission_title">Where are you?</string>
+    <string name="location_permission_description">CoronaGame needs your location to work properly</string>
+    <string name="location_permission_accept_btn">Yes, give it</string>
+    <string name="gps_status_off">GPS signal lost</string>
+    <string name="gps_status_on">GPS signal acquired</string>
+    <string name="gps_signal_missing">Missing GPS signal</string>
 </resources>

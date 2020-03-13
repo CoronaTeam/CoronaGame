@@ -24,11 +24,13 @@
         android:id="@+id/name"
         android:layout_width="113dp"
         android:layout_height="38dp"
+        android:layout_marginTop="71dp"
         android:layout_marginBottom="52dp"
         android:text="TextView"
         app:layout_constraintBottom_toTopOf="@+id/lastName"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/playerIdView" />
 
     <TextView
         android:id="@+id/lastName"
@@ -59,16 +61,19 @@
         android:id="@+id/playerIdView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="107dp"
         android:layout_marginBottom="35dp"
         android:text="Player ID : XXXX"
         app:layout_constraintBottom_toTopOf="@+id/name"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/userIdView" />
 
     <TextView
         android:id="@+id/userIdView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
         android:text="TextView"
         app:layout_constraintBottom_toTopOf="@+id/playerIdView"
         app:layout_constraintEnd_toEndOf="parent"

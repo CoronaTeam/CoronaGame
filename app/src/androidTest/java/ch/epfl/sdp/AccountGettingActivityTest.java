@@ -2,10 +2,12 @@ package ch.epfl.sdp;
 
 
 import android.app.Activity;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 import androidx.test.rule.ActivityTestRule;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -24,6 +26,8 @@ public class AccountGettingActivityTest {
 
     @Rule
     public final ActivityTestRule<AccountGettingActivity> mActivityRule = new ActivityTestRule<>(AccountGettingActivity.class);
+
+    
 
     @Test
     public void textViewsDoShowUserInformation() {

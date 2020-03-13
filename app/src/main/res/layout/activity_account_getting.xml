@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,22 +9,18 @@
         android:id="@+id/button_sign_out"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="354dp"
+        android:layout_marginStart="12dp"
         android:layout_marginBottom="100dp"
         android:text="Sign Out"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintStart_toStartOf="@+id/email"
+        app:layout_constraintTop_toBottomOf="@+id/email" />
 
     <TextView
         android:id="@+id/name"
-        android:layout_width="113dp"
-        android:layout_height="38dp"
-        android:layout_marginTop="71dp"
-        android:layout_marginBottom="52dp"
+        android:layout_width="163dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="29dp"
         android:text="TextView"
         app:layout_constraintBottom_toTopOf="@+id/lastName"
         app:layout_constraintEnd_toEndOf="parent"
@@ -34,35 +29,31 @@
 
     <TextView
         android:id="@+id/lastName"
-        android:layout_width="113dp"
-        android:layout_height="38dp"
-        android:layout_marginBottom="24dp"
+        android:layout_width="166dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="61dp"
         android:text="TextView"
         app:layout_constraintBottom_toTopOf="@+id/email"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.911" />
+        app:layout_constraintTop_toBottomOf="@+id/name" />
 
     <TextView
         android:id="@+id/email"
         android:layout_width="113dp"
-        android:layout_height="38dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginBottom="24dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="67dp"
         android:text="TextView"
         app:layout_constraintBottom_toTopOf="@+id/button_sign_out"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.913" />
+        app:layout_constraintTop_toBottomOf="@+id/lastName" />
 
     <TextView
         android:id="@+id/playerIdView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="107dp"
-        android:layout_marginBottom="35dp"
+        android:layout_width="154dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="82dp"
         android:text="Player ID : XXXX"
         app:layout_constraintBottom_toTopOf="@+id/name"
         app:layout_constraintEnd_toEndOf="parent"
@@ -71,9 +62,10 @@
 
     <TextView
         android:id="@+id/userIdView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
+        android:layout_width="141dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="77dp"
+        android:layout_marginBottom="83dp"
         android:text="TextView"
         app:layout_constraintBottom_toTopOf="@+id/playerIdView"
         app:layout_constraintEnd_toEndOf="parent"

@@ -27,19 +27,15 @@ public class AccountGettingActivityTest {
     @Rule
     public final ActivityTestRule<AccountGettingActivity> mActivityRule = new ActivityTestRule<>(AccountGettingActivity.class);
 
-    @Before
-    public void unlockScreen() {
-        //CategorySelectionActivity
-        final  Activity activity = mActivityRule.getActivity();
-        Runnable wakeUpDevice = new Runnable() {
-            public void run() {
-                activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
-                        WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
-                        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            }
-        };
-        activity.runOnUiThread(wakeUpDevice);
-    }
+//    @Before
+//    public void unlockScreen() {
+//        //CategorySelectionActivity
+//        final  Activity activity = mActivityRule.getActivity();
+//        Runnable wakeUpDevice = () -> activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
+//                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+//                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+//        activity.runOnUiThread(wakeUpDevice);
+//    }
 
     @Test
     public void textViewsDoShowUserInformation() {

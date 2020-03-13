@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
+import androidx.test.espresso.matcher.RootMatchers;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
@@ -39,19 +40,19 @@ public class AccountGettingActivityTest {
 
     @Test
     public void nameIsDisplayed(){
-        onView(withId(R.id.name)).check(matches(withText(User.DEFAULT_DISPLAY_NAME)));
+        onView(withId(R.id.name)).inRoot(RootMatchers.isPlatformPopup()).check(matches(withText(User.DEFAULT_DISPLAY_NAME)));
     }
     @Test
     public void lastNameIsDisplayed(){
-        onView(withId(R.id.lastName)).check(matches(withText(User.DEFAULT_FAMILY_NAME)));
+        onView(withId(R.id.lastName)).inRoot(RootMatchers.isPlatformPopup()).check(matches(withText(User.DEFAULT_FAMILY_NAME)));
     }
     @Test
     public void emailIsDisplayed(){
-        onView(withId(R.id.email)).check(matches(withText(User.DEFAULT_EMAIL)));
+        onView(withId(R.id.email)).inRoot(RootMatchers.isPlatformPopup()).check(matches(withText(User.DEFAULT_EMAIL)));
     }
     @Test
     public void userIdViewIsDisplayed(){
-        onView(withId(R.id.userIdView)).check(matches(withText(User.DEFAULT_USERID)));
+        onView(withId(R.id.userIdView)).inRoot(RootMatchers.isPlatformPopup()).check(matches(withText(User.DEFAULT_USERID)));
     }
 
   /*  @Test
@@ -70,7 +71,7 @@ public class AccountGettingActivityTest {
 
     @Test
     public void signOutButtonWorks(){
-        onView(withId(R.id.button_sign_out)).perform(click());
+        onView(withId(R.id.button_sign_out)).inRoot(RootMatchers.isPlatformPopup()).perform(click());
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {

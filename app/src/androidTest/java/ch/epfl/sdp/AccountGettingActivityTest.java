@@ -25,32 +25,35 @@ import static junit.framework.TestCase.assertSame;
 public class AccountGettingActivityTest {
 
     @Rule
-    public final ActivityTestRule<AccountGettingActivity> mActivityRule = new ActivityTestRule<>(AccountGettingActivity.class);
+    public final ActivityTestRule<AccountGettingActivity> mActivityRule = new ActivityTestRule<AccountGettingActivity>(AccountGettingActivity.class);
 
-//    @Before
-//    public void unlockScreen() {
-//        //CategorySelectionActivity
-//        final  Activity activity = mActivityRule.getActivity();
-//        Runnable wakeUpDevice = () -> activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
-//                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
-//                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-//        activity.runOnUiThread(wakeUpDevice);
-//    }
+    @Before
+    public void unlockScreen() {
+        //CategorySelectionActivity
+        final  Activity activity = mActivityRule.getActivity();
+        Runnable wakeUpDevice = () -> activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
+                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED |
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        activity.runOnUiThread(wakeUpDevice);
+    }
 
     @Test
-    public void textViewsDoShowUserInformation() {
-        // System.out.println(onView(withId(R.id.name)).toString());
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    public void nameIsDisplayed(){
         onView(withId(R.id.name)).check(matches(withText(User.DEFAULT_DISPLAY_NAME)));
-        onView(withId(R.id.lastName)).check(matches(withText(User.DEFAULT_FAMILY_NAME)));
-        onView(withId(R.id.email)).check(matches(withText(User.DEFAULT_EMAIL)));
-        onView(withId(R.id.userIdView)).check(matches(withText(User.DEFAULT_USERID)));
-        // assertTrue(onView(withId(R.id.name)).toString().equals(User.default_display_Name));
     }
+    @Test
+    public void lastNameIsDisplayed(){
+        onView(withId(R.id.lastName)).check(matches(withText(User.DEFAULT_FAMILY_NAME)));
+    }
+    @Test
+    public void emailIsDisplayed(){
+        onView(withId(R.id.email)).check(matches(withText(User.DEFAULT_EMAIL)));
+    }
+    @Test
+    public void userIdViewIsDisplayed(){
+        onView(withId(R.id.userIdView)).check(matches(withText(User.DEFAULT_USERID)));
+    }
+
   /*  @Test
     public void imageViewDoDisplayImage(){
         //onView(withId(R.id.imageView)).check(matches(withDrawable(new DrawableMatcher(User.default_uri))));

@@ -9,7 +9,7 @@ import androidx.annotation.Nullable;
 
 import org.jetbrains.annotations.NotNull;
 
-class CoronaGame extends Application implements Application.ActivityLifecycleCallbacks {
+public class CoronaGame extends Application implements Application.ActivityLifecycleCallbacks {
 
     private Activity currentActivity;
 

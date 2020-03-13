@@ -1,6 +1,16 @@
 package ch.epfl.sdp;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -13,39 +23,26 @@ import com.mapbox.mapboxsdk.plugins.annotation.Circle;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.widget.Toast;
+import org.jetbrains.annotations.NotNull;
 
 import static ch.epfl.sdp.LocationBroker.Provider.GPS;
 
-public class MapActivity extends AppCompatActivity implements LocationListener{
+public class MapActivity extends AppCompatActivity implements LocationListener {
 
-    private MapView mapView;
-    private MapboxMap map;
-
-    public final static int LOCATION_PERMISSION_REQUEST = 20201;
+    private final static int LOCATION_PERMISSION_REQUEST = 20201;
     private static final int MIN_UP_INTERVAL_MILLISECS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
-
+    private CircleManager symbolManager;
+    private Circle symbol;
+    private MapView mapView;
+    private MapboxMap map;
     private LocationBroker locationBroker;
-
     private LatLng prevLocation = new LatLng(0, 0);
-
-    CircleManager symbolManager;
-    Circle symbol;
 
     @Override
     public void onLocationChanged(Location location) {
         if (locationBroker.hasPermissions(GPS)) {
-            prevLocation =  new LatLng(location.getLatitude(), location.getLongitude());
+            prevLocation = new LatLng(location.getLatitude(), location.getLongitude());
             updateMarkerPosition(prevLocation);
             System.out.println("new location");
         } else {
@@ -124,24 +121,17 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
 
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(@NonNull MapboxMap mapboxMap) {
-                map = mapboxMap;
+        mapView.getMapAsync(mapboxMap -> {
+            map = mapboxMap;
 
-                mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-                        symbolManager = new CircleManager(mapView, map, style);
+            mapboxMap.setStyle(Style.MAPBOX_STREETS, style -> {
+                symbolManager = new CircleManager(mapView, map, style);
 
-                        symbol = symbolManager.create(new CircleOptions()
-                                .withLatLng(prevLocation));
+                symbol = symbolManager.create(new CircleOptions()
+                        .withLatLng(prevLocation));
 
-                        updateMarkerPosition(prevLocation);
-                    }
-
-                });
-            }
+                updateMarkerPosition(prevLocation);
+            });
         });
     }
 
@@ -191,12 +181,12 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NotNull Bundle outState) {
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
     }
 
-    protected void OnDidFinishLoadingMapListener(MapView.OnDidFinishLoadingMapListener listener){
+    void OnDidFinishLoadingMapListener(MapView.OnDidFinishLoadingMapListener listener) {
         mapView.addOnDidFinishLoadingMapListener(listener);
     }
 }

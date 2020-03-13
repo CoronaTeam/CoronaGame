@@ -37,7 +37,7 @@ public class GpsActivityTest {
     public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
 
     @Rule
-    public ExpectedException illegalArgument = ExpectedException.none();
+    public final ExpectedException illegalArgument = ExpectedException.none();
 
 
     private class MockBroker implements LocationBroker {
@@ -48,7 +48,7 @@ public class GpsActivityTest {
 
         void setFakeLocation(Location location) throws Throwable {
             fakeLocation = location;
-            mActivityRule.runOnUiThread(() ->listeners.onLocationChanged(location));
+            mActivityRule.runOnUiThread(() -> listeners.onLocationChanged(location));
         }
 
         void setProviderStatus(boolean status) throws Throwable {
@@ -116,7 +116,8 @@ public class GpsActivityTest {
         mActivityRule.getActivity().setLocationBroker(br);
     }
 
-    @Test @Ignore
+    @Test
+    @Ignore
     public void locationIsUpdated() throws Throwable {
         MockBroker mockBroker = new MockBroker();
         startActivityWithBroker(mockBroker);
@@ -131,10 +132,10 @@ public class GpsActivityTest {
             double variation = Math.random() * .1;
             if (Math.random() < .5) {
                 currLatitude += variation;
-                currLatitude = Math.floor(currLatitude * 100)/100;
+                currLatitude = Math.floor(currLatitude * 100) / 100;
             } else {
                 currLongitude += variation;
-                currLongitude = Math.floor(currLongitude * 100)/100;
+                currLongitude = Math.floor(currLongitude * 100) / 100;
             }
             mockBroker.setFakeLocation(buildLocation(currLatitude, currLongitude));
             Thread.sleep(1000);
@@ -184,6 +185,7 @@ public class GpsActivityTest {
         Boolean asked = false;
         MockBroker withoutPermissions = new MockBroker() {
             private boolean fakePermissions = false;
+
             @Override
             public boolean hasPermissions(Provider provider) {
                 return fakePermissions;

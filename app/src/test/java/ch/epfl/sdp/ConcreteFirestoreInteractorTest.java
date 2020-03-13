@@ -12,7 +12,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.internal.stubbing.answers.ThrowsException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +23,58 @@ import static org.junit.Assert.assertEquals;
 
 public class ConcreteFirestoreInteractorTest {
 
+    private final MockFirestoreWrapper mockWrapper = new MockFirestoreWrapper();
+    private final FirestoreInteractor mockFSI = new ConcreteFirestoreInteractor(mockWrapper);
+    private final FirestoreInteractor mockFSIFailure =
+            new ConcreteFirestoreInteractor(new MockFirestoneWrapperFailure());
+    private final Map<String, Object> user = new HashMap<>();
+
+    private void init() {
+        user.put("Name", "Bob Bobby");
+        user.put("Age", 24);
+        user.put("Infected", false);
+    }
+
+    @Test
+    public void testHandleUploadDatabaseError() {
+        mockWrapper.setMask("failure");
+        mockFSIFailure.writeDocument(value -> assertEquals(
+                "Error adding document to firestore.",
+                value));
+    }
+
+    @Test
+    public void testHandleDownloadDatabaseError() {
+        mockWrapper.setMask("complete");
+        mockFSIFailure.readDocument(value -> assertEquals(
+                "Error getting firestone documents.", value));
+    }
+
+    @Test
+    @Ignore("Still have to figure out the best way to fully mock FB")
+    public void testDataDownloadIsReceived() {
+        mockWrapper.setMask("complete");
+        mockFSI.readDocument(value -> assertEquals(
+                "User#000 => {Position=GeoPoint { latitude=0.0, longitude=0.0 }, " +
+                        "Time=Timestamp(seconds=1583276400, nanoseconds=0)}",
+                value));
+    }
+
+    @Test
+    public void testDataUploadIsReceived() {
+        mockWrapper.setMask("success");
+        mockFSI.writeDocument(value -> assertEquals("Document snapshot successfully added to " +
+                "firestore.", value));
+    }
+
+    @After
+    public void restoreOnline() {
+        IS_ONLINE = true;
+        IS_NETWORK_DEBUG = false;
+    }
+
     private class MockFirestoreWrapper implements FirestoreWrapper {
+        String mask;
         private FirebaseFirestore firebaseFirestore;
         private String collectionPath;
         private CollectionReference collectionReference;
@@ -32,14 +82,12 @@ public class ConcreteFirestoreInteractorTest {
         private Task<QuerySnapshot> querySnapshotTask;
         private DocumentReference documentReference;
 
-        String mask;
+        MockFirestoreWrapper() {
 
-        public void setMask(String mask) {
-            this.mask = mask;
         }
 
-        public MockFirestoreWrapper() {
-
+        void setMask(String mask) {
+            this.mask = mask;
         }
 
         @Override
@@ -98,56 +146,6 @@ public class ConcreteFirestoreInteractorTest {
         public FirestoreWrapper addOnCompleteListener(OnCompleteListener<QuerySnapshot> onCompleteListener) {
             return this;
         }
-    }
-
-    private MockFirestoreWrapper mockWrapper = new MockFirestoreWrapper();
-    private FirestoreInteractor mockFSI = new ConcreteFirestoreInteractor(mockWrapper);
-    private FirestoreInteractor mockFSIFailure =
-            new ConcreteFirestoreInteractor(new MockFirestoneWrapperFailure());
-    private Map<String, Object> user = new HashMap<>();
-
-    private void init() {
-        user.put("Name", "Bob Bobby");
-        user.put("Age", 24);
-        user.put("Infected", false);
-    }
-
-    @Test
-    public void testHandleUploadDatabaseError() {
-        mockWrapper.setMask("failure");
-        mockFSIFailure.writeDocument(value -> assertEquals(
-                "Error adding document to firestore.",
-                value));
-    }
-
-    @Test
-    public void testHandleDownloadDatabaseError() {
-        mockWrapper.setMask("complete");
-        mockFSIFailure.readDocument(value -> assertEquals(
-                "Error getting firestone documents.", value));
-    }
-
-    @Test
-    @Ignore("MockNotComplete")
-    public void testDataDownloadIsReceived() {
-        mockWrapper.setMask("complete");
-        mockFSI.readDocument(value -> assertEquals(
-                "User#000 => {Position=GeoPoint { latitude=0.0, longitude=0.0 }, " +
-                        "Time=Timestamp(seconds=1583276400, nanoseconds=0)}",
-                value));
-    }
-
-    @Test
-    public void testDataUploadIsReceived() {
-        mockWrapper.setMask("success");
-        mockFSI.writeDocument(value -> assertEquals("Document snapshot successfully added to " +
-                "firestore.", value));
-    }
-
-    @After
-    public void restoreOnline() {
-        IS_ONLINE = true;
-        IS_NETWORK_DEBUG = false;
     }
 
 

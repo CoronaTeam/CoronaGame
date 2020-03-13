@@ -6,7 +6,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -15,7 +14,6 @@ import java.util.Map;
 public class ConcreteFirestoreWrapper implements FirestoreWrapper {
 
     private final FirebaseFirestore firebaseFirestore;
-    private String collectionPath;
     private CollectionReference collectionReference;
     private Task<DocumentReference> documentReferenceTask;
     private Task<QuerySnapshot> querySnapshotTask;
@@ -28,7 +26,6 @@ public class ConcreteFirestoreWrapper implements FirestoreWrapper {
 
     @Override
     public FirestoreWrapper collection(String newCollectionPath) {
-        this.collectionPath = newCollectionPath;
         this.collectionReference = firebaseFirestore.collection(newCollectionPath);
         return this;
     }

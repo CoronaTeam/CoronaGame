@@ -23,7 +23,7 @@ import static ch.epfl.sdp.LocationBroker.Provider.GPS;
 
 public class GpsActivity extends AppCompatActivity implements LocationListener {
 
-    public final static int LOCATION_PERMISSION_REQUEST = 20201;
+    private final static int LOCATION_PERMISSION_REQUEST = 20201;
     private static final int MIN_UP_INTERVAL_MILLISECS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
 

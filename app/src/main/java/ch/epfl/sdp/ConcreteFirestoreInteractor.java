@@ -1,25 +1,18 @@
 package ch.epfl.sdp;
 
-import android.util.Log;
-
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static android.content.ContentValues.TAG;
-
 public class ConcreteFirestoreInteractor implements FirestoreInteractor {
-    private FirestoreWrapper db;
+    private final FirestoreWrapper db;
 
     public ConcreteFirestoreInteractor(FirestoreWrapper firestoreFirestoreWrapper) {
         db = firestoreFirestoreWrapper;
     }
 
-    //TODO: extend with arg map
     public void writeDocument(Callback callback) {
         Map<String, Object> user = new HashMap<>();
         user.put("Name", "Bob Bobby");
@@ -28,13 +21,8 @@ public class ConcreteFirestoreInteractor implements FirestoreInteractor {
         // Add a new document with a generated ID
         db.collection("Players")
                 .add(user)
-                .addOnSuccessListener(documentReference -> {
-                    callback.onCallback("Document snapshot successfully added to firestore.");
-                }).addOnFailureListener(e -> {
-            callback.onCallback("Error adding document to firestore.");
-        });
+                .addOnSuccessListener(documentReference -> callback.onCallback("Document snapshot successfully added to firestore.")).addOnFailureListener(e -> callback.onCallback("Error adding document to firestore."));
     }
-
 
 
     public void readDocument(Callback callback) {

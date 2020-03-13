@@ -1,6 +1,6 @@
 package ch.epfl.sdp;
 
-public interface Callback {
+interface Callback {
     void onCallback(String value);
 
 }

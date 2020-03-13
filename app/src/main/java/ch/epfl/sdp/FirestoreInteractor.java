@@ -1,6 +1,7 @@
 package ch.epfl.sdp;
 
-public interface FirestoreInteractor {
+interface FirestoreInteractor {
     void readDocument(Callback callback);
+
     void writeDocument(Callback callback);
 }

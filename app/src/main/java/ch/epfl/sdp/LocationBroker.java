@@ -9,11 +9,6 @@ import android.location.LocationListener;
  */
 public interface LocationBroker {
 
-    enum Provider {
-        GPS,
-        NETWORK
-    }
-
     boolean isProviderEnabled(Provider provider);
 
     /**
@@ -22,10 +17,11 @@ public interface LocationBroker {
      * If the action is not allowed, the function requests it and then
      * returns 'false' (without performing additional actions)
      * The function can then be called again inside onRequestPermissionResults
-     * @param provider the location provider
+     *
+     * @param provider     the location provider
      * @param minTimeDelay minimum delay between updates (in seconds)
      * @param minSpaceDist minimum distance between updates (in meters)
-     * @param listener the location listener
+     * @param listener     the location listener
      * @return false if the activity doesn't have enough permissions
      */
     boolean requestLocationUpdates(Provider provider, long minTimeDelay, float minSpaceDist, LocationListener listener);
@@ -37,4 +33,9 @@ public interface LocationBroker {
     boolean hasPermissions(Provider provider);
 
     void requestPermissions(int requestCode);
+
+    enum Provider {
+        GPS,
+        NETWORK
+    }
 }

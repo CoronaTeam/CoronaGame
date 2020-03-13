@@ -14,7 +14,7 @@ import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
 
 public class FirebaseActivity extends AppCompatActivity {
     private static final String TAG = "FirebaseActivity";
-    ConcreteFirestoreInteractor fs;
+    private ConcreteFirestoreInteractor fs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

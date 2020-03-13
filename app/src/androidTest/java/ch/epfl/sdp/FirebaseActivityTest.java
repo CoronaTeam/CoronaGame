@@ -1,14 +1,10 @@
 package ch.epfl.sdp;
 
-import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
-import android.os.Bundle;
 import android.util.Log;
 
 import androidx.core.content.ContextCompat;
-import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -20,7 +16,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -33,8 +28,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static ch.epfl.sdp.MainActivity.IS_NETWORK_DEBUG;
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 
 
 public class FirebaseActivityTest {
@@ -47,7 +40,7 @@ public class FirebaseActivityTest {
             GrantPermissionRule.grant(android.Manifest.permission.INTERNET);
 
     @Rule
-    public ActivityTestRule<FirebaseActivity> mActivityRule =
+    public final ActivityTestRule<FirebaseActivity> mActivityRule =
             new ActivityTestRule<>(FirebaseActivity.class);
 
     @Before
@@ -118,7 +111,7 @@ public class FirebaseActivityTest {
         }
     }
 
-    private class MockFirestoreWrapper implements FirestoreWrapper{
+    private class MockFirestoreWrapper implements FirestoreWrapper {
 
         @Override
         public <A, B> FirestoreWrapper add(Map<A, B> map) {

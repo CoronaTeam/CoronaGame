@@ -28,6 +28,11 @@ public class AccountGettingActivityTest {
     @Test
     public void textViewsDoShowUserInformation() {
         // System.out.println(onView(withId(R.id.name)).toString());
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         onView(withId(R.id.name)).check(matches(withText(User.DEFAULT_DISPLAY_NAME)));
         onView(withId(R.id.lastName)).check(matches(withText(User.DEFAULT_FAMILY_NAME)));
         onView(withId(R.id.email)).check(matches(withText(User.DEFAULT_EMAIL)));
@@ -51,6 +56,11 @@ public class AccountGettingActivityTest {
     @Test
     public void signOutButtonWorks(){
         onView(withId(R.id.button_sign_out)).perform(click());
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         assertSame(getActivity().getClass(),AuthenticationActivity.class);
     }
     //found on the internet for getting activities

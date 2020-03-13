@@ -35,8 +35,9 @@ public class AccountGettingActivity extends AppCompatActivity {
     TextView name;
     TextView email;
     TextView lastName;
+    TextView userIdView;
     //TextView playerIdView;
-    ImageView img;
+//    ImageView img;
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -45,7 +46,8 @@ public class AccountGettingActivity extends AppCompatActivity {
         name = findViewById(R.id.name);
         email = findViewById(R.id.email);
         lastName = findViewById(R.id.lastName);
-        img = findViewById(R.id.imageView);
+        userIdView = findViewById(R.id.userIdView);
+//        img = findViewById(R.id.profileImage);
         //playerIdView = findViewById(R.id.playerIdView);
 
         signOut = findViewById(R.id.button_sign_out);
@@ -86,7 +88,7 @@ public class AccountGettingActivity extends AppCompatActivity {
             //  String personGivenName = acct.getGivenName();
             String personFamilyName = acct.getFamilyName();
             String personEmail = acct.getEmail();
-            //  String personId = acct.getId(); // Use this in order to uniquely identify people
+            String personId = acct.getId(); // Use this in order to uniquely identify people
             Uri personPhoto = acct.getPhotoUrl();
             //PlayersClient pc = Games.getPlayersClient(this, acct.getAccount());
             //String playerId = String.valueOf(pc.getCurrentPlayerId());
@@ -95,8 +97,9 @@ public class AccountGettingActivity extends AppCompatActivity {
             name.setText(personName);
             lastName.setText(personFamilyName);
             email.setText(personEmail);
+            userIdView.setText(personId);
             //playerIdView.setText(playerId);
-            Glide.with(this).load(String.valueOf(personPhoto)).into(img);
+ //           Glide.with(this).load(String.valueOf(personPhoto)).into(img);
 
         }
     }

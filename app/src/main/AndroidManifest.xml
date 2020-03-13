@@ -19,8 +19,8 @@
 
         <activity android:name=".AuthenticationActivity">
             <intent-filter>
-                <action android:name="android.intent.action.AUTH" ></action>
-
+                <action android:name="android.intent.action.AUTH" />
+                <category android:name="android.intent.category.LAUNCHER" />
              <!-->   <category android:name="" /><!-->
             </intent-filter>
         </activity>

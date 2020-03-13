@@ -77,4 +77,13 @@ public class AccountFactory implements Account {
     public GoogleSignInAccount getAccount() {
         return googleSignInAccount;
     }
+
+    @Override
+    public String getId() {
+        if(googleSignInAccount!=null){
+            return googleSignInAccount.getId();
+        }else{
+            return user.getId();
+        }
+    }
 }

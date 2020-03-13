@@ -13,4 +13,5 @@ public interface Account {
     //public Boolean isGoogle();
     public String getPlayerId(Activity activity);
     public GoogleSignInAccount getAccount();
+    public String getId();
 }

@@ -44,7 +44,7 @@ public class AccountGettingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_account_getting);
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true); //fixes a bug on travis about inflating ImageView
 //        name = findViewById(R.id.name);
-//        email = findViewById(R.id.email);
+        email = findViewById(R.id.email);
 //        lastName = findViewById(R.id.lastName);
         userIdView = findViewById(R.id.userIdView);
 //        img = findViewById(R.id.profileImage);
@@ -96,7 +96,7 @@ public class AccountGettingActivity extends AppCompatActivity {
 
 //            name.setText(personName);
 //            lastName.setText(personFamilyName);
-//            email.setText(personEmail);
+            email.setText(personEmail);
             userIdView.setText(personId);
             //playerIdView.setText(playerId);
  //           Glide.with(this).load(String.valueOf(personPhoto)).into(img);

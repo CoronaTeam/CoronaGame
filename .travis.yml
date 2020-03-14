@@ -1,4 +1,4 @@
-language: android
+anguage: android
 
 before_install:
   - chmod +x gradlew
@@ -29,7 +29,7 @@ script:
   - ./gradlew build connectedCheck jacocoTestReport
 
 after_script:
-  # Send test coverage Report to Code Climate
+  # Report test coverage to Code Climate
   - export JACOCO_SOURCE_PATH=app/src/main/java/
-  - ./cc-test-reporter format-coverage ./app/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml --input-type jacoco
+  - ./cc-test-reporter format-coverage ./app/build/reports/coverage/debug/report.xml --input-type jacoco
   - ./cc-test-reporter upload-coverage

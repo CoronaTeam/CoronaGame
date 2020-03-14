@@ -37,7 +37,7 @@ public class AccountGettingActivity extends AppCompatActivity {
     TextView lastName;
     TextView userIdView;
 //    TextView playerIdView;
-//    ImageView img;
+    ImageView img;
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -47,20 +47,20 @@ public class AccountGettingActivity extends AppCompatActivity {
         email = findViewById(R.id.email);
         lastName = findViewById(R.id.lastName);
         userIdView = findViewById(R.id.userIdView);
-//        img = findViewById(R.id.profileImage);
+        img = findViewById(R.id.profileImage);
 //        playerIdView = findViewById(R.id.playerIdView);
 
-        signOut = findViewById(R.id.button_sign_out);
-        signOut.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                switch (v.getId()) {
-                    case R.id.button_sign_out:
-                        signOut();
-                        break;
-                }
-            }
-        });
+//        signOut = findViewById(R.id.button_sign_out);
+//        signOut.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v) {
+//                switch (v.getId()) {
+//                    case R.id.button_sign_out:
+//                        signOut();
+//                        break;
+//                }
+//            }
+//        });
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
@@ -99,7 +99,7 @@ public class AccountGettingActivity extends AppCompatActivity {
             email.setText(personEmail);
             userIdView.setText(personId);
 //            playerIdView.setText(playerId);
- //           Glide.with(this).load(String.valueOf(personPhoto)).into(img);
+            Glide.with(this).load(String.valueOf(personPhoto)).into(img);
 
         }
     }

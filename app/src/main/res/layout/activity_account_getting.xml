@@ -9,12 +9,12 @@
         android:id="@+id/userIdView"
         android:layout_width="141dp"
         android:layout_height="37dp"
+        android:layout_marginBottom="32dp"
         android:text="TextView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.474" />
+        app:layout_constraintTop_toBottomOf="@+id/profileImage" />
 
     <TextView
         android:id="@+id/email"
@@ -45,7 +45,8 @@
         app:layout_constraintBottom_toTopOf="@+id/email"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/userIdView" />
+        app:layout_constraintTop_toBottomOf="@+id/profileImage"
+        app:layout_constraintVertical_bias="0.092" />
 
     <TextView
         android:id="@+id/playerIdView"
@@ -57,16 +58,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/email" />
 
-    <Button
-        android:id="@+id/button_sign_out"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        app:layout_constraintBottom_toTopOf="@+id/userIdView"
+    <ImageView
+        android:id="@+id/profileImage"
+        android:layout_width="109dp"
+        android:layout_height="87dp"
+        android:layout_marginTop="84dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.8" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

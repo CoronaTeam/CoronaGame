@@ -63,7 +63,7 @@ public class AccountGettingActivityTest {
         onView(withId(R.id.userIdView)).check(matches(withText(User.DEFAULT_USERID)));
     }
 
-  /*  @Test
+    @Test
     public void imageViewDoDisplayImage(){
         //onView(withId(R.id.imageView)).check(matches(withDrawable(new DrawableMatcher(User.default_uri))));
         ImageView contentImage = getActivity().findViewById(R.id.profileImage);
@@ -73,22 +73,22 @@ public class AccountGettingActivityTest {
             e.printStackTrace();
         }
         assertNotNull(contentImage.getDrawable());  //checking that the image is not null is sufficient
-    }*/
-
-
-
-    @Test
-    public void signOutButtonWorks(){
-
-        onView(withId(R.id.button_sign_out)).perform(click());
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-//        intended(hasComponent(AuthenticationActivity.class.getName()));//.class.getName()
-        assertSame(getActivity().getClass(),AuthenticationActivity.class);
     }
+
+
+
+//    @Test
+//    public void signOutButtonWorks(){
+//
+//        onView(withId(R.id.button_sign_out)).perform(click());
+//        try {
+//            Thread.sleep(0);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+////        intended(hasComponent(AuthenticationActivity.class.getName()));//.class.getName()
+//        assertSame(getActivity().getClass(),AuthenticationActivity.class);
+//    }
     @After
     public void tearDown() throws Exception{
         Intents.release();

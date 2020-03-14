@@ -45,7 +45,7 @@ public class AccountGettingActivity extends AppCompatActivity {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true); //fixes a bug on travis about inflating ImageView
 //        name = findViewById(R.id.name);
         email = findViewById(R.id.email);
-//        lastName = findViewById(R.id.lastName);
+        lastName = findViewById(R.id.lastName);
         userIdView = findViewById(R.id.userIdView);
 //        img = findViewById(R.id.profileImage);
         //playerIdView = findViewById(R.id.playerIdView);
@@ -95,7 +95,7 @@ public class AccountGettingActivity extends AppCompatActivity {
             //String playerId = acct.getPlayerId(this);
 
 //            name.setText(personName);
-//            lastName.setText(personFamilyName);
+            lastName.setText(personFamilyName);
             email.setText(personEmail);
             userIdView.setText(personId);
             //playerIdView.setText(playerId);

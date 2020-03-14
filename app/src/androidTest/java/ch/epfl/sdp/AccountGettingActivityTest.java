@@ -35,18 +35,18 @@ public class AccountGettingActivityTest {
     public final IntentsTestRule<AccountGettingActivity> intentsTestRule =
             new IntentsTestRule<>(AccountGettingActivity.class);
 
-    @Test
-    public void nameIsDisplayed(){
-        onView(withId(R.id.name)).check(matches(withText(User.DEFAULT_DISPLAY_NAME)));
-    }
-    @Test
-    public void lastNameIsDisplayed(){
-        onView(withId(R.id.lastName)).check(matches(withText(User.DEFAULT_FAMILY_NAME)));
-    }
-    @Test
-    public void emailIsDisplayed(){
-        onView(withId(R.id.email)).check(matches(withText(User.DEFAULT_EMAIL)));
-    }
+//    @Test
+//    public void nameIsDisplayed(){
+//        onView(withId(R.id.name)).check(matches(withText(User.DEFAULT_DISPLAY_NAME)));
+//    }
+//    @Test
+//    public void lastNameIsDisplayed(){
+//        onView(withId(R.id.lastName)).check(matches(withText(User.DEFAULT_FAMILY_NAME)));
+//    }
+//    @Test
+//    public void emailIsDisplayed(){
+//        onView(withId(R.id.email)).check(matches(withText(User.DEFAULT_EMAIL)));
+//    }
     @Test
     public void userIdViewIsDisplayed(){
         onView(withId(R.id.userIdView)).check(matches(withText(User.DEFAULT_USERID)));
@@ -66,16 +66,16 @@ public class AccountGettingActivityTest {
 
 
 
-    @Test
-    public void signOutButtonWorks(){
-        onView(withId(R.id.button_sign_out)).perform(click());
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        intended(hasComponent(AuthenticationActivity.class.getName()));//.class.getName()
-      //  assertSame(getActivity().getClass(),AuthenticationActivity.class);
-    }
+//    @Test
+//    public void signOutButtonWorks(){
+//        onView(withId(R.id.button_sign_out)).perform(click());
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        intended(hasComponent(AuthenticationActivity.class.getName()));//.class.getName()
+//      //  assertSame(getActivity().getClass(),AuthenticationActivity.class);
+//    }
 
 }

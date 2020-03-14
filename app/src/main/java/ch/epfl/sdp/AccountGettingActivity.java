@@ -43,24 +43,24 @@ public class AccountGettingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account_getting);
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true); //fixes a bug on travis about inflating ImageView
-        name = findViewById(R.id.name);
-        email = findViewById(R.id.email);
-        lastName = findViewById(R.id.lastName);
+//        name = findViewById(R.id.name);
+//        email = findViewById(R.id.email);
+//        lastName = findViewById(R.id.lastName);
         userIdView = findViewById(R.id.userIdView);
 //        img = findViewById(R.id.profileImage);
         //playerIdView = findViewById(R.id.playerIdView);
 
-        signOut = findViewById(R.id.button_sign_out);
-        signOut.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                switch (v.getId()) {
-                    case R.id.button_sign_out:
-                        signOut();
-                        break;
-                }
-            }
-        });
+//        signOut = findViewById(R.id.button_sign_out);
+//        signOut.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v) {
+//                switch (v.getId()) {
+//                    case R.id.button_sign_out:
+//                        signOut();
+//                        break;
+//                }
+//            }
+//        });
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
@@ -94,9 +94,9 @@ public class AccountGettingActivity extends AppCompatActivity {
             //String playerId = String.valueOf(pc.getCurrentPlayerId());
             //String playerId = acct.getPlayerId(this);
 
-            name.setText(personName);
-            lastName.setText(personFamilyName);
-            email.setText(personEmail);
+//            name.setText(personName);
+//            lastName.setText(personFamilyName);
+//            email.setText(personEmail);
             userIdView.setText(personId);
             //playerIdView.setText(playerId);
  //           Glide.with(this).load(String.valueOf(personPhoto)).into(img);

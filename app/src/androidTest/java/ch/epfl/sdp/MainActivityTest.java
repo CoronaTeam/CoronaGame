@@ -43,6 +43,17 @@ public class MainActivityTest {
     }
 
     @Test
+    public void testCanGoToGPSActivity() {
+        onView(withId(R.id.button_gps)).perform(click());
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        onView(withId(R.id.gpsLatitude)).check(matches(isDisplayed()));
+    }
+
+    @Test
     public void testCanGoBackFromFirebaseActivity() {
         onView(withId(R.id.button_firebase)).perform(click());
         try {

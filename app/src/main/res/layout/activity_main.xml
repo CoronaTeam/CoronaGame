@@ -10,60 +10,73 @@
         android:id="@+id/TitleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="69dp"
         android:text="@string/coronagame"
         android:textSize="30sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.503"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.1" />
-
-    <Button
-        android:id="@+id/button_intro"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="setIntroView"
-        android:text="@string/launch_introactivity"
-        app:layout_constraintBottom_toTopOf="@+id/button_firebase"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/TitleText"
-        app:layout_constraintVertical_bias="0.513" />
-
-    <Button
-        android:id="@+id/button_firebase"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="165dp"
-        android:onClick="setFirebaseView"
-        android:text="@string/launch_firebase"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
+        android:id="@+id/button_intro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:onClick="setIntroView"
+        android:text="@string/launch_introactivity"
+        app:layout_constraintStart_toStartOf="@+id/TitleText"
+        app:layout_constraintTop_toBottomOf="@+id/TitleText" />
+
+    <Button
+        android:id="@+id/button_firebase"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="56dp"
+        android:onClick="setFirebaseView"
+        android:text="@string/launch_firebase"
+        app:layout_constraintStart_toStartOf="@+id/button_intro"
+        app:layout_constraintTop_toBottomOf="@+id/button_intro" />
+
+    <Button
         android:id="@+id/button_map"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="200dp"
         android:onClick="setMapView"
         android:text="@string/launch_map"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_firebase"
-        app:layout_constraintVertical_bias="0.556" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/button_gps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="68dp"
+        android:layout_marginEnd="12dp"
         android:onClick="setGPSView"
         android:text="@string/launch_gps"
-        app:layout_constraintBottom_toTopOf="@+id/button_map"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_firebase"
-        app:layout_constraintVertical_bias="0.444" />
+        app:layout_constraintEnd_toEndOf="@+id/button_firebase"
+        app:layout_constraintTop_toBottomOf="@+id/button_firebase" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="411dp" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="411dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

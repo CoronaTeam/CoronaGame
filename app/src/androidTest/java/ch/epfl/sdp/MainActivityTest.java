@@ -33,24 +33,12 @@ public class MainActivityTest {
 
     @Test
     public void testCanGoToFirebaseActivity() {
-        onView(withId(R.id.button_firebase)).perform(click());
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        onView(withId(R.id.FirebaseTextView)).check(matches(isDisplayed()));
+        clickAndCheck(R.id.button_firebase, R.id.FirebaseTextView);
     }
 
     @Test
     public void testCanGoToGPSActivity() {
-        onView(withId(R.id.button_gps)).perform(click());
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        onView(withId(R.id.gpsLatitude)).check(matches(isDisplayed()));
+        clickAndCheck(R.id.button_gps, R.id.gpsLatitude);
     }
 
     @Test
@@ -107,5 +95,15 @@ public class MainActivityTest {
         onView(withId(R.id.button_map)).perform(click());
         Espresso.pressBack();
         // onView(withId(R.id.greetingMessage)).check(matches(withText("Hello from my unit test!")));
+    }
+
+    private void clickAndCheck(int buttonID, int UIelementID){
+        onView(withId(buttonID)).perform(click());
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        onView(withId(UIelementID)).check(matches(isDisplayed()));
     }
 }

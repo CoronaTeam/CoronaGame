@@ -2,13 +2,16 @@ package ch.epfl.sdp;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
+import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.intent.rule.IntentsTestRule;
 import androidx.test.espresso.matcher.RootMatchers;
 import androidx.test.rule.ActivityTestRule;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,10 +34,18 @@ public class AccountGettingActivityTest {
 
    // @Rule
   //  public final ActivityTestRule<AccountGettingActivity> mActivityRule = new ActivityTestRule<AccountGettingActivity>(AccountGettingActivity.class);
+//    @Rule
+//    public final IntentsTestRule<AccountGettingActivity> intentsTestRule =
+//            new IntentsTestRule<>(AccountGettingActivity.class);
     @Rule
-    public final IntentsTestRule<AccountGettingActivity> intentsTestRule =
-            new IntentsTestRule<>(AccountGettingActivity.class);
+    public ActivityTestRule<AccountGettingActivity> activityRule = new ActivityTestRule<>(AccountGettingActivity.class, true, false);
 
+
+    @Before
+    public void setUp() throws Exception{
+        Intents.init();
+        activityRule.launchActivity(new Intent());
+    }
     @Test
     public void nameIsDisplayed(){
         onView(withId(R.id.name)).check(matches(withText(User.DEFAULT_DISPLAY_NAME)));
@@ -68,6 +79,7 @@ public class AccountGettingActivityTest {
 
     @Test
     public void signOutButtonWorks(){
+
         onView(withId(R.id.button_sign_out)).perform(click());
         try {
             Thread.sleep(1000);
@@ -77,5 +89,8 @@ public class AccountGettingActivityTest {
         intended(hasComponent(AuthenticationActivity.class.getName()));//.class.getName()
       //  assertSame(getActivity().getClass(),AuthenticationActivity.class);
     }
-
+    @After
+    public void tearDown() throws Exception{
+        Intents.release();
+    }
 }

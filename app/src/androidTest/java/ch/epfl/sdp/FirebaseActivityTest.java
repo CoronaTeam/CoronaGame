@@ -57,7 +57,7 @@ public class FirebaseActivityTest {
         clickWaitAndCheckText(R.id.FirebaseDownloadButton,
                 R.id.FirebaseDownloadResult,
                 "User#000 => {Position=GeoPoint { latitude=0.0, longitude=0.0 }, Time=Timestamp(seconds=1583276400, nanoseconds=0)}",
-                10000);
+                15000);
     }
 
     @Test

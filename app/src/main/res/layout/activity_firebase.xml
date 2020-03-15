@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/FirebaseView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FirebaseActivity">
+
+    <TextView
+        android:id="@+id/FirebaseTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="37dp"
+        android:text="@string/title_activity_firebase"
+        app:layout_constraintBottom_toTopOf="@+id/FirebaseUploadButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/FirebaseUploadButton"
+        android:layout_width="167dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="16dp"
+        android:onClick="addUser"
+        android:text="@string/send"
+        app:layout_constraintBottom_toTopOf="@+id/FirebaseUploadConfirmation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/FirebaseTextView" />
+
+    <TextView
+        android:id="@+id/FirebaseUploadConfirmation"
+        android:layout_width="167dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="55dp"
+        app:layout_constraintBottom_toTopOf="@+id/FirebaseDownloadButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/FirebaseUploadButton" />
+
+    <Button
+        android:id="@+id/FirebaseDownloadButton"
+        android:layout_width="152dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="21dp"
+        android:onClick="readData"
+        android:text="@string/download"
+        app:layout_constraintBottom_toTopOf="@+id/FirebaseDownloadResult"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/FirebaseUploadConfirmation" />
+
+    <TextView
+        android:id="@+id/FirebaseDownloadResult"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="38dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/FirebaseDownloadButton" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

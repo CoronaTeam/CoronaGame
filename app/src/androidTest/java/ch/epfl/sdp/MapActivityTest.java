@@ -65,7 +65,7 @@ public class MapActivityTest {
     public void dummyTest() throws Exception{
         System.out.println("hello");
         //onView(withId(R.id.userIDText)).perform(typeText("from my unit test")).perform(closeSoftKeyboard());
-        onView(withId(R.id.launchMap)).perform(click());
+        onView(withId(R.id.button_map)).perform(click());
         ConditionWatcher.waitForCondition(new LoadingDialogInstruction());
         Espresso.pressBack();
         // onView(withId(R.id.greetingMessage)).check(matches(withText("Hello from my unit test!")));

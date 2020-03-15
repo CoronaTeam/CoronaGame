@@ -20,8 +20,8 @@ public class ConcreteFirestoreWrapper implements FirestoreWrapper {
     private DocumentReference documentReference;
 
 
-    public ConcreteFirestoreWrapper(FirebaseFirestore realFirestone) {
-        firebaseFirestore = realFirestone;
+    public ConcreteFirestoreWrapper(FirebaseFirestore realFirestore) {
+        firebaseFirestore = realFirestore;
     }
 
     @Override

@@ -58,7 +58,7 @@ public class FirebaseActivityTest {
         clickWaitAndCheckText(R.id.FirebaseDownloadButton,
                 R.id.FirebaseDownloadResult,
                 "User#000 => {Position=GeoPoint { latitude=0.0, longitude=0.0 }, Time=Timestamp(seconds=1583276400, nanoseconds=0)}",
-                15000);
+                20000);
     }
 
     @Test
@@ -112,31 +112,32 @@ public class FirebaseActivityTest {
         }
     }
 
-    private class MockFirestoreWrapper implements FirestoreWrapper {
+    public class MockFirestoreWrapper implements FirestoreWrapper {
 
         @Override
         public <A, B> FirestoreWrapper add(Map<A, B> map) {
-            return null;
+            return this;
         }
 
         @Override
         public FirestoreWrapper collection(String collectionPath) {
-            return null;
+            return this;
         }
 
         @Override
         public FirestoreWrapper addOnSuccessListener(OnSuccessListener<? super DocumentReference> onSuccessListener) {
-            return null;
+            return this;
         }
 
         @Override
         public FirestoreWrapper addOnFailureListener(OnFailureListener onFailureListener) {
-            return null;
+            return this;
         }
 
         @Override
         public FirestoreWrapper addOnCompleteListener(OnCompleteListener<QuerySnapshot> onCompleteListener) {
-            return null;
+
+            return this;
         }
 
         @Override

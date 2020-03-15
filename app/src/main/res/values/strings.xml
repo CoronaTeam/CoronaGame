@@ -23,9 +23,6 @@
     <string name="Error_adding_doc">Error adding the document</string>
     <string name="uploading">Uploading …</string>
     <string name="downloading">Downloading …</string>
-    <string name="launch_map">Launch map</string>
-    <string name="launch_introactivity">Launch IntroActivity</string>
-    <string name="launch_gps">Launch GPS</string>
     <string name="launch_firebase">Launch Firebase</string>
     <string name="title_activity_firebase">FirebaseActivity</string>
     <!-- Strings used for fragments for navigation -->

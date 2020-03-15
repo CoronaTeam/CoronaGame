@@ -53,7 +53,7 @@ public class FirebaseActivityTest {
         }
     }
 
-    @Test @Ignore
+    @Test
     public void testDataDownloadIsDisplayed() {
         clickWaitAndCheckText(R.id.FirebaseDownloadButton,
                 R.id.FirebaseDownloadResult,

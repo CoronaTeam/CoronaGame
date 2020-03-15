@@ -5,6 +5,8 @@ import android.net.ConnectivityManager;
 import android.util.Log;
 
 import androidx.core.content.ContextCompat;
+import androidx.test.espresso.Espresso;
+import androidx.test.espresso.idling.CountingIdlingResource;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -51,9 +53,10 @@ public class FirebaseActivityTest {
                 internetPermission) != PackageManager.PERMISSION_GRANTED) {
             Log.e("ABORT", "Aborting test -- not having internet permission!!!!");
         }
+        //EspressoIdling res: https://developer.android.com/reference/androidx/test/espresso/idling/CountingIdlingResource
     }
 
-    @Test
+    @Test @Ignore
     public void testDataDownloadIsDisplayed() {
         clickWaitAndCheckText(R.id.FirebaseDownloadButton,
                 R.id.FirebaseDownloadResult,

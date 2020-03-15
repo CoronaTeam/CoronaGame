@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -15,6 +16,7 @@ import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
 public class FirebaseActivity extends AppCompatActivity {
     private static final String TAG = "FirebaseActivity";
     private ConcreteFirestoreInteractor fs;
+    CountingIdlingResource countingResource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +31,8 @@ public class FirebaseActivity extends AppCompatActivity {
         } else {
             wrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
         }
-        fs = new ConcreteFirestoreInteractor(wrapper);
+        this.countingResource = new CountingIdlingResource("FirestoreServerCalls");
+        fs = new ConcreteFirestoreInteractor(wrapper, countingResource);
 
     }
 

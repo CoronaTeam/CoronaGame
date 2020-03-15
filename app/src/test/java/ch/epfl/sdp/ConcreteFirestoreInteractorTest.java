@@ -1,5 +1,7 @@
 package ch.epfl.sdp;
 
+import androidx.test.espresso.idling.CountingIdlingResource;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -24,9 +26,11 @@ import static org.junit.Assert.assertEquals;
 public class ConcreteFirestoreInteractorTest {
 
     private final MockFirestoreWrapper mockWrapper = new MockFirestoreWrapper();
-    private final FirestoreInteractor mockFSI = new ConcreteFirestoreInteractor(mockWrapper);
+    private final FirestoreInteractor mockFSI = new ConcreteFirestoreInteractor(mockWrapper,
+            new CountingIdlingResource("FooServerCalls"));
     private final FirestoreInteractor mockFSIFailure =
-            new ConcreteFirestoreInteractor(new MockFirestoneWrapperFailure());
+            new ConcreteFirestoreInteractor(new MockFirestoneWrapperFailure(),
+                    new CountingIdlingResource("FooServerFailureCalls"));
     private final Map<String, Object> user = new HashMap<>();
 
     private void init() {

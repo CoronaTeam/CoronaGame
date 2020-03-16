@@ -86,9 +86,9 @@ public class AccountGettingActivityTest {
         }
         onView(withId(UIelementID)).check(matches(isDisplayed()));
     }
-    @Test
-    public void signOutButtonWorks(){
-        clickAndCheck(R.id.button_sign_out,R.id.sign_in_button);
+  //  @Test
+   // public void signOutButtonWorks(){
+     //   clickAndCheck(R.id.button_sign_out,R.id.sign_in_button);
 
 //        onView(withId(R.id.button_sign_out)).perform(click());
 //        try {
@@ -98,7 +98,7 @@ public class AccountGettingActivityTest {
 //        }
 ////        intended(hasComponent(AuthenticationActivity.class.getName()));//.class.getName()
 //        assertSame(getActivity().getClass(),AuthenticationActivity.class);
-    }
+//    }
     @After
     public void tearDown() throws Exception{
         Intents.release();

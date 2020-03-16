@@ -35,7 +35,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/userIdView" />
+        app:layout_constraintTop_toBottomOf="@+id/userIdView"
+        app:layout_constraintVertical_bias="0.441" />
 
     <TextView
         android:id="@+id/name"
@@ -62,7 +63,7 @@
         android:id="@+id/profileImage"
         android:layout_width="109dp"
         android:layout_height="87dp"
-        android:layout_marginTop="84dp"
+        android:layout_marginTop="52dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

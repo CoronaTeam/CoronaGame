@@ -75,10 +75,11 @@ public class AuthenticationActivity extends AppCompatActivity {
         }else{
             // hide the sign-in button, launch your main activity -> already registered
             signIn.setVisibility(View.INVISIBLE);
+//            startActivity(new Intent(this, AccountGettingActivity.class));
             Intent intent = new Intent(AuthenticationActivity.this, AccountGettingActivity.class);// New activity
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); //clears this activity's stack
+//            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); //clears this activity's stack
             startActivity(intent);
-            finish(); // Launches next Activity
+//            finish(); // Launches next Activity
         }
     }
 

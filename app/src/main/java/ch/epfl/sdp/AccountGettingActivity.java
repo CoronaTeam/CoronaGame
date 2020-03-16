@@ -110,10 +110,12 @@ public class AccountGettingActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         Toast.makeText(AccountGettingActivity.this,"Signed out successfully!", Toast.LENGTH_LONG).show();
+
+
                         Intent intent = new Intent(AccountGettingActivity.this, AuthenticationActivity.class);// New activity
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); //clears this activity's stack
+               //         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); //clears this activity's stack
                         startActivity(intent);
-                        finish();
+                   //     finish();
                     }
                 });
 

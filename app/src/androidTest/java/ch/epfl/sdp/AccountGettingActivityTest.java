@@ -46,22 +46,22 @@ public class AccountGettingActivityTest {
         Intents.init();
         activityRule.launchActivity(new Intent());
     }
-    @Test
-    public void nameIsDisplayed(){
-        onView(withId(R.id.name)).check(matches(withText(User.DEFAULT_DISPLAY_NAME)));
-    }
-    @Test
-    public void lastNameIsDisplayed(){
-        onView(withId(R.id.lastName)).check(matches(withText(User.DEFAULT_FAMILY_NAME)));
-    }
-    @Test
-    public void emailIsDisplayed(){
-        onView(withId(R.id.email)).check(matches(withText(User.DEFAULT_EMAIL)));
-    }
-    @Test
-    public void userIdViewIsDisplayed() {
-        onView(withId(R.id.userIdView)).check(matches(withText(User.DEFAULT_USERID)));
-    }
+//    @Test
+//    public void nameIsDisplayed(){
+//        onView(withId(R.id.name)).check(matches(withText(User.DEFAULT_DISPLAY_NAME)));
+//    }
+//    @Test
+//    public void lastNameIsDisplayed(){
+//        onView(withId(R.id.lastName)).check(matches(withText(User.DEFAULT_FAMILY_NAME)));
+//    }
+//    @Test
+//    public void emailIsDisplayed(){
+//        onView(withId(R.id.email)).check(matches(withText(User.DEFAULT_EMAIL)));
+//    }
+//    @Test
+//    public void userIdViewIsDisplayed() {
+//        onView(withId(R.id.userIdView)).check(matches(withText(User.DEFAULT_USERID)));
+//    }
 
     @Test
     public void imageViewDoDisplayImage(){

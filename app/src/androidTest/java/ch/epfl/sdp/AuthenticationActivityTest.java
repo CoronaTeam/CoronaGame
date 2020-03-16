@@ -16,7 +16,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 public class AuthenticationActivityTest {
     @Rule
-    public ActivityTestRule<AuthenticationActivity> activityRule = new ActivityTestRule<AuthenticationActivity>(AuthenticationActivity.class, true, false);
+    public ActivityTestRule<Authentication> activityRule = new ActivityTestRule<Authentication>(Authentication.class, true, false);
     @Before
     public void setUp() throws Exception{
         Intents.init();
@@ -26,16 +26,6 @@ public class AuthenticationActivityTest {
     public void signInButtonIsDisplayedAndClickable(){
 
         onView(withId(R.id.sign_in_button)).perform(click());
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-    @Test(expected = Test.None.class) //expect no error
-    public void randomInButtonIsDisplayedAndClickable(){
-
-        onView(withId(R.id.test_button)).perform(click());
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {

@@ -22,9 +22,25 @@ public class AuthenticationActivityTest {
         Intents.init();
         activityRule.launchActivity(new Intent());
     }
-    @Test
+    @Test(expected = Test.None.class) //expect no error
     public void signInButtonIsDisplayedAndClickable(){
+
         onView(withId(R.id.sign_in_button)).perform(click());
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    @Test(expected = Test.None.class) //expect no error
+    public void randomInButtonIsDisplayedAndClickable(){
+
+        onView(withId(R.id.test_button)).perform(click());
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
     @After
     public void tearDown() throws Exception{

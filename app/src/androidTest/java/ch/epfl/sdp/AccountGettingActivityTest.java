@@ -25,6 +25,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.matcher.RootMatchers.isPlatformPopup;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.TestCase.assertNotNull;
@@ -46,22 +47,22 @@ public class AccountGettingActivityTest {
         Intents.init();
         activityRule.launchActivity(new Intent());
     }
-//    @Test
-//    public void nameIsDisplayed(){
-//        onView(withId(R.id.name)).check(matches(withText(User.DEFAULT_DISPLAY_NAME)));
-//    }
-//    @Test
-//    public void lastNameIsDisplayed(){
-//        onView(withId(R.id.lastName)).check(matches(withText(User.DEFAULT_FAMILY_NAME)));
-//    }
-//    @Test
-//    public void emailIsDisplayed(){
-//        onView(withId(R.id.email)).check(matches(withText(User.DEFAULT_EMAIL)));
-//    }
-//    @Test
-//    public void userIdViewIsDisplayed() {
-//        onView(withId(R.id.userIdView)).check(matches(withText(User.DEFAULT_USERID)));
-//    }
+    @Test
+    public void nameIsDisplayed(){
+        onView(withId(R.id.name)).check(matches(withText(User.DEFAULT_DISPLAY_NAME)));
+    }
+    @Test
+    public void lastNameIsDisplayed(){
+        onView(withId(R.id.lastName)).check(matches(withText(User.DEFAULT_FAMILY_NAME)));
+    }
+    @Test
+    public void emailIsDisplayed(){
+        onView(withId(R.id.email)).check(matches(withText(User.DEFAULT_EMAIL)));
+    }
+    @Test
+    public void userIdViewIsDisplayed() {
+        onView(withId(R.id.userIdView)).check(matches(withText(User.DEFAULT_USERID)));
+    }
 
     @Test
     public void imageViewDoDisplayImage(){
@@ -76,18 +77,27 @@ public class AccountGettingActivityTest {
     }
 
 
-
-    @Test
-    public void signOutButtonWorks(){
-
-        onView(withId(R.id.button_sign_out)).perform(click());
+    private void clickAndCheck(int buttonID, int UIelementID){
+        onView(withId(buttonID)).perform(click());
         try {
-            Thread.sleep(0);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-//        intended(hasComponent(AuthenticationActivity.class.getName()));//.class.getName()
-        assertSame(getActivity().getClass(),AuthenticationActivity.class);
+        onView(withId(UIelementID)).check(matches(isDisplayed()));
+    }
+    @Test
+    public void signOutButtonWorks(){
+        clickAndCheck(R.id.button_sign_out,R.id.sign_in_button);
+
+//        onView(withId(R.id.button_sign_out)).perform(click());
+//        try {
+//            Thread.sleep(0);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+////        intended(hasComponent(AuthenticationActivity.class.getName()));//.class.getName()
+//        assertSame(getActivity().getClass(),AuthenticationActivity.class);
     }
     @After
     public void tearDown() throws Exception{

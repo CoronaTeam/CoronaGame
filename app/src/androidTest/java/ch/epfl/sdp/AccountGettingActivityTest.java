@@ -77,22 +77,25 @@ public class AccountGettingActivityTest {
 
 
 
-//    @Test
-//    public void signOutButtonWorks(){
-//
-//        onView(withId(R.id.button_sign_out)).perform(click());
-//        try {
-//            Thread.sleep(0);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-////        intended(hasComponent(AuthenticationActivity.class.getName()));//.class.getName()
-//        assertSame(getActivity().getClass(),AuthenticationActivity.class);
-//    }
+    @Test
+    public void signOutButtonWorks(){
+
+        onView(withId(R.id.button_sign_out)).perform(click());
+        try {
+            Thread.sleep(0);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+//        intended(hasComponent(AuthenticationActivity.class.getName()));//.class.getName()
+        assertSame(getActivity().getClass(),AuthenticationActivity.class);
+    }
     @After
     public void tearDown() throws Exception{
         Intents.release();
     }
+    /*
+        This method was found on the internet for getting the current activity
+     */
     public static Activity getActivity() {
         try {
             Class activityThreadClass = Class.forName("android.app.ActivityThread");

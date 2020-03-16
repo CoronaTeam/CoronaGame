@@ -23,6 +23,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertSame;
 
 public class AccountGettingActivityTest {
 
@@ -79,19 +80,19 @@ public class AccountGettingActivityTest {
         }
         onView(withId(UIelementID)).check(matches(isDisplayed()));
     }
-//    @Test
-//    public void signOutButtonWorks(){
+    @Test
+    public void signOutButtonWorks(){
 //        clickAndCheck(R.id.button_sign_out,R.id.sign_in_button);
 
-//        onView(withId(R.id.button_sign_out)).perform(click());
-//        try {
-//            Thread.sleep(0);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        onView(withId(R.id.button_sign_out)).perform(click());
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 ////        intended(hasComponent(AuthenticationActivity.class.getName()));//.class.getName()
-//        assertSame(getActivity().getClass(),AuthenticationActivity.class);
-//    }
+        assertSame(getActivity().getClass(),Authentication.class);
+    }
     @After
     public void tearDown() throws Exception{
         Intents.release();

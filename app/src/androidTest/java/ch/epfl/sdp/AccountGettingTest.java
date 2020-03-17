@@ -77,7 +77,8 @@ public class AccountGettingTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        onView(withId(R.id.sign_in_button)).check(matches(isDisplayed()));
+        assertSame(getActivity().getClass(),Authentication.class);
+//        onView(withId(R.id.sign_in_button)).check(matches(isDisplayed()));
     }
 
 

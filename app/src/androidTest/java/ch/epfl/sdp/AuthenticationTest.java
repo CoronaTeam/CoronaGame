@@ -54,7 +54,7 @@ public class AuthenticationTest {
     }
     @Test
     public void signInButtonIsVisibleWhenAccountIsNull(){
-        onView(withText("Sign in")).check(matches(isDisplayed()));
+        onView(withId(R.id.sign_in_button)).check(matches(isDisplayed()));
 //        assertTrue(activAuth.findViewById(R.id.sign_in_button).getVisibility() == View.VISIBLE);
     }
 //    @After

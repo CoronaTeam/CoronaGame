@@ -10,13 +10,34 @@
     <string name="gps_status_off">GPS signal lost</string>
     <string name="gps_status_on">GPS signal acquired</string>
     <string name="gps_signal_missing">Missing GPS signal</string>
+
     <string name="title_activity_authentication">Authentication</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="download">Download</string>
+    <string name="send">Send</string>
+    <string name="enter_text">Enter text</string>
+    <string name="name">Name</string>
+    <string name="age">Age</string>
+    <string name="DocumentSnapshot_successfully_added">DocumentSnapshot successfully added</string>
+    <string name="Can_t_Upload_Offline">Can\'t upload while offline</string>
+    <string name="Can_t_Download_Offline">Can\'t download while offline</string>
+    <string name="error_unknown_error">Unknown error</string>
+    <string name="Error_adding_doc">Error adding the document</string>
+    <string name="uploading">Uploading …</string>
+    <string name="downloading">Downloading …</string>
+    <string name="launch_firebase">Launch Firebase</string>
+    <string name="title_activity_firebase">FirebaseActivity</string>
+
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
 
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="launch_gps">Launch GPS</string>
+    <string name="launch_introactivity">Launch IntroActivity</string>
+    <string name="launch_map">Launch map</string>
+
 </resources>

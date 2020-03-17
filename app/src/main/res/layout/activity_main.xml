@@ -19,38 +19,51 @@
         app:layout_constraintVertical_bias="0.1" />
 
     <Button
-        android:id="@+id/launchMap"
+        android:id="@+id/button_map"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="setMapView"
-        android:text="Launch map"
+        android:text="@string/launch_map"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button" />
+        app:layout_constraintTop_toBottomOf="@+id/button_gps" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/button_gps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="setGPSView"
-        android:text="Launch GPS"
-        app:layout_constraintBottom_toTopOf="@+id/launchMap"
+        android:text="@string/launch_gps"
+        app:layout_constraintBottom_toTopOf="@+id/button_map"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button2" />
+        app:layout_constraintTop_toBottomOf="@+id/button_intro" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/button_intro"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="setIntroView"
-        android:text="Launch IntroActivity"
-        app:layout_constraintBottom_toTopOf="@+id/button"
+        android:text="@string/launch_introactivity"
+        app:layout_constraintBottom_toTopOf="@+id/button_gps"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.506"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/TitleText" />
+
+
+    <Button
+        android:id="@+id/button_firebase"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:onClick="setFirebaseView"
+        android:text="@string/launch_firebase"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_intro" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

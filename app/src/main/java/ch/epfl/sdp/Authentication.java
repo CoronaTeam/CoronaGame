@@ -26,12 +26,12 @@ import com.google.android.gms.tasks.Task;
 public class Authentication extends AppCompatActivity {
     public static final int RC_SIGN_IN = 0; //any number, but common for the app
     GoogleSignInClient googleSignInClient;
-//    Button signIn; error prone line
+    View signIn;// error prone line if View is replaced by Button
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authentication);
-//        signIn = findViewById(R.id.sign_in_button);
+        signIn = findViewById(R.id.sign_in_button);
 
 
         // Configure sign-in to request the user's ID, email address, and basic
@@ -66,11 +66,10 @@ public class Authentication extends AppCompatActivity {
     private void updateUI(GoogleSignInAccount account) {
         if(account == null){
             //display the Google Sign-in button -> not yet registered
-//            signIn.setVisibility(View.VISIBLE);
-
+            signIn.setVisibility(View.VISIBLE);
         }else{
             // hide the sign-in button, launch your main activity -> already registered
-//            signIn.setVisibility(View.INVISIBLE);
+            signIn.setVisibility(View.INVISIBLE);
 //            startActivity(new Intent(this, AccountGettingActivity.class));
             Intent intent = new Intent(Authentication.this, AccountGetting.class);// New activity
 //            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); //clears this activity's stack

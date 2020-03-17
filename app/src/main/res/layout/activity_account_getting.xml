@@ -72,6 +72,7 @@
         android:id="@+id/button_sign_out"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="signOut"
         android:text="SignOut"
         app:layout_constraintBottom_toTopOf="@+id/userIdView"
         app:layout_constraintEnd_toEndOf="parent"

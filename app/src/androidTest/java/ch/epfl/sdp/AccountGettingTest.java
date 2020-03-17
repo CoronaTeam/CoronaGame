@@ -26,7 +26,7 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertSame;
 
 public class AccountGettingTest {
-
+    private AccountGetting activGetting;
    // @Rule
   //  public final ActivityTestRule<AccountGettingActivity> mActivityRule = new ActivityTestRule<AccountGettingActivity>(AccountGettingActivity.class);
 //    @Rule
@@ -39,7 +39,7 @@ public class AccountGettingTest {
     @Before
     public void setUp() throws Exception{
         Intents.init();
-        activityRule.launchActivity(new Intent());
+        activGetting = activityRule.launchActivity(new Intent());
     }
     @Test
     public void nameIsDisplayed(){
@@ -63,11 +63,21 @@ public class AccountGettingTest {
         //onView(withId(R.id.imageView)).check(matches(withDrawable(new DrawableMatcher(User.default_uri))));
         ImageView contentImage = getActivity().findViewById(R.id.profileImage);
         try {
-            Thread.sleep(5000);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         assertNotNull(contentImage.getDrawable());  //checking that the image is not null is sufficient
+    }
+    @Test
+    public void signOutWorks(){
+        activGetting.signOut(null);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        onView(withId(R.id.sign_in_button)).check(matches(isDisplayed()));
     }
 
 

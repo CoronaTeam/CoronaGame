@@ -26,7 +26,6 @@ import com.google.android.gms.tasks.Task;
  * @author lucas
  */
 public class AccountGetting extends AppCompatActivity {
-    Button signOut;
     GoogleSignInClient mGoogleSignInClient;
     TextView name;
     TextView email;
@@ -44,19 +43,6 @@ public class AccountGetting extends AppCompatActivity {
         lastName = findViewById(R.id.lastName);
         userIdView = findViewById(R.id.userIdView);
         img = findViewById(R.id.profileImage);
-//        playerIdView = findViewById(R.id.playerIdView);
-
-        signOut = findViewById(R.id.button_sign_out);
-        signOut.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                switch (v.getId()) {
-                    case R.id.button_sign_out:
-                        signOut();
-                        break;
-                }
-            }
-        });
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
@@ -99,15 +85,12 @@ public class AccountGetting extends AppCompatActivity {
 
         }
     }
-
-    private void signOut() {
+    public void signOut(View v) {
         mGoogleSignInClient.signOut()
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         Toast.makeText(AccountGetting.this,"Signed out successfully!", Toast.LENGTH_LONG).show();
-
-
                         Intent intent = new Intent(AccountGetting.this, Authentication.class);// New activity
 //                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); //clears this activity's stack
                         startActivity(intent);

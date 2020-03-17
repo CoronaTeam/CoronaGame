@@ -64,4 +64,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_intro" />
 
+    <Button
+        android:id="@+id/launch_history"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="136dp"
+        android:layout_marginTop="32dp"
+        android:onClick="setHistoryView"
+        android:text="LANUCH HISTORY"
+        app:layout_constraintBottom_toTopOf="@+id/button_map"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_gps"
+        app:layout_constraintVertical_bias="0.025" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

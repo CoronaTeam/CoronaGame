@@ -45,6 +45,13 @@
         </activity>
 
         <activity
+            android:name=".HistoryActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".MapActivity"
             android:parentActivityName=".MainActivity">
         </activity>

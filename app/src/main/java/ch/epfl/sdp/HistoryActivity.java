@@ -23,18 +23,10 @@ public class HistoryActivity extends AppCompatActivity {
 
     private TextView connectionStatus;
 
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_history);
-
-        db = new HistoryFirestoreInteractor(new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance()));
-
-        ListView historyTracker = findViewById(R.id.history_tracker);
-
+    private void initQueryHandler() {
         ArrayAdapter historyAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
+        ListView historyTracker = findViewById(R.id.history_tracker);
         historyTracker.setAdapter(historyAdapter);
-
-        connectionStatus = findViewById(R.id.conn_status);
 
         handler = new QueryHandler() {
             @Override
@@ -58,6 +50,18 @@ public class HistoryActivity extends AppCompatActivity {
                 connectionStatus.setText("CONNECTION ERROR");
             }
         };
+    }
+
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_history);
+
+        FirestoreWrapper firestoreWrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
+        db = new HistoryFirestoreInteractor(firestoreWrapper);
+
+        connectionStatus = findViewById(R.id.conn_status);
+
+        initQueryHandler();
 
         refreshHistory(null);
     }

@@ -56,4 +56,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, IntroActivity.class);
         startActivity(intent);
     }
+    /**Called when the user taps the BeginSignIn button*/
+    public void setSignInView(View v){
+        Intent intent = new Intent(this, Authentication.class);
+        startActivity(intent);
+    }
 }

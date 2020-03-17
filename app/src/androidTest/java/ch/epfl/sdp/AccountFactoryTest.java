@@ -1,5 +1,7 @@
 package ch.epfl.sdp;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,8 +16,13 @@ public class AccountFactoryTest {
         //  googleFactory = new AccountFactory() NOT TESTABLE
     }
     @Test(expected = IllegalArgumentException.class)
-    public void throwsExceptionIfArgumentIsNullForCreation(){
+    public void throwsExceptionIfUserIsNullForCreation(){
         User nullUser = null;
+        new AccountFactory(nullUser);
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void throwsExceptionIfgoogleAccountIsNullForCreation(){
+        GoogleSignInAccount nullUser = null;
         new AccountFactory(nullUser);
     }
     @Test

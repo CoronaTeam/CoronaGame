@@ -1,31 +1,20 @@
 package ch.epfl.sdp;
 
-
-import android.app.Activity;
-import android.content.Intent;
 import android.widget.ImageView;
 
-import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.intent.rule.IntentsTestRule;
-import androidx.test.rule.ActivityTestRule;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.lang.reflect.Field;
-import java.util.Map;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertSame;
-
+import static ch.epfl.sdp.TestTools.*;
 public class AccountGettingTest {
    // @Rule
   //  public final ActivityTestRule<AccountGettingActivity> mActivityRule = new ActivityTestRule<AccountGettingActivity>(AccountGettingActivity.class);
@@ -62,35 +51,19 @@ public class AccountGettingTest {
     public void imageViewDoDisplayImage(){
         //onView(withId(R.id.imageView)).check(matches(withDrawable(new DrawableMatcher(User.default_uri))));
         ImageView contentImage = getActivity().findViewById(R.id.profileImage);
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        sleep();
         assertNotNull(contentImage.getDrawable());  //checking that the image is not null is sufficient
     }
     @Test
     public void signOutWorks(){
         ((AccountGetting)(getActivity())).signOut(null);
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        sleep();
         assertSame(getActivity().getClass(),Authentication.class);
 //        onView(withId(R.id.sign_in_button)).check(matches(isDisplayed()));
     }
 
 
-    private void clickAndCheck(int buttonID, int UIelementID){
-        onView(withId(buttonID)).perform(click());
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        onView(withId(UIelementID)).check(matches(isDisplayed()));
-    }
+
     @Test
     public void signOutButtonWorks(){
         clickAndCheck(R.id.button_sign_out,R.id.sign_in_button);
@@ -99,34 +72,5 @@ public class AccountGettingTest {
 //    public void tearDown() throws Exception{
 //        Intents.release();
 //    }
-    /*
-        This method was found on the internet for getting the current activity
-     */
-    public static Activity getActivity() {
-        try {
-            Class activityThreadClass = Class.forName("android.app.ActivityThread");
-            Object activityThread = activityThreadClass.getMethod("currentActivityThread").invoke(null);
-            Field activitiesField = activityThreadClass.getDeclaredField("mActivities");
-            activitiesField.setAccessible(true);
 
-            Map<Object, Object> activities = (Map<Object, Object>) activitiesField.get(activityThread);
-            if (activities == null)
-                return null;
-
-            for (Object activityRecord : activities.values()) {
-                Class activityRecordClass = activityRecord.getClass();
-                Field pausedField = activityRecordClass.getDeclaredField("paused");
-                pausedField.setAccessible(true);
-                if (!pausedField.getBoolean(activityRecord)) {
-                    Field activityField = activityRecordClass.getDeclaredField("activity");
-                    activityField.setAccessible(true);
-                    Activity activity = (Activity) activityField.get(activityRecord);
-                    return activity;
-                }
-            }
-        }catch(Exception e){
-            return null;    //there should not be any exception, if so, try another way for getting the activity.
-        }
-        return null;
-    }
 }

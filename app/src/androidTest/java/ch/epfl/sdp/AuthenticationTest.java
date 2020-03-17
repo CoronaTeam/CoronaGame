@@ -1,33 +1,21 @@
 package ch.epfl.sdp;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.view.View;
-
-import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.intent.rule.IntentsTestRule;
-import androidx.test.rule.ActivityTestRule;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.Visibility.VISIBLE;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static junit.framework.TestCase.assertTrue;
 
-//@RunWith(JUnitPlatform.class)
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static ch.epfl.sdp.TestTools.getActivity;
+
 public class AuthenticationTest {
-    private Authentication activAuth;
     @Rule
     public IntentsTestRule<Authentication> activityRule = new IntentsTestRule<Authentication>(Authentication.class);
 //    @Before
@@ -44,12 +32,12 @@ public class AuthenticationTest {
 
     @Test(expected = IllegalStateException.class)
     public void onActivityResultThrowsExceptionOnWrongRequestCode(){
-        ((Authentication )AccountGettingTest.getActivity()).onActivityResult(Authentication.RC_SIGN_IN -1 ,0,null);
+        ((Authentication )getActivity()).onActivityResult(Authentication.RC_SIGN_IN -1 ,0,null);
       //  Assert.assertThrows(IllegalStateException.class,()->{activAuth.onActivityResult(-1,-1,null)});
     }
     @Test(expected = Test.None.class)
     public void onActivityResultThrowsNoExceptionOnRightRequestCode(){
-        ((Authentication )AccountGettingTest.getActivity()).onActivityResult(Authentication.RC_SIGN_IN  ,0,null);
+        ((Authentication )getActivity()).onActivityResult(Authentication.RC_SIGN_IN  ,0,null);
         //  Assert.assertThrows(IllegalStateException.class,()->{activAuth.onActivityResult(-1,-1,null)});
     }
     @Test

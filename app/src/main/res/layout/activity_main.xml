@@ -65,5 +65,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_intro" />
 
+    <Button
+        android:id="@+id/launch_SignIn_Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="setSignInView"
+        android:text="@string/launch_signIn"
+        app:layout_constraintBottom_toTopOf="@+id/button_map"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_gps" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

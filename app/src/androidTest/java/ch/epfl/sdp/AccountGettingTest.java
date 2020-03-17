@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.widget.ImageView;
 
 import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.intent.rule.IntentsTestRule;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
@@ -26,21 +27,20 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertSame;
 
 public class AccountGettingTest {
-    private AccountGetting activGetting;
    // @Rule
   //  public final ActivityTestRule<AccountGettingActivity> mActivityRule = new ActivityTestRule<AccountGettingActivity>(AccountGettingActivity.class);
 //    @Rule
 //    public final IntentsTestRule<AccountGettingActivity> intentsTestRule =
 //            new IntentsTestRule<>(AccountGettingActivity.class);
     @Rule
-    public ActivityTestRule<AccountGetting> activityRule = new ActivityTestRule<>(AccountGetting.class, true, false);
+    public IntentsTestRule<AccountGetting> activityRule = new IntentsTestRule<>(AccountGetting.class);
 
 
-    @Before
-    public void setUp() throws Exception{
-        Intents.init();
-        activGetting = activityRule.launchActivity(new Intent());
-    }
+//    @Before
+//    public void setUp() throws Exception{
+//        Intents.init();
+//        activityRule.launchActivity(new Intent());
+//    }
     @Test
     public void nameIsDisplayed(){
         onView(withId(R.id.name)).check(matches(withText(User.DEFAULT_DISPLAY_NAME)));
@@ -71,7 +71,7 @@ public class AccountGettingTest {
     }
     @Test
     public void signOutWorks(){
-        activGetting.signOut(null);
+        ((AccountGetting)(getActivity())).signOut(null);
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
@@ -103,10 +103,10 @@ public class AccountGettingTest {
 //////        intended(hasComponent(AuthenticationActivity.class.getName()));//.class.getName()
 //        assertSame(getActivity().getClass(),Authentication.class);
 //    }
-    @After
-    public void tearDown() throws Exception{
-        Intents.release();
-    }
+//    @After
+//    public void tearDown() throws Exception{
+//        Intents.release();
+//    }
     /*
         This method was found on the internet for getting the current activity
      */

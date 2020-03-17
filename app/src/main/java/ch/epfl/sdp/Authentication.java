@@ -74,7 +74,7 @@ public class Authentication extends AppCompatActivity {
             Intent intent = new Intent(Authentication.this, AccountGetting.class);// New activity
 //            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); //clears this activity's stack
             startActivity(intent);
-//            finish(); // Launches next Activity
+            finish(); // Launches next Activity
         }
     }
 

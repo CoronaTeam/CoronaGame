@@ -10,7 +10,7 @@ public interface Account {
     public String getFamilyName();
     public String getEmail();
     public Uri getPhotoUrl();
-    //public Boolean isGoogle();
+    public Boolean isGoogle();
     public String getPlayerId(Activity activity);
     public GoogleSignInAccount getAccount();
     public String getId();

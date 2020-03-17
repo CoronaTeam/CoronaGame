@@ -64,6 +64,11 @@ public class AccountFactory implements Account {
     }
 
     @Override
+    public Boolean isGoogle() {
+        return googleSignInAccount !=null;
+    }
+
+    @Override
     public String getPlayerId(Activity activity) {
         if(user != null){
             return user.getPlayerId(activity);

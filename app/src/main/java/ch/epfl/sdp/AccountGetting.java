@@ -27,6 +27,7 @@ import com.google.android.gms.tasks.Task;
  */
 public class AccountGetting extends AppCompatActivity {
     GoogleSignInClient mGoogleSignInClient;
+    Account accountInUse;
     TextView name;
     TextView email;
     TextView lastName;
@@ -58,9 +59,11 @@ public class AccountGetting extends AppCompatActivity {
     private void showAccountOrCreateAGenericOneForTesting(GoogleSignInAccount acct) {
         if(acct == null){
             User u = new User();//generic test user
-            getAndShowAccountInfo(new AccountFactory(u));
+            accountInUse = new AccountFactory(u);
+            getAndShowAccountInfo(accountInUse);
         }else{
-            getAndShowAccountInfo(new AccountFactory(acct));
+            accountInUse = new AccountFactory(acct);
+            getAndShowAccountInfo(accountInUse);
         }
     }
 
@@ -86,6 +89,7 @@ public class AccountGetting extends AppCompatActivity {
         }
     }
     public void signOut(View v) {
+        if(accountInUse.isGoogle()){
         mGoogleSignInClient.signOut()
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                     @Override
@@ -97,6 +101,13 @@ public class AccountGetting extends AppCompatActivity {
                              finish();
                     }
                 });
+        }else{
+            //no need to sign out from google, just go to the other activity
+            // do not toast during test !
+            Intent intent = new Intent(AccountGetting.this, Authentication.class);// New activity
+            startActivity(intent);
+            finish();
+        }
 
     }
 }

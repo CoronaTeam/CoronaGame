@@ -55,6 +55,11 @@ public class User implements Account {
     }
 
     @Override
+    public Boolean isGoogle() {
+        return false;
+    }
+
+    @Override
     public String getPlayerId(Activity activity) {
         return this.playerId;
     } // activity argument not used: not clean :(

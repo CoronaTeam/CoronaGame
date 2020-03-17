@@ -69,41 +69,32 @@ public class AccountGettingTest {
         }
         assertNotNull(contentImage.getDrawable());  //checking that the image is not null is sufficient
     }
-//    @Test
-//    public void signOutWorks(){
-//        ((AccountGetting)(getActivity())).signOut(null);
-//        try {
-//            Thread.sleep(2000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//        assertSame(getActivity().getClass(),Authentication.class);
-////        onView(withId(R.id.sign_in_button)).check(matches(isDisplayed()));
-//    }
+    @Test
+    public void signOutWorks(){
+        ((AccountGetting)(getActivity())).signOut(null);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        assertSame(getActivity().getClass(),Authentication.class);
+//        onView(withId(R.id.sign_in_button)).check(matches(isDisplayed()));
+    }
 
 
-//    private void clickAndCheck(int buttonID, int UIelementID){
-//        onView(withId(buttonID)).perform(click());
-//        try {
-//            Thread.sleep(2000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//        onView(withId(UIelementID)).check(matches(isDisplayed()));
-//    }
-//    @Test
-//    public void signOutButtonWorks(){
-////        clickAndCheck(R.id.button_sign_out,R.id.sign_in_button);
-//
-//        onView(withId(R.id.button_sign_out)).perform(click());
-//        try {
-//            Thread.sleep(2000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//////        intended(hasComponent(AuthenticationActivity.class.getName()));//.class.getName()
-//        assertSame(getActivity().getClass(),Authentication.class);
-//    }
+    private void clickAndCheck(int buttonID, int UIelementID){
+        onView(withId(buttonID)).perform(click());
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        onView(withId(UIelementID)).check(matches(isDisplayed()));
+    }
+    @Test
+    public void signOutButtonWorks(){
+        clickAndCheck(R.id.button_sign_out,R.id.sign_in_button);
+    }
 //    @After
 //    public void tearDown() throws Exception{
 //        Intents.release();

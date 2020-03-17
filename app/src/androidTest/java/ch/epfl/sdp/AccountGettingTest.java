@@ -69,17 +69,17 @@ public class AccountGettingTest {
         }
         assertNotNull(contentImage.getDrawable());  //checking that the image is not null is sufficient
     }
-    @Test
-    public void signOutWorks(){
-        ((AccountGetting)(getActivity())).signOut(null);
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        assertSame(getActivity().getClass(),Authentication.class);
-//        onView(withId(R.id.sign_in_button)).check(matches(isDisplayed()));
-    }
+//    @Test
+//    public void signOutWorks(){
+//        ((AccountGetting)(getActivity())).signOut(null);
+//        try {
+//            Thread.sleep(2000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        assertSame(getActivity().getClass(),Authentication.class);
+////        onView(withId(R.id.sign_in_button)).check(matches(isDisplayed()));
+//    }
 
 
 //    private void clickAndCheck(int buttonID, int UIelementID){

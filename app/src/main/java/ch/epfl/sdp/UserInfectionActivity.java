@@ -1,11 +1,14 @@
 package ch.epfl.sdp;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.test.espresso.idling.CountingIdlingResource;
 
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -13,6 +16,7 @@ public class UserInfectionActivity extends AppCompatActivity {
 
     private Button infectionStatusButton;
     private TextView infectionStatusView;
+    private RealFirestoreInteractor db = new RealFirestoreInteractor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,11 +34,14 @@ public class UserInfectionActivity extends AppCompatActivity {
                 infectionStatusButton.setText(R.string.i_am_cured);
                 infectionStatusButton.setBackgroundTintList(getResources().getColorStateList(R.color.colorGreenCured));
                 infectionStatusView.setText(R.string.your_user_status_is_set_to_infected);
+                //upload to firebase
+
             }
             else if (buttonText.equals(getResources().getString(R.string.i_am_cured))) {
                 infectionStatusButton.setText(R.string.i_am_infected);
                 infectionStatusButton.setBackgroundTintList(getResources().getColorStateList(R.color.colorRedInfected));
                 infectionStatusView.setText(R.string.your_user_status_is_set_to_not_infected);
+                //upload to firebase
             }
         });
     }

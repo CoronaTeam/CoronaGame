@@ -23,19 +23,6 @@
                 <!-- >   <category android:name="" /><! -->
             </intent-filter>
         </activity>
-        <activity android:name=".AuthenticationActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.AUTH" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-                <!-- >   <category android:name="" /><! -->
-            </intent-filter>
-        </activity>
-        <activity android:name=".AccountGettingActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.AUTH" />
-            </intent-filter>
-        </activity>
         <activity
             android:name=".MapActivity"
             android:parentActivityName=".MainActivity" />

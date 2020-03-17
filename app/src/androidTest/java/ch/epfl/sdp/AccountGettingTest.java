@@ -25,7 +25,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertSame;
 
-public class AccountGettingActivityTest {
+public class AccountGettingTest {
 
    // @Rule
   //  public final ActivityTestRule<AccountGettingActivity> mActivityRule = new ActivityTestRule<AccountGettingActivity>(AccountGettingActivity.class);
@@ -71,28 +71,28 @@ public class AccountGettingActivityTest {
     }
 
 
-    private void clickAndCheck(int buttonID, int UIelementID){
-        onView(withId(buttonID)).perform(click());
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        onView(withId(UIelementID)).check(matches(isDisplayed()));
-    }
-    @Test
-    public void signOutButtonWorks(){
-//        clickAndCheck(R.id.button_sign_out,R.id.sign_in_button);
-
-        onView(withId(R.id.button_sign_out)).perform(click());
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-////        intended(hasComponent(AuthenticationActivity.class.getName()));//.class.getName()
-        assertSame(getActivity().getClass(),Authentication.class);
-    }
+//    private void clickAndCheck(int buttonID, int UIelementID){
+//        onView(withId(buttonID)).perform(click());
+//        try {
+//            Thread.sleep(2000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        onView(withId(UIelementID)).check(matches(isDisplayed()));
+//    }
+//    @Test
+//    public void signOutButtonWorks(){
+////        clickAndCheck(R.id.button_sign_out,R.id.sign_in_button);
+//
+//        onView(withId(R.id.button_sign_out)).perform(click());
+//        try {
+//            Thread.sleep(2000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//////        intended(hasComponent(AuthenticationActivity.class.getName()));//.class.getName()
+//        assertSame(getActivity().getClass(),Authentication.class);
+//    }
     @After
     public void tearDown() throws Exception{
         Intents.release();

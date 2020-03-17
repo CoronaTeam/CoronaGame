@@ -7,33 +7,56 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.jetbrains.annotations.NotNull;
+
 public class UserInfectionActivity extends AppCompatActivity {
+
+    private Button infectionStatusButton;
+    private TextView infectionStatusView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_infection);
 
-        TextView infectionStatusView = findViewById(R.id.infectionStatusView);
-        Button infectionStatusButton = findViewById(R.id.infectionStatusButton);
+        infectionStatusView = findViewById(R.id.infectionStatusView);
+        infectionStatusButton = findViewById(R.id.infectionStatusButton);
+        infectionStatusView.setSaveEnabled(true);
+        infectionStatusButton.setSaveEnabled(true);
 
-        infectionStatusButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (v.getId() == R.id.infectionStatusButton) {
-                    String buttonText = ((Button)v).getText().toString();
-                    if (buttonText.equals("I am infected")) {
-                        infectionStatusButton.setText("I am cured");
-                        infectionStatusButton.setBackgroundTintList(getResources().getColorStateList(R.color.colorGreenCured));
-                        infectionStatusView.setText("Your user status is set to infected.");
-                    }
-                    else if (buttonText.equals("I am cured")) {
-                        infectionStatusButton.setText("I am infected");
-                        infectionStatusButton.setBackgroundTintList(getResources().getColorStateList(R.color.colorRedInfected));
-                        infectionStatusView.setText("Your user status is set to not infected.");
-                    }
-                }
+        infectionStatusButton.setOnClickListener(v -> {
+            CharSequence buttonText = ((Button)v).getText();
+            if (buttonText.equals(getResources().getString(R.string.i_am_infected))) {
+                infectionStatusButton.setText(R.string.i_am_cured);
+                infectionStatusButton.setBackgroundTintList(getResources().getColorStateList(R.color.colorGreenCured));
+                infectionStatusView.setText(R.string.your_user_status_is_set_to_infected);
+            }
+            else if (buttonText.equals(getResources().getString(R.string.i_am_cured))) {
+                infectionStatusButton.setText(R.string.i_am_infected);
+                infectionStatusButton.setBackgroundTintList(getResources().getColorStateList(R.color.colorRedInfected));
+                infectionStatusView.setText(R.string.your_user_status_is_set_to_not_infected);
             }
         });
+    }
+
+
+    @Override
+    public void onSaveInstanceState(@NotNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        TextView infectionText = findViewById(R.id.infectionStatusView);
+        Button infectionButton = findViewById(R.id.infectionStatusButton);
+        outState.putCharSequence("INFECTION_STATUS_TEXT", infectionText.getText());
+        outState.putCharSequence("INFECTION_STATUS_BUTTON", infectionButton.getText());
+    }
+
+    @Override
+    public void onRestoreInstanceState(@NotNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        TextView infectionText = findViewById(R.id.infectionStatusView);
+        Button infectionButton = findViewById(R.id.infectionStatusButton);
+        CharSequence DEFAULT_INFECTION_TEXT = getResources().getString(R.string.your_user_status_is_set_to_not_infected);
+        CharSequence DEFAULT_INFECTION_BUTTON = getResources().getString(R.string.i_am_infected);
+        infectionText.setText(savedInstanceState.getCharSequence("INFECTION_STATUS_TEXT", DEFAULT_INFECTION_TEXT));
+        infectionButton.setText(savedInstanceState.getCharSequence("INFECTION_STATUS_BUTTON", DEFAULT_INFECTION_BUTTON));
     }
 }

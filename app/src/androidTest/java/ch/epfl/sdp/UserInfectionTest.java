@@ -35,18 +35,13 @@ public class UserInfectionTest {
     @Test
     public void keepLastInfectionStatusWhenRestartingApp() {
         ActivityScenario<UserInfectionActivity> launchedActivity = scenario.launch(UserInfectionActivity.class);
-        //click
         clickWaitAndCheckTexts(R.id.infectionStatusButton, R.id.infectionStatusView, "I am cured", "Your user status is set to infected.", 5000);
         launchedActivity.recreate();
-        //check
         onView(withId(R.id.infectionStatusView)).check(matches(withText("Your user status is set to infected.")));
         onView(withId(R.id.infectionStatusButton)).check(matches(withText("I am cured")));
 
     }
 
-
-    @Test
-    public void infectionStatusIsUploaded() {}
 
     private void clickWaitAndCheckTexts(int buttonID, int textID, String expectedButtonText, String expectedText, int waitingTime) {
         onView(withId(buttonID)).perform(click());

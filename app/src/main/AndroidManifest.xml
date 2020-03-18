@@ -75,11 +75,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".MapActivity"
-            android:parentActivityName=".MainActivity">
-        </activity>
-
     </application>
 
 </manifest>

@@ -7,6 +7,7 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -14,8 +15,10 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
@@ -49,7 +52,8 @@ public class HistoryActivityTest {
     @Before
     public void setupMockito() {
         when(querySnapshot.iterator()).thenReturn(Collections.singletonList(queryDocumentSnapshot).iterator());
-        when(queryDocumentSnapshot.get("Time")).thenReturn(new Timestamp(new Date(2020, 03, 17, 22, 11, 00)));
+        Date date = new GregorianCalendar(2020, Calendar.MARCH, 17).getTime();
+        when(queryDocumentSnapshot.get("Time")).thenReturn(new Timestamp(date));
         when(queryDocumentSnapshot.get("Position")).thenReturn(new GeoPoint(19, 98));
 
         when(unreadableSnapshot.iterator()).thenReturn(Collections.singletonList(unreadableDocumentSnapshot).iterator());
@@ -73,7 +77,15 @@ public class HistoryActivityTest {
         onData(anything())
                 .inAdapterView(withId(R.id.history_tracker))
                 .atPosition(0)
-                .check(matches(withText("Found @ 19.0:98.0 on Sat Apr 17 22:11:00 GMT+01:00 3920")));
+                .check(matches(withText(CoreMatchers.startsWith("Found @ 19.0:98.0 on "))));
+        onData(anything())
+                .inAdapterView(withId(R.id.history_tracker))
+                .atPosition(0)
+                .check(matches(withText(CoreMatchers.containsString("2020"))));
+        onData(anything())
+                .inAdapterView(withId(R.id.history_tracker))
+                .atPosition(0)
+                .check(matches(withText(CoreMatchers.containsString("17"))));
     }
 
     @Test

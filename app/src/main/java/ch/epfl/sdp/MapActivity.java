@@ -107,6 +107,9 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
     private void initFireBaseQueryHandler() {
 
         fireBaseHandler = new QueryHandler() {
+            Iterator<QueryDocumentSnapshot> qsIterator;
+            Iterator<Circle> pmIterator;
+
             @Override
             public void onSuccess(QuerySnapshot snapshot) {
 
@@ -116,10 +119,24 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
                 there is new data make the map blink like a christmas tree
                  */
 
-                Iterator<QueryDocumentSnapshot> qsIterator = snapshot.iterator(); // data from firebase
-                Iterator<Circle> pmIterator = otherUsersPositionMarkers.iterator(); // local list of position marker
+                qsIterator = snapshot.iterator(); // data from firebase
+                pmIterator = otherUsersPositionMarkers.iterator(); // local list of position marker
 
                 // update the Arraylist contents first
+                updatePositionMarkersList();
+                // Run if there is new elements
+                addMarkersToMarkerList();
+
+                //refresh map data
+                positionMarkerManager.update(otherUsersPositionMarkers);
+            }
+
+            @Override
+            public void onFailure() {
+                Toast.makeText(classPointer, "Cannot retrieve positions from database", Toast.LENGTH_LONG).show();
+            }
+
+            private void updatePositionMarkersList(){
                 while (pmIterator.hasNext()){
                     if(qsIterator.hasNext()){
                         QueryDocumentSnapshot qs = qsIterator.next();
@@ -135,7 +152,9 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
                         pmIterator.remove();
                     }
                 }
-                // Run if there is new elements
+            }
+
+            private void addMarkersToMarkerList(){
                 while (qsIterator.hasNext()){
                     QueryDocumentSnapshot qs = qsIterator.next();
                     try {
@@ -149,12 +168,6 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
                     } catch (NullPointerException ignored) { }
 
                 }
-                positionMarkerManager.update(otherUsersPositionMarkers);
-            }
-
-            @Override
-            public void onFailure() {
-                Toast.makeText(classPointer, "Cannot retrieve positions from database", Toast.LENGTH_LONG).show();
             }
         };
 

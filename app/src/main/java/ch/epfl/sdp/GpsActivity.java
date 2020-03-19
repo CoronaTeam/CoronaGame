@@ -7,6 +7,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -17,7 +18,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
+
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import static ch.epfl.sdp.LocationBroker.Provider.GPS;
 
@@ -31,15 +38,25 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
 
     private EditText latitudeBox;
     private EditText longitudeBox;
+    private TextView uploadStatus;
 
     private ArrayAdapter<String> trackerAdapter;
 
     private Location prevLocation;
 
+    private Account account;
+
+    private FirestoreInteractor db;
+
     @VisibleForTesting
     void setLocationBroker(LocationBroker testBroker) {
         locationBroker = testBroker;
         locationBroker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, this);
+    }
+
+    @VisibleForTesting
+    void setFirestoreInteractor(FirestoreInteractor interactor) {
+        db = interactor;
     }
 
     private void displayNewLocation(Location newLocation) {
@@ -64,9 +81,21 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         }
     }
 
+    private void registerNewLocation(Location newLocation) {
+        uploadStatus.setText("Uploading...");
+        Map<String, PositionRecord> element = new HashMap();
+        element.put("Position", new PositionRecord(Timestamp.now(), new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude())));
+        db.write(element, o -> {
+            uploadStatus.setText("SYNC OK");
+        }, e -> {
+            uploadStatus.setText("SYNC ERROR!");
+        });
+    }
+
     @Override
     public void onLocationChanged(Location location) {
         if (locationBroker.hasPermissions(GPS)) {
+            registerNewLocation(location);
             displayNewLocation(location);
         } else {
             Toast.makeText(this, "Missing permission", Toast.LENGTH_LONG).show();
@@ -123,6 +152,7 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
 
         latitudeBox = findViewById(R.id.gpsLatitude);
         longitudeBox = findViewById(R.id.gpsLongitude);
+        uploadStatus = findViewById(R.id.history_upload_status);
 
         ListView locationTracker = findViewById(R.id.location_tracker);
 
@@ -133,6 +163,13 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         if (locationBroker == null) {
             locationBroker = new ConcreteLocationBroker((LocationManager) getSystemService(Context.LOCATION_SERVICE), this);
         }
+
+        // TODO: Take real account
+        account = AccountGetting.getAccount(this);
+
+        FirestoreWrapper wrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
+        db = new HistoryFirestoreInteractor(wrapper, account);
+        Log.e("TEST", account.getId());
     }
 
     // TODO: think about using bluetooth technology to improve accuracy

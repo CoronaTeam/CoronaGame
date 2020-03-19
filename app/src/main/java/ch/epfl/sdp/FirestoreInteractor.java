@@ -1,5 +1,10 @@
 package ch.epfl.sdp;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+import java.util.Map;
+
 import kotlin.NotImplementedError;
 
 // TODO: This should become an interface again (is abstract class for legacy compatibility)
@@ -20,6 +25,10 @@ abstract class FirestoreInteractor {
      */
     void read(QueryHandler handler) {
         // TODO: Convert this class to interface
+        throw new NotImplementedError();
+    }
+
+    void write(Map<String, PositionRecord> content, OnSuccessListener success, OnFailureListener failure) {
         throw new NotImplementedError();
     }
 

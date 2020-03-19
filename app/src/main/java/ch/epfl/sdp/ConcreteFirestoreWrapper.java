@@ -18,7 +18,7 @@ public class ConcreteFirestoreWrapper implements FirestoreWrapper {
     private Task<DocumentReference> documentReferenceTask;
     private Task<QuerySnapshot> querySnapshotTask;
     private DocumentReference documentReference;
-
+    private Task<Void> documentSetReferenceTask;
 
     public ConcreteFirestoreWrapper(FirebaseFirestore realFirestore) {
         firebaseFirestore = realFirestore;
@@ -54,10 +54,33 @@ public class ConcreteFirestoreWrapper implements FirestoreWrapper {
         return this;
     }
 
+    @Override
+    public FirestoreWrapper addOnSetSuccessListener(OnSuccessListener<Void> onSuccessListener) {
+        documentSetReferenceTask.addOnSuccessListener(onSuccessListener);
+        return this;
+    }
+
+    @Override
+    public FirestoreWrapper addOnSetFailureListener(OnFailureListener onFailureListener) {
+        documentSetReferenceTask.addOnFailureListener(onFailureListener);
+        return this;
+    }
 
     @Override
     public FirestoreWrapper get() {
         this.querySnapshotTask = collectionReference.get();
+        return this;
+    }
+
+    @Override
+    public FirestoreWrapper document(String documentPath) {
+        this.documentReference = collectionReference.document(documentPath);
+        return this;
+    }
+
+    @Override
+    public <A, B> FirestoreWrapper set(Map<A, B> map) {
+        this.documentSetReferenceTask = documentReference.set(map);
         return this;
     }
 

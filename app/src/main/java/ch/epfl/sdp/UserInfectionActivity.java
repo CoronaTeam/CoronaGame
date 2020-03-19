@@ -39,7 +39,7 @@ public class UserInfectionActivity extends AppCompatActivity {
 
 
             }
-            else if (buttonText.equals(getResources().getString(R.string.i_am_cured))) {
+            else {
                 infectionStatusButton.setText(R.string.i_am_infected);
                 infectionStatusButton.setBackgroundTintList(getResources().getColorStateList(R.color.colorRedInfected));
                 infectionStatusView.setText(R.string.your_user_status_is_set_to_not_infected);

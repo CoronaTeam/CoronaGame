@@ -20,8 +20,6 @@ public class User {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private Map<String, Object> user = new HashMap<>();
 
-    public User() {}
-
     public User(String userName, int userAge, boolean infected) {
         user.put("Name", userName);
         user.put("Age", userAge);

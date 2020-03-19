@@ -32,10 +32,8 @@ public class UserInfectionActivity extends AppCompatActivity {
         infectionStatusButton.setOnClickListener(v -> {
             CharSequence buttonText = ((Button)v).getText();
             if (buttonText.equals(getResources().getString(R.string.i_am_infected))) {
-                infectionStatusButton.setText(R.string.i_am_cured);
-                infectionStatusButton.setBackgroundTintList(
-                        getResources().getColorStateList(R.color.colorGreenCured));
-                infectionStatusView.setText(R.string.your_user_status_is_set_to_infected);
+                clickAction(infectionStatusButton, infectionStatusView, R.string.i_am_cured,
+                        R.string.your_user_status_is_set_to_infected, R.color.colorGreenCured);
                 //upload to firebase
                 db.modifyUserInfectionStatus(userName, true,
                         value -> infectionUploadView.setText(value));
@@ -43,15 +41,20 @@ public class UserInfectionActivity extends AppCompatActivity {
 
             }
             else {
-                infectionStatusButton.setText(R.string.i_am_infected);
-                infectionStatusButton.setBackgroundTintList(
-                        getResources().getColorStateList(R.color.colorRedInfected));
-                infectionStatusView.setText(R.string.your_user_status_is_set_to_not_infected);
+                clickAction(infectionStatusButton, infectionStatusView, R.string.i_am_infected,
+                        R.string.your_user_status_is_set_to_not_infected, R.color.colorRedInfected);
                 //upload to firebase
                 db.modifyUserInfectionStatus(userName, false,
                         value -> infectionUploadView.setText(value));
             }
         });
+    }
+
+    private void clickAction(Button button, TextView textView, int buttonText, int textViewText, int buttonColor) {
+        button.setText(buttonText);
+        button.setBackgroundTintList(
+                getResources().getColorStateList(buttonColor));
+        textView.setText(textViewText);
     }
 
 

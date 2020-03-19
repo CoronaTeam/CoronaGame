@@ -19,6 +19,8 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
@@ -53,12 +55,15 @@ public class HistoryActivityTest {
     public void setupMockito() {
         when(querySnapshot.iterator()).thenReturn(Collections.singletonList(queryDocumentSnapshot).iterator());
         Date date = new GregorianCalendar(2020, Calendar.MARCH, 17).getTime();
-        when(queryDocumentSnapshot.get("Time")).thenReturn(new Timestamp(date));
-        when(queryDocumentSnapshot.get("Position")).thenReturn(new GeoPoint(19, 98));
+        Map<String, Object> dbContent = new HashMap<>();
+        dbContent.put("geoPoint", new GeoPoint(19, 98));
+        dbContent.put("timestamp", new Timestamp(date));
+        Map<String, Object> positionMap = new HashMap<>();
+        positionMap.put("Position", dbContent);
+        when(queryDocumentSnapshot.getData()).thenReturn(positionMap);
 
         when(unreadableSnapshot.iterator()).thenReturn(Collections.singletonList(unreadableDocumentSnapshot).iterator());
-        when(unreadableDocumentSnapshot.get("Time")).thenReturn(null);
-        when(unreadableDocumentSnapshot.get("Position")).thenReturn(new GeoPoint(19, 98));
+        when(unreadableDocumentSnapshot.getData()).thenReturn(null);
     }
 
     @Test
@@ -67,8 +72,7 @@ public class HistoryActivityTest {
             @Override
             void read(QueryHandler handler) {
                 handler.onSuccess(querySnapshot);
-            }
-        };
+    }};
 
         mActivityRule.getActivity().setFirestoreInteractor(successInteractor);
 

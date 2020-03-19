@@ -21,6 +21,14 @@ public interface FirestoreWrapper extends Serializable {
 
     FirestoreWrapper addOnCompleteListener(OnCompleteListener<QuerySnapshot> onCompleteListener);
 
+    FirestoreWrapper addOnSetSuccessListener(OnSuccessListener<Void> onSuccessListener);
+
+    FirestoreWrapper addOnSetFailureListener(OnFailureListener onFailureListener);
+
     FirestoreWrapper get();
+
+    FirestoreWrapper document(String documentPath);
+
+    <A, B> FirestoreWrapper set(Map<A, B> map);
 
 }

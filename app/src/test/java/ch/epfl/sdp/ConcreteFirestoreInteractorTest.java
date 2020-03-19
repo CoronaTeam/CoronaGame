@@ -129,8 +129,28 @@ public class ConcreteFirestoreInteractorTest {
         }
 
         @Override
+        public FirestoreWrapper addOnSetSuccessListener(OnSuccessListener<Void> onSuccessListener) {
+            return null;
+        }
+
+        @Override
+        public FirestoreWrapper addOnSetFailureListener(OnFailureListener onFailureListener) {
+            return null;
+        }
+
+        @Override
         public FirestoreWrapper get() {
             return this;
+        }
+
+        @Override
+        public FirestoreWrapper document(String documentPath) {
+            return null;
+        }
+
+        @Override
+        public <A, B> FirestoreWrapper set(Map<A, B> map) {
+            return null;
         }
     }
 

@@ -50,7 +50,7 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
     private static final int OTHER_USERS_UPDATE_INTERVAL_MILLISECS = 2500;
 
     private FirestoreInteractor db;
-    private QueryHandler handler;
+    private QueryHandler fireBaseHandler;
 
     CircleManager positionMarkerManager;
     Circle userPositionMarker;
@@ -96,7 +96,7 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
                                 .withLatLng(prevLocation));
 
                         updateMarkerPosition(prevLocation);
-                        initQueryHandler();
+                        initFireBaseQueryHandler();
                     }
 
                 });
@@ -104,9 +104,9 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
         });
     }
 
-    private void initQueryHandler() {
+    private void initFireBaseQueryHandler() {
 
-        handler = new QueryHandler() {
+        fireBaseHandler = new QueryHandler() {
             @Override
             public void onSuccess(QuerySnapshot snapshot) {
 
@@ -289,8 +289,8 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
         class UpdatePosTask extends TimerTask {
 
             public void run() {
-                if (db != null && handler != null){
-                    db.read(handler);
+                if (db != null && fireBaseHandler != null){
+                    db.read(fireBaseHandler);
                 }
             }
         }

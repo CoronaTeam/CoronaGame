@@ -1,9 +1,7 @@
 package ch.epfl.sdp;
 
-import android.graphics.Color;
 import android.os.Bundle;
 
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -32,6 +30,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static ch.epfl.sdp.LocationBroker.Provider.GPS;
 
@@ -45,6 +45,8 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
     public final static int LOCATION_PERMISSION_REQUEST = 20201;
     private static final int MIN_UP_INTERVAL_MILLISECS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
+    private static final int OTHER_USERS_UPDATE_INTERVAL_MILLISECS = 2500;
+
 
     private FirestoreInteractor db;
     private QueryHandler handler;
@@ -92,7 +94,6 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
 
                         updateMarkerPosition(prevLocation);
                         initQueryHandler();
-                        db.read(handler);
                     }
 
                 });
@@ -112,8 +113,11 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
                     if(qsIterator.hasNext()){
                         QueryDocumentSnapshot qs = qsIterator.next();
                         Circle pm = pmIterator.next();
-                        pm.setLatLng(new LatLng(((GeoPoint)(qs.get("Position"))).getLatitude(),
-                                ((GeoPoint)(qs.get("Position"))).getLongitude()));
+                        try {
+                            pm.setLatLng(new LatLng(((GeoPoint)(qs.get("geoPoint"))).getLatitude(),
+                                    ((GeoPoint)(qs.get("geoPoint"))).getLongitude()));
+                        } catch (NullPointerException ignored) { }
+
                     }
                     else{
                         positionMarkerManager.delete(pmIterator.next());
@@ -122,14 +126,18 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
                 }
                 while (qsIterator.hasNext()){
                     QueryDocumentSnapshot qs = qsIterator.next();
-                    Circle pm = positionMarkerManager.create(new CircleOptions()
-                            .withLatLng(new LatLng(
-                                    ((GeoPoint)(qs.get("Position"))).getLatitude(),
-                                    ((GeoPoint)(qs.get("Position"))).getLongitude()))
-                            .withCircleColor("#1703fc")
-                    );
-                    otherUsersPositionMarkers.add(pm);
+                    try {
+                        Circle pm = positionMarkerManager.create(new CircleOptions()
+                                .withLatLng(new LatLng(
+                                        ((GeoPoint)(qs.get("geoPoint"))).getLatitude(),
+                                        ((GeoPoint)(qs.get("geoPoint"))).getLongitude()))
+                                .withCircleColor("#ff6219")
+                        );
+                        otherUsersPositionMarkers.add(pm);
+                    } catch (NullPointerException ignored) { }
+
                 }
+                positionMarkerManager.update(otherUsersPositionMarkers);
             }
 
             @Override
@@ -137,6 +145,15 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
                 Toast.makeText(classPointer, "Cannot retrieve positions from database", Toast.LENGTH_LONG).show();
             }
         };
+
+        class UpdatePosTask extends TimerTask {
+
+            public void run() {
+                db.read(handler);
+            }
+        }
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new UpdatePosTask(), 0, OTHER_USERS_UPDATE_INTERVAL_MILLISECS);
     }
 
     @Override

@@ -13,7 +13,8 @@ public class UserInfectionActivity extends AppCompatActivity {
     private Button infectionStatusButton;
     private TextView infectionStatusView;
     private TextView infectionUploadView;
-    private User db = new User("Eve", 25, false);
+    private User db = new User("Eve", User.DEFAULT_FAMILY_NAME, User.DEFAULT_EMAIL,
+            User.DEFAULT_URI, User.DEFAULT_PLAYERID, User.DEFAULT_USERID, 25, false);
     private String userName = "Eve"; // this is temporary: we need to get the real current user
 
     @Override
@@ -32,19 +33,23 @@ public class UserInfectionActivity extends AppCompatActivity {
             CharSequence buttonText = ((Button)v).getText();
             if (buttonText.equals(getResources().getString(R.string.i_am_infected))) {
                 infectionStatusButton.setText(R.string.i_am_cured);
-                infectionStatusButton.setBackgroundTintList(getResources().getColorStateList(R.color.colorGreenCured));
+                infectionStatusButton.setBackgroundTintList(
+                        getResources().getColorStateList(R.color.colorGreenCured));
                 infectionStatusView.setText(R.string.your_user_status_is_set_to_infected);
                 //upload to firebase
-                db.modifyUserInfectionStatus(userName, true, value -> infectionUploadView.setText(value));
+                db.modifyUserInfectionStatus(userName, true,
+                        value -> infectionUploadView.setText(value));
 
 
             }
             else {
                 infectionStatusButton.setText(R.string.i_am_infected);
-                infectionStatusButton.setBackgroundTintList(getResources().getColorStateList(R.color.colorRedInfected));
+                infectionStatusButton.setBackgroundTintList(
+                        getResources().getColorStateList(R.color.colorRedInfected));
                 infectionStatusView.setText(R.string.your_user_status_is_set_to_not_infected);
                 //upload to firebase
-                db.modifyUserInfectionStatus(userName, false, value -> infectionUploadView.setText(value));
+                db.modifyUserInfectionStatus(userName, false,
+                        value -> infectionUploadView.setText(value));
             }
         });
     }
@@ -66,7 +71,9 @@ public class UserInfectionActivity extends AppCompatActivity {
         Button infectionButton = findViewById(R.id.infectionStatusButton);
         CharSequence DEFAULT_INFECTION_TEXT = getResources().getString(R.string.your_user_status_is_set_to_not_infected);
         CharSequence DEFAULT_INFECTION_BUTTON = getResources().getString(R.string.i_am_infected);
-        infectionText.setText(savedInstanceState.getCharSequence("INFECTION_STATUS_TEXT", DEFAULT_INFECTION_TEXT));
-        infectionButton.setText(savedInstanceState.getCharSequence("INFECTION_STATUS_BUTTON", DEFAULT_INFECTION_BUTTON));
+        infectionText.setText(savedInstanceState
+                .getCharSequence("INFECTION_STATUS_TEXT", DEFAULT_INFECTION_TEXT));
+        infectionButton.setText(savedInstanceState
+                .getCharSequence("INFECTION_STATUS_BUTTON", DEFAULT_INFECTION_BUTTON));
     }
 }

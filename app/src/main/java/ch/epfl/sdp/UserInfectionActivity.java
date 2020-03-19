@@ -15,7 +15,7 @@ public class UserInfectionActivity extends AppCompatActivity {
     private TextView infectionUploadView;
     private User db = new User("Eve", User.DEFAULT_FAMILY_NAME, User.DEFAULT_EMAIL,
             User.DEFAULT_URI, User.DEFAULT_PLAYERID, User.DEFAULT_USERID, 25, false);
-    private String userName = "Eve"; // this is temporary: we need to get the real current user
+    private String userName = "Eve"; // TODO: this is temporary: we need to get the real current user
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -28,6 +28,8 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.widget.Toast;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Timer;
@@ -47,13 +49,14 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
     private static final int MIN_UP_INTERVAL_METERS = 5;
     private static final int OTHER_USERS_UPDATE_INTERVAL_MILLISECS = 2500;
 
-
     private FirestoreInteractor db;
     private QueryHandler handler;
 
     CircleManager positionMarkerManager;
     Circle userPositionMarker;
     ArrayList<Circle> otherUsersPositionMarkers;
+
+    Timer updateOtherPosTimer;
 
     MapActivity classPointer;
 
@@ -107,8 +110,16 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
             @Override
             public void onSuccess(QuerySnapshot snapshot) {
 
-                Iterator<QueryDocumentSnapshot> qsIterator = snapshot.iterator();
-                Iterator<Circle> pmIterator = otherUsersPositionMarkers.iterator();
+                /* The idea here is to reuse the Circle objects to not recreate the datastructure from
+                scratch on each update. It's now overkill but will be usefull for the heatmaps
+                It's also necessary to keep the Circle objects around because recreating them each time
+                there is new data make the map blink like a christmas tree
+                 */
+
+                Iterator<QueryDocumentSnapshot> qsIterator = snapshot.iterator(); // data from firebase
+                Iterator<Circle> pmIterator = otherUsersPositionMarkers.iterator(); // local list of position marker
+
+                // update the Arraylist contents first
                 while (pmIterator.hasNext()){
                     if(qsIterator.hasNext()){
                         QueryDocumentSnapshot qs = qsIterator.next();
@@ -119,11 +130,12 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
                         } catch (NullPointerException ignored) { }
 
                     }
-                    else{
+                    else{ // if some points were deleted remove them from the list
                         positionMarkerManager.delete(pmIterator.next());
                         pmIterator.remove();
                     }
                 }
+                // Run if there is new elements
                 while (qsIterator.hasNext()){
                     QueryDocumentSnapshot qs = qsIterator.next();
                     try {
@@ -146,14 +158,7 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
             }
         };
 
-        class UpdatePosTask extends TimerTask {
-
-            public void run() {
-                db.read(handler);
-            }
-        }
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new UpdatePosTask(), 0, OTHER_USERS_UPDATE_INTERVAL_MILLISECS);
+        startTimer();
     }
 
     @Override
@@ -184,6 +189,7 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
     public void onResume() {
         super.onResume();
         mapView.onResume();
+        startTimer();
         if (locationBroker.isProviderEnabled(GPS) && locationBroker.hasPermissions(GPS)) {
             goOnline();
         } else if (locationBroker.isProviderEnabled(GPS)) {
@@ -198,18 +204,21 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
     protected void onStart() {
         super.onStart();
         mapView.onStart();
+        startTimer();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         mapView.onStop();
+        stopTimer();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         mapView.onPause();
+        stopTimer();
     }
 
     @Override
@@ -220,8 +229,9 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
+        stopTimer();
         mapView.onDestroy();
+        super.onDestroy();
     }
 
     @Override
@@ -266,12 +276,32 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NotNull Bundle outState) {
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
     }
 
     protected void OnDidFinishLoadingMapListener(MapView.OnDidFinishLoadingMapListener listener){
         mapView.addOnDidFinishLoadingMapListener(listener);
+    }
+
+    private void startTimer(){
+        class UpdatePosTask extends TimerTask {
+
+            public void run() {
+                if (db != null && handler != null){
+                    db.read(handler);
+                }
+            }
+        }
+        if(updateOtherPosTimer != null){
+            updateOtherPosTimer.cancel();
+        }
+        updateOtherPosTimer = new Timer();
+        updateOtherPosTimer.scheduleAtFixedRate(new UpdatePosTask(), 0, OTHER_USERS_UPDATE_INTERVAL_MILLISECS);
+    }
+
+    private void stopTimer(){
+        updateOtherPosTimer.cancel();
     }
 }

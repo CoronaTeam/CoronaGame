@@ -68,8 +68,8 @@ public class AccountGetting extends AppCompatActivity {
         userIdView = findViewById(R.id.userIdView);
         img = findViewById(R.id.profileImage);
         mGoogleSignInClient = getGoogleClient(this);
-        Account acct = getAccount(this);
-        getAndShowAccountInfo(acct);
+        this.accountInUse = getAccount(this);
+        getAndShowAccountInfo(this.accountInUse);
     }
 
     private void getAndShowAccountInfo(Account acct) {

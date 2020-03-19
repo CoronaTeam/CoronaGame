@@ -13,9 +13,9 @@ public class UserInfectionActivity extends AppCompatActivity {
     private Button infectionStatusButton;
     private TextView infectionStatusView;
     private TextView infectionUploadView;
-    private User db = new User("Eve", User.DEFAULT_FAMILY_NAME, User.DEFAULT_EMAIL,
+    private User user = new User("Test", User.DEFAULT_FAMILY_NAME, User.DEFAULT_EMAIL,
             User.DEFAULT_URI, User.DEFAULT_PLAYERID, User.DEFAULT_USERID, 25, false);
-    private String userName = "Eve"; // TODO: this is temporary: we need to get the real current user
+    private String userName = "Test"; // TODO: this is temporary: we need to get the real current user
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +35,7 @@ public class UserInfectionActivity extends AppCompatActivity {
                 clickAction(infectionStatusButton, infectionStatusView, R.string.i_am_cured,
                         R.string.your_user_status_is_set_to_infected, R.color.colorGreenCured);
                 //upload to firebase
-                db.modifyUserInfectionStatus(userName, true,
+                user.modifyUserInfectionStatus(userName, true,
                         value -> infectionUploadView.setText(value));
 
 
@@ -44,7 +44,7 @@ public class UserInfectionActivity extends AppCompatActivity {
                 clickAction(infectionStatusButton, infectionStatusView, R.string.i_am_infected,
                         R.string.your_user_status_is_set_to_not_infected, R.color.colorRedInfected);
                 //upload to firebase
-                db.modifyUserInfectionStatus(userName, false,
+                user.modifyUserInfectionStatus(userName, false,
                         value -> infectionUploadView.setText(value));
             }
         });

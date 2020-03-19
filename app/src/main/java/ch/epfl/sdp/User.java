@@ -127,5 +127,6 @@ public class User implements Account {
                         callback.onCallback("User infection status successfully updated!"))
                 .addOnFailureListener(e ->
                         callback.onCallback("Error updating user infection status."));
+        this.infected = infected;
     }
 }

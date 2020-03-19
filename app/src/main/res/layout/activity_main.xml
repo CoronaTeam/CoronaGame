@@ -6,62 +6,83 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/TitleText"
-        android:layout_width="wrap_content"
+    <ScrollView
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/coronagame"
-        android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.1" />
+        app:layout_constraintVertical_bias="0.0">
 
-    <Button
-        android:id="@+id/button_map"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="setMapView"
-        android:text="@string/launch_map"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_gps" />
+        <LinearLayout
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:layout_marginTop="12dp"
+            android:baselineAligned="false"
+            android:orientation="vertical"
+            android:scrollbarAlwaysDrawHorizontalTrack="false"
+            android:scrollbarAlwaysDrawVerticalTrack="true">
 
-    <Button
-        android:id="@+id/button_gps"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="setGPSView"
-        android:text="@string/launch_gps"
-        app:layout_constraintBottom_toTopOf="@+id/button_map"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_intro" />
+            <TextView
+                android:id="@+id/TitleText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/coronagame"
+                android:textAlignment="center"
+                android:textSize="30sp" />
 
-    <Button
-        android:id="@+id/button_intro"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="setIntroView"
-        android:text="@string/launch_introactivity"
-        app:layout_constraintBottom_toTopOf="@+id/button_gps"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.506"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/TitleText" />
+            <Button
+                android:id="@+id/button_intro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="44dp"
+                android:onClick="setIntroView"
+                android:text="@string/launch_introactivity" />
 
-    <Button
-        android:id="@+id/button_firebase"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:onClick="setFirebaseView"
-        android:text="@string/launch_firebase"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_intro" />
+            <Button
+                android:id="@+id/launch_SignIn_Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:onClick="setSignInView"
+                android:text="@string/launch_signIn" />
+
+            <Button
+                android:id="@+id/launch_history"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:onClick="setHistoryView"
+                android:text="LANUCH HISTORY" />
+
+            <Button
+                android:id="@+id/button_firebase"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:onClick="setFirebaseView"
+                android:text="@string/launch_firebase" />
+
+            <Button
+                android:id="@+id/button_gps"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:onClick="setGPSView"
+                android:text="@string/launch_gps" />
+
+            <Button
+                android:id="@+id/button_map"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:onClick="setMapView"
+                android:text="@string/launch_map" />
+        </LinearLayout>
+    </ScrollView>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

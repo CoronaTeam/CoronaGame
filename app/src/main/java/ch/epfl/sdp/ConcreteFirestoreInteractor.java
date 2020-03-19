@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class ConcreteFirestoreInteractor implements FirestoreInteractor {
+public class ConcreteFirestoreInteractor extends FirestoreInteractor {
     final CountingIdlingResource serverIdlingResource;
     private final FirestoreWrapper db;
 

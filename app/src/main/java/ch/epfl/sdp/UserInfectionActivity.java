@@ -12,6 +12,7 @@ public class UserInfectionActivity extends AppCompatActivity {
 
     private Button infectionStatusButton;
     private TextView infectionStatusView;
+    private TextView infectionUploadView;
     private User db = new User("Eve", 25, false);
     private String userName = "Eve"; // this is temporary: we need to get the real current user
 
@@ -22,6 +23,8 @@ public class UserInfectionActivity extends AppCompatActivity {
 
         infectionStatusView = findViewById(R.id.infectionStatusView);
         infectionStatusButton = findViewById(R.id.infectionStatusButton);
+        infectionUploadView = findViewById(R.id.infectionStatusUploadConfirmation);
+
         infectionStatusView.setSaveEnabled(true);
         infectionStatusButton.setSaveEnabled(true);
 
@@ -32,7 +35,7 @@ public class UserInfectionActivity extends AppCompatActivity {
                 infectionStatusButton.setBackgroundTintList(getResources().getColorStateList(R.color.colorGreenCured));
                 infectionStatusView.setText(R.string.your_user_status_is_set_to_infected);
                 //upload to firebase
-                db.modifyUserInfectionStatus(userName, true);
+                db.modifyUserInfectionStatus(userName, true, value -> infectionUploadView.setText(value));
 
 
             }
@@ -41,7 +44,7 @@ public class UserInfectionActivity extends AppCompatActivity {
                 infectionStatusButton.setBackgroundTintList(getResources().getColorStateList(R.color.colorRedInfected));
                 infectionStatusView.setText(R.string.your_user_status_is_set_to_not_infected);
                 //upload to firebase
-                db.modifyUserInfectionStatus(userName, false);
+                db.modifyUserInfectionStatus(userName, false, value -> infectionUploadView.setText(value));
             }
         });
     }

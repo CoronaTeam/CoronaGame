@@ -2,6 +2,11 @@ package ch.epfl.sdp;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
@@ -27,12 +32,17 @@ public class User {
                     .addOnFailureListener(e -> Log.w(TAG, "Error adding document", e));
     }
 
-    public void modifyUserInfectionStatus(String userPath, Boolean infected) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("Infected", infected);
-
+    public void modifyUserInfectionStatus(String userPath, Boolean infected, Callback callback) {
+        user.put("Infected", infected);
         db.collection("Users").document(userPath)
-                .set(data, SetOptions.merge());
+                .set(user, SetOptions.merge());
+
+        DocumentReference userRef = db.collection("Users").document(userPath);
+
+        userRef
+                .update("Infected", infected)
+                .addOnSuccessListener(documentReference -> callback.onCallback("User infection status successfully updated!"))
+                .addOnFailureListener(e -> callback.onCallback("Error updating user infection status."));
     }
 
 

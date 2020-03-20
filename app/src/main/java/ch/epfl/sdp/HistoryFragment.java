@@ -24,6 +24,8 @@ public class HistoryFragment extends Fragment {
 
     private FirestoreInteractor db;
 
+    private Account account;
+
     private QueryHandler handler;
 
     private TextView connectionStatus;
@@ -42,10 +44,11 @@ public class HistoryFragment extends Fragment {
                 connectionStatus.setText("QUERY OK");
                 for (QueryDocumentSnapshot qs : snapshot) {
                     try {
+                        Map<String, Object> positionRecord = (Map) qs.getData().get("Position");
                         historyAdapter.insert(String.format("Found @ %s:%s on %s",
-                                ((GeoPoint)(qs.get("Position"))).getLatitude(),
-                                ((GeoPoint)(qs.get("Position"))).getLongitude(),
-                                ((Timestamp)(qs.get("Time"))).toDate()), 0);
+                                ((GeoPoint)(positionRecord.get("geoPoint"))).getLatitude(),
+                                ((GeoPoint)(positionRecord.get("geoPoint"))).getLongitude(),
+                                ((Timestamp)(positionRecord.get("timestamp"))).toDate()), 0);
                     } catch (NullPointerException e) {
                         historyAdapter.insert("[...unreadable.:).]", 0);
                     }
@@ -64,6 +67,7 @@ public class HistoryFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_history, container, false);
 
+        account = AccountGetting.getAccount(this);
         FirestoreWrapper firestoreWrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
         db = new HistoryFirestoreInteractor(firestoreWrapper);
 

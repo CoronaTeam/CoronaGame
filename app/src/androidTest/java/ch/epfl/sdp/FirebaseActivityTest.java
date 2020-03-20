@@ -5,14 +5,13 @@ import android.net.ConnectivityManager;
 import android.util.Log;
 
 import androidx.core.content.ContextCompat;
-import androidx.test.espresso.Espresso;
-import androidx.test.espresso.idling.CountingIdlingResource;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -117,6 +116,9 @@ public class FirebaseActivityTest {
 
     public class MockFirestoreWrapper implements FirestoreWrapper {
 
+        private DocumentReference documentReference;
+        private Task<Void> documentSetReferenceTask;
+
         @Override
         public <A, B> FirestoreWrapper add(Map<A, B> map) {
             return this;
@@ -147,5 +149,30 @@ public class FirebaseActivityTest {
         public FirestoreWrapper get() {
             return null;
         }
+
+        @Override
+        public FirestoreWrapper addOnSetSuccessListener(OnSuccessListener<Void> onSuccessListener) {
+            documentSetReferenceTask.addOnSuccessListener(onSuccessListener);
+            return this;
+        }
+
+        @Override
+        public FirestoreWrapper addOnSetFailureListener(OnFailureListener onFailureListener) {
+            documentSetReferenceTask.addOnFailureListener(onFailureListener);
+            return this;
+        }
+
+        @Override
+        public FirestoreWrapper document(String documentPath) {
+            this.documentReference = null;
+            return this;
+        }
+
+        @Override
+        public <A, B> FirestoreWrapper set(Map<A, B> map) {
+            this.documentSetReferenceTask = documentReference.set(map);
+            return this;
+        }
+
     }
 }

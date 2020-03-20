@@ -15,9 +15,13 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.Map;
+
 public class HistoryActivity extends AppCompatActivity {
 
     private FirestoreInteractor db;
+
+    private Account account;
 
     private QueryHandler handler;
 
@@ -35,10 +39,11 @@ public class HistoryActivity extends AppCompatActivity {
                 connectionStatus.setText("QUERY OK");
                 for (QueryDocumentSnapshot qs : snapshot) {
                     try {
+                        Map<String, Object> positionRecord = (Map) qs.getData().get("Position");
                         historyAdapter.insert(String.format("Found @ %s:%s on %s",
-                                ((GeoPoint)(qs.get("Position"))).getLatitude(),
-                                ((GeoPoint)(qs.get("Position"))).getLongitude(),
-                                ((Timestamp)(qs.get("Time"))).toDate()), 0);
+                                ((GeoPoint)(positionRecord.get("geoPoint"))).getLatitude(),
+                                ((GeoPoint)(positionRecord.get("geoPoint"))).getLongitude(),
+                                ((Timestamp)(positionRecord.get("timestamp"))).toDate()), 0);
                     } catch (NullPointerException e) {
                         historyAdapter.insert("[...unreadable.:).]", 0);
                     }
@@ -56,8 +61,9 @@ public class HistoryActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
 
+        account = AccountGetting.getAccount(this);
         FirestoreWrapper firestoreWrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
-        db = new HistoryFirestoreInteractor(firestoreWrapper);
+        db = new HistoryFirestoreInteractor(firestoreWrapper, account);
 
         connectionStatus = findViewById(R.id.conn_status);
 

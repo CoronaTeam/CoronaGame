@@ -14,10 +14,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import java.util.Map;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -141,6 +146,45 @@ public class GpsActivityTest {
             onView(withId(R.id.gpsLatitude)).check(matches(withText(startsWith(Double.toString(currLatitude)))));
             onView(withId(R.id.gpsLongitude)).check(matches(withText(startsWith(Double.toString(currLongitude)))));
         }
+    }
+
+    @Test
+    public void detectsSuccessfulFirestoreUpdate() throws Throwable {
+        MockBroker mockBroker = new MockBroker();
+        startActivityWithBroker(mockBroker);
+
+        FirestoreInteractor successfulInteractor = new FirestoreInteractor() {
+            @Override
+            void write(Map<String, PositionRecord> content, OnSuccessListener success, OnFailureListener failure) {
+                success.onSuccess(null);
+            }
+        };
+        mActivityRule.getActivity().setFirestoreInteractor(successfulInteractor);
+
+        mockBroker.setProviderStatus(true);
+        mockBroker.setFakeLocation(buildLocation(10, 20));
+
+        onView(withId(R.id.history_upload_status)).check(matches(withText("SYNC OK")));
+    }
+
+    @Test
+    public void detectsFailedFirestoreUpdate() throws Throwable {
+        MockBroker mockBroker = new MockBroker();
+        startActivityWithBroker(mockBroker);
+
+        FirestoreInteractor failingInteractor = new FirestoreInteractor() {
+            @Override
+            void write(Map<String, PositionRecord> content, OnSuccessListener success, OnFailureListener failure) {
+                failure.onFailure(new Exception());
+            }
+        };
+
+        mActivityRule.getActivity().setFirestoreInteractor(failingInteractor);
+
+        mockBroker.setProviderStatus(true);
+        mockBroker.setFakeLocation(buildLocation(10, 20));
+
+        onView(withId(R.id.history_upload_status)).check(matches(withText("SYNC ERROR!")));
     }
 
     @Test

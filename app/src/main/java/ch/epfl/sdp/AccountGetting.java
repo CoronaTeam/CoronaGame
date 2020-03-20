@@ -1,10 +1,10 @@
 package ch.epfl.sdp;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +23,7 @@ import com.google.android.gms.tasks.Task;
 
 /**
  * Class AccounteGettingactivity : once logged in google, this class will be able to retrieve given user information.
+ *
  * @author lucas
  */
 public class AccountGetting extends AppCompatActivity {
@@ -34,8 +35,30 @@ public class AccountGetting extends AppCompatActivity {
     TextView userIdView;
     //    TextView playerIdView;
     ImageView img;
+
+    public static Account getAccount(Activity activity) {
+        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(activity);
+        return getNonNullAccount(acct);
+    }
+
+    private static GoogleSignInClient getGoogleClient(Activity activity) {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+        // Build a GoogleSignInClient with the options specified by gso.
+        return GoogleSignIn.getClient(activity, gso);
+    }
+
+    private static Account getNonNullAccount(GoogleSignInAccount acct) {
+        if (acct == null) {
+            User u = new User();//generic test user
+            return new AccountFactory(u);
+
+        } else {
+            return new AccountFactory(acct);
+        }
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account_getting);
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true); //fixes a bug on travis about inflating ImageView
@@ -44,27 +67,9 @@ public class AccountGetting extends AppCompatActivity {
         lastName = findViewById(R.id.lastName);
         userIdView = findViewById(R.id.userIdView);
         img = findViewById(R.id.profileImage);
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
-        // Build a GoogleSignInClient with the options specified by gso.
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(this);
-        showAccountOrCreateAGenericOneForTesting(acct);
-    }
-
-    /*
-    Thank's to this method, the method onCreate is less than 25 lines long ! Thank you CodeClimate :)
-    PS: this method will only be accessed with a null account if we are in test mode.
-    @requires : test mode OR account non-null.
-     */
-    private void showAccountOrCreateAGenericOneForTesting(GoogleSignInAccount acct) {
-        if(acct == null){
-            User u = new User();//generic test user
-            accountInUse = new AccountFactory(u);
-            getAndShowAccountInfo(accountInUse);
-        }else{
-            accountInUse = new AccountFactory(acct);
-            getAndShowAccountInfo(accountInUse);
-        }
+        mGoogleSignInClient = getGoogleClient(this);
+        this.accountInUse = getAccount(this);
+        getAndShowAccountInfo(this.accountInUse);
     }
 
     private void getAndShowAccountInfo(Account acct) {
@@ -88,20 +93,21 @@ public class AccountGetting extends AppCompatActivity {
 
         }
     }
+
     public void signOut(View v) {
-        if(accountInUse.isGoogle()){
-        mGoogleSignInClient.signOut()
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Toast.makeText(AccountGetting.this,"Signed out successfully!", Toast.LENGTH_LONG).show();
-                        Intent intent = new Intent(AccountGetting.this, Authentication.class);// New activity
+        if (accountInUse.isGoogle()) {
+            mGoogleSignInClient.signOut()
+                    .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Toast.makeText(AccountGetting.this, "Signed out successfully!", Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(AccountGetting.this, Authentication.class);// New activity
 //                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); //clears this activity's stack
-                        startActivity(intent);
-                             finish();
-                    }
-                });
-        }else{
+                            startActivity(intent);
+                            finish();
+                        }
+                    });
+        } else {
             //no need to sign out from google, just go to the other activity
             // do not toast during test !
             Intent intent = new Intent(AccountGetting.this, Authentication.class);// New activity

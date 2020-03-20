@@ -14,6 +14,8 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.Map;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -67,9 +69,9 @@ public class HistoryFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_history, container, false);
 
-        account = AccountGetting.getAccount(this);
+        account = AccountGetting.getAccount(getActivity());
         FirestoreWrapper firestoreWrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
-        db = new HistoryFirestoreInteractor(firestoreWrapper);
+        db = new HistoryFirestoreInteractor(firestoreWrapper, account);
 
         connectionStatus = view.findViewById(R.id.conn_status);
 

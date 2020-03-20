@@ -46,7 +46,8 @@ class LoadingDialogInstruction extends Instruction {
 
         if (activity instanceof MapActivity){
             System.out.println("dldldldl");
-            ((MapActivity)activity).OnDidFinishLoadingMapListener(new bidule());
+            MapFragment fragment = (MapFragment) ((MapActivity) activity).getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+            fragment.OnDidFinishLoadingMapListener(new bidule());
             return loaded;
         }
         else{

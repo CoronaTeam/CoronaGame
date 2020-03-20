@@ -40,4 +40,11 @@
     <string name="launch_introactivity">Launch IntroActivity</string>
     <string name="launch_map">Launch map</string>
 
+    <string name="i_am_infected">I am infected</string>
+    <string name="your_user_status_is_set_to_not_infected">Your user status is set to not infected.</string>
+    <string name="i_am_cured">I am cured</string>
+    <string name="your_user_status_is_set_to_infected">Your user status is set to infected.</string>
+    <string name="no_data_uploaded_yet">No data uploaded yet.</string>
+    <string name="launch_user_infection">Launch user infection</string>
+    <string name="launch_history">LAUNCH HISTORY</string>
 </resources>

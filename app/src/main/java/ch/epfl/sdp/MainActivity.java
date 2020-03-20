@@ -85,4 +85,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, Authentication.class);
         startActivity(intent);
     }
+
+    public void setUserInfectionView(View v) {
+        Intent intent = new Intent(this, UserInfectionActivity.class);
+        startActivity(intent);
+    }
 }

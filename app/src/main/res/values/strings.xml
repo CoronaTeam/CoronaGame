@@ -40,4 +40,8 @@
     <string name="launch_introactivity">Launch IntroActivity</string>
     <string name="launch_map">Launch map</string>
 
+    <!-- Tab layout -->
+    <string name="tab_map">Map</string>
+    <string name="tab_history">History</string>
+
 </resources>

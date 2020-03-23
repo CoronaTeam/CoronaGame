@@ -4,6 +4,7 @@ import android.widget.ImageView;
 
 import androidx.test.espresso.intent.rule.IntentsTestRule;
 
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ public class AccountGettingTest {
 //        Intents.init();
 //        activityRule.launchActivity(new Intent());
 //    }
-    @Test
+    @Test @Ignore
     public void nameIsDisplayed(){
         onView(withId(R.id.name)).check(matches(withText(User.DEFAULT_DISPLAY_NAME)));
     }
@@ -47,7 +48,7 @@ public class AccountGettingTest {
         onView(withId(R.id.userIdView)).check(matches(withText(User.DEFAULT_USERID)));
     }
 
-    @Test
+    @Test @Ignore
     public void imageViewDoDisplayImage(){
         //onView(withId(R.id.imageView)).check(matches(withDrawable(new DrawableMatcher(User.default_uri))));
         ImageView contentImage = getActivity().findViewById(R.id.profileImage);

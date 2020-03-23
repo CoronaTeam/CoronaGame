@@ -31,7 +31,7 @@ public class AccountGettingTest {
 //        Intents.init();
 //        activityRule.launchActivity(new Intent());
 //    }
-    @Test @Ignore
+    @Test
     public void nameIsDisplayed(){
         onView(withId(R.id.name)).check(matches(withText(User.DEFAULT_DISPLAY_NAME)));
     }
@@ -48,7 +48,7 @@ public class AccountGettingTest {
         onView(withId(R.id.userIdView)).check(matches(withText(User.DEFAULT_USERID)));
     }
 
-    @Test @Ignore
+    @Test
     public void imageViewDoDisplayImage(){
         //onView(withId(R.id.imageView)).check(matches(withDrawable(new DrawableMatcher(User.default_uri))));
         ImageView contentImage = getActivity().findViewById(R.id.profileImage);

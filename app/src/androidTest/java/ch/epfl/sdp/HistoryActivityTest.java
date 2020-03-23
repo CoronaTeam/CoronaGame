@@ -108,7 +108,7 @@ public class HistoryActivityTest {
         onView(withId(R.id.conn_status)).check(matches(withText("CONNECTION ERROR")));
     }
 
-    @Test @Ignore
+    @Test
     public void unreadableContentIsPurged() {
         FirestoreInteractor unreadableInteractor = new FirestoreInteractor() {
             @Override

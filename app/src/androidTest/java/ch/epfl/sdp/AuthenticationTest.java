@@ -2,7 +2,6 @@ package ch.epfl.sdp;
 
 import androidx.test.espresso.intent.rule.IntentsTestRule;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -41,7 +40,7 @@ public class AuthenticationTest {
         ((Authentication )getActivity()).onActivityResult(Authentication.RC_SIGN_IN  ,0,null);
         //  Assert.assertThrows(IllegalStateException.class,()->{activAuth.onActivityResult(-1,-1,null)});
     }
-    @Test @Ignore
+    @Test
     public void signInButtonIsVisibleWhenAccountIsNull(){
         onView(withId(R.id.sign_in_button)).check(matches(isDisplayed()));
 //        assertTrue(activAuth.findViewById(R.id.sign_in_button).getVisibility() == View.VISIBLE);

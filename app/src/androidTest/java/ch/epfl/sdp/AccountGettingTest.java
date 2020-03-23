@@ -4,7 +4,6 @@ import android.widget.ImageView;
 
 import androidx.test.espresso.intent.rule.IntentsTestRule;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 

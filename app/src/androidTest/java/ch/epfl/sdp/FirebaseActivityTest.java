@@ -59,7 +59,7 @@ public class FirebaseActivityTest {
     public void testDataDownloadIsDisplayed() {
         clickWaitAndCheckText(R.id.FirebaseDownloadButton,
                 R.id.FirebaseDownloadResult,
-                "User#000 => {Position=GeoPoint { latitude=0.0, longitude=0.0 }, Time=Timestamp(seconds=1583276400, nanoseconds=0)}",
+                "Position={geoPoint=GeoPoint { latitude=-0.580915, longitude=-0.4812283333333333 }, timestamp=Timestamp(seconds=1584671879, nanoseconds=210000000)}",
                 20000);
     }
 

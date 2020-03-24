@@ -7,6 +7,7 @@
     tools:context=".MainActivity">
 
     <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -56,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:onClick="setHistoryView"
-                android:text="LANUCH HISTORY" />
+                android:text="@string/launch_history" />
 
             <Button
                 android:id="@+id/button_firebase"
@@ -81,6 +82,23 @@
                 android:layout_marginTop="16dp"
                 android:onClick="setMapView"
                 android:text="@string/launch_map" />
+
+            <Button
+                android:id="@+id/button_tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:onClick="setTabsView"
+                android:text="Launch tabs" />
+
+            <Button
+                android:id="@+id/button_user_infection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:onClick="setUserInfectionView"
+                android:text="@string/launch_user_infection" />
+          
         </LinearLayout>
     </ScrollView>
 

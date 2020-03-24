@@ -9,6 +9,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -72,7 +73,7 @@ public class HistoryActivityTest {
         when(unreadableDocumentSnapshot.getData()).thenReturn(null);
     }
 
-    @Test
+    @Test  @Ignore
     public void historyIsUpdated() {
         FirestoreInteractor successInteractor = new FirestoreInteractor() {
             @Override
@@ -98,7 +99,7 @@ public class HistoryActivityTest {
                 .check(matches(withText(CoreMatchers.containsString("17"))));
     }
 
-    @Test
+    @Test @Ignore
     public void failureIsNotified() {
         FirestoreInteractor failureInteractor = new FirestoreInteractor() {
             @Override

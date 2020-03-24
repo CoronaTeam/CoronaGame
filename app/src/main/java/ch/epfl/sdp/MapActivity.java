@@ -66,7 +66,7 @@ public class MapActivity extends AppCompatActivity implements LocationListener{
         classPointer = this;
         otherUsersPositionMarkers = new ArrayList<>();
         FirestoreWrapper firestoreWrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
-        db = new HistoryFirestoreInteractor(firestoreWrapper);
+        //db = new HistoryFirestoreInteractor(firestoreWrapper);
 
         // TODO: do not execute in production code
         if (locationBroker == null) {

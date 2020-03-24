@@ -1,16 +1,16 @@
 package ch.epfl.sdp;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
-import androidx.core.content.ContextCompat;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -44,23 +44,6 @@ public class UserInfectionActivity extends AppCompatActivity {
 
         executor = ContextCompat.getMainExecutor(this);
 
-        BiometricManager biometricManager = BiometricManager.from(this);
-        switch (biometricManager.canAuthenticate()) {
-            case BiometricManager.BIOMETRIC_SUCCESS:
-                Log.d("MY_APP_TAG", "App can authenticate using biometrics.");
-                break;
-            case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
-                Log.e("MY_APP_TAG", "No biometric features available on this device.");
-                break;
-            case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
-                Log.e("MY_APP_TAG", "Biometric features are currently unavailable.");
-                break;
-            case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
-                Log.e("MY_APP_TAG", "The user hasn't associated " +
-                        "any biometric credentials with their account.");
-                break;
-        }
-
         biometricPrompt = new BiometricPrompt(UserInfectionActivity.this,
                 executor, new BiometricPrompt.AuthenticationCallback() {
             @Override
@@ -78,7 +61,11 @@ public class UserInfectionActivity extends AppCompatActivity {
                 super.onAuthenticationSucceeded(result);
                 Toast.makeText(getApplicationContext(),
                         "Authentication succeeded!", Toast.LENGTH_SHORT).show();
-                CharSequence buttonText = ((Button) infectionStatusButton).getText();
+                executeHealthStatusChange();
+            }
+
+            private void executeHealthStatusChange() {
+                CharSequence buttonText = infectionStatusButton.getText();
                 if (buttonText.equals(getResources().getString(R.string.i_am_infected))) {
 
                     clickAction(infectionStatusButton, infectionStatusView, R.string.i_am_cured,
@@ -106,17 +93,16 @@ public class UserInfectionActivity extends AppCompatActivity {
         });
 
         promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                .setTitle("Biometric login for my app")
-                .setSubtitle("Log in using your biometric credential")
+                .setConfirmationRequired(true)
+                .setTitle("Biometric authentication")
+                .setSubtitle("Confirm to upload your health status")
                 //.setNegativeButtonText("Use account password")
                 .setDeviceCredentialAllowed(true)
                 .build();
-
         infectionStatusButton.setOnClickListener(v -> {
             biometricPrompt.authenticate(promptInfo);
         });
     }
-
 
 
     private void clickAction(Button button, TextView textView, int buttonText, int textViewText, int buttonColor) {

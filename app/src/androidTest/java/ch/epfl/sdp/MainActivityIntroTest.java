@@ -18,7 +18,6 @@ import static androidx.test.espresso.intent.Intents.assertNoUnverifiedIntents;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
-import static ch.epfl.sdp.TestTools.initSafeTest;
 
 @RunWith(AndroidJUnit4.class)
 public class MainActivityIntroTest {
@@ -33,7 +32,7 @@ public class MainActivityIntroTest {
     public void setup() {
         Context targetContext = getInstrumentation().getTargetContext();
         preferencesEditor = targetContext.getSharedPreferences(MainActivity.APP_PREFERENCES, Context.MODE_PRIVATE).edit();
-        initSafeTest(mActivityRule,false); //Intents.init();
+        Intents.init();
 
     }
 

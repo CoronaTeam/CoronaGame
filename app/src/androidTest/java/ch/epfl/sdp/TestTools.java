@@ -16,24 +16,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 public interface TestTools {
-    /**
-     * This method prevents a double init call
-     * @param activityTestRule : activity to launch
-     * @param <E>
-     */
-    static <E extends Activity> void initSafeTest(ActivityTestRule<E> activityTestRule, Boolean launchActivity) throws IllegalStateException{
-        try{
-            Intents.init();
-        }catch(IllegalStateException alreadyBeenInit){
-            Intents.release();
-            Intents.init();
-        }finally {
-            if(launchActivity){
-                activityTestRule.launchActivity(new Intent());
-            }
-        }
-    }
-
     /*
         This method was found on the internet for getting the current activity
      */

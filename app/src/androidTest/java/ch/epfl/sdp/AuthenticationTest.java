@@ -41,9 +41,6 @@ public class AuthenticationTest {
         sleep();
         UiDevice mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
         mDevice.pressBack();
-//        onView(getActivity().).perform(ViewActions.pressBackUnconditionally());
-//        Espresso.pressBackUnconditionally();
-
     }
 
     @Test(expected = IllegalStateException.class)

@@ -86,6 +86,12 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**Called when the user taps the Tabs button*/
+    public void setTabsView(View v){
+        Intent intent = new Intent(this, TabActivity.class);
+        startActivity(intent);
+    }
+
     public void setUserInfectionView(View v) {
         Intent intent = new Intent(this, UserInfectionActivity.class);
         startActivity(intent);

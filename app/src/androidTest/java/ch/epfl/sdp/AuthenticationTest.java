@@ -1,7 +1,11 @@
 package ch.epfl.sdp;
 
+import androidx.test.espresso.Espresso;
+import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.intent.Intents;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
+import androidx.test.uiautomator.UiDevice;
 
 import org.junit.After;
 import org.junit.Before;
@@ -16,9 +20,11 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.initSafeTest;
+import static ch.epfl.sdp.TestTools.sleep;
 
 public class AuthenticationTest {
     @Rule
@@ -32,6 +38,11 @@ public class AuthenticationTest {
     public void signInButtonIsDisplayedAndClickable(){
         onView(withId(R.id.sign_in_button)).check(matches(isDisplayed()));
         onView(withId(R.id.sign_in_button)).perform(click());
+        sleep();
+        UiDevice mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+        mDevice.pressBack();
+//        onView(getActivity().).perform(ViewActions.pressBackUnconditionally());
+//        Espresso.pressBackUnconditionally();
 
     }
 

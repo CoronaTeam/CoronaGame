@@ -67,7 +67,7 @@ public class HistoryActivityTest {
         when(unreadableDocumentSnapshot.getData()).thenReturn(null);
     }
 
-    @Test @Ignore
+    @Test  @Ignore
     public void historyIsUpdated() {
         FirestoreInteractor successInteractor = new FirestoreInteractor() {
             @Override

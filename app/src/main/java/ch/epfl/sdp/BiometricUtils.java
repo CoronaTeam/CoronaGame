@@ -8,15 +8,8 @@ import android.util.Log;
 
 import androidx.biometric.BiometricManager;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
 
 public class BiometricUtils {
-
-    private static boolean isBiometricPromptEnabled() {
-        return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P);
-    }
-
 
     /*
      * Condition I: Check if the android version in device is greater than
@@ -34,8 +27,10 @@ public class BiometricUtils {
      * Condition II: Check if the if the device has authentication capabilities
      *
      * */
-    public static boolean canAuthenticate(Context context){
-        if (!(isPermissionGranted(context) && isSdkVersionSupported()))
+    public static boolean canAuthenticate(Context context) {
+        if (!isSdkVersionSupported())
+            return false;
+        else if (!isPermissionGranted(context))
             return false;
 
         BiometricManager biometricManager = BiometricManager.from(context);

@@ -14,7 +14,6 @@ import androidx.core.content.ContextCompat;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 public class UserInfectionActivity extends AppCompatActivity {
 
@@ -43,7 +42,7 @@ public class UserInfectionActivity extends AppCompatActivity {
         infectionStatusButton.setSaveEnabled(true);
 
         this.executor = ContextCompat.getMainExecutor(this);
-        //this.executor = Executors.newSingleThreadExecutor();
+
         if (BiometricUtils.canAuthenticate(this)) {
             this.biometricPrompt = biometricPromptBuilder(this.executor);
             this.promptInfo = promptInfoBuilder();
@@ -98,7 +97,6 @@ public class UserInfectionActivity extends AppCompatActivity {
                 .setTitle("Biometric authentication")
                 .setSubtitle("Confirm your health status change")
                 .setNegativeButtonText("Cancel")
-                //.setDeviceCredentialAllowed(true)
                 .build();
     }
 

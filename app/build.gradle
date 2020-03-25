@@ -64,9 +64,11 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:19.3.0'
     implementation 'com.google.firebase:firebase-firestore:21.4.1'
 
+    //Map
     implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:9.0.0'
     implementation 'com.mapbox.mapboxsdk:mapbox-android-plugin-annotation-v8:0.7.0'
 
+    //Intro
     implementation 'com.github.AppIntro:AppIntro:5.1.0'
 
     //for google play authentication

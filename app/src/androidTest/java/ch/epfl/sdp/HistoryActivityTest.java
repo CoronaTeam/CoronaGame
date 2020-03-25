@@ -52,6 +52,8 @@ public class HistoryActivityTest {
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
 
+    private HistoryFragment fragment;
+
     @Before
     public void setupMockito() {
         when(querySnapshot.iterator()).thenReturn(Collections.singletonList(queryDocumentSnapshot).iterator());
@@ -64,6 +66,10 @@ public class HistoryActivityTest {
         when(queryDocumentSnapshot.getData()).thenReturn(positionMap);
 
         when(unreadableSnapshot.iterator()).thenReturn(Collections.singletonList(unreadableDocumentSnapshot).iterator());
+        when(unreadableDocumentSnapshot.get("Time")).thenReturn(null);
+        when(unreadableDocumentSnapshot.get("Position")).thenReturn(new GeoPoint(19, 98));
+
+        fragment = (HistoryFragment) mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.history_fragment);
         when(unreadableDocumentSnapshot.getData()).thenReturn(null);
     }
 
@@ -75,7 +81,7 @@ public class HistoryActivityTest {
                 handler.onSuccess(querySnapshot);
     }};
 
-        mActivityRule.getActivity().setFirestoreInteractor(successInteractor);
+        fragment.setFirestoreInteractor(successInteractor);
 
         onView(withId(R.id.refresh_history)).perform(click());
         onView(withId(R.id.conn_status)).check(matches(withText("QUERY OK")));
@@ -102,7 +108,7 @@ public class HistoryActivityTest {
             }
         };
 
-        mActivityRule.getActivity().setFirestoreInteractor(failureInteractor);
+        fragment.setFirestoreInteractor(failureInteractor);
 
         onView(withId(R.id.refresh_history)).perform(click());
         onView(withId(R.id.conn_status)).check(matches(withText("CONNECTION ERROR")));
@@ -117,7 +123,7 @@ public class HistoryActivityTest {
             }
         };
 
-        mActivityRule.getActivity().setFirestoreInteractor(unreadableInteractor);
+        fragment.setFirestoreInteractor(unreadableInteractor);
 
         onView(withId(R.id.refresh_history)).perform(click());
         onData(anything())

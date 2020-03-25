@@ -3,7 +3,6 @@ package ch.epfl.sdp;
 import android.widget.ImageView;
 
 import androidx.test.espresso.intent.Intents;
-import androidx.test.espresso.intent.rule.IntentsTestRule;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
@@ -21,7 +20,11 @@ import static org.junit.Assert.assertSame;
 import static ch.epfl.sdp.TestTools.*;
 public class AccountGettingTest {
     @Rule
-    public final IntentsTestRule<AccountGetting> activityRule = new IntentsTestRule<AccountGetting>(AccountGetting.class);
+    public final ActivityTestRule<AccountGetting> activityRule = new ActivityTestRule<AccountGetting>(AccountGetting.class);
+    @Before
+    public void setUp() throws Exception{
+        initSafeTest(activityRule,true);
+    }
     @Test
     public void nameIsDisplayed(){
         onView(withId(R.id.name)).check(matches(withText(User.DEFAULT_DISPLAY_NAME)));
@@ -55,6 +58,10 @@ public class AccountGettingTest {
     @Test
     public void signOutButtonWorks(){
         clickAndCheck(R.id.button_sign_out,R.id.sign_in_button);
+    }
+    @After
+    public void tearDown() throws Exception{
+        Intents.release();
     }
 
 }

@@ -48,6 +48,7 @@ public class UserInfectionTest {
     private void clickWaitAndCheckTexts(int buttonID, int textID, String expectedButtonText, String expectedText, int waitingTime) {
         onView(withId(buttonID)).perform(click());
         waitingForTravis(waitingTime);
+
         onView(withId(textID)).check(matches(withText(expectedText)));
         onView(withId(buttonID)).check(matches(withText(expectedButtonText)));
     }

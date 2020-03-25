@@ -13,7 +13,7 @@ import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
 
 public class BiometricUtils {
 
-    public static boolean isBiometricPromptEnabled() {
+    private static boolean isBiometricPromptEnabled() {
         return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P);
     }
 
@@ -26,7 +26,7 @@ public class BiometricUtils {
      * then you won't need to perform this check.
      *
      * */
-    public static boolean isSdkVersionSupported() {
+    private static boolean isSdkVersionSupported() {
         return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
     }
 
@@ -35,6 +35,9 @@ public class BiometricUtils {
      *
      * */
     public static boolean canAuthenticate(Context context){
+        if (!(isPermissionGranted(context) && isSdkVersionSupported()))
+            return false;
+
         BiometricManager biometricManager = BiometricManager.from(context);
         switch (biometricManager.canAuthenticate()) {
             case BiometricManager.BIOMETRIC_SUCCESS:
@@ -60,7 +63,7 @@ public class BiometricUtils {
      * installs the app on their device.
      *
      * */
-    public static boolean isPermissionGranted(Context context) {
+    private static boolean isPermissionGranted(Context context) {
         return ActivityCompat.checkSelfPermission(context, Manifest.permission.USE_FINGERPRINT) ==
                 PackageManager.PERMISSION_GRANTED;
     }

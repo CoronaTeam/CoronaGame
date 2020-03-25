@@ -1,20 +1,20 @@
 package ch.epfl.sdp;
 
 import android.os.Bundle;
-import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class UserInfectionActivity extends AppCompatActivity {
 
@@ -42,17 +42,35 @@ public class UserInfectionActivity extends AppCompatActivity {
         infectionStatusView.setSaveEnabled(true);
         infectionStatusButton.setSaveEnabled(true);
 
-        executor = ContextCompat.getMainExecutor(this);
+        this.executor = ContextCompat.getMainExecutor(this);
+        //this.executor = Executors.newSingleThreadExecutor();
+        if (BiometricUtils.canAuthenticate(this)) {
+            this.biometricPrompt = biometricPromptBuilder(this.executor);
+            this.promptInfo = promptInfoBuilder();
+        }
+    }
 
-        biometricPrompt = new BiometricPrompt(UserInfectionActivity.this,
+    public void onClick(View view) {
+        if (BiometricUtils.canAuthenticate(this)) {
+            biometricPrompt.authenticate(promptInfo);
+        } else {
+            executeHealthStatusChange();
+        }
+    }
+
+
+    private BiometricPrompt biometricPromptBuilder(Executor executor) {
+        return new BiometricPrompt(UserInfectionActivity.this,
                 executor, new BiometricPrompt.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errorCode,
                                               @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
-                Toast.makeText(getApplicationContext(),
-                        "Authentication error: " + errString, Toast.LENGTH_SHORT)
-                        .show();
+                if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
+                    Toast.makeText(getApplicationContext(),
+                            "Come back when sure about your health status!", Toast.LENGTH_LONG)
+                            .show();
+                }
             }
 
             @Override
@@ -64,25 +82,6 @@ public class UserInfectionActivity extends AppCompatActivity {
                 executeHealthStatusChange();
             }
 
-            private void executeHealthStatusChange() {
-                CharSequence buttonText = infectionStatusButton.getText();
-                if (buttonText.equals(getResources().getString(R.string.i_am_infected))) {
-
-                    clickAction(infectionStatusButton, infectionStatusView, R.string.i_am_cured,
-                            R.string.your_user_status_is_set_to_infected, R.color.colorGreenCured);
-                    //upload to firebase
-                    user.modifyUserInfectionStatus(userName, true,
-                            value -> infectionUploadView.setText(value));
-                } else {
-                    biometricPrompt.authenticate(promptInfo);
-                    clickAction(infectionStatusButton, infectionStatusView, R.string.i_am_infected,
-                            R.string.your_user_status_is_set_to_not_infected, R.color.colorRedInfected);
-                    //upload to firebase
-                    user.modifyUserInfectionStatus(userName, false,
-                            value -> infectionUploadView.setText(value));
-                }
-            }
-
             @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
@@ -91,24 +90,39 @@ public class UserInfectionActivity extends AppCompatActivity {
                         .show();
             }
         });
+    }
 
-        promptInfo = new BiometricPrompt.PromptInfo.Builder()
+    private BiometricPrompt.PromptInfo promptInfoBuilder() {
+        return new BiometricPrompt.PromptInfo.Builder()
                 .setConfirmationRequired(true)
                 .setTitle("Biometric authentication")
-                .setSubtitle("Confirm to upload your health status")
-                //.setNegativeButtonText("Use account password")
-                .setDeviceCredentialAllowed(true)
+                .setSubtitle("Confirm your health status change")
+                .setNegativeButtonText("Cancel")
+                //.setDeviceCredentialAllowed(true)
                 .build();
-        infectionStatusButton.setOnClickListener(v -> {
-            biometricPrompt.authenticate(promptInfo);
-        });
+    }
+
+    private void executeHealthStatusChange() {
+        CharSequence buttonText = infectionStatusButton.getText();
+        if (buttonText.equals(getResources().getString(R.string.i_am_infected))) {
+            clickAction(infectionStatusButton, infectionStatusView, R.string.i_am_cured,
+                    R.string.your_user_status_is_set_to_infected, R.color.colorRedInfected);
+            //upload to firebase
+            user.modifyUserInfectionStatus(userName, true,
+                    value -> infectionUploadView.setText(value));
+        } else {
+            clickAction(infectionStatusButton, infectionStatusView, R.string.i_am_infected,
+                    R.string.your_user_status_is_set_to_not_infected, R.color.colorGreenCured);
+            //upload to firebase
+            user.modifyUserInfectionStatus(userName, false,
+                    value -> infectionUploadView.setText(value));
+        }
     }
 
 
     private void clickAction(Button button, TextView textView, int buttonText, int textViewText, int buttonColor) {
         button.setText(buttonText);
-        button.setBackgroundTintList(
-                getResources().getColorStateList(buttonColor));
+        textView.setTextColor(getResources().getColorStateList(buttonColor));
         textView.setText(textViewText);
     }
 

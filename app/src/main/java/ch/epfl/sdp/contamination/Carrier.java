@@ -36,4 +36,12 @@ public interface Carrier {
      */
     float getIllnessProbability();
 
+    /**
+     * Updates the probability that the Carrier is ill, if his status is UNKNOWN
+     * Returns false if:
+     *  - probability < 0 or >= 1
+     *  - status is != UNKNOWN
+     */
+    boolean setIllnessProbability(float probability);
+
 }

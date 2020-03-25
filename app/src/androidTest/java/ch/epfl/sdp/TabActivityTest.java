@@ -29,19 +29,16 @@ public class TabActivityTest {
             new ActivityTestRule<>(TabActivity.class);
 
     @Test
-    @Ignore("Travis won't run map")
     public void testTabsInterfaceCorrectly() {
         onView(withId(R.id.tabs)).check(matches(isDisplayed()));
     }
 
     @Test
-    @Ignore("Travis won't run map")
     public void testTabsDisplayCorrectly() {
         onView(withId(R.id.mapView)).check(matches(isDisplayed()));
     }
 
     @Test
-    @Ignore("Travis won't run map")
     public void testTabsMoveCorrectly() {
         onView(withId(R.id.history_tracker)).check(matches(not(hasFocus())));
         onView(withText(mActivityRule.getActivity().getString(R.string.tab_history))).perform(click());

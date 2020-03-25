@@ -2,9 +2,11 @@ package ch.epfl.sdp;
 
 import android.widget.ImageView;
 
-import androidx.test.espresso.intent.rule.IntentsTestRule;
+import androidx.test.espresso.intent.Intents;
+import androidx.test.rule.ActivityTestRule;
 
-import org.junit.Ignore;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -17,20 +19,12 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static ch.epfl.sdp.TestTools.*;
 public class AccountGettingTest {
-   // @Rule
-  //  public final ActivityTestRule<AccountGettingActivity> mActivityRule = new ActivityTestRule<AccountGettingActivity>(AccountGettingActivity.class);
-//    @Rule
-//    public final IntentsTestRule<AccountGettingActivity> intentsTestRule =
-//            new IntentsTestRule<>(AccountGettingActivity.class);
     @Rule
-    public IntentsTestRule<AccountGetting> activityRule = new IntentsTestRule<>(AccountGetting.class);
-
-
-//    @Before
-//    public void setUp() throws Exception{
-//        Intents.init();
-//        activityRule.launchActivity(new Intent());
-//    }
+    public final ActivityTestRule<AccountGetting> activityRule = new ActivityTestRule<AccountGetting>(AccountGetting.class);
+    @Before
+    public void setUp() throws Exception{
+        initSafeTest(activityRule,true);
+    }
     @Test
     public void nameIsDisplayed(){
         onView(withId(R.id.name)).check(matches(withText(User.DEFAULT_DISPLAY_NAME)));
@@ -50,7 +44,6 @@ public class AccountGettingTest {
 
     @Test
     public void imageViewDoDisplayImage(){
-        //onView(withId(R.id.imageView)).check(matches(withDrawable(new DrawableMatcher(User.default_uri))));
         ImageView contentImage = getActivity().findViewById(R.id.profileImage);
         sleep();
         assertNotNull(contentImage.getDrawable());  //checking that the image is not null is sufficient
@@ -60,18 +53,15 @@ public class AccountGettingTest {
         ((AccountGetting)(getActivity())).signOut(null);
         sleep();
         assertSame(getActivity().getClass(),Authentication.class);
-//        onView(withId(R.id.sign_in_button)).check(matches(isDisplayed()));
     }
-
-
 
     @Test
     public void signOutButtonWorks(){
         clickAndCheck(R.id.button_sign_out,R.id.sign_in_button);
     }
-//    @After
-//    public void tearDown() throws Exception{
-//        Intents.release();
-//    }
+    @After
+    public void tearDown() throws Exception{
+        Intents.release();
+    }
 
 }

@@ -89,6 +89,8 @@ public class ConcreteAnalysisTest {
 
         Carrier me = new Layman(HEALTHY);
 
+        assertThat(me.setIllnessProbability(.5f), equalTo(false));
+
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver);
         analyst.updateInfectionPredictions(testLocation, new Date(1585223373980L));
         assertThat(me.getInfectionStatus(), equalTo(Carrier.InfectionStatus.HEALTHY));

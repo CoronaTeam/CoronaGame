@@ -18,49 +18,58 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         this.receiver = receiver;
     }
 
-    private void calculateInfectionProbability(Map<Carrier, Integer> suspectedContacts) {
+    private float calculateCarrierInfectionProbability(Map<Carrier, Integer> suspectedContacts, float cumulativeSocialTime) {
+        float updatedProbability = me.getIllnessProbability();
+
+        for (Map.Entry<Carrier, Integer> c : suspectedContacts.entrySet()) {
+            // MODEL: Being close to a person for more than WINDOW_FOR_INFECTION_DETECTION implies becoming infected
+            if (c.getValue() > WINDOW_FOR_INFECTION_DETECTION) {
+                me.evolveInfection(InfectionStatus.INFECTED);
+                break;
+            } else {
+
+                // Calculate new weights for probabilities
+                float newWeight = c.getValue() / cumulativeSocialTime;
+                float oldWeight = 1 - newWeight;
+
+                // Updates the probability given the new contribution by Carrier c.getKey()
+                updatedProbability = oldWeight * updatedProbability +
+                        newWeight * c.getKey().getIllnessProbability() * TRANSMISSION_FACTOR;
+            }
+        }
+
+        return updatedProbability;
+    }
+
+    private void updateCarrierInfectionProbability(float updatedProbability) {
+        if (updatedProbability > CERTAINTY_APPROXIMATION_THRESHOLD) {
+            // MODEL: If I'm almost certainly ill, then I will be marked as INFECTED
+            me.evolveInfection(InfectionStatus.INFECTED);
+        } else {
+            if (updatedProbability != 0) {
+                me.evolveInfection(InfectionStatus.UNKNOWN);
+            }
+            me.setIllnessProbability(updatedProbability);
+        }
+    }
+
+    private void modelInfectionEvolution(Map<Carrier, Integer> suspectedContacts) {
 
         switch (me.getInfectionStatus()) {
             case INFECTED:
                 // MODEL: infected people should update their status when they become healthy again
+                break;
             case IMMUNE:
                 // No matter what, I will remain so
                 break;
             default:
                 float cumulativeSocialTime = 0;
-
                 for (int cTime : suspectedContacts.values()) {
                     cumulativeSocialTime += cTime;
                 }
 
-                float updatedProbability = me.getIllnessProbability();
-
-                for (Map.Entry<Carrier, Integer> c : suspectedContacts.entrySet()) {
-                    // MODEL: Being close to a person for more than WINDOW_FOR_INFECTION_DETECTION implies becoming infected
-                    if (c.getValue() > WINDOW_FOR_INFECTION_DETECTION) {
-                        me.evolveInfection(InfectionStatus.INFECTED);
-                        break;
-                    } else {
-
-                        // Calculate new weights for probabilities
-                        float newWeight = c.getValue() / cumulativeSocialTime;
-                        float oldWeight = 1 - newWeight;
-
-                        // Updates the probability given the new contribution by Carrier c.getKey()
-                        updatedProbability = oldWeight * updatedProbability +
-                                newWeight * c.getKey().getIllnessProbability() * TRANSMISSION_FACTOR;
-                    }
-                }
-
-                if (updatedProbability > CERTAINTY_APPROXIMATION_THRESHOLD) {
-                    // MODEL: If I'm almost certainly ill, then I will be marked as INFECTED
-                    me.evolveInfection(InfectionStatus.INFECTED);
-                } else {
-                    if (updatedProbability != 0) {
-                        me.evolveInfection(InfectionStatus.UNKNOWN);
-                    }
-                    me.setIllnessProbability(updatedProbability);
-                }
+                float updatedProbability = calculateCarrierInfectionProbability(suspectedContacts, cumulativeSocialTime);
+                updateCarrierInfectionProbability(updatedProbability);
         }
     }
 
@@ -88,6 +97,6 @@ public class ConcreteAnalysis implements InfectionAnalyst {
 
         Date now = new Date(System.currentTimeMillis());
 
-        receiver.getUserNearbyDuring(location, startTime, now, aroundMe -> calculateInfectionProbability(identifySuspectContacts(aroundMe)));
+        receiver.getUserNearbyDuring(location, startTime, now, aroundMe -> modelInfectionEvolution(identifySuspectContacts(aroundMe)));
     }
 }

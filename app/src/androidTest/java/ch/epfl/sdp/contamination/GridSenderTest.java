@@ -1,10 +1,6 @@
 package ch.epfl.sdp.contamination;
 
-import android.annotation.TargetApi;
 import android.location.Location;
-import android.location.LocationManager;
-import android.os.Build;
-import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.test.rule.ActivityTestRule;
@@ -27,6 +23,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.QueryHandler;
@@ -37,6 +36,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static ch.epfl.sdp.TestUtils.buildLocation;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Mockito.when;
 
@@ -101,21 +101,6 @@ public class GridSenderTest {
         when(afterRangeDocumentSnapshot.get("Time")).thenReturn(String.valueOf(outsideRange));
     }
 
-    @TargetApi(17)
-    private Location buildLocation(double latitude, double longitude) {
-        Location l = new Location(LocationManager.GPS_PROVIDER);
-        l.setLatitude(latitude);
-        l.setLongitude(longitude);
-        l.setTime(System.currentTimeMillis());
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
-            // Also need to set the et field
-            l.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());
-        }
-        l.setAltitude(400);
-        l.setAccuracy(1);
-        return l;
-    }
-
     class MockGridInteractor extends GridFirestoreInteractor {
 
         // TODO: GridFirestoreInteractor should become an interface too
@@ -124,14 +109,18 @@ public class GridSenderTest {
         }
     }
 
-    @Test
-    public void dataSenderUploadsInformation() {
+    private void setSuccessfulSender() {
         ((DataExchangeActivity.ConcreteDataSender) mActivityRule.getActivity().getSender()).setInteractor(new MockGridInteractor() {
             @Override
             public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
                 success.onSuccess(null);
             }
         });
+    }
+
+    @Test
+    public void dataSenderUploadsInformation() {
+        setSuccessfulSender();
 
         mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().getSender().registerLocation(
                 new Layman(Carrier.InfectionStatus.HEALTHY),
@@ -141,14 +130,18 @@ public class GridSenderTest {
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
     }
 
-    @Test
-    public void dataSenderFailsWithError() {
+    private void setFailingSender() {
         ((DataExchangeActivity.ConcreteDataSender) mActivityRule.getActivity().getSender()).setInteractor(new MockGridInteractor() {
             @Override
             public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
                 failure.onFailure(null);
             }
         });
+    }
+
+    @Test
+    public void dataSenderFailsWithError() {
+        setFailingSender();
 
         mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().getSender().registerLocation(
                 new Layman(Carrier.InfectionStatus.HEALTHY),
@@ -179,11 +172,7 @@ public class GridSenderTest {
                 successCallback);
     }
 
-    @Test
-    public void dataReceiverFindsContactsDuring() {
-
-        final Location testLocation = buildLocation(70.5, 71.25);
-
+    private void setFakeReceiver(Location testLocation) {
         ((DataExchangeActivity.ConcreteDataReceiver) mActivityRule.getActivity().getReceiver()).setInteractor(new MockGridInteractor() {
 
             @Override
@@ -208,6 +197,14 @@ public class GridSenderTest {
                 }
             }
         });
+    }
+
+    @Test
+    public void dataReceiverFindsContactsDuring() {
+
+        final Location testLocation = buildLocation(70.5, 71.25);
+
+        setFakeReceiver(testLocation);
 
         Callback<Map<? extends Carrier, Integer>> callback = value -> {
             assertThat(value.size(), is(2));
@@ -227,6 +224,8 @@ public class GridSenderTest {
 
     @Test
     public void laymanEqualityTest() {
+        // This test ensures that Layman properly overrides equals and hashCode methods
+
         Carrier c1 = new Layman(Carrier.InfectionStatus.INFECTED);
         Carrier c2 = new Layman(Carrier.InfectionStatus.INFECTED, 1f);
 
@@ -238,4 +237,112 @@ public class GridSenderTest {
         assertThat(aMap.containsKey(c2), is(true));
     }
 
+
+    @Test
+    public void dataReallyComeAndGoFromServer() throws Throwable {
+        // The following test uses the actual Firestore
+
+        Carrier aFakeCarrier = new Layman(Carrier.InfectionStatus.UNKNOWN, 0.2734f);
+        Location somewhereInTheWorld = buildLocation(12, 73);
+        Date rightNow = new Date(System.currentTimeMillis());
+
+        mActivityRule.getActivity().getSender().registerLocation(aFakeCarrier, somewhereInTheWorld, rightNow);
+
+        Thread.sleep(10000);
+
+        onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
+
+        AtomicBoolean done = new AtomicBoolean();
+        done.set(false);
+
+        Set<Carrier> result = new ConcurrentSkipListSet<>();
+
+        // Get data back
+        mActivityRule.runOnUiThread(() -> mActivityRule.getActivity().getReceiver().getUserNearby(somewhereInTheWorld, rightNow, people -> {
+            result.addAll(people);
+            done.set(true);
+        }));
+
+        while (!done.get()) { } // Busy wait
+
+        assertThat(result.size(), is(1));
+        assertThat(result.iterator().next(), is(aFakeCarrier));
+    }
+
+    @Test
+    public void complexQueriesComeAndGoFromServer() throws Throwable {
+        // The following test uses the actual Firestore
+
+        Carrier aFakeCarrier = new Layman(Carrier.InfectionStatus.UNKNOWN, 0.2734f);
+        Carrier trulyHealthy = new Layman(Carrier.InfectionStatus.IMMUNE, 0f);
+
+        Location somewhereInTheWorld = buildLocation(12, 73);
+
+        Date rightNow = new Date(System.currentTimeMillis());
+        Date aLittleLater = new Date(rightNow.getTime() + 10);
+
+        mActivityRule.getActivity().getSender().registerLocation(aFakeCarrier, somewhereInTheWorld, rightNow);
+        mActivityRule.getActivity().getSender().registerLocation(trulyHealthy, somewhereInTheWorld, aLittleLater);
+
+        Thread.sleep(10000);
+
+        onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
+
+        AtomicBoolean done = new AtomicBoolean();
+        done.set(false);
+
+        Map<Carrier, Integer> result = new ConcurrentHashMap<>();
+
+        // Get data back
+        mActivityRule.runOnUiThread(() -> mActivityRule.getActivity().getReceiver().getUserNearbyDuring(somewhereInTheWorld, rightNow, aLittleLater, contactFrequency -> {
+            result.putAll(contactFrequency);
+            done.set(true);
+        }));
+
+        while (!done.get()) { } // Busy wait
+
+        assertThat(result.size(), is(2));
+        assertThat(result.containsKey(aFakeCarrier), is(true));
+        assertThat(result.containsKey(trulyHealthy), is(true));
+        assertThat(result.get(aFakeCarrier), is(1));
+        assertThat(result.get(trulyHealthy), is(1));
+
+    }
+
+    @Test
+    public void repetitionsOfSameCarrierAreDetected() throws Throwable {
+        // The following test uses the actual Firestore
+
+        Carrier aFakeCarrier = new Layman(Carrier.InfectionStatus.UNKNOWN, 0.2734f);
+
+        Location somewhereInTheWorld = buildLocation(12, 73);
+
+        Date rightNow = new Date(System.currentTimeMillis());
+        Date aLittleLater = new Date(rightNow.getTime() + 10);
+
+        mActivityRule.getActivity().getSender().registerLocation(aFakeCarrier, somewhereInTheWorld, rightNow);
+        mActivityRule.getActivity().getSender().registerLocation(aFakeCarrier, somewhereInTheWorld, aLittleLater);
+
+        Thread.sleep(10000);
+
+        onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
+
+        AtomicBoolean done = new AtomicBoolean();
+        done.set(false);
+
+        Map<Carrier, Integer> result = new ConcurrentHashMap<>();
+
+        // Get data back
+        mActivityRule.runOnUiThread(() -> mActivityRule.getActivity().getReceiver().getUserNearbyDuring(somewhereInTheWorld, rightNow, aLittleLater, contactFrequency -> {
+            result.putAll(contactFrequency);
+            done.set(true);
+        }));
+
+        while (!done.get()) { } // Busy wait
+
+        assertThat(result.size(), is(1));
+        assertThat(result.containsKey(aFakeCarrier), is(true));
+        assertThat(result.get(aFakeCarrier), is(2));
+
+    }
 }

@@ -112,6 +112,63 @@ public class DataExchangeActivity extends AppCompatActivity {
             interactor.read(location, date.getTime(), nearbyHandler);
         }
 
+        private Set<Long> filterValidTimes(long startDate, long endDate, QuerySnapshot snapshot) {
+            Set<Long> validTimes = new HashSet<>();
+
+            for (QueryDocumentSnapshot q : snapshot) {
+                long time = Long.decode((String)q.get("Time"));
+                if (startDate <= time && time <= endDate) {
+                    validTimes.add(time);
+                }
+            }
+
+            return validTimes;
+        }
+
+        private class SliceQueryHandle implements QueryHandler {
+
+            private Map<Carrier, Integer> metDuringInterval;
+            private AtomicInteger done;
+            private Set<Long> validTimes;
+            private Callback<Map<? extends Carrier, Integer>> callback;
+
+            SliceQueryHandle(Set<Long> validTimes, Map<Carrier, Integer> metDuringInterval, AtomicInteger done, Callback<Map<? extends Carrier, Integer>> callback){
+                this.metDuringInterval = metDuringInterval;
+                this.done = done;
+                this.validTimes = validTimes;
+                this.callback = callback;
+            }
+
+            @Override
+            public void onSuccess(QuerySnapshot snapshot) {
+                for (QueryDocumentSnapshot q : snapshot) {
+
+                    Carrier c = new Layman(Enum.valueOf(Carrier.InfectionStatus.class,(String) q.get("infectionStatus")), ((float)((double)q.get("illnessProbability"))));
+
+                    int numberOfMeetings = 1;
+                    if (metDuringInterval.containsKey(c)) {
+                        numberOfMeetings += metDuringInterval.get(c);
+                    }
+                    metDuringInterval.put(c, numberOfMeetings);
+                }
+
+                done.incrementAndGet();
+                if (done.get() == validTimes.size()) {
+                    while (!done.compareAndSet(validTimes.size(), 0)) {
+                        if (done.get() == 0) {
+                            return;
+                        }
+                    }
+                    callback.onCallback(metDuringInterval);
+                }
+            }
+
+            @Override
+            public void onFailure() {
+                // Do nothing
+            }
+        }
+
         @Override
         public void getUserNearbyDuring(Location location, Date startDate, Date endDate, Callback<Map<? extends Carrier, Integer>> callback) {
 
@@ -122,49 +179,13 @@ public class DataExchangeActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(QuerySnapshot snapshot) {
 
-                    Set<Long> validTimes = new HashSet<>();
-
-                    for (QueryDocumentSnapshot q : snapshot) {
-                        long time = Long.decode((String)q.get("Time"));
-                        if (startDate.getTime() <= time && time <= endDate.getTime()) {
-                            validTimes.add(time);
-                        }
-                    }
+                    Set<Long> validTimes = filterValidTimes(startDate.getTime(), endDate.getTime(), snapshot);
 
                     Map<Carrier, Integer> metDuringInterval = new ConcurrentHashMap<>();
 
                     AtomicInteger done = new AtomicInteger();
 
-                    QueryHandler updateFromTimeSlice = new QueryHandler() {
-                        @Override
-                        public void onSuccess(QuerySnapshot snapshot) {
-                            for (QueryDocumentSnapshot q : snapshot) {
-
-                                Carrier c = new Layman(Enum.valueOf(Carrier.InfectionStatus.class,(String) q.get("infectionStatus")), ((float)((double)q.get("illnessProbability"))));
-
-                                int numberOfMeetings = 1;
-                                if (metDuringInterval.containsKey(c)) {
-                                    numberOfMeetings += metDuringInterval.get(c);
-                                }
-                                metDuringInterval.put(c, numberOfMeetings);
-                            }
-
-                            done.incrementAndGet();
-                            if (done.get() == validTimes.size()) {
-                                while (!done.compareAndSet(validTimes.size(), 0)) {
-                                    if (done.get() == 0) {
-                                        return;
-                                    }
-                                }
-                                callback.onCallback(metDuringInterval);
-                            }
-                        }
-
-                        @Override
-                        public void onFailure() {
-                            // Do nothing
-                        }
-                    };
+                    QueryHandler updateFromTimeSlice = new SliceQueryHandle(validTimes, metDuringInterval, done, callback);
 
                     for (long t : validTimes) {
                         interactor.read(location, t, updateFromTimeSlice);

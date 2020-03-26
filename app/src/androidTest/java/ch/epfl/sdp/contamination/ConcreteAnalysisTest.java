@@ -1,10 +1,6 @@
 package ch.epfl.sdp.contamination;
 
-import android.annotation.TargetApi;
 import android.location.Location;
-import android.location.LocationManager;
-import android.os.Build;
-import android.os.SystemClock;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -17,26 +13,12 @@ import java.util.Set;
 
 import ch.epfl.sdp.Callback;
 
+import static ch.epfl.sdp.TestUtils.buildLocation;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ConcreteAnalysisTest {
-
-    @TargetApi(17)
-    private Location buildLocation(double latitude, double longitude) {
-        Location l = new Location(LocationManager.GPS_PROVIDER);
-        l.setLatitude(latitude);
-        l.setLongitude(longitude);
-        l.setTime(System.currentTimeMillis());
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
-            // Also need to set the et field
-            l.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());
-        }
-        l.setAltitude(400);
-        l.setAccuracy(1);
-        return l;
-    }
 
     Location testLocation = buildLocation(65, 63);
     Date testDate = new Date(System.currentTimeMillis());

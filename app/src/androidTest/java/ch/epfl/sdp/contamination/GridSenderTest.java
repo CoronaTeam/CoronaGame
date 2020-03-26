@@ -1,7 +1,6 @@
 package ch.epfl.sdp.contamination;
 
 import android.location.Location;
-import android.util.Log;
 
 import androidx.test.rule.ActivityTestRule;
 
@@ -208,11 +207,9 @@ public class GridSenderTest {
 
         Callback<Map<? extends Carrier, Integer>> callback = value -> {
             assertThat(value.size(), is(2));
-            Log.e("CALLBK", value.keySet().toString());
             assertThat(value.keySet().contains(new Layman(Carrier.InfectionStatus.IMMUNE, 0f)), is(true));
             assertThat(value.containsKey(new Layman(Carrier.InfectionStatus.UNKNOWN)), is(false));
-            Carrier unknownLayman = new Layman(Carrier.InfectionStatus.UNKNOWN, 0.75f);
-            assertThat(value.get(unknownLayman), is(1));
+            assertThat(value.get(new Layman(Carrier.InfectionStatus.UNKNOWN, 0.75f)), is(1));
         };
 
         mActivityRule.getActivity().getReceiver().getUserNearbyDuring(
@@ -229,14 +226,27 @@ public class GridSenderTest {
         Carrier c1 = new Layman(Carrier.InfectionStatus.INFECTED);
         Carrier c2 = new Layman(Carrier.InfectionStatus.INFECTED, 1f);
 
-        assertThat(c1, is(c2));
-
         Map<Carrier, Integer> aMap = new HashMap<>();
         aMap.put(c1, 2);
 
         assertThat(aMap.containsKey(c2), is(true));
     }
 
+    private Set<Carrier> getBackSliceData(Location somewhere, Date rightNow) throws Throwable {
+        Set<Carrier> result = new ConcurrentSkipListSet<>();
+
+        AtomicBoolean done = new AtomicBoolean();
+        done.set(false);
+
+        mActivityRule.runOnUiThread(() -> mActivityRule.getActivity().getReceiver().getUserNearby(somewhere, rightNow, people -> {
+            result.addAll(people);
+            done.set(true);
+        }));
+
+        while (!done.get()) { } // Busy wait
+
+        return result;
+    }
 
     @Test
     public void dataReallyComeAndGoFromServer() throws Throwable {
@@ -252,21 +262,27 @@ public class GridSenderTest {
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
 
+        Set<Carrier> result = getBackSliceData(somewhereInTheWorld, rightNow);
+
+        assertThat(result.size(), is(1));
+        assertThat(result.iterator().next(), is(aFakeCarrier));
+    }
+
+    private Map<Carrier, Integer> getBackRangeData(Location somewhere, Date rangeStart, Date rangeEnd) throws Throwable {
         AtomicBoolean done = new AtomicBoolean();
         done.set(false);
 
-        Set<Carrier> result = new ConcurrentSkipListSet<>();
+        Map<Carrier, Integer> result = new ConcurrentHashMap<>();
 
         // Get data back
-        mActivityRule.runOnUiThread(() -> mActivityRule.getActivity().getReceiver().getUserNearby(somewhereInTheWorld, rightNow, people -> {
-            result.addAll(people);
+        mActivityRule.runOnUiThread(() -> mActivityRule.getActivity().getReceiver().getUserNearbyDuring(somewhere, rangeStart, rangeEnd, contactFrequency -> {
+            result.putAll(contactFrequency);
             done.set(true);
         }));
 
         while (!done.get()) { } // Busy wait
 
-        assertThat(result.size(), is(1));
-        assertThat(result.iterator().next(), is(aFakeCarrier));
+        return result;
     }
 
     @Test
@@ -288,18 +304,7 @@ public class GridSenderTest {
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
 
-        AtomicBoolean done = new AtomicBoolean();
-        done.set(false);
-
-        Map<Carrier, Integer> result = new ConcurrentHashMap<>();
-
-        // Get data back
-        mActivityRule.runOnUiThread(() -> mActivityRule.getActivity().getReceiver().getUserNearbyDuring(somewhereInTheWorld, rightNow, aLittleLater, contactFrequency -> {
-            result.putAll(contactFrequency);
-            done.set(true);
-        }));
-
-        while (!done.get()) { } // Busy wait
+        Map<Carrier, Integer> result = getBackRangeData(somewhereInTheWorld, rightNow, aLittleLater);
 
         assertThat(result.size(), is(2));
         assertThat(result.containsKey(aFakeCarrier), is(true));
@@ -327,18 +332,7 @@ public class GridSenderTest {
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
 
-        AtomicBoolean done = new AtomicBoolean();
-        done.set(false);
-
-        Map<Carrier, Integer> result = new ConcurrentHashMap<>();
-
-        // Get data back
-        mActivityRule.runOnUiThread(() -> mActivityRule.getActivity().getReceiver().getUserNearbyDuring(somewhereInTheWorld, rightNow, aLittleLater, contactFrequency -> {
-            result.putAll(contactFrequency);
-            done.set(true);
-        }));
-
-        while (!done.get()) { } // Busy wait
+        Map<Carrier, Integer> result = getBackRangeData(somewhereInTheWorld, rightNow, aLittleLater);
 
         assertThat(result.size(), is(1));
         assertThat(result.containsKey(aFakeCarrier), is(true));

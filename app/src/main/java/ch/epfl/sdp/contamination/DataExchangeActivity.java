@@ -139,19 +139,7 @@ public class DataExchangeActivity extends AppCompatActivity {
                 this.callback = callback;
             }
 
-            @Override
-            public void onSuccess(QuerySnapshot snapshot) {
-                for (QueryDocumentSnapshot q : snapshot) {
-
-                    Carrier c = new Layman(Enum.valueOf(Carrier.InfectionStatus.class,(String) q.get("infectionStatus")), ((float)((double)q.get("illnessProbability"))));
-
-                    int numberOfMeetings = 1;
-                    if (metDuringInterval.containsKey(c)) {
-                        numberOfMeetings += metDuringInterval.get(c);
-                    }
-                    metDuringInterval.put(c, numberOfMeetings);
-                }
-
+            private void launchCallback() {
                 done.incrementAndGet();
                 if (done.get() == validTimes.size()) {
                     while (!done.compareAndSet(validTimes.size(), 0)) {
@@ -161,6 +149,24 @@ public class DataExchangeActivity extends AppCompatActivity {
                     }
                     callback.onCallback(metDuringInterval);
                 }
+            }
+
+            @Override
+            public void onSuccess(QuerySnapshot snapshot) {
+                for (QueryDocumentSnapshot q : snapshot) {
+
+                    Carrier c = new Layman(
+                            Enum.valueOf(Carrier.InfectionStatus.class,(String) q.get("infectionStatus")),
+                            ((float)((double)q.get("illnessProbability"))));
+
+                    int numberOfMeetings = 1;
+                    if (metDuringInterval.containsKey(c)) {
+                        numberOfMeetings += metDuringInterval.get(c);
+                    }
+                    metDuringInterval.put(c, numberOfMeetings);
+                }
+
+                launchCallback();
             }
 
             @Override
@@ -233,9 +239,5 @@ public class DataExchangeActivity extends AppCompatActivity {
         receiver = new ConcreteDataReceiver(
                 new GridFirestoreInteractor(new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance())),
                 AccountGetting.getAccount(this));
-
-        //sender.registerLocation(new Layman(Carrier.InfectionStatus.INFECTED), buildLocation(10, 11), new Date(1585223373900L));
-        //receiver.getUserNearbyDuring(buildLocation(10, 11), new Date(0L), new Date(1585223373903L), value -> exchangeContent.setText(value.keySet().toString()));
-        //receiver.getUserNearby(buildLocation(10, 11), new Date(1585223373883L), value -> exchangeContent.setText(value.toString()));
     }
 }

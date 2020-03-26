@@ -31,6 +31,7 @@ import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.test.espresso.idling.CountingIdlingResource;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -57,7 +58,7 @@ public class MapFragment extends Fragment implements LocationListener {
 
     private LatLng prevLocation = new LatLng(0, 0);
 
-    private HistoryFirestoreInteractor db;
+    private ConcreteFirestoreInteractor db;
     private QueryHandler fireBaseHandler;
 
     private CircleManager positionMarkerManager;
@@ -66,73 +67,7 @@ public class MapFragment extends Fragment implements LocationListener {
 
     private Timer updateOtherPosTimer;
 
-    @Override
-    public void onLocationChanged(Location newLocation) {
-        if (locationBroker.hasPermissions(GPS)) {
-            prevLocation =  new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
-            updateMarkerPosition(prevLocation);
-            System.out.println("new location");
-
-            Map<String, PositionRecord> element = new HashMap<>();
-            element.put("Position", new PositionRecord(Timestamp.now(), new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude())));
-            db.write(element, o -> { }, e -> { });
-        } else {
-            Toast.makeText(getActivity(), "Missing permission", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void updateMarkerPosition(LatLng location) {
-        // This method is where we update the marker position once we have new coordinates. First we
-        // check if this is the first time we are executing this handler, the best way to do this is
-        // check if marker is null
-
-        if (map != null && map.getStyle() != null) {
-            userLocation.setLatLng(location);
-            positionMarkerManager.update(userLocation);
-            map.animateCamera(CameraUpdateFactory.newLatLng(location));
-        }
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-    }
-
-    private void goOnline() {
-        locationBroker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, this);
-        Toast.makeText(getActivity(), R.string.gps_status_on, Toast.LENGTH_SHORT).show();
-    }
-
-    private void goOffline() {
-        Toast.makeText(getActivity(), R.string.gps_status_off, Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-        if (provider.equals(LocationManager.GPS_PROVIDER)) {
-            if (locationBroker.hasPermissions(GPS)) {
-                goOnline();
-            } else {
-                locationBroker.requestPermissions(LOCATION_PERMISSION_REQUEST);
-            }
-        }
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-        if (provider.equals(LocationManager.GPS_PROVIDER)) {
-            goOffline();
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == LOCATION_PERMISSION_REQUEST
-                && grantResults.length > 0
-                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            goOnline();
-        }
-    }
+    private Account userAccount;
 
     @Nullable
     @Override
@@ -143,9 +78,10 @@ public class MapFragment extends Fragment implements LocationListener {
             locationBroker = new ConcreteLocationBroker((LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE), getActivity());
         }
         otherUsersPositionMarkers = new ArrayList<>();
+        userAccount = AccountGetting.getAccount(getActivity());
 
         FirestoreWrapper wrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
-        db = new HistoryFirestoreInteractor(wrapper, AccountGetting.getAccount(getActivity()));
+        db = new ConcreteFirestoreInteractor(wrapper, new CountingIdlingResource("MapFragment"));
 
         // Mapbox access token is configured here. This needs to be called either in your application
         // object or in the same activity which contains the mapview.
@@ -178,6 +114,37 @@ public class MapFragment extends Fragment implements LocationListener {
         });
 
         return view;
+    }
+
+    @Override
+    public void onLocationChanged(Location newLocation) {
+        if (locationBroker.hasPermissions(GPS)) {
+            prevLocation =  new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
+            updateMarkerPosition(prevLocation);
+            System.out.println("new location");
+
+            Map<String, Object> element = new HashMap<>();
+            element.put("geoPoint", new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude()));
+            element.put("timeStamp", Timestamp.now());
+            db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
+
+            //wrapper.collection("LastPositions").document(user.getId()).set(lastPos);
+            db.writeDocumentWithID("LastPositions", userAccount.getId(), element, e -> {});
+        } else {
+            Toast.makeText(getActivity(), "Missing permission", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void updateMarkerPosition(LatLng location) {
+        // This method is where we update the marker position once we have new coordinates. First we
+        // check if this is the first time we are executing this handler, the best way to do this is
+        // check if marker is null
+
+        if (map != null && map.getStyle() != null) {
+            userLocation.setLatLng(location);
+            positionMarkerManager.update(userLocation);
+            map.animateCamera(CameraUpdateFactory.newLatLng(location));
+        }
     }
 
     private void updatePositionMarkersList(Iterator<QueryDocumentSnapshot> qsIterator, @NotNull Iterator<Circle> pmIterator){
@@ -254,7 +221,8 @@ public class MapFragment extends Fragment implements LocationListener {
 
             public void run() {
                 if (db != null && fireBaseHandler != null){
-                    db.readLastPositions(fireBaseHandler);
+                    //db.read(fireBaseHandler);
+                    db.readDocument("LastPositions", fireBaseHandler);
                 }
             }
         }
@@ -286,6 +254,48 @@ public class MapFragment extends Fragment implements LocationListener {
             locationBroker.requestPermissions(LOCATION_PERMISSION_REQUEST);
         } else {
             goOffline();
+        }
+    }
+
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+    }
+
+    private void goOnline() {
+        locationBroker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, this);
+        Toast.makeText(getActivity(), R.string.gps_status_on, Toast.LENGTH_SHORT).show();
+    }
+
+    private void goOffline() {
+        Toast.makeText(getActivity(), R.string.gps_status_off, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+        if (provider.equals(LocationManager.GPS_PROVIDER)) {
+            if (locationBroker.hasPermissions(GPS)) {
+                goOnline();
+            } else {
+                locationBroker.requestPermissions(LOCATION_PERMISSION_REQUEST);
+            }
+        }
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+        if (provider.equals(LocationManager.GPS_PROVIDER)) {
+            goOffline();
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == LOCATION_PERMISSION_REQUEST
+                && grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            goOnline();
         }
     }
 

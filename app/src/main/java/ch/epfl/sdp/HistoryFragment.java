@@ -19,14 +19,14 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.test.espresso.idling.CountingIdlingResource;
 
 public class HistoryFragment extends Fragment {
 
-    private FirestoreInteractor db;
+    private ConcreteFirestoreInteractor db;
 
-    private Account account;
+    private Account userAccount;
 
     private QueryHandler handler;
 
@@ -46,11 +46,11 @@ public class HistoryFragment extends Fragment {
                 connectionStatus.setText("QUERY OK");
                 for (QueryDocumentSnapshot qs : snapshot) {
                     try {
-                        Map<String, Object> positionRecord = (Map) qs.getData().get("Position");
+                        Map<String, Object> positionRecord = qs.getData();
                         historyAdapter.insert(String.format("Found @ %s:%s on %s",
                                 ((GeoPoint)(positionRecord.get("geoPoint"))).getLatitude(),
                                 ((GeoPoint)(positionRecord.get("geoPoint"))).getLongitude(),
-                                ((Timestamp)(positionRecord.get("timestamp"))).toDate()), 0);
+                                ((Timestamp)(positionRecord.get("timeStamp"))).toDate()), 0);
                     } catch (NullPointerException e) {
                         historyAdapter.insert("[...unreadable.:).]", 0);
                     }
@@ -69,9 +69,9 @@ public class HistoryFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_history, container, false);
 
-        account = AccountGetting.getAccount(getActivity());
+        userAccount = AccountGetting.getAccount(getActivity());
         FirestoreWrapper firestoreWrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
-        db = new HistoryFirestoreInteractor(firestoreWrapper, account);
+        db = new ConcreteFirestoreInteractor(firestoreWrapper, new CountingIdlingResource("History Fragment"));
 
         connectionStatus = view.findViewById(R.id.conn_status);
 
@@ -91,13 +91,13 @@ public class HistoryFragment extends Fragment {
     }
 
     @VisibleForTesting
-    void setFirestoreInteractor(FirestoreInteractor interactor) {
+    void setFirestoreInteractor(ConcreteFirestoreInteractor interactor) {
         db = interactor;
     }
 
     private void refreshHistory(View view) {
         connectionStatus.setText("Loading...");
-        db.read(handler);
+        db.readDocument("History/" + userAccount.getId() + "/Positions", handler);
     }
 
 

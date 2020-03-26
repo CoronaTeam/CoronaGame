@@ -238,7 +238,9 @@ public class GridSenderTest {
         done.set(false);
 
         mActivityRule.runOnUiThread(() -> mActivityRule.getActivity().getReceiver().getUserNearby(somewhere, rightNow, people -> {
-            people.forEach(x -> result.put(x, false));
+            for (Carrier c : people) {
+                result.put(c, false);
+            }
             done.set(true);
         }));
 

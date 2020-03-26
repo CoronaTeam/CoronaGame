@@ -1,14 +1,17 @@
 package ch.epfl.sdp;
 
+import android.media.MediaPlayer;
+import com.google.android.gms.tasks.OnCompleteListener;
+
 import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.local.QueryEngine;
 
 import java.util.Map;
-import java.util.Objects;
 
 public class ConcreteFirestoreInteractor extends FirestoreInteractor {
     final CountingIdlingResource serverIdlingResource;
@@ -21,12 +24,7 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
     }
 
     public void writeDocument(String path, Map<String, Object> document, Callback callback) {
-        // Add a new document with a generated ID
-        writeDocument(path, document,
-                e -> callback.onCallback(
-                        "Document snapshot successfully added to firestore."),
-                e -> callback.onCallback(
-                        "Error adding document to firestore."));
+        writeDocument(path, document, onSuccessBuilder(callback), onFailureBuilder(callback));
     }
 
     public void writeDocument(String path, Map<String, Object> document,
@@ -44,11 +42,8 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
 
     public void writeDocumentWithID(String path, String documentID, Map<String, Object> document,
                                     Callback callback) {
-        writeDocumentWithID(path, documentID, document,
-                e -> callback.onCallback(
-                        "Document snapshot successfully added to firestore."),
-                e -> callback.onCallback(
-                        "Error adding document to firestore."));
+        writeDocumentWithID(path, documentID, document, onSuccessBuilder(callback),
+                onFailureBuilder(callback));
     }
 
     public void writeDocumentWithID(String path, String documentID, Map<String, Object> document,
@@ -64,40 +59,8 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
         }
     }
 
-    public void readDocument1(String path, Callback callback) {
-        try {
-            serverIdlingResource.increment();
-            db.collection(path)
-                    .get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                                callback.onCallback(document.getId() + " => " + document.getData());
-                            }
-                        } else {
-                            callback.onCallback("Error getting firestone documents.");
-                        }
-                    });
-        } finally {
-            serverIdlingResource.decrement();
-        }
-    }
-
     public void readDocument(String path, Callback callback) {
-        readDocument(path,
-                new QueryHandler() {
-                    @Override
-                    public void onSuccess(QuerySnapshot snapshot) {
-                        for (QueryDocumentSnapshot qs : snapshot) {
-                            callback.onCallback(qs.getId() + " => " + qs.getData());
-                        }
-                    }
-
-                    @Override
-                    public void onFailure() {
-                        callback.onCallback("Error getting firestone documents.");
-                    }
-                });
+        readDocument(path, queryHandlerBuilder(callback));
     }
 
     public void readDocument(String path, QueryHandler handler) {
@@ -105,34 +68,14 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
             serverIdlingResource.increment();
             db.collection(path)
                     .get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            handler.onSuccess(task.getResult());
-                        } else {
-                            handler.onFailure();
-                        }
-                    });
+                    .addOnCompleteListener(onCompleteBuilder(handler));
         } finally {
             serverIdlingResource.decrement();
         }
     }
 
-
     public void readDocumentWithID(String path, String documentID, Callback callback) {
-        readDocumentWithID(path, documentID,
-                new QueryHandler() {
-                    @Override
-                    public void onSuccess(QuerySnapshot snapshot) {
-                        for (QueryDocumentSnapshot qs : snapshot) {
-                            callback.onCallback(qs.getId() + " => " + qs.getData());
-                        }
-                    }
-
-                    @Override
-                    public void onFailure() {
-                        callback.onCallback("Error getting firestone documents.");
-                    }
-                });
+        readDocumentWithID(path, documentID, queryHandlerBuilder(callback));
     }
 
     public void readDocumentWithID(String path, String documentID, QueryHandler handler) {
@@ -140,17 +83,45 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
             serverIdlingResource.increment();
             db.collection(path).document(documentID)
                     .get()
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            handler.onSuccess(task.getResult());
-                        } else {
-                            handler.onFailure();
-                        }
-                    });
+                    .addOnCompleteListener(onCompleteBuilder(handler));
         } finally {
             serverIdlingResource.decrement();
         }
     }
 
+    private QueryHandler queryHandlerBuilder(Callback callback) {
+        return new QueryHandler() {
+            @Override
+            public void onSuccess(QuerySnapshot snapshot) {
+                for (QueryDocumentSnapshot qs : snapshot) {
+                    callback.onCallback(qs.getId() + " => " + qs.getData());
+                }
+            }
 
+            @Override
+            public void onFailure() {
+                callback.onCallback("Error getting firestone documents.");
+            }
+        };
+    }
+
+    private OnSuccessListener onSuccessBuilder(Callback callback) {
+        return e -> callback.onCallback(
+                "Document snapshot successfully added to firestore.");
+    }
+
+    private OnFailureListener onFailureBuilder(Callback callback) {
+        return e -> callback.onCallback(
+                "Error adding document to firestore.");
+    }
+
+    private OnCompleteListener<QuerySnapshot> onCompleteBuilder(QueryHandler handler){
+        return task -> {
+            if (task.isSuccessful()) {
+                handler.onSuccess(task.getResult());
+            } else {
+                handler.onFailure();
+            }
+        };
+    }
 }

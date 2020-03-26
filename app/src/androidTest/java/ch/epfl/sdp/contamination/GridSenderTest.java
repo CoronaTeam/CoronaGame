@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.epfl.sdp.Callback;
@@ -232,14 +231,14 @@ public class GridSenderTest {
         assertThat(aMap.containsKey(c2), is(true));
     }
 
-    private Set<Carrier> getBackSliceData(Location somewhere, Date rightNow) throws Throwable {
-        Set<Carrier> result = new ConcurrentSkipListSet<>();
+    private Map<Carrier, Boolean> getBackSliceData(Location somewhere, Date rightNow) throws Throwable {
+        Map<Carrier, Boolean> result = new ConcurrentHashMap<>();
 
         AtomicBoolean done = new AtomicBoolean();
         done.set(false);
 
         mActivityRule.runOnUiThread(() -> mActivityRule.getActivity().getReceiver().getUserNearby(somewhere, rightNow, people -> {
-            result.addAll(people);
+            people.forEach(x -> result.put(x, false));
             done.set(true);
         }));
 
@@ -262,10 +261,10 @@ public class GridSenderTest {
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
 
-        Set<Carrier> result = getBackSliceData(somewhereInTheWorld, rightNow);
+        Map<Carrier, Boolean> result = getBackSliceData(somewhereInTheWorld, rightNow);
 
         assertThat(result.size(), is(1));
-        assertThat(result.iterator().next(), is(aFakeCarrier));
+        assertThat(result.containsKey(aFakeCarrier), is(true));
     }
 
     private Map<Carrier, Integer> getBackRangeData(Location somewhere, Date rangeStart, Date rangeEnd) throws Throwable {

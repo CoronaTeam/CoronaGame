@@ -140,14 +140,17 @@ public class DataExchangeActivity extends AppCompatActivity {
             }
 
             private void launchCallback() {
+                int size = validTimes.size();
+                boolean elected = true;
+
                 done.incrementAndGet();
-                if (done.get() == validTimes.size()) {
-                    while (!done.compareAndSet(validTimes.size(), 0)) {
-                        if (done.get() == 0) {
-                            return;
-                        }
+                if (done.get() == size) {
+                    while (!done.compareAndSet(size, 0)) {
+                        elected = (done.get() != 0);
                     }
-                    callback.onCallback(metDuringInterval);
+                    if (elected) {
+                        callback.onCallback(metDuringInterval);
+                    }
                 }
             }
 

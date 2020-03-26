@@ -126,18 +126,21 @@ public class UserInfectionActivity extends AppCompatActivity {
     private void executeHealthStatusChange() {
         CharSequence buttonText = infectionStatusButton.getText();
         if (buttonText.equals(getResources().getString(R.string.i_am_infected))) {
-            clickAction(infectionStatusButton, infectionStatusView, R.string.i_am_cured,
-                    R.string.your_user_status_is_set_to_infected, R.color.colorRedInfected);
-            //upload to firebase
-            user.modifyUserInfectionStatus(userName, true,
-                    value -> infectionUploadView.setText(updateUploadStatusTextView(value)));
+            setInfectionColorAndMessage(R.string.i_am_cured,
+                    R.string.your_user_status_is_set_to_infected, R.color.colorRedInfected, true);
         } else {
-            clickAction(infectionStatusButton, infectionStatusView, R.string.i_am_infected,
-                    R.string.your_user_status_is_set_to_not_infected, R.color.colorGreenCured);
-            //upload to firebase
-            user.modifyUserInfectionStatus(userName, false,
-                    value -> infectionUploadView.setText(updateUploadStatusTextView(value)));
+            setInfectionColorAndMessage(R.string.i_am_infected,
+                    R.string.your_user_status_is_set_to_not_infected, R.color.colorGreenCured,
+                    false);
         }
+    }
+
+    private void setInfectionColorAndMessage(int buttonTextID, int messageID, int colorID,
+                                             boolean infected){
+        clickAction(infectionStatusButton, infectionStatusView, buttonTextID,
+                messageID, colorID);
+        user.modifyUserInfectionStatus(userName, infected,
+                value -> infectionUploadView.setText(updateUploadStatusTextView(value)));
     }
 
     private String updateUploadStatusTextView(String value){

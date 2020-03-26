@@ -48,7 +48,6 @@ public class UserInfectionActivity extends AppCompatActivity {
         user.retrieveUserInfectionStatus(
                 value -> setView(infectionStatusButton, infectionStatusView, value),
                 value -> infectionStatusView.setText(value));
-        // check that online, if not set view to offline
         userNameView.setText(userName);
 
         infectionStatusView.setSaveEnabled(true);
@@ -88,6 +87,9 @@ public class UserInfectionActivity extends AppCompatActivity {
         refreshButton = findViewById(R.id.refreshButton);
         checkNetworkStatus(this);
         if (!IS_ONLINE) {
+            System.out.println();
+            System.out.println("IS NOT ONLINE SETS STATUS TO VISIBLE !!!! ");
+            System.out.println();
             onlineStatusView.setVisibility(View.VISIBLE);
             refreshButton.setVisibility(View.VISIBLE);
             infectionStatusButton.setVisibility(View.INVISIBLE);
@@ -95,6 +97,9 @@ public class UserInfectionActivity extends AppCompatActivity {
             infectionUploadView.setVisibility(View.INVISIBLE);
             userNameView.setVisibility(View.INVISIBLE);
         } else {
+            System.out.println();
+            System.out.println("IS ONLINE SETS STATUS TO INVISIBLE !!!! ");
+            System.out.println();
             onlineStatusView.setVisibility(View.INVISIBLE);
             refreshButton.setVisibility(View.INVISIBLE);
             infectionStatusButton.setVisibility(View.VISIBLE);

@@ -6,8 +6,10 @@ import android.util.Log;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,25 +32,22 @@ public class User implements Account {
     private Uri photoUrl;
     private String playerId;
     private String userID;
-    private int age;
     private boolean infected;
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static final String TAG = "User class";
 
-    public User(String dName, String fName, String email, Uri photoUrl, String playerId, String userID, int age, boolean infected){
+    public User(String dName, String fName, String email, Uri photoUrl, String playerId, String userID){
         this.displayName = dName;
         this.email = email;
         this.familyName = fName;
         this.photoUrl = photoUrl;
         this.playerId = playerId;
         this.userID = userID;
-        this.age = age;
-        this.infected = infected;
         addUserToFirestore();
     }
     public User(){
-        this(DEFAULT_DISPLAY_NAME, DEFAULT_FAMILY_NAME, DEFAULT_EMAIL, DEFAULT_URI,DEFAULT_PLAYERID,DEFAULT_USERID, DEFAULT_AGE, false);
+        this(DEFAULT_DISPLAY_NAME, DEFAULT_FAMILY_NAME, DEFAULT_EMAIL, DEFAULT_URI,DEFAULT_PLAYERID,DEFAULT_USERID);
     }
 
     @Override
@@ -89,8 +88,12 @@ public class User implements Account {
         return this.userID;
     }
 
-    public int getAge() {
-        return age;
+    public boolean getInfected() {
+        return infected;
+    }
+
+    public void setInfected(boolean infected) {
+        this.infected = infected;
     }
 
     private void addUserToFirestore() {
@@ -101,7 +104,6 @@ public class User implements Account {
         //user.put("PhotoUrl", photoUrl); TODO: be able to upload this "photoUrl" to Firestore
         user.put("Player id", playerId);
         user.put("User id", userID);
-        user.put("Age", age);
         user.put("Infected", infected);
 
         db.collection("Users")
@@ -129,4 +131,21 @@ public class User implements Account {
                         callback.onCallback("Error updating user infection status."));
         this.infected = infected;
     }
+
+    public boolean retrieveUserInfectionStatus(CallbackBoolean callbackBoolean, Callback callback) {
+        String path = "Users/"+displayName+"/Infected";
+        db.collection("Users").document(displayName).get().addOnSuccessListener(documentSnapshot ->
+        {
+            Log.d(TAG, "Infected status successfully loaded.");
+            infected = (boolean) documentSnapshot.get("Infected");
+            callbackBoolean.onCallback(infected);
+        })
+                .addOnFailureListener(e ->
+                {
+                    Log.w(TAG, "Error retrieving infection status from Firestore.", e);
+                    callback.onCallback("User infection could not be loaded.");
+                });
+        return infected;
+    }
+
 }

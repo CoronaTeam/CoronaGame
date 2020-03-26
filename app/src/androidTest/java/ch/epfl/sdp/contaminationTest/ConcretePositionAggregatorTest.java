@@ -5,11 +5,9 @@ import android.location.Location;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Objects;
 
 import ch.epfl.sdp.contamination.ConcretePositionAggregator;
 import ch.epfl.sdp.contamination.FakeDataSender;
-import ch.epfl.sdp.contamination.RoundLocation;
 
 import static ch.epfl.sdp.contamination.ConcretePositionAggregator.roundLocation;
 import static org.junit.Assert.assertEquals;
@@ -40,7 +38,7 @@ public class ConcretePositionAggregatorTest {
         location.setLatitude(12.1234567);
         location.setLongitude(134.9876543);
         location = roundLocation(location);
-        Location manuallyRoundedLocation = new RoundLocation("provider");
+        Location manuallyRoundedLocation = new Location("provider");
         manuallyRoundedLocation.setLongitude(134.98765);
         manuallyRoundedLocation.setLatitude(12.12346);
         assertEquals(manuallyRoundedLocation,location);

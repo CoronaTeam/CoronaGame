@@ -56,7 +56,7 @@ public class FirebaseActivityTest {
         clickWaitAndCheckText(R.id.FirebaseDownloadButton1,
                 R.id.FirebaseDownloadResult,
                 "DownloadTest => {value=success}",
-                10000);
+                30000);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class FirebaseActivityTest {
         clickWaitAndCheckText(R.id.FirebaseDownloadButton2,
                 R.id.FirebaseDownloadResult,
                 "DownloadTest => {value=success}",
-                10000);
+                30000);
     }
 
     @Test

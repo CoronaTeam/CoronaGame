@@ -1,6 +1,5 @@
 package ch.epfl.sdp;
 
-import androidx.test.espresso.ViewAssertion;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
 
@@ -33,15 +32,14 @@ public class UserInfectionTest {
     public void testDataUpload() {
         TestTools.clickAndCheck(R.id.infectionStatusButton,
                 R.id.infectionStatusUploadConfirmation);
+        TestTools.clickAndCheck(R.id.infectionStatusButton,
+                R.id.infectionStatusUploadConfirmation);
     }
 
     @Test
     public void testDetectNoInternet() {
         IS_NETWORK_DEBUG = true;
         IS_ONLINE = false;
-        System.out.println();
-        System.out.println("NO INTERNET");
-        System.out.println();
         onView(withId(R.id.infectionStatusButton)).perform(click());
         waitingForTravis(5000);
         onView(withId(R.id.onlineStatusView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));

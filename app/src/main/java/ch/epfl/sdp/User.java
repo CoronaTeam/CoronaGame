@@ -18,7 +18,7 @@ public class User implements Account {
     public static String DEFAULT_DISPLAY_NAME = "MyDisplayName";
     public static String DEFAULT_FAMILY_NAME = "MyFamilyName";
     public static String DEFAULT_EMAIL = "MyEmal@epfl.ch";
-    public static String DEFAULT_PLAYERID = "MyPlayerId";;
+    public static String DEFAULT_PLAYERID = "MyPlayerId";
     public static int DEFAULT_AGE = 25;
     public static String DEFAULT_USERID = "USER_ID_X42";
    // public static String url_string = "https://pbs.twimg.com/profile_images/1173987553885556736/WuLwZF3C_400x400.jpg";
@@ -88,14 +88,6 @@ public class User implements Account {
         return this.userID;
     }
 
-    public boolean getInfected() {
-        return infected;
-    }
-
-    public void setInfected(boolean infected) {
-        this.infected = infected;
-    }
-
     private void addUserToFirestore() {
         Map<String, Object> user = new HashMap<>();
         user.put("Display name", displayName);
@@ -132,7 +124,7 @@ public class User implements Account {
         this.infected = infected;
     }
 
-    public boolean retrieveUserInfectionStatus(CallbackBoolean callbackBoolean, Callback callback) {
+    public boolean retrieveUserInfectionStatus(CallbackBoolean callbackBoolean) {
         String path = "Users/"+displayName+"/Infected";
         db.collection("Users").document(displayName).get().addOnSuccessListener(documentSnapshot ->
         {
@@ -141,10 +133,7 @@ public class User implements Account {
             callbackBoolean.onCallback(infected);
         })
                 .addOnFailureListener(e ->
-                {
-                    Log.w(TAG, "Error retrieving infection status from Firestore.", e);
-                    callback.onCallback("User infection could not be loaded.");
-                });
+                    Log.w(TAG, "Error retrieving infection status from Firestore.", e));
         return infected;
     }
 

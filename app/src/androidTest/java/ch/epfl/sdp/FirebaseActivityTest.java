@@ -17,7 +17,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -34,16 +33,13 @@ import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 
 public class FirebaseActivityTest {
 
-    private ConnectivityManager cm;
-
-
-    @Rule
-    public GrantPermissionRule internetPermissionRule =
-            GrantPermissionRule.grant(android.Manifest.permission.INTERNET);
-
     @Rule
     public final ActivityTestRule<FirebaseActivity> mActivityRule =
             new ActivityTestRule<>(FirebaseActivity.class);
+    @Rule
+    public GrantPermissionRule internetPermissionRule =
+            GrantPermissionRule.grant(android.Manifest.permission.INTERNET);
+    private ConnectivityManager cm;
 
     @Before
     public void setup() {
@@ -55,17 +51,33 @@ public class FirebaseActivityTest {
         //EspressoIdling res: https://developer.android.com/reference/androidx/test/espresso/idling/CountingIdlingResource
     }
 
-    @Test @Ignore
-    public void testDataDownloadIsDisplayed() {
-        clickWaitAndCheckText(R.id.FirebaseDownloadButton,
+    @Test
+    public void testDataDownloadIsDisplayed1() {
+        clickWaitAndCheckText(R.id.FirebaseDownloadButton1,
                 R.id.FirebaseDownloadResult,
-                "Position={geoPoint=GeoPoint { latitude=-0.580915, longitude=-0.4812283333333333 }, timestamp=Timestamp(seconds=1584671879, nanoseconds=210000000)}",
-                20000);
+                "DownloadTest => {value=success}",
+                10000);
     }
 
     @Test
-    public void testDataUploadIsDisplayed() {
-        clickWaitAndCheckText(R.id.FirebaseUploadButton,
+    public void testDataDownloadIsDisplayed2() {
+        clickWaitAndCheckText(R.id.FirebaseDownloadButton2,
+                R.id.FirebaseDownloadResult,
+                "DownloadTest => {value=success}",
+                10000);
+    }
+
+    @Test
+    public void testDataUploadIsDisplayed1() {
+        clickWaitAndCheckText(R.id.FirebaseUploadButton1,
+                R.id.FirebaseUploadConfirmation,
+                "Document snapshot successfully added to firestore.",
+                5000);
+    }
+
+    @Test
+    public void testDataUploadIsDisplayed2() {
+        clickWaitAndCheckText(R.id.FirebaseUploadButton2,
                 R.id.FirebaseUploadConfirmation,
                 "Document snapshot successfully added to firestore.",
                 5000);
@@ -75,7 +87,7 @@ public class FirebaseActivityTest {
     public void testDetectNoInternetConnectionWhenUpload() {
         IS_NETWORK_DEBUG = true;
         IS_ONLINE = false;
-        clickWaitAndCheckText(R.id.FirebaseUploadButton,
+        clickWaitAndCheckText(R.id.FirebaseUploadButton2,
                 R.id.FirebaseUploadConfirmation,
                 "Can't upload while offline",
                 0);
@@ -87,7 +99,7 @@ public class FirebaseActivityTest {
     public void testDetectNoInternetConnectionWhenDownload() {
         IS_NETWORK_DEBUG = true;
         IS_ONLINE = false;
-        clickWaitAndCheckText(R.id.FirebaseDownloadButton,
+        clickWaitAndCheckText(R.id.FirebaseDownloadButton2,
                 R.id.FirebaseDownloadResult,
                 "Can't download while offline",
                 0);

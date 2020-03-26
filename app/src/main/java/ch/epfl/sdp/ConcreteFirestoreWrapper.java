@@ -73,8 +73,8 @@ public class ConcreteFirestoreWrapper implements FirestoreWrapper {
     }
 
     @Override
-    public FirestoreWrapper document(String documentPath) {
-        this.documentReference = collectionReference.document(documentPath);
+    public FirestoreWrapper document(String documentID) {
+        this.documentReference = collectionReference.document(documentID);
         return this;
     }
 

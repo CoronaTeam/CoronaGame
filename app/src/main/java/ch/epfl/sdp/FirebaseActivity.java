@@ -3,6 +3,7 @@ package ch.epfl.sdp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewDebug;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,13 +11,17 @@ import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
 
 public class FirebaseActivity extends AppCompatActivity {
     private static final String TAG = "FirebaseActivity";
-    private ConcreteFirestoreInteractor fs;
     CountingIdlingResource countingResource;
+    private ConcreteFirestoreInteractor fs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,14 +41,37 @@ public class FirebaseActivity extends AppCompatActivity {
 
     }
 
-    public void addUser(View view) {
+    public void addUser1(View view) {
+        Map<String, Object> user = new HashMap<>();
+        user.put("Name", "Bob Bobby");
+        user.put("Age", 24);
+        user.put("Infected", false);
         databaseOperation(R.id.FirebaseUploadConfirmation, R.string.uploading,
-                R.string.Can_t_Upload_Offline, e -> fs.writeDocument(e::setText));
+                R.string.Can_t_Upload_Offline, e -> fs.writeDocument("Players", user,
+                        e::setText));
     }
 
-    public void readData(View view) {
+    public void addUser2(View view){
+        Map<String, Object> user = new HashMap<>();
+        user.put("Name", "Aly Alice");
+        user.put("Age", 42);
+        user.put("Infected", true);
+        databaseOperation(R.id.FirebaseUploadConfirmation, R.string.uploading,
+                R.string.Can_t_Upload_Offline, e -> fs.writeDocumentWithID("Players",
+                        String.valueOf(new Random().nextInt()), user,
+                        e::setText));
+    }
+
+    public void readData2(View view) {
         databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
-                R.string.Can_t_Download_Offline, e -> fs.readDocument(e::setText));
+                R.string.Can_t_Download_Offline, e -> fs.readDocumentWithID("Tests", "DownloadTest",
+                        e::setText));
+    }
+
+    public void readData1(View view){
+        databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
+                R.string.Can_t_Download_Offline, e -> fs.readDocument("Tests",
+                        e::setText));
     }
 
     private void databaseOperation(int outputViewID, int duringOperation,

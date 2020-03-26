@@ -54,12 +54,12 @@ public final class ConcretePositionAggregator implements PositionAggregator {
     public void update() {
         if(lastDate != null){
             List<Location> targetLocations = buffer.get(lastDate);
-            RoundLocation meanLocation = getMean(targetLocations);
+            Location meanLocation = getMean(targetLocations);
             dataSender.sendALocationToFirebase(meanLocation,lastDate);
         }
     }
 
-    private RoundLocation getMean(List<Location> targetLocations) {
+    private Location getMean(List<Location> targetLocations) {
         if(targetLocations == null || targetLocations.size() == 0){
             throw new IllegalArgumentException("Target location shoul not be empty");
         }
@@ -77,7 +77,7 @@ public final class ConcretePositionAggregator implements PositionAggregator {
         Location res = targetLocations.get(0);
         res.setLatitude(latitudeSummation);
         res.setLongitude(longitudeSummation);
-        return new RoundLocation(res);
+        return res;
 
     }
 
@@ -95,7 +95,7 @@ public final class ConcretePositionAggregator implements PositionAggregator {
      * @param l
      * @return
      */
-    public static RoundLocation roundLocation(Location l){
+    public static Location roundLocation(Location l){
         if(l == null){
             throw new IllegalArgumentException("Location can't be null");
         }
@@ -105,6 +105,6 @@ public final class ConcretePositionAggregator implements PositionAggregator {
         longitude = roundCoordinate(longitude);
         l.setLatitude(latitude);
         l.setLongitude(longitude);
-        return new RoundLocation(l);
+        return l;
     }
 }

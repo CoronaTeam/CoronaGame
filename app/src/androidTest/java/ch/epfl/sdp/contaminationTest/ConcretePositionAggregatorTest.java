@@ -1,9 +1,11 @@
-package ch.epfl.sdp;
+package ch.epfl.sdp.contaminationTest;
 
 import android.location.Location;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Objects;
 
 import ch.epfl.sdp.contamination.ConcretePositionAggregator;
 import ch.epfl.sdp.contamination.FakeDataSender;

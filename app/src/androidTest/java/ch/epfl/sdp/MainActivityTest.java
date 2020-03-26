@@ -33,17 +33,6 @@ public class MainActivityTest {
         clickAndCheck(R.id.button_gps, R.id.gpsLatitude);
     }
 
-
-    @Test
-    @Ignore
-    public void dummyTest() {
-        System.out.println("hello");
-        //onView(withId(R.id.userIDText)).perform(typeText("from my unit test")).perform(closeSoftKeyboard());
-        onView(withId(R.id.button_map)).perform(click());
-        Espresso.pressBack();
-        // onView(withId(R.id.greetingMessage)).check(matches(withText("Hello from my unit test!")));
-    }
-
     private void clickAndCheck(int buttonID, int UIelementID){
         onView(withId(buttonID)).perform(click());
         try {

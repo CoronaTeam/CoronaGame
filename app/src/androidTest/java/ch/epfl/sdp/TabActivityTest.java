@@ -74,7 +74,7 @@ public class TabActivityTest {
                 // for your test to run with AndroidJUnitRunner.
 
                     System.out.println("dldldldl");
-                    MapFragment fragment = (MapFragment) mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+                    MapFragment fragment = (MapFragment) mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.mapView);
                     if(fragment != null){
                         System.out.println("Bite");
 

@@ -1,5 +1,7 @@
 package ch.epfl.sdp.contamination;
 
+import android.location.Location;
+
 import java.util.Date;
 
 public interface InfectionAnalyst {
@@ -16,5 +18,5 @@ public interface InfectionAnalyst {
      * Returns the probability of infection during WINDOW_FOR_INFECTION_DETECTION amount of time, starting at startTime
      * @param startTime
      */
-    void updateInfectionPredictions(Date startTime);
+    void updateInfectionPredictions(Location location, Date startTime);
 }

@@ -32,10 +32,6 @@ public class GridFirestoreInteractor {
         return String.format("Grid#%d#%d", idLatitude, idLongitude);
     }
 
-    String getDocumentPath(Location location) {
-        return "LiveGrid/" + getGridId(location);
-    }
-
     public void getTimes(Location location, QueryHandler handler) {
         db.collection("LiveGrid/" + getGridId(location) + "/Times")
                 .get()

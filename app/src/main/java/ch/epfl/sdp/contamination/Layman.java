@@ -3,11 +3,14 @@ package ch.epfl.sdp.contamination;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.Objects;
+
 public class Layman implements Carrier {
 
     private InfectionStatus myStatus;
     private float infectedWithProbability;
 
+    // TODO: Add another field to distinguish among Carrier (also modify equalsTo and hashCode!!)
     public Layman(InfectionStatus initialStatus) {
         myStatus = initialStatus;
         if (initialStatus == InfectionStatus.INFECTED) {
@@ -67,13 +70,18 @@ public class Layman implements Carrier {
     @Override
     public boolean equals(@Nullable Object obj) {
         return (obj instanceof Layman) &&
-                ((Layman)obj).infectedWithProbability == this.infectedWithProbability &&
-                ((Layman)obj).myStatus == this.myStatus;
+                ((Layman)obj).myStatus == this.myStatus &&
+                ((Layman)obj).infectedWithProbability == this.infectedWithProbability;
     }
 
     @NonNull
     @Override
     public String toString() {
         return String.format("%s (p=%f)", myStatus, infectedWithProbability);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(myStatus, infectedWithProbability);
     }
 }

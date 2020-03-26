@@ -1,20 +1,10 @@
 package ch.epfl.sdp.contamination;
 
-import android.annotation.TargetApi;
-import android.location.Location;
-import android.location.LocationManager;
-import android.os.Build;
-import android.os.SystemClock;
+public class DataReceiverMock {
 
-import com.google.common.collect.Lists;
+}
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+/*
 public class DataReceiverMock implements DataReceiver {
     private Map<Date, List<? extends Carrier>> wentThere;
 
@@ -78,7 +68,19 @@ public class DataReceiverMock implements DataReceiver {
     }
 
     @Override
+    public void getUserNearby(Location location, Date date, Callback<Set<? extends Carrier>> callback) {
+
+    }
+
+    @Override
+    public void getUserNearbyDuring(Location location, Date startDate, Date endDate, Callback<Map<? extends Carrier, Integer>> callback) {
+
+    }
+
+    @Override
     public Location getMyLocationAtTime(Date date) {
         return crowdedPlace;
     }
 }
+
+ */

@@ -1,22 +1,15 @@
 package ch.epfl.sdp.contamination;
 
-import android.annotation.TargetApi;
 import android.location.Location;
-import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -26,7 +19,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -58,6 +50,11 @@ public class DataExchangeActivity extends AppCompatActivity {
             this.account = account;
         }
 
+        @VisibleForTesting
+        void setInteractor(GridFirestoreInteractor interactor) {
+            this.interactor = interactor;
+        }
+
         public OnSuccessListener successListener = o -> {
             exchangeStatus.setText("EXCHANGE Succeeded");
         };
@@ -83,17 +80,10 @@ public class DataExchangeActivity extends AppCompatActivity {
             this.account = account;
         }
 
-        OnCompleteListener timesListener = new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                Set<Long> found = new TreeSet<>();
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot q : task.getResult()) {
-                        found.add(Long.decode((String)q.get("Time")));
-                    }
-                }
-            }
-        };
+        @VisibleForTesting
+        void setInteractor(GridFirestoreInteractor interactor) {
+            this.interactor = interactor;
+        }
 
         @Override
         public void getUserNearby(Location location, Date date, Callback<Set<? extends Carrier>> callback) {
@@ -198,29 +188,15 @@ public class DataExchangeActivity extends AppCompatActivity {
 
 
     @VisibleForTesting
-    private void setSender(DataSender sender) {
-        this.sender = sender;
+    DataSender getSender() {
+        return sender;
     }
 
     @VisibleForTesting
-    private void setReceiver(DataReceiver receiver) {
-        this.receiver = receiver;
+    DataReceiver getReceiver() {
+        return receiver;
     }
 
-    @TargetApi(17)
-    private Location buildLocation(double latitude, double longitude) {
-        Location l = new Location(LocationManager.GPS_PROVIDER);
-        l.setLatitude(latitude);
-        l.setLongitude(longitude);
-        l.setTime(System.currentTimeMillis());
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
-            // Also need to set the et field
-            l.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());
-        }
-        l.setAltitude(400);
-        l.setAccuracy(1);
-        return l;
-    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -239,6 +215,6 @@ public class DataExchangeActivity extends AppCompatActivity {
 
         //sender.registerLocation(new Layman(Carrier.InfectionStatus.INFECTED), buildLocation(10, 11), new Date(1585223373900L));
         //receiver.getUserNearbyDuring(buildLocation(10, 11), new Date(0L), new Date(1585223373903L), value -> exchangeContent.setText(value.keySet().toString()));
-        receiver.getUserNearby(buildLocation(10, 11), new Date(1585223373883L), value -> exchangeContent.setText(value.toString()));
+        //receiver.getUserNearby(buildLocation(10, 11), new Date(1585223373883L), value -> exchangeContent.setText(value.toString()));
     }
 }

@@ -41,7 +41,7 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
     public void readDocument(Callback callback) {
         try{
             serverIdlingResource.increment();
-            db.collection("LastPositions")
+            db.collection("DownloadTest")
                     .get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {

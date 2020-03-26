@@ -1,10 +1,13 @@
 package ch.epfl.sdp;
 
+import android.Manifest;
+
 import androidx.biometric.BiometricFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -21,6 +24,10 @@ public class UserInfectionTest {
 
     @Rule
     public ActivityScenarioRule<UserInfectionActivity> rule = new ActivityScenarioRule<>(UserInfectionActivity.class);
+
+    @Rule
+    public GrantPermissionRule locationPermissionRule =
+            GrantPermissionRule.grant(Manifest.permission.USE_FINGERPRINT);
 
     private ActivityScenario<UserInfectionActivity> scenario;
 

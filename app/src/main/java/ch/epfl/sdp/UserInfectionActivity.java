@@ -57,6 +57,27 @@ public class UserInfectionActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onSaveInstanceState(@NotNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        TextView infectionText = findViewById(R.id.infectionStatusView);
+        Button infectionButton = findViewById(R.id.infectionStatusButton);
+        outState.putCharSequence("INFECTION_STATUS_TEXT", infectionText.getText());
+        outState.putCharSequence("INFECTION_STATUS_BUTTON", infectionButton.getText());
+    }
+
+    @Override
+    public void onRestoreInstanceState(@NotNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        TextView infectionText = findViewById(R.id.infectionStatusView);
+        Button infectionButton = findViewById(R.id.infectionStatusButton);
+        CharSequence DEFAULT_INFECTION_TEXT = getResources().getString(R.string.your_user_status_is_set_to_not_infected);
+        CharSequence DEFAULT_INFECTION_BUTTON = getResources().getString(R.string.i_am_infected);
+        infectionText.setText(savedInstanceState
+                .getCharSequence("INFECTION_STATUS_TEXT", DEFAULT_INFECTION_TEXT));
+        infectionButton.setText(savedInstanceState
+                .getCharSequence("INFECTION_STATUS_BUTTON", DEFAULT_INFECTION_BUTTON));
+    }
 
     private BiometricPrompt biometricPromptBuilder(Executor executor) {
         return new BiometricPrompt(UserInfectionActivity.this,
@@ -65,28 +86,20 @@ public class UserInfectionActivity extends AppCompatActivity {
             public void onAuthenticationError(int errorCode,
                                               @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
-                if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
-                    Toast.makeText(getApplicationContext(),
-                            "Come back when sure about your health status!", Toast.LENGTH_LONG)
-                            .show();
-                }
+                displayNegativeButtonToast(errorCode);
             }
 
             @Override
             public void onAuthenticationSucceeded(
                     @NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
-                Toast.makeText(getApplicationContext(),
-                        "Authentication succeeded!", Toast.LENGTH_SHORT).show();
-                executeHealthStatusChange();
+                executeAndDisplayAuthSuccessToast();
             }
 
             @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
-                Toast.makeText(getApplicationContext(), "Authentication failed",
-                        Toast.LENGTH_SHORT)
-                        .show();
+                displayAuthFailedToast();
             }
         });
     }
@@ -117,33 +130,29 @@ public class UserInfectionActivity extends AppCompatActivity {
         }
     }
 
+    private void displayAuthFailedToast(){
+        Toast.makeText(getApplicationContext(), "Authentication failed",
+                Toast.LENGTH_SHORT)
+                .show();
+    }
+
+    private void displayNegativeButtonToast(int errorCode){
+        if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
+            Toast.makeText(getApplicationContext(),
+                    "Come back when sure about your health status!", Toast.LENGTH_LONG)
+                    .show();
+        }
+    }
+
+    private void executeAndDisplayAuthSuccessToast(){
+        Toast.makeText(getApplicationContext(),
+                "Authentication succeeded!", Toast.LENGTH_SHORT).show();
+        executeHealthStatusChange();
+    }
 
     private void clickAction(Button button, TextView textView, int buttonText, int textViewText, int buttonColor) {
         button.setText(buttonText);
         textView.setTextColor(getResources().getColorStateList(buttonColor));
         textView.setText(textViewText);
-    }
-
-
-    @Override
-    public void onSaveInstanceState(@NotNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        TextView infectionText = findViewById(R.id.infectionStatusView);
-        Button infectionButton = findViewById(R.id.infectionStatusButton);
-        outState.putCharSequence("INFECTION_STATUS_TEXT", infectionText.getText());
-        outState.putCharSequence("INFECTION_STATUS_BUTTON", infectionButton.getText());
-    }
-
-    @Override
-    public void onRestoreInstanceState(@NotNull Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        TextView infectionText = findViewById(R.id.infectionStatusView);
-        Button infectionButton = findViewById(R.id.infectionStatusButton);
-        CharSequence DEFAULT_INFECTION_TEXT = getResources().getString(R.string.your_user_status_is_set_to_not_infected);
-        CharSequence DEFAULT_INFECTION_BUTTON = getResources().getString(R.string.i_am_infected);
-        infectionText.setText(savedInstanceState
-                .getCharSequence("INFECTION_STATUS_TEXT", DEFAULT_INFECTION_TEXT));
-        infectionButton.setText(savedInstanceState
-                .getCharSequence("INFECTION_STATUS_BUTTON", DEFAULT_INFECTION_BUTTON));
     }
 }

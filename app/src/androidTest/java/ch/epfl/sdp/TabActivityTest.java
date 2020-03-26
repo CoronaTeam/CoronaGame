@@ -73,10 +73,10 @@ public class TabActivityTest {
                 // Injecting the Instrumentation instance is required
                 // for your test to run with AndroidJUnitRunner.
 
-                    System.out.println("dldldldl");
+                    //System.out.println("dldldldl");
                     MapFragment fragment = (MapFragment) mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.mapView);
                     if(fragment != null){
-                        System.out.println("Bite");
+                        //System.out.println("Run you");
 
                         fragment.OnDidFinishLoadingMapListener(new bidule());
                     }

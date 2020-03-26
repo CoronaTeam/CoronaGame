@@ -32,6 +32,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -178,6 +180,41 @@ public class MapFragment extends Fragment implements LocationListener {
         return view;
     }
 
+    private void updatePositionMarkersList(Iterator<QueryDocumentSnapshot> qsIterator, @NotNull Iterator<Circle> pmIterator){
+        while (pmIterator.hasNext()){
+            if(qsIterator.hasNext()){
+                QueryDocumentSnapshot qs = qsIterator.next();
+                Circle pm = pmIterator.next();
+                System.out.println(qs);
+
+                try {
+                    pm.setLatLng(new LatLng(((GeoPoint)(qs.get("geoPoint"))).getLatitude(),
+                            ((GeoPoint)(qs.get("geoPoint"))).getLongitude()));
+                } catch (NullPointerException ignored) { }
+
+            }
+            else{ // if some points were deleted remove them from the list
+                positionMarkerManager.delete(pmIterator.next());
+                pmIterator.remove();
+            }
+        }
+    }
+
+    private void addMarkersToMarkerList(@NotNull Iterator<QueryDocumentSnapshot> qsIterator){
+        while (qsIterator.hasNext()){
+            QueryDocumentSnapshot qs = qsIterator.next();
+            try {
+                Circle pm = positionMarkerManager.create(new CircleOptions()
+                        .withLatLng(new LatLng(
+                                ((GeoPoint)(qs.get("geoPoint"))).getLatitude(),
+                                ((GeoPoint)(qs.get("geoPoint"))).getLongitude()))
+                        .withCircleColor("#ff6219")
+                );
+                otherUsersPositionMarkers.add(pm);
+            } catch (NullPointerException ignored) { }
+
+        }
+    }
     private void initFireBaseQueryHandler() {
 
         fireBaseHandler = new QueryHandler() {
@@ -206,42 +243,6 @@ public class MapFragment extends Fragment implements LocationListener {
             @Override
             public void onFailure() {
                 Toast.makeText(getActivity(), "Cannot retrieve positions from database", Toast.LENGTH_LONG).show();
-            }
-
-            private void updatePositionMarkersList(Iterator<QueryDocumentSnapshot> qsIterator, Iterator<Circle> pmIterator){
-                while (pmIterator.hasNext()){
-                    if(qsIterator.hasNext()){
-                        QueryDocumentSnapshot qs = qsIterator.next();
-                        Circle pm = pmIterator.next();
-                        System.out.println(qs);
-
-                        try {
-                            pm.setLatLng(new LatLng(((GeoPoint)(qs.get("geoPoint"))).getLatitude(),
-                                    ((GeoPoint)(qs.get("geoPoint"))).getLongitude()));
-                        } catch (NullPointerException ignored) { }
-
-                    }
-                    else{ // if some points were deleted remove them from the list
-                        positionMarkerManager.delete(pmIterator.next());
-                        pmIterator.remove();
-                    }
-                }
-            }
-
-            private void addMarkersToMarkerList(Iterator<QueryDocumentSnapshot> qsIterator){
-                while (qsIterator.hasNext()){
-                    QueryDocumentSnapshot qs = qsIterator.next();
-                    try {
-                        Circle pm = positionMarkerManager.create(new CircleOptions()
-                                .withLatLng(new LatLng(
-                                        ((GeoPoint)(qs.get("geoPoint"))).getLatitude(),
-                                        ((GeoPoint)(qs.get("geoPoint"))).getLongitude()))
-                                .withCircleColor("#ff6219")
-                        );
-                        otherUsersPositionMarkers.add(pm);
-                    } catch (NullPointerException ignored) { }
-
-                }
             }
         };
 

@@ -42,7 +42,7 @@ public class FirebaseActivityTest {
     private ConnectivityManager cm;
 
     @Before
-    public void setup() {
+    public void setUp() {
         String internetPermission = "android.permission.ACCESS_INTERNET";
         if (ContextCompat.checkSelfPermission(mActivityRule.getActivity().getBaseContext(),
                 internetPermission) != PackageManager.PERMISSION_GRANTED) {

@@ -37,6 +37,12 @@ public class ConcreteFirestoreWrapper implements FirestoreWrapper {
     }
 
     @Override
+    public <A> FirestoreWrapper add(A obj) {
+        this.documentReferenceTask = collectionReference.add(obj);
+        return this;
+    }
+
+    @Override
     public FirestoreWrapper addOnSuccessListener(OnSuccessListener<? super DocumentReference> onSuccessListener) {
         documentReferenceTask.addOnSuccessListener(onSuccessListener);
         return this;

@@ -155,7 +155,7 @@ public class GpsActivityTest {
 
         FirestoreInteractor successfulInteractor = new FirestoreInteractor() {
             @Override
-            void write(Map<String, PositionRecord> content, OnSuccessListener success, OnFailureListener failure) {
+            public void write(Map<String, PositionRecord> content, OnSuccessListener success, OnFailureListener failure) {
                 success.onSuccess(null);
             }
         };
@@ -174,7 +174,7 @@ public class GpsActivityTest {
 
         FirestoreInteractor failingInteractor = new FirestoreInteractor() {
             @Override
-            void write(Map<String, PositionRecord> content, OnSuccessListener success, OnFailureListener failure) {
+            public void write(Map<String, PositionRecord> content, OnSuccessListener success, OnFailureListener failure) {
                 failure.onFailure(new Exception());
             }
         };

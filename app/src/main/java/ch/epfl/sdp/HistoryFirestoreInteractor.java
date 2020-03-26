@@ -16,7 +16,7 @@ public class HistoryFirestoreInteractor extends FirestoreInteractor {
     }
 
     @Override
-    void read(QueryHandler handler) {
+    public void read(QueryHandler handler) {
         String path = "History/" + user.getId() + "/Positions";
         wrapper.collection(path)
                 .get()
@@ -30,7 +30,7 @@ public class HistoryFirestoreInteractor extends FirestoreInteractor {
     }
 
     @Override
-    void write(Map<String, PositionRecord> content, OnSuccessListener success, OnFailureListener failure) {
+    public void write(Map<String, PositionRecord> content, OnSuccessListener success, OnFailureListener failure) {
         String path = "History/" + user.getId() + "/Positions";
         String documentID = content.get("Position").calculateID();
         wrapper.collection(path)

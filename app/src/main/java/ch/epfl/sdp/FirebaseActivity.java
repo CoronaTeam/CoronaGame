@@ -10,6 +10,9 @@ import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
 
@@ -37,13 +40,17 @@ public class FirebaseActivity extends AppCompatActivity {
     }
 
     public void addUser(View view) {
+        Map<String, Object> user = new HashMap<>();
+        user.put("Name", "Bob Bobby");
+        user.put("Age", 24);
+        user.put("Infected", false);
         databaseOperation(R.id.FirebaseUploadConfirmation, R.string.uploading,
-                R.string.Can_t_Upload_Offline, e -> fs.writeDocument(e::setText));
+                R.string.Can_t_Upload_Offline, e -> fs.writeDocument("Players", user, e::setText));
     }
 
     public void readData(View view) {
         databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
-                R.string.Can_t_Download_Offline, e -> fs.readDocument(e::setText));
+                R.string.Can_t_Download_Offline, e -> fs.readDocument("LastPositions", e::setText));
     }
 
     private void databaseOperation(int outputViewID, int duringOperation,

@@ -18,16 +18,12 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
         this.serverIdlingResource = firestoreServerIdlingResource;
     }
 
-    public void writeDocument(Callback callback) {
-        Map<String, Object> user = new HashMap<>();
-        user.put("Name", "Bob Bobby");
-        user.put("Age", 24);
-        user.put("Infected", false);
+    public void writeDocument(String path, Map<String, Object> document, Callback callback) {
         // Add a new document with a generated ID
         try {
             serverIdlingResource.increment();
-            db.collection("Players")
-                    .add(user)
+            db.collection(path)
+                    .add(document)
                     .addOnSuccessListener(documentReference -> callback.onCallback(
                             "Document snapshot successfully added to firestore."))
                     .addOnFailureListener(e -> callback.onCallback(
@@ -38,10 +34,10 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
     }
 
 
-    public void readDocument(Callback callback) {
+    public void readDocument(String path, Callback callback) {
         try{
             serverIdlingResource.increment();
-            db.collection("LastPositions")
+            db.collection(path)
                     .get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {

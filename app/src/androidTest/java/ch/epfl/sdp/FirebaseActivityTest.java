@@ -55,12 +55,12 @@ public class FirebaseActivityTest {
         //EspressoIdling res: https://developer.android.com/reference/androidx/test/espresso/idling/CountingIdlingResource
     }
 
-    @Test @Ignore
+    @Test
     public void testDataDownloadIsDisplayed() {
         clickWaitAndCheckText(R.id.FirebaseDownloadButton,
                 R.id.FirebaseDownloadResult,
-                "Position={geoPoint=GeoPoint { latitude=-0.580915, longitude=-0.4812283333333333 }, timestamp=Timestamp(seconds=1584671879, nanoseconds=210000000)}",
-                20000);
+                "USER_ID_X42 => {timeStamp=Timestamp(seconds=1585220259, nanoseconds=762000000), geoPoint=GeoPoint { latitude=37.40891166666667, longitude=-122.10974666666668 }}",
+                10000);
     }
 
     @Test

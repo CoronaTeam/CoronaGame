@@ -32,48 +32,4 @@ abstract class FirestoreInteractor {
         throw new NotImplementedError();
     }
 
-    void writeDocument(String path, Map<String, Object> document, Callback callback){
-        throw new NotImplementedError();
-    }
-
-    void writeDocument(String path, Map<String, Object> document,
-                                OnSuccessListener onSuccess, OnFailureListener onFailure){
-        throw new NotImplementedError();
-    }
-
-    void writeDocumentWithID(String path, String documentID, Map<String, Object> document,
-                                      Callback callback){
-        throw new NotImplementedError();
-    }
-
-    void writeDocumentWithID(String path, String documentID, Map<String, Object> document,
-                             OnSuccessListener onSuccess, OnFailureListener onFailure){
-        throw new NotImplementedError();
-    }
-
-    void readDocument(String path, Callback callback){
-        throw new NotImplementedError();
-    }
-
-    void readDocument(String path, QueryHandler handler){
-        throw new NotImplementedError();
-    }
-
-    void readDocumentWithID(String path, String documentID, Callback callback){
-        throw new NotImplementedError();
-    }
-
-    void readDocumentWithID(String path, String documentID, QueryHandler handler){
-        throw new NotImplementedError();
-    }
-
-
-
-
-
-
-
-
-
-
 }

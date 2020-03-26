@@ -25,7 +25,7 @@ public class UserInfectionActivity extends AppCompatActivity {
     private String userName = "Test"; // TODO: this is temporary: we need to get the real current user
 
     private Executor executor;
-    private BiometricPrompt biometricPrompt;
+    private BiometricPromptWrapper biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
 
 
@@ -79,8 +79,9 @@ public class UserInfectionActivity extends AppCompatActivity {
                 .getCharSequence("INFECTION_STATUS_BUTTON", DEFAULT_INFECTION_BUTTON));
     }
 
-    private BiometricPrompt biometricPromptBuilder(Executor executor) {
-        return new BiometricPrompt(UserInfectionActivity.this,
+    private BiometricPromptWrapper biometricPromptBuilder(Executor executor) {
+        return new ConcreteBiometricPromptWrapper(new BiometricPrompt(
+                UserInfectionActivity.this,
                 executor, new BiometricPrompt.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errorCode,
@@ -101,7 +102,7 @@ public class UserInfectionActivity extends AppCompatActivity {
                 super.onAuthenticationFailed();
                 displayAuthFailedToast();
             }
-        });
+        }));
     }
 
     private BiometricPrompt.PromptInfo promptInfoBuilder() {

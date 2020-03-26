@@ -39,7 +39,8 @@ public class ConcreteFirestoreInteractorTest {
         user.put("Infected", false);
     }
 
-    @Test @Ignore
+    @Test
+    @Ignore
     public void testHandleUploadDatabaseError() {
         mockWrapper.setMask("failure");
         mockFSIFailure.writeDocument(value -> assertEquals(
@@ -47,7 +48,8 @@ public class ConcreteFirestoreInteractorTest {
                 value));
     }
 
-    @Test @Ignore
+    @Test
+    @Ignore
     public void testHandleDownloadDatabaseError() {
         mockWrapper.setMask("complete");
         mockFSIFailure.readDocument(value -> assertEquals(
@@ -64,15 +66,17 @@ public class ConcreteFirestoreInteractorTest {
                 value));
     }
 
-    @Test @Ignore
+    @Test
+    @Ignore
     public void testDataUploadIsReceived() {
         mockWrapper.setMask("success");
         mockFSI.writeDocument(value -> assertEquals("Document snapshot successfully added to " +
                 "firestore.", value));
     }
 
-    @Test @Ignore
-    public void testDataDownloadwithIDIsReceived(){
+    @Test
+    @Ignore
+    public void testDataDownloadwithIDIsReceived() {
         FirestoreInteractor firestoreInteractor =
                 new ConcreteFirestoreInteractor(new ConcreteFirestoreWrapper(
                         FirebaseFirestore.getInstance()),

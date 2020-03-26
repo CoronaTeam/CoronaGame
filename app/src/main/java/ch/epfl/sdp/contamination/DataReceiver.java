@@ -10,19 +10,19 @@ import ch.epfl.sdp.Callback;
 
 public interface DataReceiver {
     /**
-     * Basically communicates with the firebase and returns the users who have been at a given location, at a given date.
+     * Calls the callback with a Set containing the Carriers found at 'location' at time 'time'
      * @param location
      * @param date
-     * @return A list of UserID
+     * @param callback
      */
     void getUserNearby(Location location, Date date, Callback<Set<? extends Carrier>> callback);
 
     /**
-     *  User at a location, during a given time
+     *  Calls the callback with a Map of Carriers and the number of (different) times they appear at that spot
      * @param location
      * @param startDate
      * @param endDate : endDate (inclusive)
-     * @return
+     * @param callback
      */
     void getUserNearbyDuring(Location location, Date startDate, Date endDate, Callback<Map<? extends Carrier, Integer>> callback);
 

@@ -10,5 +10,5 @@ public interface DataSender {
      * @param location : location, rounded by ~1 meter
      * @param time : date associated to that location
      */
-    void sendALocationToFirebase(Location location, Date time);
+    void sendALocationToFirebase(RoundLocation location, Date time);
 }

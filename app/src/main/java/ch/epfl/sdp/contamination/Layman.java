@@ -1,17 +1,25 @@
 package ch.epfl.sdp.contamination;
 
-public class Layman implements Carrier {
-    private InfectionStatus myStatus;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
+public class Layman implements Carrier {
+
+    private InfectionStatus myStatus;
     private float infectedWithProbability;
 
-    Layman(InfectionStatus initialStatus) {
+    public Layman(InfectionStatus initialStatus) {
         myStatus = initialStatus;
         if (initialStatus == InfectionStatus.INFECTED) {
             infectedWithProbability = 1;
         } else {
             infectedWithProbability = 0;
         }
+    }
+
+    public Layman(InfectionStatus infectionStatus, float infectedWithProbability) {
+        this.myStatus = infectionStatus;
+        this.infectedWithProbability = infectedWithProbability;
     }
 
     @Override
@@ -54,5 +62,18 @@ public class Layman implements Carrier {
         infectedWithProbability = probability;
 
         return true;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        return (obj instanceof Layman) &&
+                ((Layman)obj).infectedWithProbability == this.infectedWithProbability &&
+                ((Layman)obj).myStatus == this.myStatus;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format("%s (p=%f)", myStatus, infectedWithProbability);
     }
 }

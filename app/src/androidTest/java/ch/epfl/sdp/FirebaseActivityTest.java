@@ -125,6 +125,11 @@ public class FirebaseActivityTest {
         }
 
         @Override
+        public <A> FirestoreWrapper add(A obj) {
+            return this;
+        }
+
+        @Override
         public FirestoreWrapper collection(String collectionPath) {
             return this;
         }

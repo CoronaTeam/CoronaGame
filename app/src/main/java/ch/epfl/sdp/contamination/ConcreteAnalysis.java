@@ -3,33 +3,33 @@ package ch.epfl.sdp.contamination;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
 
 public class ConcreteAnalysis implements InfectionAnalyst {
 
-    private Carrier me = new Layman(InfectionStatus.HEALTHY);
+    private Carrier me;
 
-    private DataReceiver receiver = new ConcreteReceiver();
+    private DataReceiver receiver;
 
-    private Map<Carrier, Integer> trackMyContacts(Date startTime, Date endTime) {
+    ConcreteAnalysis(Carrier me, DataReceiver receiver) {
+        this.me = me;
+        this.receiver = receiver;
+    }
+
+    private Map<? extends Carrier, Integer> aroundMe;
+
+    private Map<Carrier, Integer> trackMyContacts() {
 
         Map<Carrier, Integer> contactDuration = new HashMap<>();
 
-        Set<? extends Carrier> aroundMe = receiver.getUserNearbyDuring(receiver.getMyLocationAtTime(startTime), startTime, endTime);
-
-        for (Carrier person : aroundMe) {
-            switch (person.getInfectionStatus()) {
+        for (Map.Entry<? extends Carrier, Integer> person : aroundMe.entrySet()) {
+            switch (person.getKey().getInfectionStatus()) {
                 case INFECTED:
                 case UNKNOWN:
                 case HEALTHY_CARRIER:
-                    int timeCloseBy = 0;
-                    if (contactDuration.containsKey(person)) {
-                        timeCloseBy = contactDuration.get(person);
-                    }
-                    timeCloseBy += PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION; // Add discretized time slice
-                    contactDuration.put(person, timeCloseBy);
+                    int timeCloseBy = person.getValue() * PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION; // Add discretized time slice
+                    contactDuration.put(person.getKey(), timeCloseBy);
                     break;
                 default:
                     // Do nothing: this carrier does not affect my status
@@ -51,7 +51,8 @@ public class ConcreteAnalysis implements InfectionAnalyst {
                 // No matter what, I will remain so
                 break;
             default:
-                Map<Carrier, Integer> suspectedContacts = trackMyContacts(startTime, now);
+                // TODO: not initialized
+                Map<Carrier, Integer> suspectedContacts = trackMyContacts();
 
                 float cumulativeSocialTime = 0;
 

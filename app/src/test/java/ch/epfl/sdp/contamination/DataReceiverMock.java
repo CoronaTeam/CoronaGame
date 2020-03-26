@@ -15,8 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ConcreteReceiver implements DataReceiver {
-
+public class DataReceiverMock implements DataReceiver {
     private Map<Date, List<? extends Carrier>> wentThere;
 
     @TargetApi(17)
@@ -37,7 +36,7 @@ public class ConcreteReceiver implements DataReceiver {
     private Location crowdedPlace = buildLocation(10, 20);
     private Location emptyPlace = buildLocation(1, 2);
 
-    ConcreteReceiver() {
+    DataReceiverMock() {
         wentThere = new HashMap<>();
         wentThere.put(new Date(2020, 03, 24, 00, 48), Lists.newArrayList(new Layman(Carrier.InfectionStatus.HEALTHY)));
         wentThere.put(new Date(2020, 03, 24, 00, 30), Lists.newArrayList(new Layman(Carrier.InfectionStatus.HEALTHY)));

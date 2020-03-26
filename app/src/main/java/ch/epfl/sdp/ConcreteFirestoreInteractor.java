@@ -18,7 +18,7 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
         this.serverIdlingResource = firestoreServerIdlingResource;
     }
 
-    public void writeDocument(Callback callback) {
+    public void writeDocument(Callback<String> callback) {
         Map<String, Object> user = new HashMap<>();
         user.put("Name", "Bob Bobby");
         user.put("Age", 24);
@@ -38,7 +38,7 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
     }
 
 
-    public void readDocument(Callback callback) {
+    public void readDocument(Callback<String> callback) {
         try{
             serverIdlingResource.increment();
             db.collection("LastPositions")

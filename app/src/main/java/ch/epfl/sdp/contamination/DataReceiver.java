@@ -3,7 +3,10 @@ package ch.epfl.sdp.contamination;
 import android.location.Location;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
+
+import ch.epfl.sdp.Callback;
 
 public interface DataReceiver {
     /**
@@ -12,7 +15,7 @@ public interface DataReceiver {
      * @param date
      * @return A list of UserID
      */
-    Set<? extends Carrier> getUserNearby(Location location, Date date);
+    void getUserNearby(Location location, Date date, Callback<Set<? extends Carrier>> callback);
 
     /**
      *  User at a location, during a given time
@@ -21,7 +24,7 @@ public interface DataReceiver {
      * @param endDate : endDate (inclusive)
      * @return
      */
-    Set<? extends Carrier> getUserNearbyDuring(Location location, Date startDate, Date endDate);
+    void getUserNearbyDuring(Location location, Date startDate, Date endDate, Callback<Map<? extends Carrier, Integer>> callback);
 
     /**
      *

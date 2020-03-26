@@ -1,5 +1,6 @@
 package ch.epfl.sdp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -13,6 +14,9 @@ import androidx.core.content.ContextCompat;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.Calendar;
 import java.util.concurrent.Executor;
 
 public class UserInfectionActivity extends AppCompatActivity {
@@ -42,9 +46,14 @@ public class UserInfectionActivity extends AppCompatActivity {
         infectionStatusButton.setSaveEnabled(true);
 
         this.executor = ContextCompat.getMainExecutor(this);
+        Intent intent = getIntent();
 
         if (BiometricUtils.canAuthenticate(this)) {
-            this.biometricPrompt = biometricPromptBuilder(this.executor);
+            if (intent.hasExtra("wrapper")) {
+                this.biometricPrompt = (BiometricPromptWrapper) intent.getSerializableExtra("wrapper");
+            } else {
+                this.biometricPrompt = biometricPromptBuilder(this.executor);;
+            }
             this.promptInfo = promptInfoBuilder();
         }
     }
@@ -121,14 +130,18 @@ public class UserInfectionActivity extends AppCompatActivity {
                     R.string.your_user_status_is_set_to_infected, R.color.colorRedInfected);
             //upload to firebase
             user.modifyUserInfectionStatus(userName, true,
-                    value -> infectionUploadView.setText(value));
+                    value -> infectionUploadView.setText(updateUploadStatusTextView(value)));
         } else {
             clickAction(infectionStatusButton, infectionStatusView, R.string.i_am_infected,
                     R.string.your_user_status_is_set_to_not_infected, R.color.colorGreenCured);
             //upload to firebase
             user.modifyUserInfectionStatus(userName, false,
-                    value -> infectionUploadView.setText(value));
+                    value -> infectionUploadView.setText(updateUploadStatusTextView(value)));
         }
+    }
+
+    private String updateUploadStatusTextView(String value){
+        return String.format("%s at %s", value, Calendar.getInstance().getTime());
     }
 
     private void displayAuthFailedToast(){

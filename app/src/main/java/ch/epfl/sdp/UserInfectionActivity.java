@@ -80,7 +80,7 @@ public class UserInfectionActivity extends AppCompatActivity {
         account = AccountGetting.getAccount(this);
         userName = account.getDisplayName();
         user = new User(userName, account.getFamilyName(), account.getEmail(),
-                account.getPhotoUrl(), account.getPlayerId(this), account.getId());
+                account.getPhotoUrl(), account.getPlayerId(this), account.getId(), User.DEFAULT_AGE, false);
         user.retrieveUserInfectionStatus(
                 value -> setView(infectionStatusButton, infectionStatusView, value));
     }

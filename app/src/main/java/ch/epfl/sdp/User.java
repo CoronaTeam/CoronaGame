@@ -107,7 +107,7 @@ public class User implements Account {
                         Log.w(TAG, "Error adding document", e));
     }
 
-    public void modifyUserInfectionStatus(String userPath, Boolean infected, Callback callback) {
+    public void modifyUserInfectionStatus(String userPath, Boolean infected, Callback<String> callback) {
         Map<String, Object> user = new HashMap<>();
         user.put("Infected", infected);
         db.collection("Users").document(userPath)
@@ -129,8 +129,12 @@ public class User implements Account {
         db.collection("Users").document(displayName).get().addOnSuccessListener(documentSnapshot ->
         {
             Log.d(TAG, "Infected status successfully loaded.");
-            infected = (boolean) documentSnapshot.get("Infected");
-            callbackBoolean.onCallback(infected);
+            Object infected = documentSnapshot.get("Infected");
+            if (infected == null){
+                callbackBoolean.onCallback(false);
+            }else{
+                callbackBoolean.onCallback((boolean) infected);
+            }
         })
                 .addOnFailureListener(e ->
                     Log.w(TAG, "Error retrieving infection status from Firestore.", e));

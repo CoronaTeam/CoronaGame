@@ -73,8 +73,9 @@ public class AccountFactory implements Account {
         if(user != null){
             return user.getPlayerId(activity);
         }else{
-            PlayersClient pc = Games.getPlayersClient(activity, googleSignInAccount);
-            return String.valueOf(pc.getCurrentPlayerId());
+            return "TestPlayerId";
+            //PlayersClient pc = Games.getPlayersClient(activity, googleSignInAccount);
+            //return String.valueOf(pc.getCurrentPlayerId());
         }
     }
 

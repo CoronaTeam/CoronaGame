@@ -93,10 +93,9 @@ public class UserInfectionActivity extends AppCompatActivity {
     private void setView(Button button, TextView textView, boolean infected) {
         int buttonText = infected ? R.string.i_am_cured : R.string.i_am_infected;
         int textViewText = infected ? R.string.your_user_status_is_set_to_infected : R.string.your_user_status_is_set_to_not_infected;
-        int buttonColor = infected ? R.color.colorGreenCured : R.color.colorRedInfected;
+        int buttonColor = infected ? R.color.colorRedInfected : R.color.colorGreenCured;
         button.setText(buttonText);
-        button.setBackgroundTintList(
-                getResources().getColorStateList(buttonColor));
+        textView.setTextColor(getResources().getColorStateList(buttonColor));
         textView.setText(textViewText);
     }
 

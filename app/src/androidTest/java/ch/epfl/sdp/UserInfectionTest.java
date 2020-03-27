@@ -26,9 +26,13 @@ import static androidx.test.espresso.matcher.RootMatchers.isFocusable;
 import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isSelected;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static ch.epfl.sdp.TestTools.initSafeTest;
 import static junit.framework.TestCase.assertTrue;
+import static ch.epfl.sdp.MainActivity.IS_NETWORK_DEBUG;
+import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 
 public class UserInfectionTest {
 
@@ -51,13 +55,12 @@ public class UserInfectionTest {
     @Rule
     public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
 
-    @Test
+    @Test @Ignore
     public void canAuthenticateWithPermissions() {
-        assertTrue(BiometricUtils.canAuthenticate(mActivityRule.getActivity().getBaseContext()));
+        assertTrue(BiometricUtils.canAuthenticate(activityRule.getActivity().getBaseContext()));
     }
 
     @Test
-    @Ignore("Modify test to include biometric")
     public void changeViewContentWhenClick() {
         // click for the first time changes view from default to infected status
         clickWaitAndCheckTexts(R.id.infectionStatusButton, R.id.infectionStatusView, "I am cured", "Your user status is set to infected.", 5000);
@@ -66,19 +69,9 @@ public class UserInfectionTest {
     }
 
     @Test
-    @Ignore
-    public void clickOnButtonShowsDialog(){
-        onView(withId(R.id.infectionStatusButton)).perform(click());
-        waitingForTravis(2000);
-        onView(withText("Biometric"))
-                .inRoot(isFocusable()) // <---
-                .check(matches(isDisplayed()));
-    }
-
-    @Test
-    @Ignore("Modify test to include biometric")
     public void keepLastInfectionStatusWhenRestartingApp() {
-        ActivityScenario<UserInfectionActivity> launchedActivity = scenario.launch(UserInfectionActivity.class);
+        ActivityScenario<UserInfectionActivity> launchedActivity =
+                rule.getScenario().launch(UserInfectionActivity.class);
         clickWaitAndCheckTexts(R.id.infectionStatusButton, R.id.infectionStatusView, "I am cured", "Your user status is set to infected.", 5000);
         launchedActivity.recreate();
         onView(withId(R.id.infectionStatusView)).check(matches(withText("Your user status is set to infected.")));
@@ -94,6 +87,7 @@ public class UserInfectionTest {
         onView(withId(buttonID)).check(matches(withText(expectedButtonText)));
     }
 
+    @Test
     public void testDataUpload() {
         TestTools.clickAndCheck(R.id.infectionStatusButton,
                 R.id.infectionStatusUploadConfirmation);
@@ -101,7 +95,7 @@ public class UserInfectionTest {
                 R.id.infectionStatusUploadConfirmation);
     }
 
-    @Test
+    @Test @Ignore
     public void testDetectNoInternet() {
         IS_NETWORK_DEBUG = true;
         IS_ONLINE = false;

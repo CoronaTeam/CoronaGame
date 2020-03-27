@@ -42,7 +42,7 @@ public class FirebaseActivityTest {
     private ConnectivityManager cm;
 
     @Before
-    public void setup() {
+    public void setUp() {
         String internetPermission = "android.permission.ACCESS_INTERNET";
         if (ContextCompat.checkSelfPermission(mActivityRule.getActivity().getBaseContext(),
                 internetPermission) != PackageManager.PERMISSION_GRANTED) {
@@ -56,7 +56,7 @@ public class FirebaseActivityTest {
         clickWaitAndCheckText(R.id.FirebaseDownloadButton1,
                 R.id.FirebaseDownloadResult,
                 "DownloadTest => {value=success}",
-                10000);
+                30000);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class FirebaseActivityTest {
         clickWaitAndCheckText(R.id.FirebaseDownloadButton2,
                 R.id.FirebaseDownloadResult,
                 "DownloadTest => {value=success}",
-                10000);
+                30000);
     }
 
     @Test
@@ -133,6 +133,11 @@ public class FirebaseActivityTest {
 
         @Override
         public <A, B> FirestoreWrapper add(Map<A, B> map) {
+            return this;
+        }
+
+        @Override
+        public <A> FirestoreWrapper add(A obj) {
             return this;
         }
 

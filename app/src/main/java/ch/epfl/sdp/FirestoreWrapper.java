@@ -13,6 +13,8 @@ public interface FirestoreWrapper extends Serializable {
 
     <A, B> FirestoreWrapper add(Map<A, B> map);
 
+    <A> FirestoreWrapper add(A obj);
+
     FirestoreWrapper collection(String collectionPath);
 
     FirestoreWrapper addOnSuccessListener(OnSuccessListener<? super DocumentReference> onSuccessListener);

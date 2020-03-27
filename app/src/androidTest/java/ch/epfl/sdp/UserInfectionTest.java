@@ -10,6 +10,8 @@ import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
+import androidx.test.espresso.matcher.ViewMatchers;
+import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -31,22 +33,19 @@ import static junit.framework.TestCase.assertTrue;
 public class UserInfectionTest {
 
     @Rule
-    public ActivityScenarioRule<UserInfectionActivity> rule =
-            new ActivityScenarioRule<>(UserInfectionActivity.class);
-
-    @Rule
-    public final ActivityTestRule<UserInfectionActivity> mActivityRule =
-            new ActivityTestRule<>(UserInfectionActivity.class);
-
-    @Rule
     public GrantPermissionRule fingerprintPermissionRule =
             GrantPermissionRule.grant(Manifest.permission.USE_FINGERPRINT);
 
-    private ActivityScenario<UserInfectionActivity> scenario;
+    @Rule
+    public ActivityScenarioRule<UserInfectionActivity> rule =
+                new ActivityScenarioRule<>(UserInfectionActivity.class);
+    @Rule
+    public final ActivityTestRule<UserInfectionActivity> activityRule =
+            new ActivityTestRule<>(UserInfectionActivity.class);
 
     @Before
-    public void setUp() {
-        scenario = rule.getScenario();
+    public void setUp() throws Exception{
+        initSafeTest(activityRule,true);
     }
 
     @Rule
@@ -95,6 +94,32 @@ public class UserInfectionTest {
         onView(withId(buttonID)).check(matches(withText(expectedButtonText)));
     }
 
+    public void testDataUpload() {
+        TestTools.clickAndCheck(R.id.infectionStatusButton,
+                R.id.infectionStatusUploadConfirmation);
+        TestTools.clickAndCheck(R.id.infectionStatusButton,
+                R.id.infectionStatusUploadConfirmation);
+    }
+
+    @Test
+    public void testDetectNoInternet() {
+        IS_NETWORK_DEBUG = true;
+        IS_ONLINE = false;
+        onView(withId(R.id.infectionStatusButton)).perform(click());
+        waitingForTravis(5000);
+        onView(withId(R.id.onlineStatusView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+        IS_ONLINE = true;
+        IS_NETWORK_DEBUG = false;
+    }
+
+    @Test
+    public void testDetectInternet() {
+        IS_NETWORK_DEBUG = true;
+        IS_ONLINE = true;
+        onView(withId(R.id.onlineStatusView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)));
+        IS_NETWORK_DEBUG = false;
+    }
+
     private void waitingForTravis(int time) {
         try {
             Thread.sleep(time);
@@ -102,7 +127,4 @@ public class UserInfectionTest {
             e.printStackTrace();
         }
     }
-
-
-
 }

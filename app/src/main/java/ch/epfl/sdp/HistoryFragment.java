@@ -46,11 +46,11 @@ public class HistoryFragment extends Fragment {
                 connectionStatus.setText("QUERY OK");
                 for (QueryDocumentSnapshot qs : snapshot) {
                     try {
-                        Map<String, Object> positionRecord = (Map) qs.getData().get("Position");
+                        Map<String, Object> positionRecord = qs.getData();
                         historyAdapter.insert(String.format("Found @ %s:%s on %s",
                                 ((GeoPoint)(positionRecord.get("geoPoint"))).getLatitude(),
                                 ((GeoPoint)(positionRecord.get("geoPoint"))).getLongitude(),
-                                ((Timestamp)(positionRecord.get("timestamp"))).toDate()), 0);
+                                ((Timestamp)(positionRecord.get("timeStamp"))).toDate()), 0);
                     } catch (NullPointerException e) {
                         historyAdapter.insert("[...unreadable.:).]", 0);
                     }

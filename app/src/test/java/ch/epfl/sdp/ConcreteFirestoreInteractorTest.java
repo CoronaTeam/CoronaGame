@@ -108,6 +108,11 @@ public class ConcreteFirestoreInteractorTest {
         }
 
         @Override
+        public <A> FirestoreWrapper add(A obj) {
+            return this;
+        }
+
+        @Override
         public FirestoreWrapper collection(String newCollectionPath) {
             return this;
         }

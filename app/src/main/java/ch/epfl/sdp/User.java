@@ -5,10 +5,10 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -113,7 +113,7 @@ public class User implements Account {
                         Log.w(TAG, "Error adding document", e));
     }
 
-    public void modifyUserInfectionStatus(String userPath, Boolean infected, Callback callback) {
+    public void modifyUserInfectionStatus(String userPath, Boolean infected, Callback<String> callback) {
         Map<String, Object> user = new HashMap<>();
         user.put("Infected", infected);
         db.collection("Users").document(userPath)

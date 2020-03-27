@@ -81,7 +81,7 @@ public class HistoryActivityTest {
     public void historyIsUpdated() {
         FirestoreInteractor successInteractor = new FirestoreInteractor() {
             @Override
-            void read(QueryHandler handler) {
+            public void read(QueryHandler handler) {
                 handler.onSuccess(querySnapshot);
     }};
 
@@ -109,7 +109,7 @@ public class HistoryActivityTest {
     public void failureIsNotified() {
         FirestoreInteractor failureInteractor = new FirestoreInteractor() {
             @Override
-            void read(QueryHandler handler) {
+            public void read(QueryHandler handler) {
                 handler.onFailure();
             }
         };
@@ -122,7 +122,7 @@ public class HistoryActivityTest {
     public void unreadableContentIsPurged() {
         FirestoreInteractor unreadableInteractor = new FirestoreInteractor() {
             @Override
-            void read(QueryHandler handler) {
+            public void read(QueryHandler handler) {
                 handler.onSuccess(unreadableSnapshot);
             }
         };

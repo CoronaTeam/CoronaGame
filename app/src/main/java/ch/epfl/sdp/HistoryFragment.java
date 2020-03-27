@@ -19,14 +19,14 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.test.espresso.idling.CountingIdlingResource;
 
 public class HistoryFragment extends Fragment {
 
-    private ConcreteFirestoreInteractor db;
+    private FirestoreInteractor db;
 
-    private Account userAccount;
+    private Account account;
 
     private QueryHandler handler;
 
@@ -69,9 +69,9 @@ public class HistoryFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_history, container, false);
 
-        userAccount = AccountGetting.getAccount(getActivity());
+        account = AccountGetting.getAccount(getActivity());
         FirestoreWrapper firestoreWrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
-        db = new ConcreteFirestoreInteractor(firestoreWrapper, new CountingIdlingResource("History Fragment"));
+        db = new HistoryFirestoreInteractor(firestoreWrapper, account);
 
         connectionStatus = view.findViewById(R.id.conn_status);
 
@@ -91,13 +91,13 @@ public class HistoryFragment extends Fragment {
     }
 
     @VisibleForTesting
-    void setFirestoreInteractor(ConcreteFirestoreInteractor interactor) {
+    void setFirestoreInteractor(FirestoreInteractor interactor) {
         db = interactor;
     }
 
     private void refreshHistory(View view) {
         connectionStatus.setText("Loading...");
-        db.readDocument("History/" + userAccount.getId() + "/Positions", handler);
+        db.read(handler);
     }
 
 

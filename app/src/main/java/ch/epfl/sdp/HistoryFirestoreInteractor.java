@@ -32,32 +32,20 @@ public class HistoryFirestoreInteractor extends FirestoreInteractor {
                 });
     }
 
-    void readLastPositions(QueryHandler handler) {
-        wrapper.collection("LastPositions")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        handler.onSuccess(task.getResult());
-                    } else {
-                        handler.onFailure();
-                    }
-                });
-    }
-
     @Override
     void write(Map<String, PositionRecord> content, OnSuccessListener success, OnFailureListener failure) {
         String path = "History/" + user.getId() + "/Positions";
-        String documentID = content.get("Position").calculateID();
-        wrapper.collection(path)
-                .document(documentID)
-                .set(content)
-                .addOnSetSuccessListener(success)
-                .addOnSetFailureListener(failure);
-
         PositionRecord posRec = (PositionRecord)content.values().toArray()[0];
         Map<String, Object> lastPos = new HashMap<>();
         lastPos.put("geoPoint", posRec.getGeoPoint());
         lastPos.put("timeStamp", posRec.getTimestamp());
+        wrapper.collection(path)
+                .document(posRec.calculateID())
+                .set(content)
+                .addOnSetSuccessListener(success)
+                .addOnSetFailureListener(failure);
+
+
         wrapper.collection("LastPositions").document(user.getId()).set(lastPos);
     }
 }

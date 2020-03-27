@@ -254,16 +254,15 @@ public class GridSenderTest {
         // The following test uses the actual Firestore
 
         Carrier aFakeCarrier = new Layman(Carrier.InfectionStatus.UNKNOWN, 0.2734f);
-        Location somewhereInTheWorld = buildLocation(12, 73);
         Date rightNow = new Date(System.currentTimeMillis());
 
-        mActivityRule.getActivity().getSender().registerLocation(aFakeCarrier, somewhereInTheWorld, rightNow);
+        mActivityRule.getActivity().getSender().registerLocation(aFakeCarrier, buildLocation(12, 73), rightNow);
 
         Thread.sleep(10000);
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
 
-        Map<Carrier, Boolean> result = getBackSliceData(somewhereInTheWorld, rightNow);
+        Map<Carrier, Boolean> result = getBackSliceData(buildLocation(12, 73), rightNow);
 
         assertThat(result.size(), is(1));
         assertThat(result.containsKey(aFakeCarrier), is(true));

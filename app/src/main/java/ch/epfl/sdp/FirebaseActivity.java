@@ -3,7 +3,6 @@ package ch.epfl.sdp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewDebug;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -44,8 +43,8 @@ public class FirebaseActivity extends AppCompatActivity {
     public void addUser1(View view) {
         Map<String, Object> user = new HashMap<>();
         user.put("Name", "Bob Bobby");
-        user.put("Age", 24);
-        user.put("Infected", false);
+        user.put("Age", (Object) 24);
+        user.put("Infected", (Object) false);
         databaseOperation(R.id.FirebaseUploadConfirmation, R.string.uploading,
                 R.string.Can_t_Upload_Offline, e -> fs.writeDocument("Players", user,
                         e::setText));
@@ -54,8 +53,8 @@ public class FirebaseActivity extends AppCompatActivity {
     public void addUser2(View view){
         Map<String, Object> user = new HashMap<>();
         user.put("Name", "Aly Alice");
-        user.put("Age", 42);
-        user.put("Infected", true);
+        user.put("Age", (Object)  42);
+        user.put("Infected", (Object)  true);
         databaseOperation(R.id.FirebaseUploadConfirmation, R.string.uploading,
                 R.string.Can_t_Upload_Offline, e -> fs.writeDocumentWithID("Players",
                         String.valueOf(new Random().nextInt()), user,

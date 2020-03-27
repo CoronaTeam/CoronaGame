@@ -11,6 +11,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,22 +33,25 @@ public class User implements Account {
     private Uri photoUrl;
     private String playerId;
     private String userID;
+    private int age;
     private boolean infected;
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static final String TAG = "User class";
 
-    public User(String dName, String fName, String email, Uri photoUrl, String playerId, String userID){
+    public User(String dName, String fName, String email, Uri photoUrl, String playerId, String userID, int age, boolean infected){
         this.displayName = dName;
         this.email = email;
         this.familyName = fName;
         this.photoUrl = photoUrl;
         this.playerId = playerId;
         this.userID = userID;
+        this.age = age;
+        this.infected = infected;
         addUserToFirestore();
     }
     public User(){
-        this(DEFAULT_DISPLAY_NAME, DEFAULT_FAMILY_NAME, DEFAULT_EMAIL, DEFAULT_URI,DEFAULT_PLAYERID,DEFAULT_USERID);
+        this(DEFAULT_DISPLAY_NAME, DEFAULT_FAMILY_NAME, DEFAULT_EMAIL, DEFAULT_URI,DEFAULT_PLAYERID,DEFAULT_USERID, DEFAULT_AGE, false);
     }
 
     @Override
@@ -88,6 +92,10 @@ public class User implements Account {
         return this.userID;
     }
 
+    public int getAge() {
+        return age;
+    }
+
     private void addUserToFirestore() {
         Map<String, Object> user = new HashMap<>();
         user.put("Display name", displayName);
@@ -96,6 +104,7 @@ public class User implements Account {
         //user.put("PhotoUrl", photoUrl); TODO: be able to upload this "photoUrl" to Firestore
         user.put("Player id", playerId);
         user.put("User id", userID);
+        user.put("Age", age);
         user.put("Infected", infected);
 
         db.collection("Users")

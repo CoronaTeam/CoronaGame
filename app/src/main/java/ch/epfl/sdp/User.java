@@ -5,8 +5,11 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
 import java.util.HashMap;
@@ -16,7 +19,7 @@ public class User implements Account {
     public static String DEFAULT_DISPLAY_NAME = "MyDisplayName";
     public static String DEFAULT_FAMILY_NAME = "MyFamilyName";
     public static String DEFAULT_EMAIL = "MyEmal@epfl.ch";
-    public static String DEFAULT_PLAYERID = "MyPlayerId";;
+    public static String DEFAULT_PLAYERID = "MyPlayerId";
     public static int DEFAULT_AGE = 25;
     public static String DEFAULT_USERID = "USER_ID_X42";
    // public static String url_string = "https://pbs.twimg.com/profile_images/1173987553885556736/WuLwZF3C_400x400.jpg";
@@ -129,4 +132,22 @@ public class User implements Account {
                         callback.onCallback("Error updating user infection status."));
         this.infected = infected;
     }
+
+    public boolean retrieveUserInfectionStatus(CallbackBoolean callbackBoolean) {
+        String path = "Users/"+displayName+"/Infected";
+        db.collection("Users").document(displayName).get().addOnSuccessListener(documentSnapshot ->
+        {
+            Log.d(TAG, "Infected status successfully loaded.");
+            Object infected = documentSnapshot.get("Infected");
+            if (infected == null){
+                callbackBoolean.onCallback(false);
+            }else{
+                callbackBoolean.onCallback((boolean) infected);
+            }
+        })
+                .addOnFailureListener(e ->
+                    Log.w(TAG, "Error retrieving infection status from Firestore.", e));
+        return infected;
+    }
+
 }

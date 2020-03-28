@@ -10,6 +10,9 @@ public class Layman implements Carrier {
     private InfectionStatus myStatus;
     private float infectedWithProbability;
 
+    // TODO: Properly set the uniqueID (!!)
+    private String uniqueID;
+
     // TODO: Add another field to distinguish among Carrier (also modify equalsTo and hashCode!!)
     public Layman(InfectionStatus initialStatus) {
         myStatus = initialStatus;
@@ -18,11 +21,15 @@ public class Layman implements Carrier {
         } else {
             infectedWithProbability = 0;
         }
+
+        uniqueID = "__NOT_UNIQUE_NOW";
     }
 
     public Layman(InfectionStatus infectionStatus, float infectedWithProbability) {
         this.myStatus = infectionStatus;
         this.infectedWithProbability = infectedWithProbability;
+
+        uniqueID = "__NOT_UNIQUE_NOW";
     }
 
     @Override
@@ -77,11 +84,17 @@ public class Layman implements Carrier {
     @NonNull
     @Override
     public String toString() {
-        return String.format("%s (p=%f)", myStatus, infectedWithProbability);
+        return String.format("#%s: %s (p=%f)", uniqueID, myStatus, infectedWithProbability);
+    }
+
+    // TODO: If uniqueID is properly assigned, its hash can be the hash of the carrier
+    @Override
+    public int hashCode() {
+        return Objects.hash(uniqueID, myStatus, infectedWithProbability);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(myStatus, infectedWithProbability);
+    public String getUniqueId() {
+        return uniqueID;
     }
 }

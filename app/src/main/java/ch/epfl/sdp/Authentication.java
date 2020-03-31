@@ -21,7 +21,7 @@ import com.google.android.gms.tasks.Task;
 /**
  * AuthenticationActivity : handling the signIn process via google play. This class will check if a user has been already logged in.
  * If not, it displays the sign In button and if this latter is pressed, a window built by google is shown.
- * Then, the class AccountGettingActivity manages the account information use.
+ * Then, it launches and displays the main app UI.
  *
  * @author lucas
  */
@@ -32,6 +32,8 @@ public class Authentication extends AppCompatActivity {
 
     public static String APP_PREFERENCES = "APP_PREFERENCES";
     public static String OPENED_BEFORE_PREFERENCE = "OPENED_BEFORE";
+
+    private static Class NEXT_ACTIVITY = TabActivity.class;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +82,7 @@ public class Authentication extends AppCompatActivity {
             // hide the sign-in button, launch your main activity -> already registered
             signIn.setVisibility(View.INVISIBLE);
 //            startActivity(new Intent(this, AccountGettingActivity.class));
-            Intent intent = new Intent(Authentication.this, AccountGetting.class);// New activity
+            Intent intent = new Intent(Authentication.this, NEXT_ACTIVITY);// New activity
 //            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); //clears this activity's stack
             startActivity(intent);
             finish(); // Launches next Activity

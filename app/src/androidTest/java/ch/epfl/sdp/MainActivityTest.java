@@ -1,10 +1,8 @@
 package ch.epfl.sdp;
 
-import androidx.test.espresso.Espresso;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,7 +31,7 @@ public class MainActivityTest {
         clickAndCheck(R.id.button_gps, R.id.gpsLatitude);
     }
 
-    private void clickAndCheck(int buttonID, int UIelementID){
+    private void clickAndCheck(int buttonID, int UIelementID) {
         onView(withId(buttonID)).perform(click());
         try {
             Thread.sleep(2000);

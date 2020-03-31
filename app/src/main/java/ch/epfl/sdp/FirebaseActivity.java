@@ -63,13 +63,14 @@ public class FirebaseActivity extends AppCompatActivity {
 
     public void readData2(View view) {
         databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
-                R.string.Can_t_Download_Offline, e -> fs.readDocumentWithID("Tests", "DownloadTest",
+                R.string.Can_t_Download_Offline, e -> fs.readDocumentWithID("Tests" +
+                                "/FirebaseActivity/Download", "DownloadTest",
                         e::setText));
     }
 
     public void readData1(View view){
         databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
-                R.string.Can_t_Download_Offline, e -> fs.readDocument("Tests",
+                R.string.Can_t_Download_Offline, e -> fs.readDocument("Tests/FirebaseActivity/Download",
                         e::setText));
     }
 

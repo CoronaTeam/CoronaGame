@@ -2,16 +2,11 @@ package ch.epfl.sdp;
 
 import android.Manifest;
 
-import androidx.biometric.BiometricFragment;
-import androidx.core.widget.TextViewCompat;
-import androidx.fragment.app.FragmentManager;
 import androidx.test.core.app.ActivityScenario;
-import androidx.test.espresso.Espresso;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
-import androidx.test.espresso.matcher.ViewMatchers;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -21,57 +16,53 @@ import org.junit.Test;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.RootMatchers.isDialog;
-import static androidx.test.espresso.matcher.RootMatchers.isFocusable;
-import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.isSelected;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static ch.epfl.sdp.TestTools.initSafeTest;
-import static junit.framework.TestCase.assertTrue;
 import static ch.epfl.sdp.MainActivity.IS_NETWORK_DEBUG;
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
+import static ch.epfl.sdp.TestTools.initSafeTest;
+import static junit.framework.TestCase.assertTrue;
 
 public class UserInfectionTest {
 
     @Rule
-    public GrantPermissionRule fingerprintPermissionRule =
-            GrantPermissionRule.grant(Manifest.permission.USE_FINGERPRINT);
-
-    @Rule
-    public ActivityScenarioRule<UserInfectionActivity> rule =
-                new ActivityScenarioRule<>(UserInfectionActivity.class);
-    @Rule
     public final ActivityTestRule<UserInfectionActivity> activityRule =
             new ActivityTestRule<>(UserInfectionActivity.class);
-
-    @Before
-    public void setUp() throws Exception{
-        initSafeTest(activityRule,true);
-    }
-
+    @Rule
+    public GrantPermissionRule fingerprintPermissionRule =
+            GrantPermissionRule.grant(Manifest.permission.USE_FINGERPRINT);
+    @Rule
+    public ActivityScenarioRule<UserInfectionActivity> rule =
+            new ActivityScenarioRule<>(UserInfectionActivity.class);
     @Rule
     public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
 
-    @Test @Ignore
-    public void canAuthenticateWithPermissions() {
+    @Before
+    public void setUp() throws Exception {
+        initSafeTest(activityRule, true);
+    }
+
+    @Test
+    @Ignore
+    public void canAuthenticateWithBiometric() {
         assertTrue(BiometricUtils.canAuthenticate(activityRule.getActivity().getBaseContext()));
     }
 
     @Test
     public void changeViewContentWhenClick() {
         // click for the first time changes view from default to infected status
+        waitingForTravis(5000);
         clickWaitAndCheckTexts(R.id.infectionStatusButton, R.id.infectionStatusView, "I am cured", "Your user status is set to infected.", 5000);
         // click again changes view from infected status to cured status
         clickWaitAndCheckTexts(R.id.infectionStatusButton, R.id.infectionStatusView, "I am infected", "Your user status is set to not infected.", 5000);
     }
 
     @Test
+    @Ignore("Not the right way")
     public void keepLastInfectionStatusWhenRestartingApp() {
         ActivityScenario<UserInfectionActivity> launchedActivity =
-                rule.getScenario().launch(UserInfectionActivity.class);
+                ActivityScenario.launch(UserInfectionActivity.class);
         clickWaitAndCheckTexts(R.id.infectionStatusButton, R.id.infectionStatusView, "I am cured", "Your user status is set to infected.", 5000);
         launchedActivity.recreate();
         onView(withId(R.id.infectionStatusView)).check(matches(withText("Your user status is set to infected.")));
@@ -95,7 +86,8 @@ public class UserInfectionTest {
                 R.id.infectionStatusUploadConfirmation);
     }
 
-    @Test @Ignore
+    @Test
+    @Ignore
     public void testDetectNoInternet() {
         IS_NETWORK_DEBUG = true;
         IS_ONLINE = false;

@@ -3,19 +3,26 @@ package ch.epfl.sdp;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 import org.jetbrains.annotations.NotNull;
+
+import static ch.epfl.sdp.MainActivity.IS_ONLINE;
+import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
 
 public class UserInfectionActivity extends AppCompatActivity {
 
     private Button infectionStatusButton;
     private TextView infectionStatusView;
     private TextView infectionUploadView;
-    private User user = new User("Test", User.DEFAULT_FAMILY_NAME, User.DEFAULT_EMAIL,
-            User.DEFAULT_URI, User.DEFAULT_PLAYERID, User.DEFAULT_USERID, 25, false);
-    private String userName = "Test"; // TODO: this is temporary: we need to get the real current user
+    private TextView userNameView;
+    private TextView onlineStatusView;
+    private Button refreshButton;
+    private Account account;
+    private User user;
+    private String userName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,58 +32,74 @@ public class UserInfectionActivity extends AppCompatActivity {
         infectionStatusView = findViewById(R.id.infectionStatusView);
         infectionStatusButton = findViewById(R.id.infectionStatusButton);
         infectionUploadView = findViewById(R.id.infectionStatusUploadConfirmation);
+        userNameView = findViewById(R.id.userName);
 
-        infectionStatusView.setSaveEnabled(true);
-        infectionStatusButton.setSaveEnabled(true);
+        checkOnline();
 
-        infectionStatusButton.setOnClickListener(v -> {
-            CharSequence buttonText = ((Button)v).getText();
-            if (buttonText.equals(getResources().getString(R.string.i_am_infected))) {
-                clickAction(infectionStatusButton, infectionStatusView, R.string.i_am_cured,
-                        R.string.your_user_status_is_set_to_infected, R.color.colorGreenCured);
-                //upload to firebase
-                user.modifyUserInfectionStatus(userName, true,
-                        value -> infectionUploadView.setText(value));
+        refreshButton.setOnClickListener(v -> checkOnline());
 
+        getLoggedInUser();
 
-            }
-            else {
-                clickAction(infectionStatusButton, infectionStatusView, R.string.i_am_infected,
-                        R.string.your_user_status_is_set_to_not_infected, R.color.colorRedInfected);
-                //upload to firebase
-                user.modifyUserInfectionStatus(userName, false,
-                        value -> infectionUploadView.setText(value));
-            }
-        });
+        userNameView.setText(userName);
+
+        infectionStatusButton.setOnClickListener(v -> statusButtonAction((Button)v));
     }
 
-    private void clickAction(Button button, TextView textView, int buttonText, int textViewText, int buttonColor) {
+    private void setView(Button button, TextView textView, boolean infected) {
+        int buttonText = infected ? R.string.i_am_cured : R.string.i_am_infected;
+        int textViewText = infected ? R.string.your_user_status_is_set_to_infected : R.string.your_user_status_is_set_to_not_infected;
+        int buttonColor = infected ? R.color.colorGreenCured : R.color.colorRedInfected;
         button.setText(buttonText);
         button.setBackgroundTintList(
                 getResources().getColorStateList(buttonColor));
         textView.setText(textViewText);
     }
 
-
-    @Override
-    public void onSaveInstanceState(@NotNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        TextView infectionText = findViewById(R.id.infectionStatusView);
-        Button infectionButton = findViewById(R.id.infectionStatusButton);
-        outState.putCharSequence("INFECTION_STATUS_TEXT", infectionText.getText());
-        outState.putCharSequence("INFECTION_STATUS_BUTTON", infectionButton.getText());
+    private void checkOnline() {
+        onlineStatusView = findViewById(R.id.onlineStatusView);
+        refreshButton = findViewById(R.id.refreshButton);
+        checkNetworkStatus(this);
+        if (!IS_ONLINE) {
+            onlineStatusView.setVisibility(View.VISIBLE);
+            refreshButton.setVisibility(View.VISIBLE);
+            infectionStatusButton.setVisibility(View.INVISIBLE);
+            infectionStatusView.setVisibility(View.INVISIBLE);
+            infectionUploadView.setVisibility(View.INVISIBLE);
+            userNameView.setVisibility(View.INVISIBLE);
+        } else {
+            onlineStatusView.setVisibility(View.INVISIBLE);
+            refreshButton.setVisibility(View.INVISIBLE);
+            infectionStatusButton.setVisibility(View.VISIBLE);
+            infectionStatusView.setVisibility(View.VISIBLE);
+            infectionUploadView.setVisibility(View.VISIBLE);
+            userNameView.setVisibility(View.VISIBLE);
+        }
     }
 
-    @Override
-    public void onRestoreInstanceState(@NotNull Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        TextView infectionText = findViewById(R.id.infectionStatusView);
-        Button infectionButton = findViewById(R.id.infectionStatusButton);
-        CharSequence DEFAULT_INFECTION_TEXT = getResources().getString(R.string.your_user_status_is_set_to_not_infected);
-        CharSequence DEFAULT_INFECTION_BUTTON = getResources().getString(R.string.i_am_infected);
-        infectionText.setText(savedInstanceState
-                .getCharSequence("INFECTION_STATUS_TEXT", DEFAULT_INFECTION_TEXT));
-        infectionButton.setText(savedInstanceState
-                .getCharSequence("INFECTION_STATUS_BUTTON", DEFAULT_INFECTION_BUTTON));
+    private void getLoggedInUser() {
+        account = AccountGetting.getAccount(this);
+        userName = account.getDisplayName();
+        user = new User(userName, account.getFamilyName(), account.getEmail(),
+                account.getPhotoUrl(), account.getPlayerId(this), account.getId(), User.DEFAULT_AGE, false);
+        user.retrieveUserInfectionStatus(
+                value -> setView(infectionStatusButton, infectionStatusView, value));
+    }
+
+    private void statusButtonAction(Button b) {
+        checkOnline();
+        CharSequence buttonText = b.getText();
+        if (buttonText.equals(getResources().getString(R.string.i_am_infected))) {
+            setView(infectionStatusButton, infectionStatusView, true);
+            //upload to firebase
+            user.modifyUserInfectionStatus(userName, true,
+                    value -> infectionUploadView.setText(value));
+
+
+        } else {
+            setView(infectionStatusButton, infectionStatusView, false);
+            //upload to firebase
+            user.modifyUserInfectionStatus(userName, false,
+                    value -> infectionUploadView.setText(value));
+        }
     }
 }

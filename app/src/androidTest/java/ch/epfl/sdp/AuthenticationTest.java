@@ -48,7 +48,7 @@ public class AuthenticationTest {
     public void onActivityResultThrowsNoExceptionOnRightRequestCode(){
         ((Authentication )getActivity()).onActivityResult(Authentication.RC_SIGN_IN  ,0,null);
     }
-    @Test @Ignore
+    @Test
     public void signInButtonIsVisibleWhenAccountIsNull(){
         onView(withId(R.id.sign_in_button)).check(matches(isDisplayed()));
     }

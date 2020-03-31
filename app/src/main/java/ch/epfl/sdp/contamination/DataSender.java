@@ -13,11 +13,10 @@ public interface DataSender {
         l.setLatitude(a);
         return l;
     }
-
     /**
      *   Sends the location and date to firebase, along with the userID of the user using the app.
      * @param location : location, rounded by ~1 meter
      * @param time : date associated to that location
      */
-    void sendALocationToFirebase(Location location, Date time);
+    void registerLocation(Carrier carrier, Location location, Date time);
 }

@@ -1,4 +1,4 @@
-package ch.epfl.sdp.contaminationTest;
+package ch.epfl.sdp.contamination;
 
 import android.location.Location;
 

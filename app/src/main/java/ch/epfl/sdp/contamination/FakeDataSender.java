@@ -20,11 +20,10 @@ public final class FakeDataSender implements DataSender{
         this.firebaseStore = new HashMap<>();
         String userID = User.DEFAULT_USERID;
     }
-    @Override
-    public void sendALocationToFirebase(Location location, Date time) {
-
-        firebaseStore.put(new Pair<Date,Location>(time, DataSender.RoundAndExpandLocation(location)),userID);
-    }
+//    public void sendALocationToFirebase(Location location, Date time) {
+//
+//        firebaseStore.put(new Pair<Date,Location>(time, DataSender.RoundAndExpandLocation(location)),userID);
+//    }
 
     /**
      * Again, this function is to be used only for testing
@@ -32,5 +31,10 @@ public final class FakeDataSender implements DataSender{
      */
     public Map<Pair<Date, Location>, String> getMap(){
         return Collections.unmodifiableMap(firebaseStore);
+    }
+
+    @Override
+    public void registerLocation(Carrier carrier, Location location, Date time) {
+
     }
 }

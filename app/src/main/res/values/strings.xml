@@ -51,4 +51,7 @@
     <string name="no_data_uploaded_yet">No data uploaded yet.</string>
     <string name="launch_user_infection">Launch user infection</string>
     <string name="launch_history">LAUNCH HISTORY</string>
+    <string name="logged_in_user">logged in user</string>
+    <string name="you_cannot_update_your_status_you_are_offline">You cannot update your status, you are offline.</string>
+    <string name="refresh">refresh</string>
 </resources>

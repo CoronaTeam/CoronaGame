@@ -1,14 +1,11 @@
 package ch.epfl.sdp;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
-import android.os.SystemClock;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.test.rule.ActivityTestRule;
@@ -30,6 +27,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static ch.epfl.sdp.LocationBroker.Provider.GPS;
 import static ch.epfl.sdp.LocationBroker.Provider.NETWORK;
+import static ch.epfl.sdp.TestUtils.buildLocation;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 
 public class GpsActivityTest {
@@ -101,21 +99,6 @@ public class GpsActivityTest {
         }
     }
 
-    @TargetApi(17)
-    private Location buildLocation(double latitude, double longitude) {
-        Location l = new Location(LocationManager.GPS_PROVIDER);
-        l.setLatitude(latitude);
-        l.setLongitude(longitude);
-        l.setTime(System.currentTimeMillis());
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
-            // Also need to set the et field
-            l.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());
-        }
-        l.setAltitude(400);
-        l.setAccuracy(1);
-        return l;
-    }
-
     private void startActivityWithBroker(LocationBroker br) {
         mActivityRule.launchActivity(new Intent());
         mActivityRule.getActivity().setLocationBroker(br);
@@ -155,7 +138,7 @@ public class GpsActivityTest {
 
         FirestoreInteractor successfulInteractor = new FirestoreInteractor() {
             @Override
-            void write(Map<String, PositionRecord> content, OnSuccessListener success, OnFailureListener failure) {
+            public void write(Map<String, PositionRecord> content, OnSuccessListener success, OnFailureListener failure) {
                 success.onSuccess(null);
             }
         };
@@ -174,7 +157,7 @@ public class GpsActivityTest {
 
         FirestoreInteractor failingInteractor = new FirestoreInteractor() {
             @Override
-            void write(Map<String, PositionRecord> content, OnSuccessListener success, OnFailureListener failure) {
+            public void write(Map<String, PositionRecord> content, OnSuccessListener success, OnFailureListener failure) {
                 failure.onFailure(new Exception());
             }
         };

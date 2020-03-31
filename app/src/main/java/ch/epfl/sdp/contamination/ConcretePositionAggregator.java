@@ -12,13 +12,15 @@ import java.util.List;
 public final class ConcretePositionAggregator implements PositionAggregator {
     private Date lastDate = null;
     private DataSender dataSender;
+    private InfectionAnalyst analyst;
     HashMap<Date, List<Location>> buffer;
-    public ConcretePositionAggregator(DataSender dataSender){
-        if(dataSender == null){
-            throw new IllegalArgumentException("DataSender should not be null");
+    public ConcretePositionAggregator(DataSender dataSender, InfectionAnalyst analyst){
+        if(dataSender == null || analyst == null){
+            throw new IllegalArgumentException("DataSender or anaylst should not be null");
         }
         this.buffer = new HashMap<>();
         this.dataSender = dataSender;
+        this.analyst = analyst;
     }
 
     @Override
@@ -55,13 +57,15 @@ public final class ConcretePositionAggregator implements PositionAggregator {
         if(lastDate != null){
             List<Location> targetLocations = buffer.get(lastDate);
             Location meanLocation = getMean(targetLocations);
-            dataSender.sendALocationToFirebase(meanLocation,lastDate);
+            dataSender.registerLocation(analyst.getCurrentCarrier(),DataSender.RoundAndExpandLocation(meanLocation),lastDate);
         }
     }
-
+    /*
+       Returns
+     */
     private Location getMean(List<Location> targetLocations) {
         if(targetLocations == null || targetLocations.size() == 0){
-            throw new IllegalArgumentException("Target location shoul not be empty");
+            throw new IllegalArgumentException("Target location should not be empty");
         }
         double latitudeSummation=0;
         double longitudeSummation=0;
@@ -72,39 +76,9 @@ public final class ConcretePositionAggregator implements PositionAggregator {
         }
         latitudeSummation = latitudeSummation / ((double)(size));
         longitudeSummation = longitudeSummation /((double)( size));
-        latitudeSummation = roundCoordinate(latitudeSummation);
-        longitudeSummation = roundCoordinate(longitudeSummation);
         Location res = targetLocations.get(0);
         res.setLatitude(latitudeSummation);
         res.setLongitude(longitudeSummation);
-        return res;
-
-    }
-
-    /**
-     * Rounds a double to 5 digits after the comma
-     * @param coor
-     * @return
-     */
-    public static double roundCoordinate(double coor){
-        return (double)Math.round(coor * 100000d) / 100000d;//fast rounding to 5 digits
-    }
-
-    /**
-     * Rounds a location to 5 digits after the comma
-     * @param l
-     * @return
-     */
-    public static Location roundLocation(Location l){
-        if(l == null){
-            throw new IllegalArgumentException("Location can't be null");
-        }
-        double latitude = l.getLatitude();
-        double longitude = l.getLongitude();
-        latitude = roundCoordinate(latitude);
-        longitude = roundCoordinate(longitude);
-        l.setLatitude(latitude);
-        l.setLongitude(longitude);
-        return l;
+        return (res);
     }
 }

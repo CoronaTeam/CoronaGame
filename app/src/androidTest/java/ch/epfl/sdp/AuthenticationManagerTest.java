@@ -4,6 +4,7 @@ import android.widget.ImageView;
 
 import androidx.test.espresso.intent.Intents;
 import androidx.test.rule.ActivityTestRule;
+import ch.epfl.sdp.fragment.AccountFragment;
 
 import org.junit.After;
 import org.junit.Before;
@@ -18,9 +19,9 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static ch.epfl.sdp.TestTools.*;
-public class AccountGettingTest {
+public class AuthenticationManagerTest {
     @Rule
-    public final ActivityTestRule<AccountGetting> activityRule = new ActivityTestRule<AccountGetting>(AccountGetting.class);
+    public final ActivityTestRule<AccountActivity> activityRule = new ActivityTestRule<AccountActivity>(AccountActivity.class);
     @Before
     public void setUp() throws Exception{
         initSafeTest(activityRule,true);
@@ -50,7 +51,7 @@ public class AccountGettingTest {
     }
     @Test
     public void signOutWorks(){
-        ((AccountGetting)(getActivity())).signOut(null);
+        AuthenticationManager.signOut(getActivity());
         sleep();
         assertSame(getActivity().getClass(),Authentication.class);
     }

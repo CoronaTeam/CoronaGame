@@ -20,7 +20,7 @@
         <activity android:name=".UserInfectionActivity">
         </activity>
 
-        <activity android:name=".AccountGetting"></activity>
+        <activity android:name=".AuthenticationManager"></activity>
         <activity android:name=".Authentication" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

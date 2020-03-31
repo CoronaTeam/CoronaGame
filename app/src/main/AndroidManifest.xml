@@ -18,18 +18,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".UserInfectionActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <activity android:name=".AccountGetting"></activity>
         <activity android:name=".Authentication" >
             <intent-filter>
-                <action android:name="android.intent.action.AUTH" />
-
+                <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
                 <!-- >   <category android:name="" /><! -->
             </intent-filter>
         </activity>
@@ -45,19 +41,11 @@
         <activity
             android:name=".IntroActivity"
             android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <activity
             android:name=".GpsActivity"
             android:parentActivityName=".MainActivity" >
-            <intent-filter>
-                <action android:name="android.intent.action.DEFAULT" />
-            </intent-filter>
         </activity>
 
         <activity
@@ -68,15 +56,9 @@
         <activity
             android:name=".HistoryActivity"
             android:parentActivityName=".MainActivity" >
-            <intent-filter>
-                <action android:name="android.intent.action.DEFAULT"/>
-            </intent-filter>
         </activity>
 
         <activity android:name=".TabActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.DEFAULT" />
-            </intent-filter>
         </activity>
 
     </application>

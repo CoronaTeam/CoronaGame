@@ -6,6 +6,7 @@ import android.util.Pair;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import ch.epfl.sdp.User;
@@ -14,7 +15,7 @@ import ch.epfl.sdp.User;
  * This class, made to make testing other classes convenient, simulates the behavior of a regular datasender to firestore, but store info locally
  */
 public final class FakeDataSender implements DataSender{
-    HashMap<Pair<Date,Location>,String> firebaseStore;
+    HashMap<Date, Location> firebaseStore;
     private String userID;
     public FakeDataSender(){
         this.firebaseStore = new HashMap<>();
@@ -29,12 +30,15 @@ public final class FakeDataSender implements DataSender{
      * Again, this function is to be used only for testing
      * @return
      */
-    public Map<Pair<Date, Location>, String> getMap(){
-        return Collections.unmodifiableMap(firebaseStore);
+    public Map<Date, Location> getMap(){
+        if(firebaseStore.size() !=0){
+            return Collections.unmodifiableMap(firebaseStore);
+        }
+        return null;
     }
 
     @Override
     public void registerLocation(Carrier carrier, Location location, Date time) {
-
+        firebaseStore.put(time, location);
     }
 }

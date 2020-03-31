@@ -2,6 +2,7 @@ package ch.epfl.sdp;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.location.Location;
 
 import androidx.test.espresso.intent.Intents;
 import androidx.test.rule.ActivityTestRule;
@@ -80,5 +81,41 @@ public interface TestTools {
      */
     static void sleep(){
         sleep(2000);
+    }
+    /**
+     * Rounds a double to 5 digits after the comma
+     * @param coor
+     * @return
+     */
+    public static double roundCoordinate(double coor){
+        return (double)Math.round(coor * 100000d) / 100000d;//fast rounding to 5 digits
+    }
+
+    /**
+     * Rounds a location to 5 digits after the comma
+     * @param l
+     * @return
+     */
+    public static Location roundLocation(Location l){
+        if(l == null){
+            throw new IllegalArgumentException("Location can't be null");
+        }
+        double latitude = l.getLatitude();
+        double longitude = l.getLongitude();
+        latitude = roundCoordinate(latitude);
+        longitude = roundCoordinate(longitude);
+        l.setLatitude(latitude);
+        l.setLongitude(longitude);
+        return l;
+    }
+    static Location newLoc(double lati,double longi){
+        Location res =  new Location("provider");
+        res.reset();
+        res.setLatitude(lati);
+        res.setLongitude(longi);
+        return res;
+    }
+    static boolean expandedLocEquals(Location loc1, Location loc2){
+        return loc1.getLatitude() == loc2.getLatitude() && loc1.getLongitude() == loc2.getLongitude();
     }
 }

@@ -23,11 +23,10 @@ public interface PositionAggregator {
     default void addPosition(Location location) {
         addPosition(location, Calendar.getInstance().getTime());
     }
-
-    /**
-     * Every WINDOW_FOR_LOCATION_AGGREGATION time, the PositionAggregator should send the mean value of the
-     * saved positions to the DataSender. This method estimates whether the PositionAggregator should send that mean,
-     * or if it just returns without doing anything.
-     */
-    void update();
+    static Date getWindowForDate(Date date) {
+        long time = date.getTime();
+        long roundedTime = time - time % WINDOW_FOR_LOCATION_AGGREGATION; // drop part not multiple of WINDOW_FOR_LOCATION_AGGREGATION
+        date.setTime(roundedTime);
+        return date;
+    }
 }

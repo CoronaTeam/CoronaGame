@@ -84,6 +84,9 @@ public class IntroActivity extends AppIntro2 {
         super.onDonePressed(currentFragment);
 
         // Navigate to main screen
-        startActivity(new Intent(this, MainActivity.class));
+        //startActivity(new Intent(this, MainActivity.class));
+
+        // Finish current activity (return to previous one)
+        finish();
     }
 }

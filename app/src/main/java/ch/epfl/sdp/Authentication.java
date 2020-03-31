@@ -1,6 +1,8 @@
 package ch.epfl.sdp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -28,9 +30,15 @@ public class Authentication extends AppCompatActivity {
     GoogleSignInClient googleSignInClient;
     View signIn;// error prone line if View is replaced by Button
 
+    public static String APP_PREFERENCES = "APP_PREFERENCES";
+    public static String OPENED_BEFORE_PREFERENCE = "OPENED_BEFORE";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        checkFirstTimeOpen();
+
         setContentView(R.layout.activity_authentication);
         signIn = findViewById(R.id.sign_in_button);
 
@@ -115,5 +123,22 @@ public class Authentication extends AppCompatActivity {
             Log.w("authenticationActivity", "signInResult:failed code=" + e.getStatusCode());
             updateUI(null);
         }
+    }
+
+    /** Launch IntroActivity if it is the first time the user opens the app */
+    private void checkFirstTimeOpen() {
+        SharedPreferences sp = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+        if (!sp.getBoolean(OPENED_BEFORE_PREFERENCE, false)) {
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putBoolean(OPENED_BEFORE_PREFERENCE, true);
+            editor.apply();
+            setIntroView();
+        }
+    }
+
+    /** Called when the user opens the app for the first time */
+    private void setIntroView() {
+        Intent intent = new Intent(this, IntroActivity.class);
+        startActivity(intent);
     }
 }

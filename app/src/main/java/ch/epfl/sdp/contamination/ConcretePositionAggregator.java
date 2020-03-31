@@ -6,6 +6,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * @author lucas
+ */
 public final class ConcretePositionAggregator implements PositionAggregator {
     private Date lastDate = null;
     private DataSender dataSender;
@@ -13,7 +16,7 @@ public final class ConcretePositionAggregator implements PositionAggregator {
     HashMap<Long, List<Location>> buffer;
     public ConcretePositionAggregator(DataSender dataSender, InfectionAnalyst analyst){
         if(dataSender == null || analyst == null){
-            throw new IllegalArgumentException("DataSender or anaylst should not be null");
+            throw new IllegalArgumentException("DataSender or analyst should not be null");
         }
         this.buffer = new HashMap<>();
         this.dataSender = dataSender;
@@ -49,7 +52,6 @@ public final class ConcretePositionAggregator implements PositionAggregator {
      */
     private void update() {
         if(lastDate != null){
-
             List<Location> targetLocations = buffer.remove(lastDate.getTime()); //remove useless data. MAY BE CHANGED TO ADD A CACHE
             Location meanLocation = getMean(targetLocations);
             Location expandedLocation = DataSender.RoundAndExpandLocation(meanLocation);
@@ -73,6 +75,6 @@ public final class ConcretePositionAggregator implements PositionAggregator {
         Location res = targetLocations.get(0);
         res.setLatitude(latitudeSummation);
         res.setLongitude(longitudeSummation);
-        return (res);
+        return res;
     }
 }

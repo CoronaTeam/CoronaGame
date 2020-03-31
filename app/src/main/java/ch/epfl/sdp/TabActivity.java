@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+import ch.epfl.sdp.fragment.AccountFragment;
 
 public class TabActivity extends AppCompatActivity {
 
@@ -26,7 +27,8 @@ public class TabActivity extends AppCompatActivity {
 
     private static final Tab[] tabs = new Tab[]{
             new Tab(MapFragment.class, R.string.tab_map),
-            new Tab(HistoryFragment.class, R.string.tab_history)
+            new Tab(HistoryFragment.class, R.string.tab_history),
+            new Tab(AccountFragment.class, R.string.tab_account)
     };
 
     public class TabPagerAdapter extends FragmentPagerAdapter {

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -18,7 +19,7 @@ import ch.epfl.sdp.Account;
 import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.R;
 
-public class AccountFragment extends Fragment {
+public class AccountFragment extends Fragment implements View.OnClickListener {
 
     private TextView name;
     private TextView email;
@@ -40,9 +41,21 @@ public class AccountFragment extends Fragment {
         lastName = view.findViewById(R.id.lastName);
         userIdView = view.findViewById(R.id.userIdView);
         img = view.findViewById(R.id.profileImage);
+        Button signOutButton = view.findViewById(R.id.button_sign_out);
+        signOutButton.setOnClickListener(this);
         getAndShowAccountInfo(AuthenticationManager.getAccount(getActivity()));
 
         return view;
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.button_sign_out:
+                signOut(v);
+                break;
+            // other buttons...
+        }
     }
 
     @Override

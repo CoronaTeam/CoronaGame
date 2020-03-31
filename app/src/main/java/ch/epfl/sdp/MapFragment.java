@@ -78,7 +78,7 @@ public class MapFragment extends Fragment implements LocationListener {
             locationBroker = new ConcreteLocationBroker((LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE), getActivity());
         }
         otherUsersPositionMarkers = new ArrayList<>();
-        userAccount = AccountGetting.getAccount(getActivity());
+        userAccount = AuthenticationManager.getAccount(getActivity());
 
         FirestoreWrapper wrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
         db = new ConcreteFirestoreInteractor(wrapper, new CountingIdlingResource("MapFragment"));

@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.Account;
-import ch.epfl.sdp.AccountGetting;
+import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.ConcreteFirestoreWrapper;
 import ch.epfl.sdp.QueryHandler;
@@ -233,7 +233,7 @@ public class DataExchangeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         sender = new ConcreteDataSender(
                 new GridFirestoreInteractor(new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance())),
-                AccountGetting.getAccount(this));
+                AuthenticationManager.getAccount(this));
 
         setContentView(R.layout.activity_dataexchange);
         exchangeStatus = findViewById(R.id.exchange_status);
@@ -241,6 +241,6 @@ public class DataExchangeActivity extends AppCompatActivity {
 
         receiver = new ConcreteDataReceiver(
                 new GridFirestoreInteractor(new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance())),
-                AccountGetting.getAccount(this));
+                AuthenticationManager.getAccount(this));
     }
 }

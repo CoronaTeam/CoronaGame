@@ -47,9 +47,11 @@ public class UserInfectionTest {
     public void changeViewContentWhenClick() {
         // click for the first time changes view from default to infected status
         waitingForTravis(5000);
-        clickWaitAndCheckTexts(R.id.infectionStatusButton, R.id.infectionStatusView, "I am cured", "Your user status is set to infected.", 5000);
+        clickWaitAndCheckTexts(R.id.infectionStatusButton, R.id.infectionStatusView, "I am cured"
+                , "Your user status is set to infected.", 10000);
         // click again changes view from infected status to cured status
-        clickWaitAndCheckTexts(R.id.infectionStatusButton, R.id.infectionStatusView, "I am infected", "Your user status is set to not infected.", 5000);
+        clickWaitAndCheckTexts(R.id.infectionStatusButton, R.id.infectionStatusView, "I am " +
+                "infected", "Your user status is set to not infected.", 10000);
     }
 
     @Test

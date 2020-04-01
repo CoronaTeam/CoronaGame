@@ -57,7 +57,6 @@ public class DataExchangeActivity extends AppCompatActivity {
         exchangeContent = findViewById(R.id.exchange_content);
 
         receiver = new ConcreteDataReceiver(
-                new GridFirestoreInteractor(new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance())),
-                AccountGetting.getAccount(this));
+                new GridFirestoreInteractor(new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance())));
     }
 }

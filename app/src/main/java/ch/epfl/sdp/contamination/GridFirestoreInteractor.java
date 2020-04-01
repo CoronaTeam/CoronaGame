@@ -8,6 +8,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.epfl.sdp.Account;
 import ch.epfl.sdp.FirestoreWrapper;
 import ch.epfl.sdp.QueryHandler;
 
@@ -34,6 +35,19 @@ public class GridFirestoreInteractor {
 
     public void getTimes(Location location, QueryHandler handler) {
         db.collection("LiveGrid/" + getGridId(location) + "/Times")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        handler.onSuccess(task.getResult());
+                    } else {
+                        handler.onFailure();
+                    }
+                });
+    }
+
+    public void readLastLocation(Account account, QueryHandler handler) {
+        db.collection("LastPositions")
+                .document(account.getId())
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

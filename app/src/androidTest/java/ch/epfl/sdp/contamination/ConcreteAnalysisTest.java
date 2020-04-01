@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import ch.epfl.sdp.Account;
 import ch.epfl.sdp.Callback;
 
 import static ch.epfl.sdp.TestUtils.buildLocation;
@@ -61,8 +62,7 @@ public class ConcreteAnalysisTest {
         }
 
         @Override
-        public Location getMyLocationAtTime(Date date) {
-            return null;
+        public void getMyLocationAtTime(Account account, Date date, Callback<Location> callback) {
         }
     };
 

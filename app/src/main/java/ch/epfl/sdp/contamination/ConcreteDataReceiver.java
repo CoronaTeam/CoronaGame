@@ -21,12 +21,10 @@ import ch.epfl.sdp.QueryHandler;
 
 class ConcreteDataReceiver implements DataReceiver {
 
-    private Account account;
     private GridFirestoreInteractor interactor;
 
-    ConcreteDataReceiver(GridFirestoreInteractor interactor, Account account) {
-        this.interactor = interactor;
-        this.account = account;
+    ConcreteDataReceiver(GridFirestoreInteractor gridInteractor) {
+        this.interactor = gridInteractor;
     }
 
     @VisibleForTesting
@@ -159,8 +157,19 @@ class ConcreteDataReceiver implements DataReceiver {
     }
 
     @Override
-    public Location getMyLocationAtTime(Date date) {
-        return null;
-    }
+    public void getMyLocationAtTime(Account account, Date date, Callback<Location> callback) {
+        interactor.readLastLocation(account, new QueryHandler() {
+            @Override
+            public void onSuccess(QuerySnapshot snapshot) {
+                if (snapshot.iterator().hasNext()) {
+                    callback.onCallback((Location) snapshot.iterator().next().get("geoPoint"));
+                }
+            }
 
+            @Override
+            public void onFailure() {
+                // TODO: What do we do when queries fail?
+            }
+        });
+    }
 }

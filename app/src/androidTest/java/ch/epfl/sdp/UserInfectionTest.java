@@ -44,17 +44,6 @@ public class UserInfectionTest {
     }
 
     @Test
-    public void changeViewContentWhenClick() {
-        // click for the first time changes view from default to infected status
-        waitingForTravis(5000);
-        clickWaitAndCheckTexts(R.id.infectionStatusButton, R.id.infectionStatusView, "I am cured"
-                , "Your user status is set to infected.", 10000);
-        // click again changes view from infected status to cured status
-        clickWaitAndCheckTexts(R.id.infectionStatusButton, R.id.infectionStatusView, "I am " +
-                "infected", "Your user status is set to not infected.", 10000);
-    }
-
-    @Test
     public void testDataUpload() {
         TestTools.clickAndCheck(R.id.infectionStatusButton,
                 R.id.infectionStatusUploadConfirmation);
@@ -88,23 +77,6 @@ public class UserInfectionTest {
         waitingForTravis(waitingTime);
         onView(withId(textID)).check(matches(withText(expectedText)));
         onView(withId(buttonID)).check(matches(withText(expectedButtonText)));
-    }
-
-    @Test
-    @Ignore("Not the right way")
-    public void keepLastInfectionStatusWhenRestartingApp() {
-        ActivityScenario<UserInfectionActivity> launchedActivity =
-                ActivityScenario.launch(UserInfectionActivity.class);
-        clickWaitAndCheckTexts(R.id.infectionStatusButton, R.id.infectionStatusView, "I am cured", "Your user status is set to infected.", 5000);
-        launchedActivity.recreate();
-        onView(withId(R.id.infectionStatusView)).check(matches(withText("Your user status is set to infected.")));
-        onView(withId(R.id.infectionStatusButton)).check(matches(withText("I am cured")));
-    }
-
-    @Test
-    @Ignore("Good luck setting up a fingerprint on Cirrus")
-    public void canAuthenticateWithBiometric() {
-        assertTrue(BiometricUtils.canAuthenticate(activityRule.getActivity().getBaseContext()));
     }
 
     private void waitingForTravis(int time) {

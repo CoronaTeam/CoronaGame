@@ -9,7 +9,10 @@ import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.repeatedlyUntil;
+import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
@@ -31,7 +34,7 @@ public class MainActivityTest {
         clickAndCheck(R.id.button_gps, R.id.gpsLatitude);
     }
 
-    private void clickAndCheck(int buttonID, int UIelementID){
+    private void clickAndCheck(int buttonID, int UIelementID) {
         onView(withId(buttonID)).perform(click());
         try {
             Thread.sleep(2000);
@@ -41,4 +44,32 @@ public class MainActivityTest {
         onView(withId(UIelementID)).check(matches(isDisplayed()));
     }
 
+    @Test
+    public void testCanGoToUserAuthActivity() {
+        clickAndCheck(R.id.launch_SignIn_Button, R.id.sign_in_button);
+    }
+
+    @Test
+    public void testCanGoToHistoryActivity() {
+        clickAndCheck(R.id.launch_history, R.id.history_fragment);
+    }
+
+    @Test
+    public void testCanGoToTabActivity() {
+        scrollAndWait(R.id.button_tabs);
+        clickAndCheck(R.id.button_tabs, R.id.pager);
+    }
+
+    @Test
+    @Ignore("Issue with scrolling: button not 100% displayed")
+    public void testCanGoToUserInfectionActivity() {
+        scrollAndWait(R.id.button_user_infection);
+        clickAndCheck(R.id.button_user_infection, R.id.infectionStatusButton);
+    }
+
+    private void scrollAndWait(int id) {
+        onView(withId(R.id.scrollView2)).perform(repeatedlyUntil(swipeUp(),
+                hasDescendant(withId(id)),
+                10));
+    }
 }

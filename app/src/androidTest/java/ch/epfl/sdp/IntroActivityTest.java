@@ -1,14 +1,14 @@
 package ch.epfl.sdp;
 
+import androidx.test.espresso.intent.Intents;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.rule.ActivityTestRule;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import androidx.test.espresso.intent.Intents;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.rule.ActivityTestRule;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -19,14 +19,13 @@ import static ch.epfl.sdp.TestTools.initSafeTest;
 
 @RunWith(AndroidJUnit4.class)
 public class IntroActivityTest {
+    private static final int N_SLIDES = 3; // number of slides in Intro screen
     @Rule
     public final ActivityTestRule<IntroActivity> activityRule = new ActivityTestRule<>(IntroActivity.class);
     @Before
-    public void setUp() throws Exception{
-        initSafeTest(activityRule,true);
+    public void setUp() throws Exception {
+        initSafeTest(activityRule, true);
     }
-
-    private static final int N_SLIDES = 3; // number of slides in Intro screen
 
     @Test
     public void testCanNavigateToMainScreen() {
@@ -38,8 +37,9 @@ public class IntroActivityTest {
         intended(hasComponent(MainActivity.class.getName()));
 
     }
+
     @After
-    public void tearDown() throws Exception{
+    public void tearDown() throws Exception {
         Intents.release();
     }
 }

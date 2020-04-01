@@ -18,21 +18,23 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 public interface TestTools {
     /**
      * This method prevents a double init call
+     *
      * @param activityTestRule : activity to launch
      * @param <E>
      */
-    static <E extends Activity> void initSafeTest(ActivityTestRule<E> activityTestRule, Boolean launchActivity) throws IllegalStateException{
-        try{
+    static <E extends Activity> void initSafeTest(ActivityTestRule<E> activityTestRule, Boolean launchActivity) throws IllegalStateException {
+        try {
             Intents.init();
-        }catch(IllegalStateException alreadyBeenInit){
+        } catch (IllegalStateException alreadyBeenInit) {
             Intents.release();
             Intents.init();
-        }finally {
-            if(launchActivity){
+        } finally {
+            if (launchActivity) {
                 activityTestRule.launchActivity(new Intent());
             }
         }
     }
+
     /*
         This method was found on the internet for getting the current activity
      */
@@ -57,27 +59,30 @@ public interface TestTools {
                     return (Activity) activityField.get(activityRecord);
                 }
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             return null;    //there should not be any exception, if so, try another way for getting the activity.
         }
         return null;
     }
-    static void clickAndCheck(int buttonID, int UIelementID){
+
+    static void clickAndCheck(int buttonID, int UIelementID) {
         onView(withId(buttonID)).perform(click());
         sleep();
         onView(withId(UIelementID)).check(matches(isDisplayed()));
     }
-    static void sleep(int milliseconds){
+
+    static void sleep(int milliseconds) {
         try {
             Thread.sleep(milliseconds);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
+
     /*
      By default, the waiting time is set to 2 seconds.
      */
-    static void sleep(){
+    static void sleep() {
         sleep(2000);
     }
 }

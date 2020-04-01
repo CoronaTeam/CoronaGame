@@ -33,7 +33,7 @@
     <string name="launch_user_infection">Launch user infection</string>
     <string name="launch_history">LAUNCH HISTORY</string>
     <string name="logged_in_user">logged in user</string>
-    <string name="you_cannot_update_your_status_you_are_offline">You cannot update your status, you are offline.</string>
+    <string name="you_cannot_update_your_status_you_are_offline">Can\'t upload when offline. Come back later!</string>
     <string name="refresh">Refresh</string>
     <string name="textview">TextView</string>
     <string name="signout">SignOut</string>

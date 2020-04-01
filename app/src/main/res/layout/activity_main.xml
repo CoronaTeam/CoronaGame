@@ -7,7 +7,6 @@
     tools:context=".MainActivity">
 
     <ScrollView
-        android:id="@+id/scrollView2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -28,7 +27,6 @@
             android:scrollbarAlwaysDrawVerticalTrack="true">
 
             <TextView
-                android:id="@+id/TitleText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/coronagame"
@@ -36,7 +34,6 @@
                 android:textSize="30sp" />
 
             <Button
-                android:id="@+id/button_intro"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="44dp"
@@ -44,7 +41,6 @@
                 android:text="@string/launch_introactivity" />
 
             <Button
-                android:id="@+id/launch_SignIn_Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -52,7 +48,6 @@
                 android:text="@string/launch_signIn" />
 
             <Button
-                android:id="@+id/launch_history"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -76,15 +71,13 @@
                 android:text="@string/launch_gps" />
 
             <Button
-                android:id="@+id/button_tabs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:onClick="setTabsView"
-                android:text="Launch tabs" />
+                android:text="@string/launch_tabs" />
 
             <Button
-                android:id="@+id/button_user_infection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"

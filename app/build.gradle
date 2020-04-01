@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'jacoco'
 apply plugin: 'com.google.gms.google-services'
 
-def apikeyPropertiesFile = rootProject.file("app/secrets.properties");
+def apikeyPropertiesFile = rootProject.file("app/secrets.properties")
 def apikeyProperties = new Properties()
 apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
 
@@ -128,6 +128,7 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'crea
 
     sourceDirectories = files([mainSrc])
     classDirectories = files([debugTree])
+    //noinspection GrDeprecatedAPIUsage
     executionData = fileTree(dir: project.buildDir, includes: [
             'jacoco/testDebugUnitTest.exec', 'outputs/code_coverage/debugAndroidTest/connected/*coverage.ec'
     ])

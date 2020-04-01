@@ -13,9 +13,10 @@
         android:clickable="false"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="Waiting for GPS..."
+        android:text="@string/waiting_for_gps"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:importantForAutofill="no" />
 
     <EditText
         android:id="@+id/gpsLongitude"
@@ -24,24 +25,23 @@
         android:layout_marginTop="28dp"
         android:clickable="false"
         android:ems="10"
+        android:importantForAutofill="no"
         android:inputType="textPersonName"
-        android:text="Waiting for GPS..."
+        android:text="@string/waiting_for_gps"
         app:layout_constraintStart_toStartOf="@+id/gpsLatitude"
         app:layout_constraintTop_toBottomOf="@+id/gpsLatitude" />
 
     <TextView
-        android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Longitude"
+        android:text="@string/longitude"
         app:layout_constraintBottom_toTopOf="@+id/gpsLongitude"
         app:layout_constraintStart_toStartOf="@+id/gpsLongitude" />
 
     <TextView
-        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Latitude"
+        android:text="@string/latitude"
         app:layout_constraintBottom_toTopOf="@+id/gpsLatitude"
         app:layout_constraintStart_toStartOf="@+id/gpsLatitude" />
 
@@ -56,7 +56,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Past positions"
+        android:text="@string/past_positions"
         app:layout_constraintBottom_toTopOf="@+id/location_tracker"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -65,7 +65,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="..."
+        android:text="@string/three_dots"
         android:textAlignment="textEnd"
         app:layout_constraintEnd_toEndOf="@+id/gpsLongitude"
         app:layout_constraintTop_toBottomOf="@+id/gpsLongitude" />

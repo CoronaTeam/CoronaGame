@@ -70,6 +70,7 @@ public class UserInfectionTest {
         IS_ONLINE = true;
         IS_NETWORK_DEBUG = false;
         onView(withId(R.id.refreshButton)).perform(click());
+        onView(withId(R.id.infectionStatusButton)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
     @Test

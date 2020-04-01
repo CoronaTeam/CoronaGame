@@ -74,6 +74,7 @@ public class Layman implements Carrier {
     @Override
     public boolean equals(@Nullable Object obj) {
         return (obj instanceof Layman) &&
+                ((Layman)obj).uniqueID == this.uniqueID &&
                 ((Layman)obj).myStatus == this.myStatus &&
                 ((Layman)obj).infectedWithProbability == this.infectedWithProbability;
     }

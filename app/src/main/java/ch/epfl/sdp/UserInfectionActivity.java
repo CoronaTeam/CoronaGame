@@ -93,15 +93,6 @@ public class UserInfectionActivity extends AppCompatActivity {
         checkOnline();
     }
 
-    private void setView(Button button, TextView textView, boolean infected) {
-        int buttonText = infected ? R.string.i_am_cured : R.string.i_am_infected;
-        int textViewText = infected ? R.string.your_user_status_is_set_to_infected : R.string.your_user_status_is_set_to_not_infected;
-        int buttonColor = infected ? R.color.colorRedInfected : R.color.colorGreenCured;
-        button.setText(buttonText);
-        textView.setTextColor(getResources().getColorStateList(buttonColor));
-        textView.setText(textViewText);
-    }
-
     private boolean checkOnline() {
         onlineStatusView = findViewById(R.id.onlineStatusView);
         refreshButton = findViewById(R.id.refreshButton);
@@ -110,7 +101,7 @@ public class UserInfectionActivity extends AppCompatActivity {
         return IS_ONLINE;
     }
 
-    private void setOnlineOfflineVisibility(boolean isOnline){
+    private void setOnlineOfflineVisibility(boolean isOnline) {
         int onlineVisibility = isOnline ? View.VISIBLE : View.INVISIBLE;
         int offlineVisibility = isOnline ? View.INVISIBLE : View.VISIBLE;
         onlineStatusView.setVisibility(offlineVisibility);
@@ -200,11 +191,8 @@ public class UserInfectionActivity extends AppCompatActivity {
         clickAction(infectionStatusButton, infectionStatusView, buttonTextID,
                 messageID, colorID);
         user.modifyUserInfectionStatus(userName, infected,
-                value -> infectionUploadView.setText(updateUploadStatusTextView(value)));
-    }
-
-    private String updateUploadStatusTextView(String value) {
-        return String.format("%s at %s", value, Calendar.getInstance().getTime());
+                value -> infectionUploadView.setText(String.format("%s at %s", value,
+                        Calendar.getInstance().getTime())));
     }
 
     private void displayAuthFailedToast() {
@@ -228,6 +216,15 @@ public class UserInfectionActivity extends AppCompatActivity {
     }
 
     private void clickAction(Button button, TextView textView, int buttonText, int textViewText, int buttonColor) {
+        button.setText(buttonText);
+        textView.setTextColor(getResources().getColorStateList(buttonColor));
+        textView.setText(textViewText);
+    }
+
+    private void setView(Button button, TextView textView, boolean infected) {
+        int buttonText = infected ? R.string.i_am_cured : R.string.i_am_infected;
+        int textViewText = infected ? R.string.your_user_status_is_set_to_infected : R.string.your_user_status_is_set_to_not_infected;
+        int buttonColor = infected ? R.color.colorRedInfected : R.color.colorGreenCured;
         button.setText(buttonText);
         textView.setTextColor(getResources().getColorStateList(buttonColor));
         textView.setText(textViewText);

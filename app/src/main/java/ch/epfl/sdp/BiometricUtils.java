@@ -5,23 +5,21 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
 import androidx.core.app.ActivityCompat;
+
+import java.lang.reflect.Method;
+import java.util.concurrent.Executor;
+
+import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 
 public class BiometricUtils {
 
-    /*
-     * Condition I: Check if the android version in device is greater than
-     * Marshmallow, since fingerprint authentication is only supported
-     * from Android 6.0.
-     * Note: If your project's minSdkversion is 23 or higher,
-     * then you won't need to perform this check.
-     *
-     * */
-    private static boolean isSdkVersionSupported() {
-        return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
-    }
+
 
     /*
      * Condition II: Check if the if the device has authentication capabilities
@@ -45,6 +43,18 @@ public class BiometricUtils {
                         "any biometric credentials with their account.");
         }
         return false;
+    }
+
+    /*
+     * Condition I: Check if the android version in device is greater than
+     * Marshmallow, since fingerprint authentication is only supported
+     * from Android 6.0.
+     * Note: If your project's minSdkversion is 23 or higher,
+     * then you won't need to perform this check.
+     *
+     * */
+    private static boolean isSdkVersionSupported() {
+        return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
     }
 
     /*

@@ -1,29 +1,6 @@
 package ch.epfl.sdp;
 
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import androidx.test.espresso.Espresso;
 import androidx.test.espresso.matcher.ViewMatchers;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.rule.ActivityTestRule;
-
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.hasFocus;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.not;
-
-import android.app.Activity;
-
-import androidx.test.InstrumentationRegistry;
-import androidx.test.espresso.Espresso;
 import androidx.test.rule.ActivityTestRule;
 
 import com.azimolabs.conditionwatcher.ConditionWatcher;
@@ -36,7 +13,13 @@ import org.junit.Test;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.hasFocus;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.not;
 
 
 //@RunWith(AndroidJUnit4.class)
@@ -47,20 +30,13 @@ public class TabActivityTest {
     public final ActivityTestRule<TabActivity> mActivityRule =
             new ActivityTestRule<>(TabActivity.class);
 
-    @Test @Ignore
-    public void testMapFragment() throws Exception{
+    @Test
+    @Ignore
+    public void testMapFragment() throws Exception {
 
         class LoadingDialogInstruction extends Instruction {
 
             private Boolean loaded = false;
-
-            class bidule implements MapView.OnDidFinishLoadingMapListener {
-
-                @Override
-                public void onDidFinishLoadingMap() {
-                    loaded = true;
-                }
-            }
 
             @Override
             public String getDescription() {
@@ -73,16 +49,24 @@ public class TabActivityTest {
                 // Injecting the Instrumentation instance is required
                 // for your test to run with AndroidJUnitRunner.
 
-                    //System.out.println("dldldldl");
-                    MapFragment fragment = (MapFragment) mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.mapView);
-                    if(fragment != null){
-                        //System.out.println("Run you");
+                //System.out.println("dldldldl");
+                MapFragment fragment = (MapFragment) mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.mapView);
+                if (fragment != null) {
+                    //System.out.println("Run you");
 
-                        fragment.OnDidFinishLoadingMapListener(new bidule());
-                    }
-                    return loaded;
+                    fragment.OnDidFinishLoadingMapListener(new bidule());
+                }
+                return loaded;
 
 
+            }
+
+            class bidule implements MapView.OnDidFinishLoadingMapListener {
+
+                @Override
+                public void onDidFinishLoadingMap() {
+                    loaded = true;
+                }
             }
         }
 

@@ -45,6 +45,7 @@ public class UserInfectionTest {
 
     @Test
     public void changeViewContentWhenClick() {
+        clickWaitAndCheckTexts(R.id.infectionStatusButton, R.id.infectionStatusView, "I am infected", "Your user status is set to not infected.", 5000);
         // click for the first time changes view from default to infected status
         waitingForTravis(5000);
         clickWaitAndCheckTexts(R.id.infectionStatusButton, R.id.infectionStatusView, "I am cured", "Your user status is set to infected.", 5000);

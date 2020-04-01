@@ -54,6 +54,7 @@
         android:id="@+id/profileImage"
         android:layout_width="109dp"
         android:layout_height="87dp"
+        android:contentDescription="TODO"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

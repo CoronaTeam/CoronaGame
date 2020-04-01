@@ -98,15 +98,12 @@ public class AccountGetting extends AppCompatActivity {
     public void signOut(View v) {
         if (accountInUse.isGoogle()) {
             mGoogleSignInClient.signOut()
-                    .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            Toast.makeText(AccountGetting.this, "Signed out successfully!", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(AccountGetting.this, Authentication.class);// New activity
+                    .addOnCompleteListener(this, task -> {
+                        Toast.makeText(AccountGetting.this, "Signed out successfully!", Toast.LENGTH_LONG).show();
+                        Intent intent = new Intent(AccountGetting.this, Authentication.class);// New activity
 //                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); //clears this activity's stack
-                            startActivity(intent);
-                            finish();
-                        }
+                        startActivity(intent);
+                        finish();
                     });
         } else {
             //no need to sign out from google, just go to the other activity

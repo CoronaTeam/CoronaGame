@@ -7,8 +7,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.jetbrains.annotations.NotNull;
-
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
 

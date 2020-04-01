@@ -20,7 +20,7 @@ import static org.junit.Assert.assertSame;
 import static ch.epfl.sdp.TestTools.*;
 public class AccountGettingTest {
     @Rule
-    public final ActivityTestRule<AccountGetting> activityRule = new ActivityTestRule<AccountGetting>(AccountGetting.class);
+    public final ActivityTestRule<AccountGetting> activityRule = new ActivityTestRule<>(AccountGetting.class);
     @Before
     public void setUp() throws Exception{
         initSafeTest(activityRule,true);

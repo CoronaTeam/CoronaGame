@@ -45,7 +45,7 @@ public class GridFirestoreInteractor {
     }
 
     public void read(Location location, long time, QueryHandler handler) {
-        db.collection("LiveGrid/" + getGridId(location) + "/" + String.valueOf(time))
+        db.collection("LiveGrid/" + getGridId(location) + "/" + time)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

@@ -1,16 +1,11 @@
 package ch.epfl.sdp;
 
-import android.widget.TextView;
-
 import androidx.test.rule.ActivityTestRule;
 
-import com.azimolabs.conditionwatcher.ConditionWatcher;
-import com.azimolabs.conditionwatcher.Instruction;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.mapbox.mapboxsdk.maps.MapView;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;

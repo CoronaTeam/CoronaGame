@@ -41,12 +41,17 @@
     <string name="sign_in">SignIn</string>
     <string name="launch_tabs">Launch tabs</string>
     <string name="my_past_positions">My past positions</string>
-    <string name="waiting_for_gps">Waiting for GPS...</string>
+    <string name="waiting_for_gps">Waiting for GPS…</string>
     <string name="longitude">Longitude</string>
     <string name="latitude">Latitude</string>
     <string name="past_positions">Past positions</string>
-    <string name="three_dots">...</string>
+    <string name="three_dots">…</string>
     <string name="query_ok">QUERY OK</string>
     <string name="connection_error">CONNECTION ERROR</string>
-    <string name="loading_with_dots">Loading...</string>
+    <string name="loading_with_dots">Loading…</string>
+    <string name="exchange_succeded">EXCHANGE Succeeded</string>
+    <string name="exchange_failed">EXCHANGE Failed</string>
+    <string name="uploading_with_dots">Uploading...</string>
+    <string name="sync_ok">SYNC OK</string>
+    <string name="sync_error">SYNC ERROR!</string>
 </resources>

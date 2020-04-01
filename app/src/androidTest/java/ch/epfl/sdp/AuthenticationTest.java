@@ -1,14 +1,12 @@
 package ch.epfl.sdp;
 
 import androidx.test.espresso.intent.Intents;
-import androidx.test.espresso.intent.rule.IntentsTestRule;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.uiautomator.UiDevice;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -26,7 +24,7 @@ import static ch.epfl.sdp.TestTools.sleep;
 
 public class AuthenticationTest {
     @Rule
-    public final ActivityTestRule<Authentication> activityRule = new ActivityTestRule<Authentication>(Authentication.class);
+    public final ActivityTestRule<Authentication> activityRule = new ActivityTestRule<>(Authentication.class);
     @Before
     public void setUp() throws Exception{
         initSafeTest(activityRule,true);

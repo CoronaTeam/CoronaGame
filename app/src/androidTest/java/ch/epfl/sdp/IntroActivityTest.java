@@ -20,7 +20,7 @@ import static ch.epfl.sdp.TestTools.initSafeTest;
 @RunWith(AndroidJUnit4.class)
 public class IntroActivityTest {
     @Rule
-    public final ActivityTestRule<IntroActivity> activityRule = new ActivityTestRule<IntroActivity>(IntroActivity.class);
+    public final ActivityTestRule<IntroActivity> activityRule = new ActivityTestRule<>(IntroActivity.class);
     @Before
     public void setUp() throws Exception{
         initSafeTest(activityRule,true);

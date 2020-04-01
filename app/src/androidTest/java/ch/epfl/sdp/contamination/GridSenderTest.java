@@ -108,7 +108,7 @@ public class GridSenderTest {
     }
 
     private void setSuccessfulSender() {
-        ((DataExchangeActivity.ConcreteDataSender) mActivityRule.getActivity().getSender()).setInteractor(new MockGridInteractor() {
+        ((ConcreteDataSender) mActivityRule.getActivity().getSender()).setInteractor(new MockGridInteractor() {
             @Override
             public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
                 success.onSuccess(null);
@@ -129,7 +129,7 @@ public class GridSenderTest {
     }
 
     private void setFailingSender() {
-        ((DataExchangeActivity.ConcreteDataSender) mActivityRule.getActivity().getSender()).setInteractor(new MockGridInteractor() {
+        ((ConcreteDataSender) mActivityRule.getActivity().getSender()).setInteractor(new MockGridInteractor() {
             @Override
             public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
                 failure.onFailure(null);
@@ -151,7 +151,7 @@ public class GridSenderTest {
 
     @Test
     public void dataReceiverFindsContacts() {
-        ((DataExchangeActivity.ConcreteDataReceiver) mActivityRule.getActivity().getReceiver()).setInteractor(new MockGridInteractor() {
+        ((ConcreteDataReceiver) mActivityRule.getActivity().getReceiver()).setInteractor(new MockGridInteractor() {
             @Override
             public void read(Location location, long time, QueryHandler handler) {
                 handler.onSuccess(querySnapshot);
@@ -171,7 +171,7 @@ public class GridSenderTest {
     }
 
     private void setFakeReceiver(Location testLocation) {
-        ((DataExchangeActivity.ConcreteDataReceiver) mActivityRule.getActivity().getReceiver()).setInteractor(new MockGridInteractor() {
+        ((ConcreteDataReceiver) mActivityRule.getActivity().getReceiver()).setInteractor(new MockGridInteractor() {
 
             @Override
             public void getTimes(Location location, QueryHandler handler) {

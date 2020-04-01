@@ -13,23 +13,20 @@ public class Layman implements Carrier {
     // TODO: Properly set the uniqueID (!!)
     private String uniqueID;
 
-    // TODO: Add another field to distinguish among Carrier (also modify equalsTo and hashCode!!)
+    // TODO: Properly set uniqueID (also modify equalsTo and hashCode!!)
     public Layman(InfectionStatus initialStatus) {
-        myStatus = initialStatus;
-        if (initialStatus == InfectionStatus.INFECTED) {
-            infectedWithProbability = 1;
-        } else {
-            infectedWithProbability = 0;
-        }
-
-        uniqueID = "__NOT_UNIQUE_NOW";
+        this(initialStatus, initialStatus == InfectionStatus.INFECTED ? 1 : 0);
     }
 
-    public Layman(InfectionStatus infectionStatus, float infectedWithProbability) {
-        this.myStatus = infectionStatus;
+    public Layman(InfectionStatus initialStatus, float infectedWithProbability) {
+        this(initialStatus, infectedWithProbability, "__NOT_UNIQUE_NOW");
+    }
+
+    public Layman(InfectionStatus initialStatus, float infectedWithProbability, String uniqueID) {
+        this.myStatus = initialStatus;
         this.infectedWithProbability = infectedWithProbability;
 
-        uniqueID = "__NOT_UNIQUE_NOW";
+        this.uniqueID = uniqueID;
     }
 
     @Override

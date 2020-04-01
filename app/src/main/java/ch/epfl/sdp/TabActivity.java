@@ -59,13 +59,14 @@ public class TabActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tab);
 
-        ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
+        SwipeViewPager viewPager = findViewById(R.id.pager);
         TabPagerAdapter tabPagerAdapter = new TabPagerAdapter(
                 getSupportFragmentManager(),
                 FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         viewPager.setAdapter(tabPagerAdapter);
-        TabLayout tabs = (TabLayout) findViewById(R.id.tabs);
+        TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
+        viewPager.setSwipeEnabled(false); // disable swipe behaviour
     }
 
 }

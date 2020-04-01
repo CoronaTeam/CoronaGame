@@ -14,10 +14,9 @@ import androidx.core.content.ContextCompat;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.Calendar;
 import java.util.concurrent.Executor;
+
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
 
@@ -49,9 +48,6 @@ public class UserInfectionActivity extends AppCompatActivity {
         userNameView = findViewById(R.id.userName);
 
         checkOnline();
-
-        refreshButton.setOnClickListener(v -> checkOnline());
-
         getLoggedInUser();
 
         userNameView.setText(userName);
@@ -66,17 +62,10 @@ public class UserInfectionActivity extends AppCompatActivity {
             if (intent.hasExtra("wrapper")) {
                 this.biometricPrompt = (BiometricPromptWrapper) intent.getSerializableExtra("wrapper");
             } else {
-                this.biometricPrompt = biometricPromptBuilder(this.executor);;
+                this.biometricPrompt = biometricPromptBuilder(this.executor);
+                ;
             }
             this.promptInfo = promptInfoBuilder();
-        }
-    }
-
-    public void onClick(View view) {
-        if (BiometricUtils.canAuthenticate(this)) {
-            biometricPrompt.authenticate(promptInfo);
-        } else {
-            executeHealthStatusChange();
         }
     }
 
@@ -87,7 +76,21 @@ public class UserInfectionActivity extends AppCompatActivity {
         Button infectionButton = findViewById(R.id.infectionStatusButton);
         outState.putCharSequence("INFECTION_STATUS_TEXT", infectionText.getText());
         outState.putCharSequence("INFECTION_STATUS_BUTTON", infectionButton.getText());
-        infectionStatusButton.setOnClickListener(v -> statusButtonAction((Button)v));
+        infectionStatusButton.setOnClickListener(v -> statusButtonAction((Button) v));
+    }
+
+    public void onClickChangeStatus(View view) {
+        if (checkOnline()) {
+            if (BiometricUtils.canAuthenticate(this)) {
+                biometricPrompt.authenticate(promptInfo);
+            } else {
+                executeHealthStatusChange();
+            }
+        }
+    }
+
+    public void onClickRefresh(View view) {
+        checkOnline();
     }
 
     private void setView(Button button, TextView textView, boolean infected) {
@@ -99,7 +102,7 @@ public class UserInfectionActivity extends AppCompatActivity {
         textView.setText(textViewText);
     }
 
-    private void checkOnline() {
+    private boolean checkOnline() {
         onlineStatusView = findViewById(R.id.onlineStatusView);
         refreshButton = findViewById(R.id.refreshButton);
         checkNetworkStatus(this);
@@ -110,6 +113,7 @@ public class UserInfectionActivity extends AppCompatActivity {
             infectionStatusView.setVisibility(View.INVISIBLE);
             infectionUploadView.setVisibility(View.INVISIBLE);
             userNameView.setVisibility(View.INVISIBLE);
+            return false;
         } else {
             onlineStatusView.setVisibility(View.INVISIBLE);
             refreshButton.setVisibility(View.INVISIBLE);
@@ -117,6 +121,7 @@ public class UserInfectionActivity extends AppCompatActivity {
             infectionStatusView.setVisibility(View.VISIBLE);
             infectionUploadView.setVisibility(View.VISIBLE);
             userNameView.setVisibility(View.VISIBLE);
+            return true;
         }
     }
 
@@ -195,24 +200,24 @@ public class UserInfectionActivity extends AppCompatActivity {
     }
 
     private void setInfectionColorAndMessage(int buttonTextID, int messageID, int colorID,
-                                             boolean infected){
+                                             boolean infected) {
         clickAction(infectionStatusButton, infectionStatusView, buttonTextID,
                 messageID, colorID);
         user.modifyUserInfectionStatus(userName, infected,
                 value -> infectionUploadView.setText(updateUploadStatusTextView(value)));
     }
 
-    private String updateUploadStatusTextView(String value){
+    private String updateUploadStatusTextView(String value) {
         return String.format("%s at %s", value, Calendar.getInstance().getTime());
     }
 
-    private void displayAuthFailedToast(){
+    private void displayAuthFailedToast() {
         Toast.makeText(getApplicationContext(), "Authentication failed",
                 Toast.LENGTH_SHORT)
                 .show();
     }
 
-    private void displayNegativeButtonToast(int errorCode){
+    private void displayNegativeButtonToast(int errorCode) {
         if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
             Toast.makeText(getApplicationContext(),
                     "Come back when sure about your health status!", Toast.LENGTH_LONG)
@@ -220,7 +225,7 @@ public class UserInfectionActivity extends AppCompatActivity {
         }
     }
 
-    private void executeAndDisplayAuthSuccessToast(){
+    private void executeAndDisplayAuthSuccessToast() {
         Toast.makeText(getApplicationContext(),
                 "Authentication succeeded!", Toast.LENGTH_SHORT).show();
         executeHealthStatusChange();

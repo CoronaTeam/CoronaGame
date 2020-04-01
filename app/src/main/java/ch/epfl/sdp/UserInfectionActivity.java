@@ -106,23 +106,19 @@ public class UserInfectionActivity extends AppCompatActivity {
         onlineStatusView = findViewById(R.id.onlineStatusView);
         refreshButton = findViewById(R.id.refreshButton);
         checkNetworkStatus(this);
-        if (!IS_ONLINE) {
-            onlineStatusView.setVisibility(View.VISIBLE);
-            refreshButton.setVisibility(View.VISIBLE);
-            infectionStatusButton.setVisibility(View.INVISIBLE);
-            infectionStatusView.setVisibility(View.INVISIBLE);
-            infectionUploadView.setVisibility(View.INVISIBLE);
-            userNameView.setVisibility(View.INVISIBLE);
-            return false;
-        } else {
-            onlineStatusView.setVisibility(View.INVISIBLE);
-            refreshButton.setVisibility(View.INVISIBLE);
-            infectionStatusButton.setVisibility(View.VISIBLE);
-            infectionStatusView.setVisibility(View.VISIBLE);
-            infectionUploadView.setVisibility(View.VISIBLE);
-            userNameView.setVisibility(View.VISIBLE);
-            return true;
-        }
+        setOnlineOfflineVisibility(IS_ONLINE);
+        return IS_ONLINE;
+    }
+
+    private void setOnlineOfflineVisibility(boolean isOnline){
+        int onlineVisibility = isOnline ? View.VISIBLE : View.INVISIBLE;
+        int offlineVisibility = isOnline ? View.INVISIBLE : View.VISIBLE;
+        onlineStatusView.setVisibility(offlineVisibility);
+        refreshButton.setVisibility(offlineVisibility);
+        infectionStatusButton.setVisibility(onlineVisibility);
+        infectionStatusView.setVisibility(onlineVisibility);
+        infectionUploadView.setVisibility(onlineVisibility);
+        userNameView.setVisibility(onlineVisibility);
     }
 
     private void getLoggedInUser() {

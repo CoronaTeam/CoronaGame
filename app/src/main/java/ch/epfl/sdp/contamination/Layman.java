@@ -5,7 +5,7 @@ import androidx.annotation.Nullable;
 
 import java.util.Objects;
 
-public class Layman implements Carrier {
+public class Layman implements Carrier{
 
     private InfectionStatus myStatus;
     private float infectedWithProbability;

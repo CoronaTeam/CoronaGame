@@ -29,7 +29,6 @@ public interface DataReceiver {
 
     /**
      *
-     * @param date
      * @return : location of the user using the app, at a given time
      */
     void getMyLastLocation(Account account, Callback<Location> callback);

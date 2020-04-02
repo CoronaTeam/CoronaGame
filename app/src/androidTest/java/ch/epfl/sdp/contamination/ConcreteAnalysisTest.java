@@ -34,6 +34,8 @@ import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 
 public class ConcreteAnalysisTest {
 
@@ -224,5 +226,12 @@ public class ConcreteAnalysisTest {
         GeoPoint a = new GeoPoint(12,13.24);
         GeoPoint b = new GeoPoint(12,13.24);
         assertThat(a.equals(b), equalTo(true));
+    }
+    @Test
+    public void getCarrierReturnsACopyOfTheCarrier(){
+        Carrier me = new Layman(HEALTHY);
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver);
+        assertNotNull(analyst.getCarrier());
+        assertNotSame(me,analyst.getCarrier());
     }
 }

@@ -166,8 +166,11 @@ public class MapFragment extends Fragment implements LocationListener {
                 System.out.println(qs);
 
                 try {
-                    pm.setLatLng(new LatLng(((GeoPoint)(qs.get("geoPoint"))).getLatitude(),
-                            ((GeoPoint)(qs.get("geoPoint"))).getLongitude()));
+                    LatLng otherUserPos = new LatLng(((GeoPoint)(qs.get("geoPoint"))).getLatitude(),
+                            ((GeoPoint)(qs.get("geoPoint"))).getLongitude());
+                    if(!otherUserPos.equals(prevLocation)){
+                        pm.setLatLng(otherUserPos); // add point only if that's not the user
+                    }
                 } catch (NullPointerException ignored) { }
 
             }
@@ -182,13 +185,19 @@ public class MapFragment extends Fragment implements LocationListener {
         while (qsIterator.hasNext()){
             QueryDocumentSnapshot qs = qsIterator.next();
             try {
-                Circle pm = positionMarkerManager.create(new CircleOptions()
-                        .withLatLng(new LatLng(
-                                ((GeoPoint)(qs.get("geoPoint"))).getLatitude(),
-                                ((GeoPoint)(qs.get("geoPoint"))).getLongitude()))
-                        .withCircleColor("#ff6219")
-                );
-                otherUsersPositionMarkers.add(pm);
+                LatLng otherUserPos = new LatLng(((GeoPoint)(qs.get("geoPoint"))).getLatitude(),
+                        ((GeoPoint)(qs.get("geoPoint"))).getLongitude());
+                if(!otherUserPos.equals(prevLocation)){
+                    Circle pm = positionMarkerManager.create(new CircleOptions()
+                            .withLatLng(new LatLng(
+                                    ((GeoPoint)(qs.get("geoPoint"))).getLatitude(),
+                                    ((GeoPoint)(qs.get("geoPoint"))).getLongitude()))
+                            .withCircleColor("#ff6219")
+                    );
+                    otherUsersPositionMarkers.add(pm);
+                }
+
+
             } catch (NullPointerException ignored) { }
 
         }

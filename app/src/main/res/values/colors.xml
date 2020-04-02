@@ -1,8 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
-    <color name="colorRedInfected">#A9F44336</color>
+
     <color name="colorGreenCured">#2eb82e</color>
+
+    <color name="colorPrimary">#6200EE</color>
+
+    <color name="colorPrimaryDark">#3700B3</color>
+
+    <color name="colorRedInfected">#A9F44336</color>
 </resources>

@@ -14,11 +14,11 @@ import ch.epfl.sdp.QueryHandler;
 public class GridFirestoreInteractor {
 
     // MODEL: Round the location to the 5th decimal digit
-    static final int COORDINATE_PRECISION = 100000;
+    public static final int COORDINATE_PRECISION = 100000;
 
     private FirestoreWrapper db;
 
-    GridFirestoreInteractor(FirestoreWrapper wrapper) {
+    public GridFirestoreInteractor(FirestoreWrapper wrapper) {
         this.db = wrapper;
     }
 

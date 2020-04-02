@@ -15,6 +15,9 @@ import com.google.firebase.firestore.SetOptions;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class is there for testing purposes
+ */
 public class User implements Account {
     private static final String TAG = "User class";
     public static String DEFAULT_DISPLAY_NAME = "MyDisplayName";

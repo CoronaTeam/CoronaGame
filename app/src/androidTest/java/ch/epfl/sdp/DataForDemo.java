@@ -14,6 +14,7 @@ import ch.epfl.sdp.contamination.DataSender;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.contamination.Layman;
 
+import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.contamination.GridFirestoreInteractor.COORDINATE_PRECISION;
 
 /*
@@ -96,13 +97,5 @@ public class DataForDemo {
         dataSender.registerLocation(healthyCarrier3,location5,rightNow);
 
 
-    }
-
-    private static Location newLoc(double lati,double longi){
-        Location res =  new Location("provider");
-        res.reset();
-        res.setLatitude(lati);
-        res.setLongitude(longi);
-        return res;
     }
 }

@@ -5,11 +5,8 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
 import java.util.HashMap;
@@ -138,20 +135,20 @@ public class User implements Account {
         this.infected = infected;
     }
 
-    public boolean retrieveUserInfectionStatus(CallbackBoolean callbackBoolean) {
-        String path = "Users/"+displayName+"/Infected";
+    public boolean retrieveUserInfectionStatus(Callback<Boolean> callbackBoolean) {
+        String path = "Users/" + displayName + "/Infected";
         db.collection("Users").document(displayName).get().addOnSuccessListener(documentSnapshot ->
         {
             Log.d(TAG, "Infected status successfully loaded.");
             Object infected = documentSnapshot.get("Infected");
-            if (infected == null){
+            if (infected == null) {
                 callbackBoolean.onCallback(false);
-            }else{
+            } else {
                 callbackBoolean.onCallback((boolean) infected);
             }
         })
                 .addOnFailureListener(e ->
-                    Log.w(TAG, "Error retrieving infection status from Firestore.", e));
+                        Log.w(TAG, "Error retrieving infection status from Firestore.", e));
         return infected;
     }
 

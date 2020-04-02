@@ -207,7 +207,7 @@ public class GridSenderTest {
 
         Callback<Map<? extends Carrier, Integer>> callback = value -> {
             assertThat(value.size(), is(2));
-            assertThat(value.keySet().contains(new Layman(Carrier.InfectionStatus.IMMUNE, 0f)), is(true));
+            assertThat(value.containsKey(new Layman(Carrier.InfectionStatus.IMMUNE, 0f)), is(true));
             assertThat(value.containsKey(new Layman(Carrier.InfectionStatus.UNKNOWN)), is(false));
             assertThat(value.get(new Layman(Carrier.InfectionStatus.UNKNOWN, 0.75f)), is(1));
         };

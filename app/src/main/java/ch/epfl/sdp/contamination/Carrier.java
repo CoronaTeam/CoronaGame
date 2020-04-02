@@ -16,7 +16,7 @@ public interface Carrier {
         INFECTED,
         IMMUNE,
         UNKNOWN
-    };
+    }
 
     /**
      * Returns a unique identifier of the carrier:

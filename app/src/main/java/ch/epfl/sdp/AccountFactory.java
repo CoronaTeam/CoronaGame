@@ -6,8 +6,6 @@ import android.app.Activity;
 import android.net.Uri;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.games.Games;
-import com.google.android.gms.games.PlayersClient;
 
 public class AccountFactory implements Account {
     private GoogleSignInAccount googleSignInAccount = null;

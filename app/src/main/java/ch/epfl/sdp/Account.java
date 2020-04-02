@@ -6,12 +6,12 @@ import android.net.Uri;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 public interface Account {
-    public String getDisplayName();
-    public String getFamilyName();
-    public String getEmail();
-    public Uri getPhotoUrl();
-    public Boolean isGoogle();
-    public String getPlayerId(Activity activity);
-    public GoogleSignInAccount getAccount();
-    public String getId();
+    String getDisplayName();
+    String getFamilyName();
+    String getEmail();
+    Uri getPhotoUrl();
+    Boolean isGoogle();
+    String getPlayerId(Activity activity);
+    GoogleSignInAccount getAccount();
+    String getId();
 }

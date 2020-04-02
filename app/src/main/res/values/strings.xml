@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <resources>
-    <string name="Can_t_Download_Offline">Can\'t download while offline</string>
-    <string name="Can_t_Upload_Offline">Can\'t upload while offline</string>
-
     <string name="app_id">807375232223</string>
     <string name="app_name">CoronaGame</string>
+
+    <string name="can_t_Download_Offline">Can\'t download while offline</string>
+    <string name="can_t_Upload_Offline">Can\'t upload while offline</string>
 
     <string name="connection_error">CONNECTION ERROR</string>
 
@@ -28,11 +28,11 @@
 
     <string name="launch_firebase">Launch Firebase</string>
     <string name="launch_gps">Launch GPS</string>
-    <string name="launch_history">LAUNCH HISTORY</string>
-    <string name="launch_introactivity">Launch IntroActivity</string>
-    <string name="launch_signIn">LAUNCH SIGN IN</string>
-    <string name="launch_tabs">Launch tabs</string>
-    <string name="launch_user_infection">Launch user infection</string>
+    <string name="launch_history">Launch History</string>
+    <string name="launch_intro">Launch Intro</string>
+    <string name="launch_signin">Launch SignIn</string>
+    <string name="launch_tabs">Launch Tabs</string>
+    <string name="launch_user_infection">Launch User Infection</string>
 
     <string name="loading_with_dots">Loading…</string>
 

@@ -46,7 +46,7 @@ public class FirebaseActivity extends AppCompatActivity {
         user.put("Age", 24);
         user.put("Infected", false);
         databaseOperation(R.id.FirebaseUploadConfirmation, R.string.uploading,
-                R.string.Can_t_Upload_Offline, e -> fs.writeDocument("Players", user,
+                R.string.can_t_Upload_Offline, e -> fs.writeDocument("Players", user,
                         e::setText));
     }
 
@@ -56,20 +56,20 @@ public class FirebaseActivity extends AppCompatActivity {
         user.put("Age", 42);
         user.put("Infected", true);
         databaseOperation(R.id.FirebaseUploadConfirmation, R.string.uploading,
-                R.string.Can_t_Upload_Offline, e -> fs.writeDocumentWithID("Players",
+                R.string.can_t_Upload_Offline, e -> fs.writeDocumentWithID("Players",
                         String.valueOf(new Random().nextInt()), user,
                         e::setText));
     }
 
     public void readData2(View view) {
         databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
-                R.string.Can_t_Download_Offline, e -> fs.readDocumentWithID("Tests/FirebaseActivity/Download", "DownloadTest",
+                R.string.can_t_Download_Offline, e -> fs.readDocumentWithID("Tests/FirebaseActivity/Download", "DownloadTest",
                         e::setText));
     }
 
     public void readData1(View view){
         databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
-                R.string.Can_t_Download_Offline, e -> fs.readDocument("Tests/FirebaseActivity/Download",
+                R.string.can_t_Download_Offline, e -> fs.readDocument("Tests/FirebaseActivity/Download",
                         e::setText));
     }
 

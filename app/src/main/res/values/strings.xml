@@ -14,6 +14,8 @@
 
     <string name="downloading">Downloading …</string>
 
+    <string name="enter_passphrase">Enter passphrase</string>
+
     <string name="exchange_failed">EXCHANGE Failed</string>
     <string name="exchange_succeded">EXCHANGE Succeeded</string>
 
@@ -76,8 +78,6 @@
     <string name="waiting_for_gps">Waiting for GPS…</string>
 
     <string name="you_cannot_update_your_status_you_are_offline">Can\'t upload when offline. Come back later!</string>
-    <string name="refresh">refresh</string>
-    <string name="enter_passphrase">Enter passphrase</string>
 
     <string name="your_user_status_is_set_to_infected">Your user status is set to infected.</string>
     <string name="your_user_status_is_set_to_not_infected">Your user status is set to not infected.</string>

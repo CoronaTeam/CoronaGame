@@ -25,10 +25,10 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".AccountGetting"
-            android:parentActivityName=".MainActivity">
+        <activity android:name=".AccountGetting">
         </activity>
-        <activity android:name=".Authentication" >
+        <activity android:name=".Authentication"
+            android:parentActivityName=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.AUTH" />
 
@@ -76,7 +76,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".TabActivity">
+        <activity android:name=".TabActivity"
+            android:parentActivityName=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.DEFAULT" />
             </intent-filter>

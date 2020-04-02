@@ -16,7 +16,7 @@ public interface Carrier {
         INFECTED,
         IMMUNE,
         UNKNOWN
-    };
+    }
 
     /**
      * Returns the stage of the infection

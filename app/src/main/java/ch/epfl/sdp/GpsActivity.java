@@ -87,14 +87,12 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
     }
 
     private void registerNewLocation(Location newLocation) {
-        uploadStatus.setText("Uploading...");
+        uploadStatus.setText(R.string.uploading_with_dots);
         Map<String, PositionRecord> element = new HashMap();
-        element.put("Position", new PositionRecord(Timestamp.now(), new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude())));
-        db.write(element, o -> {
-            uploadStatus.setText("SYNC OK");
-        }, e -> {
-            uploadStatus.setText("SYNC ERROR!");
-        });
+        element.put("Position", new PositionRecord(Timestamp.now(),
+                new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude())));
+        db.write(element, o -> uploadStatus.setText(R.string.sync_ok), e ->
+                uploadStatus.setText(R.string.sync_error));
     }
 
     @Override

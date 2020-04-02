@@ -92,25 +92,18 @@ public class MapFragment extends Fragment implements LocationListener {
 
         mapView = view.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(@NonNull MapboxMap mapboxMap) {
-                map = mapboxMap;
+        mapView.getMapAsync(mapboxMap -> {
+            map = mapboxMap;
 
-                mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-                        positionMarkerManager = new CircleManager(mapView, map, style);
+            mapboxMap.setStyle(Style.MAPBOX_STREETS, style -> {
+                positionMarkerManager = new CircleManager(mapView, map, style);
 
-                        userLocation = positionMarkerManager.create(new CircleOptions()
-                                .withLatLng(prevLocation));
+                userLocation = positionMarkerManager.create(new CircleOptions()
+                        .withLatLng(prevLocation));
 
-                        updateMarkerPosition(prevLocation);
-                        initFireBaseQueryHandler();
-                    }
-
-                });
-            }
+                updateMarkerPosition(prevLocation);
+                initFireBaseQueryHandler();
+            });
         });
 
         return view;

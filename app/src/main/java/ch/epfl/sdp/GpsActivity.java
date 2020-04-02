@@ -26,6 +26,9 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+
+import ch.epfl.sdp.contamination.ConcretePositionAggregator;
+
 import static ch.epfl.sdp.LocationBroker.Provider.GPS;
 
 public class GpsActivity extends AppCompatActivity implements LocationListener {
@@ -47,6 +50,8 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
     private Account account;
 
     private FirestoreInteractor db;
+
+    private ConcretePositionAggregator aggregator;
 
     @VisibleForTesting
     void setLocationBroker(LocationBroker testBroker) {
@@ -97,6 +102,8 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         if (locationBroker.hasPermissions(GPS)) {
             registerNewLocation(location);
             displayNewLocation(location);
+            //send new position the the aggregator
+            aggregator.addPosition(location);
         } else {
             Toast.makeText(this, "Missing permission", Toast.LENGTH_LONG).show();
         }
@@ -105,12 +112,16 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
     private void goOnline() {
         locationBroker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, this);
         Toast.makeText(this, R.string.gps_status_on, Toast.LENGTH_SHORT).show();
+        //notify the aggregator that we are back online
+        aggregator.updateToOnline();
     }
 
     private void goOffline() {
         latitudeBox.setText(R.string.gps_signal_missing);
         longitudeBox.setText(R.string.gps_signal_missing);
         Toast.makeText(this, R.string.gps_status_off, Toast.LENGTH_LONG).show();
+        //notify the aggregator that we are now offline
+        aggregator.updateToOffline();
     }
 
     @Override
@@ -170,6 +181,8 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         FirestoreWrapper wrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
         db = new HistoryFirestoreInteractor(wrapper, account);
         Log.e("TEST", account.getId());
+
+//        this.aggregator = new ConcretePositionAggregator();
     }
 
     // TODO: think about using bluetooth technology to improve accuracy
@@ -186,4 +199,5 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
             goOffline();
         }
     }
+
 }

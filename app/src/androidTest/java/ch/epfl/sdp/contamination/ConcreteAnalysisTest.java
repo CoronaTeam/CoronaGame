@@ -165,9 +165,11 @@ public class ConcreteAnalysisTest {
         InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver);
         mActivityRule.getActivity().setAnalyst(analysis);
 
-        //onView(withId(R.id.my_infection_refresh)).perform(click());
+        cityReceiver.setMyCurrentLocation(buildLocation(0, 0));
 
-        //onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
+        onView(withId(R.id.my_infection_refresh)).perform(click());
+
+        onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
 
         // I'm going to a healthy location
         GeoPoint healthyLocation = new GeoPoint(12, 13);
@@ -206,7 +208,7 @@ public class ConcreteAnalysisTest {
 
         nowMillis = System.currentTimeMillis();
         for (int i = 0; i < 5; i++) {
-            city.get(badLocation).put(nowMillis+i*1000, Collections.singleton(new Layman(UNKNOWN, .9f + i)));
+            city.get(badLocation).put(nowMillis+i*1000, Collections.singleton(new Layman(UNKNOWN, .99f + i)));
         }
         Thread.sleep(5000);
 

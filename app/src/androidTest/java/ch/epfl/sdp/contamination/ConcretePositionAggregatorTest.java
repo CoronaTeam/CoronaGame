@@ -56,13 +56,7 @@ public class ConcretePositionAggregatorTest {
         assertNull(res);
     }
 
-
-    @Test
-    public void updatesTheCorrectMeanLocation(){
-        Date now = new Date(0);
-        Date now1 = new Date(PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION);
-        Date now2 = new Date(2* PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION);
-
+    private void initTestMean(Date now, Date now1, Date now2){
         Location l1 = newLoc(0,0);
         Location l2 = newLoc(10,10);
 
@@ -85,6 +79,13 @@ public class ConcretePositionAggregatorTest {
         addAndWait(b2,now2);
         addAndWait(b3,now2);
         addAndWait(l1,new Date(now2.getTime() + PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION));
+    }
+    @Test
+    public void updatesTheCorrectMeanLocation(){
+        Date now = new Date(0);
+        Date now1 = new Date(PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION);
+        Date now2 = new Date(2* PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION);
+        initTestMean(now,now1,now2);
 
         //TEST 1
         Map<Date,Location> firebaseLoc = sender.getMap();
@@ -94,16 +95,10 @@ public class ConcretePositionAggregatorTest {
         assertTrue(expandedLocEquals(firebaseLoc.get(now),res));
 
         // TEST 2
-
-
-
         Location res2 = newLoc(5.75*DataSender.EXPAND_FACTOR,4.5*DataSender.EXPAND_FACTOR);
         assertTrue(firebaseLoc.containsKey(now1));
         assertTrue(expandedLocEquals(firebaseLoc.get(now1),res2));
-
         // TEST 3
-
-
         Location res3 = newLoc(7*DataSender.EXPAND_FACTOR,4*DataSender.EXPAND_FACTOR);
         assertTrue(firebaseLoc.containsKey(now1));
         assertTrue(expandedLocEquals(firebaseLoc.get(now2),res3));

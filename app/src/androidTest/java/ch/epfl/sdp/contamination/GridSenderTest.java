@@ -270,8 +270,7 @@ public class GridSenderTest {
     }
 
     private Map<Carrier, Integer> getBackRangeData(Location somewhere, Date rangeStart, Date rangeEnd) throws Throwable {
-        AtomicBoolean done = new AtomicBoolean();
-        done.set(false);
+        AtomicBoolean done = new AtomicBoolean(false);
 
         Map<Carrier, Integer> result = new ConcurrentHashMap<>();
 

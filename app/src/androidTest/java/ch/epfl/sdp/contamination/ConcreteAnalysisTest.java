@@ -1,7 +1,6 @@
 package ch.epfl.sdp.contamination;
 
 import android.location.Location;
-import android.util.Log;
 
 import androidx.test.rule.ActivityTestRule;
 
@@ -124,24 +123,30 @@ public class ConcreteAnalysisTest {
             }
         }
 
-        @Override
-        public void getUserNearbyDuring(Location l, Date startDate, Date endDate, Callback<Map<? extends Carrier, Integer>> callback) {
-            GeoPoint location = new GeoPoint(l.getLatitude(), l.getLongitude());
+        private Map<Carrier, Integer> filterByTime(GeoPoint location, Date startDate, Date endDate) {
             Map<Carrier, Integer> res = new HashMap<>();
-            if (city.containsKey(location)) {
-                for (long k : city.get(location).keySet()) {
-                    if (startDate.getTime() <= k && k <= endDate.getTime()) {
-                        city.get(location).get(k).forEach(carrier -> {
-                            res.merge(carrier, 1, (a, b) -> a+b);
-                        });
-                    }
+            for (long k : city.get(location).keySet()) {
+                if (startDate.getTime() <= k && k <= endDate.getTime()) {
+                    city.get(location).get(k).forEach(carrier -> {
+                        res.merge(carrier, 1, (a, b) -> a+b);
+                    });
                 }
             }
 
-            Log.e("Set size:", res.size() + "");
-
-            callback.onCallback(res);
+            return res;
         }
+
+        @Override
+        public void getUserNearbyDuring(Location l, Date startDate, Date endDate, Callback<Map<? extends Carrier, Integer>> callback) {
+            GeoPoint location = new GeoPoint(l.getLatitude(), l.getLongitude());
+
+            if (city.containsKey(location)) {
+                callback.onCallback(filterByTime(location, startDate, endDate));
+            } else {
+                callback.onCallback(Collections.emptyMap());
+            }
+
+    }
 
         Location myCurrentLocation;
 
@@ -152,6 +157,13 @@ public class ConcreteAnalysisTest {
         @Override
         public void getMyLastLocation(Account account, Callback<Location> callback) {
             callback.onCallback(myCurrentLocation);
+        }
+    }
+
+    private void populateLocation(GeoPoint location, Carrier.InfectionStatus status, int rounds, float startProbability) {
+        city.put(location, new HashMap<>());
+        for (int i = 0; i < rounds; i++) {
+            city.get(location).put(System.currentTimeMillis()+1000*i, Collections.singleton(new Layman(status, startProbability + i)));
         }
     }
 

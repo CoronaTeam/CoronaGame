@@ -1,8 +1,14 @@
 package ch.epfl.sdp.contamination;
 
+import android.content.Context;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -187,13 +193,9 @@ public class DataExchangeActivity extends AppCompatActivity {
 
                 @Override
                 public void onSuccess(QuerySnapshot snapshot) {
-
                     Set<Long> validTimes = filterValidTimes(startDate.getTime(), endDate.getTime(), snapshot);
-
                     Map<Carrier, Integer> metDuringInterval = new ConcurrentHashMap<>();
-
                     AtomicInteger done = new AtomicInteger();
-
                     QueryHandler updateFromTimeSlice = new SliceQueryHandle(validTimes, metDuringInterval, done, callback);
 
                     for (long t : validTimes) {
@@ -213,7 +215,18 @@ public class DataExchangeActivity extends AppCompatActivity {
         public Location getMyLocationAtTime(Date date) {
             return null;
         }
+    }
 
+    public void onClick(View view){
+        String text = ((EditText)findViewById(R.id.textbox_passphrase)).getText().toString();
+        if (!text.equals("")){
+            GridFirestoreInteractor.SECRET_PASSPHRASE = text;
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+            findViewById(R.id.textbox_passphrase).setVisibility(View.INVISIBLE);
+            findViewById(R.id.button_confirm_pasphrase).setVisibility(View.INVISIBLE);
+            Toast.makeText(this, "Passphrase successfully set", Toast.LENGTH_LONG).show();
+        }
     }
 
 

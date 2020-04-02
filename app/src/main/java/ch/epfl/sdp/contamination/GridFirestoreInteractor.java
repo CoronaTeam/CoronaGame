@@ -15,7 +15,7 @@ public class GridFirestoreInteractor {
 
     // MODEL: Round the location to the 5th decimal digit
     static final int COORDINATE_PRECISION = 100000;
-    static final String SECRET_PASSPHRASE = "Squirrel";
+    static String SECRET_PASSPHRASE = "Squirrel";
 
     private FirestoreWrapper db;
 

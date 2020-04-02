@@ -35,7 +35,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 
 public class ConcreteAnalysisTest {
 
@@ -232,6 +232,6 @@ public class ConcreteAnalysisTest {
         Carrier me = new Layman(HEALTHY);
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver);
         assertNotNull(analyst.getCarrier());
-        assertNotSame(me,analyst.getCarrier());
+        assertSame(me,analyst.getCarrier());
     }
 }

@@ -101,7 +101,7 @@ public final class ConcretePositionAggregator extends Observable implements Posi
             Location meanLocation = getMean(targetLocations);
             Location expandedLocation = DataSender.RoundAndExpandLocation(meanLocation);
 //            System.out.println("----SENDING-----"+expandedLocation.toString() + " with date : "+lastDate.toString());
-            dataSender.registerLocation(analyst.getCurrentCarrier(),expandedLocation,lastDate);
+            dataSender.registerLocation(analyst.getCarrier(),expandedLocation,lastDate);
         }
     }
     private Location getMean(List<Location> targetLocations) {

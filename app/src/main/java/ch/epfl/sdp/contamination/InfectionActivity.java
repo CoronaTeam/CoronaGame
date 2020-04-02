@@ -23,10 +23,20 @@ public class InfectionActivity extends AppCompatActivity {
     private TextView infectionStatus;
     private ProgressBar infectionProbability;
 
-    private InfectionAnalyst analyst;
-    private DataReceiver receiver;
+    private static GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor(new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance()));
+    private static InfectionAnalyst analyst = new ConcreteAnalysis(new Layman(Carrier.InfectionStatus.HEALTHY), new ConcreteDataReceiver(gridInteractor));;
+    private static DataReceiver receiver = new ConcreteDataReceiver(gridInteractor);
 
     private long lastUpdateTime;
+
+    // TODO: The following 2 static methods must be deleted when GpsActivity is turned into a background service
+    public static DataReceiver getReceiver() {
+        return receiver;
+    }
+
+    public static InfectionAnalyst getAnalyst() {
+        return analyst;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,9 +47,11 @@ public class InfectionActivity extends AppCompatActivity {
         infectionStatus = findViewById(R.id.my_infection_status);
         infectionProbability = findViewById(R.id.my_infection_probability);
 
+        /*
         GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor(new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance()));
         analyst = new ConcreteAnalysis(new Layman(Carrier.InfectionStatus.HEALTHY), new ConcreteDataReceiver(gridInteractor));
         receiver = new ConcreteDataReceiver(gridInteractor);
+         */
 
         lastUpdateTime = System.currentTimeMillis();
     }

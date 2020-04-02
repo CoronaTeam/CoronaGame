@@ -19,7 +19,7 @@ public class GridFirestoreInteractor {
 
     private FirestoreWrapper db;
 
-    GridFirestoreInteractor(FirestoreWrapper wrapper) {
+    public GridFirestoreInteractor(FirestoreWrapper wrapper) {
         this.db = wrapper;
     }
 

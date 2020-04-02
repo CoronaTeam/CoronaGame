@@ -1,16 +1,11 @@
 package ch.epfl.sdp;
 
-import android.widget.TextView;
-
 import androidx.test.rule.ActivityTestRule;
 
-import com.azimolabs.conditionwatcher.ConditionWatcher;
-import com.azimolabs.conditionwatcher.Instruction;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.mapbox.mapboxsdk.maps.MapView;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -42,22 +37,16 @@ public class HistoryActivityTest {
 
     @Rule
     public final ActivityTestRule<HistoryActivity> mActivityRule = new ActivityTestRule<>(HistoryActivity.class);
-
-    @Mock
-    private QuerySnapshot querySnapshot;
-
-    @Mock
-    private QueryDocumentSnapshot queryDocumentSnapshot;
-
-    @Mock
-    private QuerySnapshot unreadableSnapshot;
-
-    @Mock
-    private QueryDocumentSnapshot unreadableDocumentSnapshot;
-
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
-
+    @Mock
+    private QuerySnapshot querySnapshot;
+    @Mock
+    private QueryDocumentSnapshot queryDocumentSnapshot;
+    @Mock
+    private QuerySnapshot unreadableSnapshot;
+    @Mock
+    private QueryDocumentSnapshot unreadableDocumentSnapshot;
     private HistoryFragment fragment;
 
     @Before
@@ -77,13 +66,15 @@ public class HistoryActivityTest {
         when(unreadableDocumentSnapshot.getData()).thenReturn(null);
     }
 
-    @Test @Ignore
+    @Test
+    @Ignore
     public void historyIsUpdated() {
         FirestoreInteractor successInteractor = new FirestoreInteractor() {
             @Override
             public void read(QueryHandler handler) {
                 handler.onSuccess(querySnapshot);
-    }};
+            }
+        };
 
         fragment.setFirestoreInteractor(successInteractor);
 
@@ -105,7 +96,8 @@ public class HistoryActivityTest {
                 .check(matches(withText(CoreMatchers.containsString("17"))));
     }
 
-    @Test @Ignore
+    @Test
+    @Ignore
     public void failureIsNotified() {
         FirestoreInteractor failureInteractor = new FirestoreInteractor() {
             @Override
@@ -118,7 +110,8 @@ public class HistoryActivityTest {
         onView(withId(R.id.refresh_history)).perform(click());
     }
 
-    @Test @Ignore
+    @Test
+    @Ignore
     public void unreadableContentIsPurged() {
         FirestoreInteractor unreadableInteractor = new FirestoreInteractor() {
             @Override

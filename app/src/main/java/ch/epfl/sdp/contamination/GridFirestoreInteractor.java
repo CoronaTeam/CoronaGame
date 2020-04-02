@@ -15,6 +15,7 @@ public class GridFirestoreInteractor {
 
     // MODEL: Round the location to the 5th decimal digit
     static final int COORDINATE_PRECISION = 100000;
+    static final String SECRET_PASSPHRASE = "Squirrel";
 
     private FirestoreWrapper db;
 
@@ -45,7 +46,7 @@ public class GridFirestoreInteractor {
     }
 
     public void read(Location location, long time, QueryHandler handler) {
-        db.collection("LiveGrid/" + getGridId(location) + "/" + String.valueOf(time))
+        db.collection("LiveGrid/" + getGridId(location) + "/" + computeID(String.valueOf(time)))
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -62,9 +63,14 @@ public class GridFirestoreInteractor {
         db.collection("LiveGrid/" + getGridId(location) + "/Times")
                 .document(time)
                 .set(timeMap);
-        db.collection("LiveGrid/" + getGridId(location) + "/" + time)
+        db.collection("LiveGrid/" + getGridId(location) + "/" + computeID(time))
                 .add(carrier)
                 .addOnSuccessListener(success)
                 .addOnFailureListener(failure);
     }
+
+    private String computeID(String time){
+        return Integer.toString((time+SECRET_PASSPHRASE).hashCode());
+    }
+
 }

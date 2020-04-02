@@ -43,33 +43,33 @@ public class FirebaseActivity extends AppCompatActivity {
     public void addUser1(View view) {
         Map<String, Object> user = new HashMap<>();
         user.put("Name", "Bob Bobby");
-        user.put("Age", (Object) 24);
-        user.put("Infected", (Object) false);
+        user.put("Age", 24);
+        user.put("Infected", false);
         databaseOperation(R.id.FirebaseUploadConfirmation, R.string.uploading,
-                R.string.Can_t_Upload_Offline, e -> fs.writeDocument("Players", user,
+                R.string.can_t_Upload_Offline, e -> fs.writeDocument("Players", user,
                         e::setText));
     }
 
     public void addUser2(View view){
         Map<String, Object> user = new HashMap<>();
         user.put("Name", "Aly Alice");
-        user.put("Age", (Object)  42);
-        user.put("Infected", (Object)  true);
+        user.put("Age", 42);
+        user.put("Infected", true);
         databaseOperation(R.id.FirebaseUploadConfirmation, R.string.uploading,
-                R.string.Can_t_Upload_Offline, e -> fs.writeDocumentWithID("Players",
+                R.string.can_t_Upload_Offline, e -> fs.writeDocumentWithID("Players",
                         String.valueOf(new Random().nextInt()), user,
                         e::setText));
     }
 
     public void readData2(View view) {
         databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
-                R.string.Can_t_Download_Offline, e -> fs.readDocumentWithID("Tests/FirebaseActivity/Download", "DownloadTest",
+                R.string.can_t_Download_Offline, e -> fs.readDocumentWithID("Tests/FirebaseActivity/Download", "DownloadTest",
                         e::setText));
     }
 
     public void readData1(View view){
         databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
-                R.string.Can_t_Download_Offline, e -> fs.readDocument("Tests/FirebaseActivity/Download",
+                R.string.can_t_Download_Offline, e -> fs.readDocument("Tests/FirebaseActivity/Download",
                         e::setText));
     }
 

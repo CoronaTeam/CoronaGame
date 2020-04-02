@@ -2,7 +2,6 @@ package ch.epfl.sdp;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -12,10 +11,7 @@ import org.mockito.Mock;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 /**
  * Instrumented test, which will execute on an Android device.

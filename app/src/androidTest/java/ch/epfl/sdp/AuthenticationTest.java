@@ -22,8 +22,7 @@ import static ch.epfl.sdp.TestTools.sleep;
 
 public class AuthenticationTest {
     @Rule
-    public final ActivityTestRule<Authentication> activityRule = new ActivityTestRule<Authentication>(Authentication.class);
-
+    public final ActivityTestRule<Authentication> activityRule = new ActivityTestRule<>(Authentication.class);
     @Before
     public void setUp() throws Exception {
         initSafeTest(activityRule, true);

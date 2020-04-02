@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class CurrentUsersCounter {
+public class DistributedCounter {
 
     public class Counter {
         int numShards;

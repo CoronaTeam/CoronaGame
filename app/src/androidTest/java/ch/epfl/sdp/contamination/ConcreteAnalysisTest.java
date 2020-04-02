@@ -7,6 +7,7 @@ import androidx.test.rule.ActivityTestRule;
 import com.google.firebase.firestore.GeoPoint;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -167,7 +168,7 @@ public class ConcreteAnalysisTest {
         }
     }
 
-    @Test
+    @Test @Ignore
     public void infectionProbabilityIsUpdated() throws Throwable {
 
         CityDataReceiver cityReceiver = new CityDataReceiver();

@@ -1,9 +1,6 @@
 package ch.epfl.sdp.contamination;
 
 import android.location.Location;
-import android.util.Pair;
-
-import com.google.android.gms.common.data.DataBufferObserver;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,24 +14,31 @@ import java.util.TimerTask;
  * @author lucas
  */
 public final class ConcretePositionAggregator extends Observable implements PositionAggregator {
+    private int timelapBetweenNewLocationRegistration;
     private Date lastDate ;
-    private Pair<Location,Date> newestPosition ;
+    private Location newestLocation;
+    private Date newestDate;
     private boolean isOnline;
     private DataSender dataSender;
     private InfectionAnalyst analyst;
     private Timer updatePosTimer;
     HashMap<Long, List<Location>> buffer;
-    public ConcretePositionAggregator(DataSender dataSender, InfectionAnalyst analyst){
+    public ConcretePositionAggregator(DataSender dataSender, InfectionAnalyst analyst,int maxLocationsPerAggregation){
         if(dataSender == null || analyst == null){
             throw new IllegalArgumentException("DataSender or analyst should not be null");
+        }else if(maxLocationsPerAggregation == 0){
+            throw new IllegalArgumentException("There should be more than zero locations per aggregation!");
         }
+        this.timelapBetweenNewLocationRegistration =  WINDOW_FOR_LOCATION_AGGREGATION / maxLocationsPerAggregation;
         this.buffer = new HashMap<>();
         this.dataSender = dataSender;
         this.analyst = analyst;
         this.lastDate = null;
-        this.newestPosition = null;
         this.isOnline = false;
         startTimer();
+    }
+    public ConcretePositionAggregator(DataSender dataSender, InfectionAnalyst analyst){
+       this(dataSender,analyst,PositionAggregator.MAXIMAL_NUMBER_OF_LOCATIONS_PER_AGGREGATION);
     }
 
     /**
@@ -43,8 +47,8 @@ public final class ConcretePositionAggregator extends Observable implements Posi
     private void startTimer(){
         class UpdatePosTask extends TimerTask {
             public void run() {
-                if(isOnline){
-                    registerPosition(newestPosition.first,newestPosition.second);
+                if(isOnline && newestLocation != null){
+                    registerPosition(newestLocation,newestDate);
                 }
             }
         }
@@ -52,7 +56,7 @@ public final class ConcretePositionAggregator extends Observable implements Posi
             stopTimer();
         }
         updatePosTimer = new Timer();
-        updatePosTimer.scheduleAtFixedRate(new UpdatePosTask(), 0, TIMELAP_BETWEEN_NEW_LOCATION_REGISTRATION);
+        updatePosTimer.scheduleAtFixedRate(new UpdatePosTask(), 0, timelapBetweenNewLocationRegistration);
     }
 
     private void stopTimer(){
@@ -78,7 +82,11 @@ public final class ConcretePositionAggregator extends Observable implements Posi
     }
     @Override
     public void addPosition(Location location, Date date) {
-        this.newestPosition = new Pair<>(location,date);
+        if(location==null || date == null){
+            throw new IllegalArgumentException("Location or date should not be null !");
+        }
+        this.newestLocation = location;
+        this.newestDate = date;
     }
 
     /**
@@ -92,7 +100,7 @@ public final class ConcretePositionAggregator extends Observable implements Posi
             List<Location> targetLocations = buffer.remove(lastDate.getTime()); //remove useless data. MAY BE CHANGED TO ADD A CACHE
             Location meanLocation = getMean(targetLocations);
             Location expandedLocation = DataSender.RoundAndExpandLocation(meanLocation);
-            //System.out.println("--------------------------------------------"+expandedLocation.toString() + " with date : "+lastDate.toString());
+//            System.out.println("----SENDING-----"+expandedLocation.toString() + " with date : "+lastDate.toString());
             dataSender.registerLocation(analyst.getCurrentCarrier(),expandedLocation,lastDate);
         }
     }

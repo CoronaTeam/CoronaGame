@@ -10,7 +10,7 @@ import java.util.Date;
  **/
 public interface PositionAggregator {
     int WINDOW_FOR_LOCATION_AGGREGATION = 300000; //[ms] This is the frequency with which the (mean) position will be uploaded. actual : 5min
-    int TIMELAP_BETWEEN_NEW_LOCATION_REGISTRATION = WINDOW_FOR_LOCATION_AGGREGATION / 10; // 10 locations per aggregation
+    int MAXIMAL_NUMBER_OF_LOCATIONS_PER_AGGREGATION = 10; // 100 locations per aggregation. Before release choose a big # for testing
     /**
      *
      * Adds a position to the position list. Every WINDOW_FOR_LOCATION_AGGREGATION time, it should send the mean value of the

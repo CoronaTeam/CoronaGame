@@ -15,8 +15,6 @@ import android.widget.Toast;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -33,14 +31,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.AccountGetting;
@@ -63,32 +57,29 @@ public class MapFragment extends Fragment implements LocationListener {
     public final static int LOCATION_PERMISSION_REQUEST = 20201;
     private static final int MIN_UP_INTERVAL_MILLISECS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
-    private static final int OTHER_USERS_UPDATE_INTERVAL_MILLISECS = 2500;
 
     private LocationBroker locationBroker;
 
     private LatLng prevLocation = new LatLng(0, 0);
 
     private ConcreteFirestoreInteractor db;
-    private QueryHandler fireBaseHandler;
 
     private CircleManager positionMarkerManager;
     private Circle userLocation;
-    private ArrayList<Circle> otherUsersPositionMarkers;
 
-    private Timer updateOtherPosTimer;
+    private HeatMapHandler heatMapHandler;
 
     private Account userAccount;
+    private MapFragment classPointer;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
+        classPointer = this;
         // TODO: do not execute in production code
         if (locationBroker == null) {
             locationBroker = new ConcreteLocationBroker((LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE), getActivity());
         }
-        otherUsersPositionMarkers = new ArrayList<>();
         userAccount = AccountGetting.getAccount(getActivity());
 
         FirestoreWrapper wrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
@@ -116,8 +107,8 @@ public class MapFragment extends Fragment implements LocationListener {
                         userLocation = positionMarkerManager.create(new CircleOptions()
                                 .withLatLng(prevLocation));
 
-                        updateMarkerPosition(prevLocation);
-                        initFireBaseQueryHandler();
+                        updateUserMarkerPosition(prevLocation);
+                        heatMapHandler = new HeatMapHandler(classPointer, db, positionMarkerManager);
                     }
 
                 });
@@ -131,7 +122,7 @@ public class MapFragment extends Fragment implements LocationListener {
     public void onLocationChanged(Location newLocation) {
         if (locationBroker.hasPermissions(GPS)) {
             prevLocation =  new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
-            updateMarkerPosition(prevLocation);
+            updateUserMarkerPosition(prevLocation);
             System.out.println("new location");
 
             Map<String, Object> element = new HashMap<>();
@@ -146,7 +137,7 @@ public class MapFragment extends Fragment implements LocationListener {
         }
     }
 
-    private void updateMarkerPosition(LatLng location) {
+    private void updateUserMarkerPosition(LatLng location) {
         // This method is where we update the marker position once we have new coordinates. First we
         // check if this is the first time we are executing this handler, the best way to do this is
         // check if marker is null
@@ -156,105 +147,6 @@ public class MapFragment extends Fragment implements LocationListener {
             positionMarkerManager.update(userLocation);
             map.animateCamera(CameraUpdateFactory.newLatLng(location));
         }
-    }
-
-    private void updatePositionMarkersList(Iterator<QueryDocumentSnapshot> qsIterator, @NotNull Iterator<Circle> pmIterator){
-        while (pmIterator.hasNext()){
-            if(qsIterator.hasNext()){
-                QueryDocumentSnapshot qs = qsIterator.next();
-                Circle pm = pmIterator.next();
-                System.out.println(qs);
-
-                try {
-                    LatLng otherUserPos = new LatLng(((GeoPoint)(qs.get("geoPoint"))).getLatitude(),
-                            ((GeoPoint)(qs.get("geoPoint"))).getLongitude());
-                    if(!otherUserPos.equals(prevLocation)){
-                        pm.setLatLng(otherUserPos); // add point only if that's not the user
-                    }
-                } catch (NullPointerException ignored) { }
-
-            }
-            else{ // if some points were deleted remove them from the list
-                positionMarkerManager.delete(pmIterator.next());
-                pmIterator.remove();
-            }
-        }
-    }
-
-    private void addMarkersToMarkerList(@NotNull Iterator<QueryDocumentSnapshot> qsIterator){
-        while (qsIterator.hasNext()){
-            QueryDocumentSnapshot qs = qsIterator.next();
-            try {
-                LatLng otherUserPos = new LatLng(((GeoPoint)(qs.get("geoPoint"))).getLatitude(),
-                        ((GeoPoint)(qs.get("geoPoint"))).getLongitude());
-                if(!otherUserPos.equals(prevLocation)){
-                    Circle pm = positionMarkerManager.create(new CircleOptions()
-                            .withLatLng(new LatLng(
-                                    ((GeoPoint)(qs.get("geoPoint"))).getLatitude(),
-                                    ((GeoPoint)(qs.get("geoPoint"))).getLongitude()))
-                            .withCircleColor("#ff6219")
-                    );
-                    otherUsersPositionMarkers.add(pm);
-                }
-
-
-            } catch (NullPointerException ignored) { }
-
-        }
-    }
-    private void initFireBaseQueryHandler() {
-
-        fireBaseHandler = new QueryHandler() {
-
-            @Override
-            public void onSuccess(QuerySnapshot snapshot) {
-
-                /* The idea here is to reuse the Circle objects to not recreate the datastructure from
-                scratch on each update. It's now overkill but will be usefull for the heatmaps
-                It's also necessary to keep the Circle objects around because recreating them each time
-                there is new data make the map blink like a christmas tree
-                 */
-
-                Iterator<QueryDocumentSnapshot> qsIterator = snapshot.iterator(); // data from firebase
-                Iterator<Circle> pmIterator = otherUsersPositionMarkers.iterator(); // local list of position marker
-
-                // update the Arraylist contents first
-                updatePositionMarkersList(qsIterator, pmIterator);
-                // Run if there is more elements than in the last run
-                addMarkersToMarkerList(qsIterator);
-
-                //refresh map data
-                positionMarkerManager.update(otherUsersPositionMarkers);
-            }
-
-            @Override
-            public void onFailure() {
-                Toast.makeText(getActivity(), "Cannot retrieve positions from database", Toast.LENGTH_LONG).show();
-            }
-        };
-
-        startTimer();
-    }
-
-    private void startTimer(){
-        class UpdatePosTask extends TimerTask {
-
-            public void run() {
-                if (db != null && fireBaseHandler != null){
-                    //db.read(fireBaseHandler);
-                    db.readDocument("LastPositions", fireBaseHandler);
-                }
-            }
-        }
-        if(updateOtherPosTimer != null){
-            updateOtherPosTimer.cancel();
-        }
-        updateOtherPosTimer = new Timer();
-        updateOtherPosTimer.scheduleAtFixedRate(new UpdatePosTask(), 0, OTHER_USERS_UPDATE_INTERVAL_MILLISECS);
-    }
-
-    private void stopTimer(){
-        updateOtherPosTimer.cancel();
     }
 
     @Override
@@ -357,5 +249,9 @@ public class MapFragment extends Fragment implements LocationListener {
 
     void OnDidFinishLoadingMapListener(MapView.OnDidFinishLoadingMapListener listener){
         mapView.addOnDidFinishLoadingMapListener(listener);
+    }
+
+    protected LatLng getPreviousLocation(){
+        return prevLocation;
     }
 }

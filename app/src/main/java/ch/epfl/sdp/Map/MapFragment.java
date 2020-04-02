@@ -1,4 +1,4 @@
-package ch.epfl.sdp;
+package ch.epfl.sdp.Map;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -41,6 +41,17 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import ch.epfl.sdp.Account;
+import ch.epfl.sdp.AccountGetting;
+import ch.epfl.sdp.BuildConfig;
+import ch.epfl.sdp.ConcreteFirestoreInteractor;
+import ch.epfl.sdp.ConcreteFirestoreWrapper;
+import ch.epfl.sdp.ConcreteLocationBroker;
+import ch.epfl.sdp.FirestoreWrapper;
+import ch.epfl.sdp.LocationBroker;
+import ch.epfl.sdp.QueryHandler;
+import ch.epfl.sdp.R;
 
 import static ch.epfl.sdp.LocationBroker.Provider.GPS;
 

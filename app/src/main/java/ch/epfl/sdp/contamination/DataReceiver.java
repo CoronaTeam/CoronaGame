@@ -33,3 +33,4 @@ public interface DataReceiver {
      */
     Location getMyLocationAtTime(Date date);
 }
+

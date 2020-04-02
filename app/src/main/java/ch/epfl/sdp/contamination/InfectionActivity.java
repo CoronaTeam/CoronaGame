@@ -54,6 +54,8 @@ public class InfectionActivity extends AppCompatActivity {
          */
 
         lastUpdateTime = System.currentTimeMillis();
+
+        infectionStatus.setText("Refresh to see your status");
     }
 
     @VisibleForTesting

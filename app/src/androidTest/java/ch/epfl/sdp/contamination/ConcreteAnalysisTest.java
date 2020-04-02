@@ -17,6 +17,8 @@ import static ch.epfl.sdp.TestUtils.buildLocation;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 
 public class ConcreteAnalysisTest {
 
@@ -87,5 +89,12 @@ public class ConcreteAnalysisTest {
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver);
         analyst.updateInfectionPredictions(testLocation, new Date(1585220363913L));
         assertThat(me.getInfectionStatus(), equalTo(Carrier.InfectionStatus.UNKNOWN));
+    }
+    @Test
+    public void getCarrierReturnsACopyOfTheCarrier(){
+        Carrier me = new Layman(HEALTHY);
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver);
+        assertNotNull(analyst.getCurrentCarrier());
+        assertNotSame(me,analyst.getCurrentCarrier());
     }
 }

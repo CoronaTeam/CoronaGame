@@ -99,4 +99,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
 
         receiver.getUserNearbyDuring(location, startTime, now, aroundMe -> modelInfectionEvolution(identifySuspectContacts(aroundMe)));
     }
+    public Carrier getCurrentCarrier(){
+        return new Layman(me.getInfectionStatus(),me.getIllnessProbability());
+    }
 }

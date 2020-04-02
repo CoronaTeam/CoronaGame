@@ -19,4 +19,11 @@ public interface InfectionAnalyst {
      * @param startTime
      */
     void updateInfectionPredictions(Location location, Date startTime);
+
+    /**
+     * Returns a copy of the Carrier that is being examined
+     * @return Carrier
+     */
+    Carrier getCurrentCarrier();
 }
+

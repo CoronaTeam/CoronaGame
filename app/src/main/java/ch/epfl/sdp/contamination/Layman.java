@@ -49,11 +49,10 @@ public class Layman implements Carrier {
             case HEALTHY_CARRIER:
             case INFECTED:
                 return 1;
-            case UNKNOWN:
+            default:
                 // Only useful case: the infection hits the 10% of the population overall
                 return infectedWithProbability;
         }
-        return 0;
     }
 
     @Override
@@ -62,7 +61,7 @@ public class Layman implements Carrier {
             return false;
         }
 
-        if (myStatus != InfectionStatus.HEALTHY_CARRIER && myStatus != InfectionStatus.UNKNOWN) {
+        if (myStatus == InfectionStatus.IMMUNE || myStatus == InfectionStatus.INFECTED) {
             return false;
         }
 

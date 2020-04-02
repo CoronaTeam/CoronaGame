@@ -8,7 +8,6 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -37,7 +36,7 @@ public class ConcreteReceiverTest {
             done.set(true);
         };
 
-        receiver.getMyLocationAtTime(AccountGetting.getAccount(mActivityRule.getActivity()), new Date(1585761337000L), callback);
+        receiver.getMyLastLocation(AccountGetting.getAccount(mActivityRule.getActivity()), callback);
 
         while (!done.get()) {}
 

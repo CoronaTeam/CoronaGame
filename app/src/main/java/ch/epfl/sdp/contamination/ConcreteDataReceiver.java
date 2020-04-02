@@ -1,9 +1,11 @@
 package ch.epfl.sdp.contamination;
 
 import android.location.Location;
+import android.location.LocationManager;
 
 import androidx.annotation.VisibleForTesting;
 
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -146,6 +148,11 @@ class ConcreteDataReceiver implements DataReceiver {
                 for (long t : validTimes) {
                     interactor.read(location, t, updateFromTimeSlice);
                 }
+
+                // If there are not valid times, just start the callback with an empty map
+                if (validTimes.isEmpty()) {
+                    callback.onCallback(metDuringInterval);
+                }
             }
 
             @Override
@@ -157,12 +164,16 @@ class ConcreteDataReceiver implements DataReceiver {
     }
 
     @Override
-    public void getMyLocationAtTime(Account account, Date date, Callback<Location> callback) {
+    public void getMyLastLocation(Account account, Callback<Location> callback) {
         interactor.readLastLocation(account, new QueryHandler() {
             @Override
             public void onSuccess(QuerySnapshot snapshot) {
                 if (snapshot.iterator().hasNext()) {
-                    callback.onCallback((Location) snapshot.iterator().next().get("geoPoint"));
+                    GeoPoint geoPoint = (GeoPoint) snapshot.iterator().next().get("geoPoint");
+                    Location location = new Location(LocationManager.GPS_PROVIDER);
+                    location.setLatitude(geoPoint.getLatitude());
+                    location.setLongitude(geoPoint.getLongitude());
+                    callback.onCallback(location);
                 }
             }
 

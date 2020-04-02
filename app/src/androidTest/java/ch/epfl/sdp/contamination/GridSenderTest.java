@@ -36,6 +36,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static ch.epfl.sdp.TestUtils.buildLocation;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.mockito.Mockito.when;
 
 public class GridSenderTest {
@@ -161,7 +162,7 @@ public class GridSenderTest {
         Callback<Set<? extends Carrier>> successCallback = value -> {
             assertThat(value.size(), is(1));
             assertThat(value.iterator().hasNext(), is(true));
-            assertThat(value.iterator().next().getIllnessProbability(), is(0.0f));
+            assertThat(value.iterator().next().getIllnessProbability(), greaterThan(0.0f));
         };
 
         mActivityRule.getActivity().getReceiver().getUserNearby(
@@ -258,7 +259,7 @@ public class GridSenderTest {
 
         mActivityRule.getActivity().getSender().registerLocation(aFakeCarrier, buildLocation(12, 73), rightNow);
 
-        Thread.sleep(10000);
+        Thread.sleep(1000);
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
 
@@ -300,7 +301,7 @@ public class GridSenderTest {
         mActivityRule.getActivity().getSender().registerLocation(aFakeCarrier, somewhereInTheWorld, rightNow);
         mActivityRule.getActivity().getSender().registerLocation(trulyHealthy, somewhereInTheWorld, aLittleLater);
 
-        Thread.sleep(10000);
+        Thread.sleep(1000);
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
 
@@ -328,7 +329,7 @@ public class GridSenderTest {
         mActivityRule.getActivity().getSender().registerLocation(aFakeCarrier, somewhereInTheWorld, rightNow);
         mActivityRule.getActivity().getSender().registerLocation(aFakeCarrier, somewhereInTheWorld, aLittleLater);
 
-        Thread.sleep(10000);
+        Thread.sleep(1000);
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
 

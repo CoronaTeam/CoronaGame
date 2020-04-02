@@ -7,6 +7,7 @@
     tools:context=".MainActivity">
 
     <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -34,6 +35,7 @@
                 android:textSize="30sp" />
 
             <Button
+                android:id="@+id/button_launch_intro"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="44dp"
@@ -41,6 +43,7 @@
                 android:text="@string/launch_intro" />
 
             <Button
+                android:id="@+id/button_launch_signin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -48,6 +51,7 @@
                 android:text="@string/launch_signin" />
 
             <Button
+                android:id="@+id/button_launch_history"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -55,7 +59,7 @@
                 android:text="@string/launch_history" />
 
             <Button
-                android:id="@+id/button_firebase"
+                android:id="@+id/button_launch_firebase"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -63,7 +67,7 @@
                 android:text="@string/launch_firebase" />
 
             <Button
-                android:id="@+id/button_gps"
+                android:id="@+id/button_launch_gps"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -71,6 +75,7 @@
                 android:text="@string/launch_gps" />
 
             <Button
+                android:id="@+id/button_launch_tabs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -78,6 +83,7 @@
                 android:text="@string/launch_tabs" />
 
             <Button
+                android:id="@+id/button_launch_user_infection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"

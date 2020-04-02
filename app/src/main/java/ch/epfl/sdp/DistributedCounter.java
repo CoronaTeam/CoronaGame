@@ -52,14 +52,12 @@ public class DistributedCounter {
                 });
     }
 
-    public Task<Void> incrementCounter(final DocumentReference ref, final int numShards,
-                                       String path) {
-        return indecrementCounter(true, ref, numShards, path);
+    public Task<Void> incrementCounter(final DocumentReference ref, final int numShards) {
+        return indecrementCounter(true, ref, numShards);
     }
 
-    public Task<Void> decrementCounter(final DocumentReference ref, final int numShards,
-                                       String path) {
-        return indecrementCounter(false, ref, numShards, path);
+    public Task<Void> decrementCounter(final DocumentReference ref, final int numShards) {
+        return indecrementCounter(false, ref, numShards);
     }
 
     public Task<Integer> getCount(final DocumentReference ref) {
@@ -77,9 +75,9 @@ public class DistributedCounter {
     }
 
     private Task<Void> indecrementCounter(boolean isIncrement, final DocumentReference ref,
-                                          final int numShards, String path){
+                                          final int numShards){
         int shardId = (int) Math.floor(Math.random() * numShards);
-        DocumentReference shardRef = ref.collection(path).document(String.valueOf(shardId));
+        DocumentReference shardRef = ref.collection("shards").document(String.valueOf(shardId));
         return shardRef.update("count", FieldValue.increment(isIncrement ? 1 : -1));
     }
 }

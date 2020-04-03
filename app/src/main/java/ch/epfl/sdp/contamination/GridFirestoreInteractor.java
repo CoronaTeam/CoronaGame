@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.epfl.sdp.Account;
+import ch.epfl.sdp.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.FirestoreWrapper;
 import ch.epfl.sdp.QueryHandler;
 

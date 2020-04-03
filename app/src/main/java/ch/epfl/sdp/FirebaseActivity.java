@@ -10,6 +10,8 @@ import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.w3c.dom.Text;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -46,8 +48,8 @@ public class FirebaseActivity extends AppCompatActivity {
         user.put("Age", 24);
         user.put("Infected", false);
         databaseOperation(R.id.FirebaseUploadConfirmation, R.string.uploading,
-                R.string.can_t_Upload_Offline, e -> fs.writeDocument("Players", user,
-                        e::setText));
+                R.string.can_t_Upload_Offline, textView -> fs.writeDocument("Players", user,
+                        stringMapMap -> textView.setText(stringMapMap.toString())));
     }
 
     public void addUser2(View view){
@@ -56,36 +58,34 @@ public class FirebaseActivity extends AppCompatActivity {
         user.put("Age", 42);
         user.put("Infected", true);
         databaseOperation(R.id.FirebaseUploadConfirmation, R.string.uploading,
-                R.string.can_t_Upload_Offline, e -> fs.writeDocumentWithID("Players",
+                R.string.can_t_Upload_Offline, textView -> fs.writeDocumentWithID("Players",
                         String.valueOf(new Random().nextInt()), user,
-                        e::setText));
+                        stringMapMap -> textView.setText(stringMapMap.toString())));
     }
 
     public void readData2(View view) {
         databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
-                R.string.can_t_Download_Offline, e -> fs.readDocumentWithID("Tests/FirebaseActivity/Download", "DownloadTest",
-                        e::setText));
+                R.string.can_t_Download_Offline, textView -> fs.readDocumentWithID("Tests/FirebaseActivity/Download", "DownloadTest",
+                        stringMapMap -> textView.setText(stringMapMap.toString())));
     }
 
     public void readData1(View view){
         databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
-                R.string.can_t_Download_Offline, e -> fs.readDocument("Tests/FirebaseActivity/Download",
-                        e::setText));
+                R.string.can_t_Download_Offline, textView -> fs.readDocument("Tests/FirebaseActivity/Download",
+                        stringMapMap -> {
+                            textView.setText(stringMapMap.toString());
+                        }));
     }
 
     private void databaseOperation(int outputViewID, int duringOperation,
-                                   int offlineMessage, Operation op) {
+                                   int offlineMessage, Callback<TextView> callback) {
         final TextView outputView = findViewById(outputViewID);
         checkNetworkStatus(this);
         if (IS_ONLINE) {
             outputView.setText(duringOperation);
-            op.apply(outputView);
+            callback.onCallback(outputView);
         } else {
             outputView.setText(offlineMessage);
         }
-    }
-
-    interface Operation {
-        void apply(TextView output);
     }
 }

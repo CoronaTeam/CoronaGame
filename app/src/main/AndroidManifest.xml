@@ -72,7 +72,15 @@
             android:name=".HistoryActivity"
             android:parentActivityName=".MainActivity" >
             <intent-filter>
-                <action android:name="android.intent.action.DEFAULT"/>
+                <action android:name="android.intent.action.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".contamination.InfectionActivity"
+            android:parentActivityName=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.DEFAULT" />
             </intent-filter>
         </activity>
 

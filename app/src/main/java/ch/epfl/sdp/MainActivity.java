@@ -10,6 +10,8 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import ch.epfl.sdp.contamination.InfectionActivity;
+
 public class MainActivity extends AppCompatActivity {
 
     public static boolean IS_ONLINE = true;
@@ -88,6 +90,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void setUserInfectionView(View v) {
         Intent intent = new Intent(this, UserInfectionActivity.class);
+        startActivity(intent);
+    }
+
+    public void setInfectionView(View v) {
+        Intent intent = new Intent(this, InfectionActivity.class);
         startActivity(intent);
     }
 }

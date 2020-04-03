@@ -7,7 +7,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 
     <application
         android:name=".CoronaGame"
@@ -17,17 +17,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".UserInfectionActivity">
-        </activity>
 
-        <activity android:name=".AuthenticationManager"></activity>
-        <activity android:name=".Authentication" >
+        <activity android:name=".Authentication">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.AUTH" />
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <!-- >   <category android:name="" /><! -->
             </intent-filter>
+        </activity>
+
+        <activity android:name=".UserInfectionActivity"
+            android:parentActivityName=".MainActivity">
         </activity>
 
         <meta-data
@@ -58,7 +60,8 @@
             android:parentActivityName=".MainActivity" >
         </activity>
 
-        <activity android:name=".TabActivity">
+        <activity android:name=".TabActivity"
+            android:parentActivityName=".MainActivity">
         </activity>
 
     </application>

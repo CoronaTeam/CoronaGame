@@ -7,12 +7,12 @@
     tools:context=".MainActivity">
 
     <ScrollView
-        android:id="@+id/scrollView2"
+        android:id="@+id/scrollView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0">
@@ -28,7 +28,6 @@
             android:scrollbarAlwaysDrawVerticalTrack="true">
 
             <TextView
-                android:id="@+id/TitleText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/coronagame"
@@ -36,23 +35,23 @@
                 android:textSize="30sp" />
 
             <Button
-                android:id="@+id/button_intro"
+                android:id="@+id/button_launch_intro"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="44dp"
                 android:onClick="setIntroView"
-                android:text="@string/launch_introactivity" />
+                android:text="@string/launch_intro" />
 
             <Button
-                android:id="@+id/launch_SignIn_Button"
+                android:id="@+id/button_launch_signin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:onClick="setSignInView"
-                android:text="@string/launch_signIn" />
+                android:text="@string/launch_signin" />
 
             <Button
-                android:id="@+id/launch_history"
+                android:id="@+id/button_launch_history"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -60,7 +59,7 @@
                 android:text="@string/launch_history" />
 
             <Button
-                android:id="@+id/button_firebase"
+                android:id="@+id/button_launch_firebase"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -68,7 +67,7 @@
                 android:text="@string/launch_firebase" />
 
             <Button
-                android:id="@+id/button_gps"
+                android:id="@+id/button_launch_gps"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -76,21 +75,21 @@
                 android:text="@string/launch_gps" />
 
             <Button
-                android:id="@+id/button_tabs"
+                android:id="@+id/button_launch_tabs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:onClick="setTabsView"
-                android:text="Launch tabs" />
+                android:text="@string/launch_tabs" />
 
             <Button
-                android:id="@+id/button_user_infection"
+                android:id="@+id/button_launch_user_infection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:onClick="setUserInfectionView"
                 android:text="@string/launch_user_infection" />
-          
+
         </LinearLayout>
     </ScrollView>
 

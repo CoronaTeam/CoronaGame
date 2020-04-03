@@ -10,14 +10,12 @@
         android:id="@+id/infectionStatusButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="316dp"
-        android:layout_marginBottom="367dp"
-        android:backgroundTint="#A9F44336"
+        android:layout_marginTop="72dp"
+        android:onClick="onClickChangeStatus"
         android:text="@string/i_am_infected"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/infectionStatusView" />
 
     <TextView
         android:id="@+id/infectionStatusView"
@@ -26,6 +24,7 @@
         android:layout_marginTop="188dp"
         android:layout_marginBottom="524dp"
         android:text="@string/your_user_status_is_set_to_not_infected"
+        android:textColor="#2eb82e"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -37,9 +36,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
-        android:layout_marginBottom="247dp"
         android:text="@string/no_data_uploaded_yet"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/infectionStatusButton" />
@@ -74,6 +71,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:layout_marginBottom="40dp"
+        android:onClick="onClickRefresh"
         android:text="@string/refresh"
         app:layout_constraintBottom_toTopOf="@+id/infectionStatusUploadConfirmation"
         app:layout_constraintEnd_toEndOf="parent"

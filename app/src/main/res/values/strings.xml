@@ -1,58 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <resources>
-    <string name="app_name">CoronaGame</string>
     <string name="app_id">807375232223</string>
+    <string name="app_name">CoronaGame</string>
+
+    <string name="can_t_Download_Offline">Can\'t download while offline</string>
+    <string name="can_t_Upload_Offline">Can\'t upload while offline</string>
+
+    <string name="connection_error">CONNECTION ERROR</string>
+
     <string name="coronagame">CoronaGame</string>
-    <string name="user_id">User ID</string>
-    <string name="launch_game">Launch Game</string>
-    <string name="location_permission_title">Where are you?</string>
-    <string name="location_permission_description">CoronaGame needs your location to work properly</string>
-    <string name="location_permission_accept_btn">Yes, give it</string>
+
+    <string name="download">Download</string>
+
+    <string name="downloading">Downloading …</string>
+
+    <string name="exchange_failed">EXCHANGE Failed</string>
+    <string name="exchange_succeded">EXCHANGE Succeeded</string>
+
+    <string name="gps_signal_missing">Missing GPS signal</string>
     <string name="gps_status_off">GPS signal lost</string>
     <string name="gps_status_on">GPS signal acquired</string>
-    <string name="gps_signal_missing">Missing GPS signal</string>
 
-    <string name="title_activity_authentication">Authentication</string>
-    <string name="launch_signIn">LAUNCH SIGN IN</string>
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
-    <string name="download">Download</string>
-    <string name="send">Send</string>
-    <string name="enter_text">Enter text</string>
-    <string name="name">Name</string>
-    <string name="age">Age</string>
-    <string name="DocumentSnapshot_successfully_added">DocumentSnapshot successfully added</string>
-    <string name="Can_t_Upload_Offline">Can\'t upload while offline</string>
-    <string name="Can_t_Download_Offline">Can\'t download while offline</string>
-    <string name="error_unknown_error">Unknown error</string>
-    <string name="Error_adding_doc">Error adding the document</string>
-    <string name="uploading">Uploading …</string>
-    <string name="downloading">Downloading …</string>
+    <string name="i_am_cured">I am cured</string>
+    <string name="i_am_infected">I am infected</string>
+
+    <string name="latitude">Latitude</string>
+
     <string name="launch_firebase">Launch Firebase</string>
-    <string name="title_activity_firebase">FirebaseActivity</string>
-
-    <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
-
     <string name="launch_gps">Launch GPS</string>
-    <string name="launch_introactivity">Launch IntroActivity</string>
-    <string name="launch_map">Launch map</string>
+    <string name="launch_history">Launch History</string>
+    <string name="launch_intro">Launch Intro</string>
+    <string name="launch_signin">Launch SignIn</string>
+    <string name="launch_tabs">Launch Tabs</string>
+    <string name="launch_user_infection">Launch User Infection</string>
 
-    <!-- Tab layout -->
-    <string name="tab_map">Map</string>
+    <string name="loading_with_dots">Loading…</string>
+
+    <string name="logged_in_user">logged in user</string>
+
+    <string name="longitude">Longitude</string>
+
+    <string name="my_past_positions">My past positions</string>
+
+    <string name="no_data_uploaded_yet">No data uploaded yet.</string>
+
+    <string name="past_positions">Past positions</string>
+
+    <string name="query_ok">QUERY OK</string>
+
+    <string name="refresh">Refresh</string>
+
+    <string name="send">Send</string>
+
+    <string name="sign_in">SignIn</string>
+
+    <string name="signout">SignOut</string>
+
+    <string name="sync_error">SYNC ERROR!</string>
+    <string name="sync_ok">SYNC OK</string>
+
     <string name="tab_history">History</string>
+    <string name="tab_map">Map</string>
     <string name="tab_account">Account</string>
 
-    <string name="i_am_infected">I am infected</string>
-    <string name="your_user_status_is_set_to_not_infected">Your user status is set to not infected.</string>
-    <string name="i_am_cured">I am cured</string>
+    <string name="textview">TextView</string>
+
+    <string name="three_dots">…</string>
+
+    <string name="title_activity_firebase">FirebaseActivity</string>
+
+    <string name="todo">TODO</string>
+
+    <string name="uploading">Uploading …</string>
+    <string name="uploading_with_dots">Uploading…</string>
+
+    <string name="waiting_for_gps">Waiting for GPS…</string>
+
+    <string name="you_cannot_update_your_status_you_are_offline">Can\'t upload when offline. Come back later!</string>
+
     <string name="your_user_status_is_set_to_infected">Your user status is set to infected.</string>
-    <string name="no_data_uploaded_yet">No data uploaded yet.</string>
-    <string name="launch_user_infection">Launch user infection</string>
-    <string name="launch_history">LAUNCH HISTORY</string>
-    <string name="logged_in_user">logged in user</string>
-    <string name="you_cannot_update_your_status_you_are_offline">You cannot update your status, you are offline.</string>
-    <string name="refresh">refresh</string>
+    <string name="your_user_status_is_set_to_not_infected">Your user status is set to not infected.</string>
 </resources>

@@ -55,13 +55,9 @@ public class DataExchangeActivity extends AppCompatActivity {
             this.interactor = interactor;
         }
 
-        public OnSuccessListener successListener = o -> {
-            exchangeStatus.setText("EXCHANGE Succeeded");
-        };
+        public OnSuccessListener successListener = o -> exchangeStatus.setText(R.string.exchange_succeded);
 
-        public OnFailureListener failureListener = e -> {
-            exchangeStatus.setText("EXCHANGE Failed");
-        };
+        public OnFailureListener failureListener = e -> exchangeStatus.setText(R.string.exchange_failed);
 
         @Override
         public void registerLocation(Carrier carrier, Location location, Date time) {

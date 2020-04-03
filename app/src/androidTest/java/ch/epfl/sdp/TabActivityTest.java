@@ -30,6 +30,7 @@ public class TabActivityTest {
     public final ActivityTestRule<TabActivity> mActivityRule =
             new ActivityTestRule<>(TabActivity.class);
 
+    /*
     @Test
     @Ignore
     public void testMapFragment() throws Exception {
@@ -75,6 +76,7 @@ public class TabActivityTest {
         ConditionWatcher.waitForCondition(new LoadingDialogInstruction());
         // onView(withId(R.id.greetingMessage)).check(matches(withText("Hello from my unit test!")));
     }
+*/
 
     @Test
     public void testTabsInterfaceCorrectly() {

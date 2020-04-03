@@ -36,6 +36,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static ch.epfl.sdp.TestUtils.buildLocation;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.mockito.Mockito.when;
 
 public class GridSenderTest {
@@ -108,7 +109,7 @@ public class GridSenderTest {
     }
 
     private void setSuccessfulSender() {
-        ((DataExchangeActivity.ConcreteDataSender) mActivityRule.getActivity().getSender()).setInteractor(new MockGridInteractor() {
+        ((ConcreteDataSender) mActivityRule.getActivity().getSender()).setInteractor(new MockGridInteractor() {
             @Override
             public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
                 success.onSuccess(null);
@@ -129,7 +130,7 @@ public class GridSenderTest {
     }
 
     private void setFailingSender() {
-        ((DataExchangeActivity.ConcreteDataSender) mActivityRule.getActivity().getSender()).setInteractor(new MockGridInteractor() {
+        ((ConcreteDataSender) mActivityRule.getActivity().getSender()).setInteractor(new MockGridInteractor() {
             @Override
             public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
                 failure.onFailure(null);
@@ -151,7 +152,7 @@ public class GridSenderTest {
 
     @Test
     public void dataReceiverFindsContacts() {
-        ((DataExchangeActivity.ConcreteDataReceiver) mActivityRule.getActivity().getReceiver()).setInteractor(new MockGridInteractor() {
+        ((ConcreteDataReceiver) mActivityRule.getActivity().getReceiver()).setInteractor(new MockGridInteractor() {
             @Override
             public void read(Location location, long time, QueryHandler handler) {
                 handler.onSuccess(querySnapshot);
@@ -161,7 +162,7 @@ public class GridSenderTest {
         Callback<Set<? extends Carrier>> successCallback = value -> {
             assertThat(value.size(), is(1));
             assertThat(value.iterator().hasNext(), is(true));
-            assertThat(value.iterator().next().getIllnessProbability(), is(0.0f));
+            assertThat(value.iterator().next().getIllnessProbability(), greaterThan(0.0f));
         };
 
         mActivityRule.getActivity().getReceiver().getUserNearby(
@@ -171,7 +172,7 @@ public class GridSenderTest {
     }
 
     private void setFakeReceiver(Location testLocation) {
-        ((DataExchangeActivity.ConcreteDataReceiver) mActivityRule.getActivity().getReceiver()).setInteractor(new MockGridInteractor() {
+        ((ConcreteDataReceiver) mActivityRule.getActivity().getReceiver()).setInteractor(new MockGridInteractor() {
 
             @Override
             public void getTimes(Location location, QueryHandler handler) {
@@ -258,7 +259,7 @@ public class GridSenderTest {
 
         mActivityRule.getActivity().getSender().registerLocation(aFakeCarrier, buildLocation(12, 73), rightNow);
 
-        Thread.sleep(10000);
+        Thread.sleep(1000);
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
 
@@ -269,8 +270,7 @@ public class GridSenderTest {
     }
 
     private Map<Carrier, Integer> getBackRangeData(Location somewhere, Date rangeStart, Date rangeEnd) throws Throwable {
-        AtomicBoolean done = new AtomicBoolean();
-        done.set(false);
+        AtomicBoolean done = new AtomicBoolean(false);
 
         Map<Carrier, Integer> result = new ConcurrentHashMap<>();
 
@@ -300,7 +300,7 @@ public class GridSenderTest {
         mActivityRule.getActivity().getSender().registerLocation(aFakeCarrier, somewhereInTheWorld, rightNow);
         mActivityRule.getActivity().getSender().registerLocation(trulyHealthy, somewhereInTheWorld, aLittleLater);
 
-        Thread.sleep(10000);
+        Thread.sleep(1000);
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
 
@@ -328,7 +328,7 @@ public class GridSenderTest {
         mActivityRule.getActivity().getSender().registerLocation(aFakeCarrier, somewhereInTheWorld, rightNow);
         mActivityRule.getActivity().getSender().registerLocation(aFakeCarrier, somewhereInTheWorld, aLittleLater);
 
-        Thread.sleep(10000);
+        Thread.sleep(1000);
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
 

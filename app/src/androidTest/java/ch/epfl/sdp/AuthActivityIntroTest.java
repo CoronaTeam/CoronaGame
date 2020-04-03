@@ -21,18 +21,18 @@ import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentat
 import static ch.epfl.sdp.TestTools.initSafeTest;
 
 @RunWith(AndroidJUnit4.class)
-public class MainActivityIntroTest {
+public class AuthActivityIntroTest {
 
     SharedPreferences.Editor preferencesEditor;
 
     @Rule
-    public final ActivityTestRule<MainActivity> mActivityRule =
-            new ActivityTestRule<>(MainActivity.class, true, false);
+    public final ActivityTestRule<Authentication> mActivityRule =
+            new ActivityTestRule<>(Authentication.class, true, false);
 
     @Before
     public void setup() {
         Context targetContext = getInstrumentation().getTargetContext();
-        preferencesEditor = targetContext.getSharedPreferences(MainActivity.APP_PREFERENCES, Context.MODE_PRIVATE).edit();
+        preferencesEditor = targetContext.getSharedPreferences(Authentication.APP_PREFERENCES, Context.MODE_PRIVATE).edit();
         initSafeTest(mActivityRule, false); //Intents.init();
     }
 
@@ -44,17 +44,17 @@ public class MainActivityIntroTest {
 
     @Test
     public void testSkipsIntroWhenAlreadyOpenedOnce() {
-        preferencesEditor.putBoolean(MainActivity.OPENED_BEFORE_PREFERENCE, true);
+        preferencesEditor.putBoolean(Authentication.OPENED_BEFORE_PREFERENCE, true);
         preferencesEditor.commit();
 
         mActivityRule.launchActivity(new Intent());
-        intended(hasComponent(MainActivity.class.getName()));
+        intended(hasComponent(Authentication.class.getName()));
         assertNoUnverifiedIntents();
     }
 
     @Test
     public void testOpensIntroOnFirstTime() {
-        preferencesEditor.putBoolean(MainActivity.OPENED_BEFORE_PREFERENCE, false);
+        preferencesEditor.putBoolean(Authentication.OPENED_BEFORE_PREFERENCE, false);
         preferencesEditor.commit();
 
         mActivityRule.launchActivity(new Intent());

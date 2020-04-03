@@ -55,7 +55,7 @@ public class FirebaseActivityTest {
     public void testDataDownloadIsDisplayed1() {
         clickWaitAndCheckText(R.id.FirebaseDownloadButton1,
                 R.id.FirebaseDownloadResult,
-                "DownloadTest => {value=success}",
+                "{DownloadTest={value=success}}",
                 30000);
     }
 
@@ -63,7 +63,7 @@ public class FirebaseActivityTest {
     public void testDataDownloadIsDisplayed2() {
         clickWaitAndCheckText(R.id.FirebaseDownloadButton2,
                 R.id.FirebaseDownloadResult,
-                "DownloadTest => {value=success}",
+                "{DownloadTest={value=success}}",
                 30000);
     }
 

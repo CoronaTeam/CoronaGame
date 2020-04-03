@@ -10,8 +10,6 @@ import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import org.w3c.dom.Text;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -44,12 +42,12 @@ public class FirebaseActivity extends AppCompatActivity {
 
     public void addUser1(View view) {
         Map<String, Object> user = new HashMap<>();
-        user.put("Name", "Bob Bobby");
-        user.put("Age", 24);
+        user.put("Name", "Ed Edward");
+        user.put("Age", 104);
         user.put("Infected", false);
         databaseOperation(R.id.FirebaseUploadConfirmation, R.string.uploading,
                 R.string.can_t_Upload_Offline, textView -> fs.writeDocument("Players", user,
-                        stringMapMap -> textView.setText(stringMapMap.toString())));
+                        stringMapMap -> textView.setText(R.string.docSnap_success_upload)));
     }
 
     public void addUser2(View view){
@@ -60,7 +58,7 @@ public class FirebaseActivity extends AppCompatActivity {
         databaseOperation(R.id.FirebaseUploadConfirmation, R.string.uploading,
                 R.string.can_t_Upload_Offline, textView -> fs.writeDocumentWithID("Players",
                         String.valueOf(new Random().nextInt()), user,
-                        stringMapMap -> textView.setText(stringMapMap.toString())));
+                        stringMapMap -> textView.setText(R.string.docSnap_success_upload)));
     }
 
     public void readData2(View view) {

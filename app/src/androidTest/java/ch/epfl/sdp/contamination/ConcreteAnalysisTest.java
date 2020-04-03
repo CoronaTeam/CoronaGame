@@ -7,7 +7,6 @@ import androidx.test.rule.ActivityTestRule;
 import com.google.firebase.firestore.GeoPoint;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -23,7 +22,6 @@ import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.R;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -168,7 +166,7 @@ public class ConcreteAnalysisTest {
         }
     }
 
-    @Test @Ignore
+    @Test
     public void infectionProbabilityIsUpdated() throws Throwable {
 
         CityDataReceiver cityReceiver = new CityDataReceiver();
@@ -180,7 +178,7 @@ public class ConcreteAnalysisTest {
 
         cityReceiver.setMyCurrentLocation(buildLocation(0, 0));
 
-        onView(withId(R.id.my_infection_refresh)).perform(click());
+        mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().onModelRefresh(null));
 
         onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
 
@@ -198,7 +196,7 @@ public class ConcreteAnalysisTest {
 
         Thread.sleep(10);
 
-        onView(withId(R.id.my_infection_refresh)).perform(click());
+        mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().onModelRefresh(null));
         Thread.sleep(10);
 
         onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
@@ -212,7 +210,7 @@ public class ConcreteAnalysisTest {
         }
         Thread.sleep(30);
 
-        onView(withId(R.id.my_infection_refresh)).perform(click());
+        mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().onModelRefresh(null));
 
         // I was still on healthyLocation
         onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
@@ -228,7 +226,7 @@ public class ConcreteAnalysisTest {
         // I go to the bad location
         cityReceiver.setMyCurrentLocation(buildLocation(40, 113.4));
 
-        onView(withId(R.id.my_infection_refresh)).perform(click());
+        mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().onModelRefresh(null));
         Thread.sleep(10);
 
         // Now there should be some risk that I was infected

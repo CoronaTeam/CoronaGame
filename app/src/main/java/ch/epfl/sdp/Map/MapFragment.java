@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.Timer;
 
 import ch.epfl.sdp.Account;
-import ch.epfl.sdp.AccountGetting;
 import ch.epfl.sdp.BuildConfig;
 import ch.epfl.sdp.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.ConcreteFirestoreWrapper;
@@ -46,6 +45,7 @@ import ch.epfl.sdp.FirestoreWrapper;
 import ch.epfl.sdp.LocationBroker;
 import ch.epfl.sdp.QueryHandler;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.fragment.AccountFragment;
 
 import static ch.epfl.sdp.LocationBroker.Provider.GPS;
 
@@ -80,7 +80,7 @@ public class MapFragment extends Fragment implements LocationListener {
         if (locationBroker == null) {
             locationBroker = new ConcreteLocationBroker((LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE), getActivity());
         }
-        userAccount = AccountGetting.getAccount(getActivity());
+        userAccount = AccountFragment.getAccount(getActivity());
 
         FirestoreWrapper wrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
         db = new ConcreteFirestoreInteractor(wrapper, new CountingIdlingResource("MapFragment"));

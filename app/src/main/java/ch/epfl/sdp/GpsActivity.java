@@ -176,7 +176,7 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         }
 
         // TODO: Take real account
-        account = AccountGetting.getAccount(this);
+        account = AuthenticationManager.getAccount(this);
 
         FirestoreWrapper wrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
         db = new HistoryFirestoreInteractor(wrapper, account);

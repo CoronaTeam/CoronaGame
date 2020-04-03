@@ -14,9 +14,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Date;
 
-import ch.epfl.sdp.AccountGetting;
 import ch.epfl.sdp.ConcreteFirestoreWrapper;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.fragment.AccountFragment;
 
 public class InfectionActivity extends AppCompatActivity {
 
@@ -75,7 +75,7 @@ public class InfectionActivity extends AppCompatActivity {
 
 
         // TODO: Which location?
-        receiver.getMyLastLocation(AccountGetting.getAccount(this), location -> {
+        receiver.getMyLastLocation(AccountFragment.getAccount(this), location -> {
             analyst.updateInfectionPredictions(location, refreshTime, n -> {
                 InfectionActivity.this.runOnUiThread(() -> {
                     infectionStatus.setText(analyst.getCarrier().getInfectionStatus().toString());

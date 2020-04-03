@@ -68,7 +68,7 @@ public class HistoryFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_history, container, false);
 
-        account = AccountGetting.getAccount(getActivity());
+        account = AuthenticationManager.getAccount(getActivity());
         FirestoreWrapper firestoreWrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
         db = new HistoryFirestoreInteractor(firestoreWrapper, account);
 

@@ -113,7 +113,7 @@ public class UserInfectionActivity extends AppCompatActivity {
     }
 
     private void getLoggedInUser() {
-        account = AccountGetting.getAccount(this);
+        account = AuthenticationManager.getAccount(this);
         userName = account.getDisplayName();
         user = new User(userName, account.getFamilyName(), account.getEmail(),
                 account.getPhotoUrl(), account.getPlayerId(this), account.getId(), User.DEFAULT_AGE, false);

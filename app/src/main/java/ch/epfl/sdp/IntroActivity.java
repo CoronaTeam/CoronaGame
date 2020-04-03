@@ -1,5 +1,6 @@
 package ch.epfl.sdp;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -84,6 +85,10 @@ public class IntroActivity extends AppIntro2 {
         super.onDonePressed(currentFragment);
 
         // Navigate to main screen
-        startActivity(new Intent(this, MainActivity.class));
+        //startActivity(new Intent(this, MainActivity.class));
+
+        // Finish current activity (return to previous one)
+        setResult(Activity.RESULT_OK);
+        finish();
     }
 }

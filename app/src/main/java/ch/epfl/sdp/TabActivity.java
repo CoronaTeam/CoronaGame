@@ -12,43 +12,53 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
+import ch.epfl.sdp.Map.MapFragment;
+import ch.epfl.sdp.fragment.AccountFragment;
+
 public class TabActivity extends AppCompatActivity {
 
-    public class TabPagerAdapter extends FragmentPagerAdapter {
-        private final int NUM_ITEMS = 2;
+    private static class Tab {
+        final Class fragment;
+        final int titleRes;
+        Tab(Class fragment, int titleRes) {
+            this.fragment = fragment;
+            this.titleRes = titleRes;
+        }
+    }
 
-        public TabPagerAdapter(@NonNull FragmentManager fm, int behavior) {
+    private static final Tab[] tabs = new Tab[]{
+            new Tab(MapFragment.class, R.string.tab_map),
+            new Tab(HistoryFragment.class, R.string.tab_history),
+            new Tab(AccountFragment.class, R.string.tab_account)
+    };
+
+    public class TabPagerAdapter extends FragmentPagerAdapter {
+        private final Tab[] tabs;
+
+        public TabPagerAdapter(@NonNull FragmentManager fm, int behavior, Tab[] tabs) {
             super(fm, behavior);
+            this.tabs = tabs;
         }
 
         @Override
         public int getCount() {
-            return NUM_ITEMS;
+            return tabs.length;
         }
 
         @NotNull
         @Override
         public Fragment getItem(int position) {
-            switch (position) {
-                case 0:
-                    return new MapFragment();
-                case 1:
-                    return new HistoryFragment();
-                default:
-                    throw new IllegalArgumentException();
+            try {
+                return (Fragment) tabs[position].fragment.newInstance();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
             }
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return getString(R.string.tab_map);
-                case 1:
-                    return getString(R.string.tab_history);
-                default:
-                    throw new IllegalArgumentException();
-            }
+            return getString(tabs[position].titleRes);
         }
 
     }
@@ -61,7 +71,8 @@ public class TabActivity extends AppCompatActivity {
         SwipeViewPager viewPager = findViewById(R.id.pager);
         TabPagerAdapter tabPagerAdapter = new TabPagerAdapter(
                 getSupportFragmentManager(),
-                FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+                FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT,
+                tabs);
         viewPager.setAdapter(tabPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);

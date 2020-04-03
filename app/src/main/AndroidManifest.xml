@@ -17,24 +17,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".UserInfectionActivity"
-            android:parentActivityName=".MainActivity">
+
+        <activity android:name=".Authentication">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".AccountGetting">
-        </activity>
-        <activity android:name=".Authentication"
-            android:parentActivityName=".MainActivity">
-            <intent-filter>
                 <action android:name="android.intent.action.AUTH" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
                 <!-- >   <category android:name="" /><! -->
             </intent-filter>
+        </activity>
+
+        <activity android:name=".UserInfectionActivity"
+            android:parentActivityName=".MainActivity">
         </activity>
 
         <meta-data
@@ -48,24 +43,25 @@
         <activity
             android:name=".IntroActivity"
             android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <activity
             android:name=".GpsActivity"
             android:parentActivityName=".MainActivity" >
-            <intent-filter>
-                <action android:name="android.intent.action.DEFAULT" />
-            </intent-filter>
         </activity>
 
         <activity
             android:name=".FirebaseActivity"
             android:parentActivityName=".MainActivity">
+        </activity>
+
+        <activity
+            android:name=".AccountActivity"
+            android:parentActivityName=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
         <activity
@@ -86,9 +82,6 @@
 
         <activity android:name=".TabActivity"
             android:parentActivityName=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.DEFAULT" />
-            </intent-filter>
         </activity>
 
     </application>

@@ -1,6 +1,8 @@
 package ch.epfl.sdp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -19,7 +21,7 @@ import com.google.android.gms.tasks.Task;
 /**
  * AuthenticationActivity : handling the signIn process via google play. This class will check if a user has been already logged in.
  * If not, it displays the sign In button and if this latter is pressed, a window built by google is shown.
- * Then, the class AccountGettingActivity manages the account information use.
+ * Then, it launches and displays the main app UI.
  *
  * @author lucas
  */
@@ -28,9 +30,17 @@ public class Authentication extends AppCompatActivity {
     GoogleSignInClient googleSignInClient;
     View signIn;// error prone line if View is replaced by Button
 
+    public static String APP_PREFERENCES = "APP_PREFERENCES";
+    public static String OPENED_BEFORE_PREFERENCE = "OPENED_BEFORE";
+
+    private static Class NEXT_ACTIVITY = TabActivity.class;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        checkFirstTimeOpen();
+
         setContentView(R.layout.activity_authentication);
         signIn = findViewById(R.id.sign_in_button);
 
@@ -68,7 +78,7 @@ public class Authentication extends AppCompatActivity {
             // hide the sign-in button, launch your main activity -> already registered
             signIn.setVisibility(View.INVISIBLE);
 //            startActivity(new Intent(this, AccountGettingActivity.class));
-            Intent intent = new Intent(Authentication.this, AccountGetting.class);// New activity
+            Intent intent = new Intent(Authentication.this, NEXT_ACTIVITY);// New activity
 //            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); //clears this activity's stack
             startActivity(intent);
             finish(); // Launches next Activity
@@ -111,5 +121,22 @@ public class Authentication extends AppCompatActivity {
             Log.w("authenticationActivity", "signInResult:failed code=" + e.getStatusCode());
             updateUI(null);
         }
+    }
+
+    /** Launch IntroActivity if it is the first time the user opens the app */
+    private void checkFirstTimeOpen() {
+        SharedPreferences sp = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+        if (!sp.getBoolean(OPENED_BEFORE_PREFERENCE, false)) {
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putBoolean(OPENED_BEFORE_PREFERENCE, true);
+            editor.apply();
+            setIntroView();
+        }
+    }
+
+    /** Called when the user opens the app for the first time */
+    private void setIntroView() {
+        Intent intent = new Intent(this, IntroActivity.class);
+        startActivity(intent);
     }
 }

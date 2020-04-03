@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
+import ch.epfl.sdp.Account;
 import ch.epfl.sdp.Callback;
 
 public interface DataReceiver {
@@ -28,8 +29,7 @@ public interface DataReceiver {
 
     /**
      *
-     * @param date
      * @return : location of the user using the app, at a given time
      */
-    Location getMyLocationAtTime(Date date);
+    void getMyLastLocation(Account account, Callback<Location> callback);
 }

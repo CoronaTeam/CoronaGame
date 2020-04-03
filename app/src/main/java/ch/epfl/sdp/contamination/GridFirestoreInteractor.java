@@ -4,10 +4,12 @@ import android.location.Location;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.epfl.sdp.Account;
 import ch.epfl.sdp.FirestoreWrapper;
 import ch.epfl.sdp.QueryHandler;
 
@@ -18,7 +20,7 @@ public class GridFirestoreInteractor {
 
     private FirestoreWrapper db;
 
-    GridFirestoreInteractor(FirestoreWrapper wrapper) {
+    public GridFirestoreInteractor(FirestoreWrapper wrapper) {
         this.db = wrapper;
     }
 
@@ -44,8 +46,21 @@ public class GridFirestoreInteractor {
                 });
     }
 
+    public void readLastLocation(Account account, QueryHandler handler) {
+        db.collection("LastPositions")
+                .document(account.getId())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        handler.onSuccess(task.getResult());
+                    } else {
+                        handler.onFailure();
+                    }
+                });
+    }
+
     public void read(Location location, long time, QueryHandler handler) {
-        db.collection("LiveGrid/" + getGridId(location) + "/" + String.valueOf(time))
+        db.collection("LiveGrid/" + getGridId(location) + "/" + time)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

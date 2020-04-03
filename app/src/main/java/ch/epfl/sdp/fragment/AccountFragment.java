@@ -1,5 +1,6 @@
 package ch.epfl.sdp.fragment;
 
+import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,14 +11,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import ch.epfl.sdp.Account;
+import ch.epfl.sdp.AccountFactory;
 import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.User;
 
 public class AccountFragment extends Fragment implements View.OnClickListener {
 
@@ -46,6 +53,27 @@ public class AccountFragment extends Fragment implements View.OnClickListener {
         getAndShowAccountInfo(AuthenticationManager.getAccount(getActivity()));
 
         return view;
+    }
+
+    public static Account getAccount(Activity activity) {
+        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(activity);
+        return getNonNullAccount(acct);
+    }
+
+    private static GoogleSignInClient getGoogleClient(Activity activity) {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
+        // Build a GoogleSignInClient with the options specified by gso.
+        return GoogleSignIn.getClient(activity, gso);
+    }
+
+    private static Account getNonNullAccount(GoogleSignInAccount acct) {
+        if (acct == null) {
+            User u = new User();//generic test user
+            return new AccountFactory(u);
+
+        } else {
+            return new AccountFactory(acct);
+        }
     }
 
     @Override

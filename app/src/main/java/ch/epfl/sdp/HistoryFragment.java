@@ -42,7 +42,7 @@ public class HistoryFragment extends Fragment {
             @Override
             public void onSuccess(QuerySnapshot snapshot) {
                 historyAdapter.clear();
-                connectionStatus.setText("QUERY OK");
+                connectionStatus.setText(R.string.query_ok);
                 for (QueryDocumentSnapshot qs : snapshot) {
                     try {
                         Map<String, Object> positionRecord = qs.getData();
@@ -58,7 +58,7 @@ public class HistoryFragment extends Fragment {
 
             @Override
             public void onFailure() {
-                connectionStatus.setText("CONNECTION ERROR");
+                connectionStatus.setText(R.string.connection_error);
             }
         };
     }
@@ -95,7 +95,7 @@ public class HistoryFragment extends Fragment {
     }
 
     private void refreshHistory(View view) {
-        connectionStatus.setText("Loading...");
+        connectionStatus.setText(R.string.loading_with_dots);
         db.read(handler);
     }
 

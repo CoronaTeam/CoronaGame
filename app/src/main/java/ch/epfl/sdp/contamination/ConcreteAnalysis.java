@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.epfl.sdp.Callback;
+
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
 
 public class ConcreteAnalysis implements InfectionAnalyst {
@@ -45,12 +47,13 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         if (updatedProbability > CERTAINTY_APPROXIMATION_THRESHOLD) {
             // MODEL: If I'm almost certainly ill, then I will be marked as INFECTED
             me.evolveInfection(InfectionStatus.INFECTED);
+        } else if (updatedProbability < ABSENCE_APPROXIMATION_THRESHOLD) {
+            // MODEL: If I'm almost certainly healthy, then I will be marked as HEALTHY
+            me.evolveInfection(InfectionStatus.HEALTHY);
         } else {
-            if (updatedProbability != 0) {
-                me.evolveInfection(InfectionStatus.UNKNOWN);
-            }
-            me.setIllnessProbability(updatedProbability);
+            me.evolveInfection(InfectionStatus.UNKNOWN);
         }
+        me.setIllnessProbability(updatedProbability);
     }
 
     private void modelInfectionEvolution(Map<Carrier, Integer> suspectedContacts) {
@@ -93,10 +96,20 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     }
 
     @Override
-    public void updateInfectionPredictions(Location location, Date startTime) {
+    public void updateInfectionPredictions(Location location, Date startTime, Callback<Void> callback) {
 
         Date now = new Date(System.currentTimeMillis());
+        receiver.getUserNearbyDuring(location, startTime, now, aroundMe -> {
+            modelInfectionEvolution(identifySuspectContacts(aroundMe));
+            callback.onCallback(null);
+        });
+    }
 
-        receiver.getUserNearbyDuring(location, startTime, now, aroundMe -> modelInfectionEvolution(identifySuspectContacts(aroundMe)));
+    @Override
+    public Carrier getCarrier() {
+        return me;
+    }
+    public Carrier getCurrentCarrier(){
+        return new Layman(me.getInfectionStatus(),me.getIllnessProbability());
     }
 }

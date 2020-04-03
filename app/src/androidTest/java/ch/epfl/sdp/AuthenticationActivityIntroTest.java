@@ -4,30 +4,31 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import androidx.test.espresso.intent.Intents;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.rule.ActivityTestRule;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import androidx.test.espresso.intent.Intents;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.rule.ActivityTestRule;
-
 import static androidx.test.espresso.intent.Intents.assertNoUnverifiedIntents;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static ch.epfl.sdp.TestTools.initSafeTest;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
-public class AuthActivityIntroTest {
-
-    SharedPreferences.Editor preferencesEditor;
+public class AuthenticationActivityIntroTest {
 
     @Rule
     public final ActivityTestRule<Authentication> mActivityRule =
             new ActivityTestRule<>(Authentication.class, true, false);
+    SharedPreferences.Editor preferencesEditor;
 
     @Before
     public void setup() {
@@ -49,7 +50,8 @@ public class AuthActivityIntroTest {
 
         mActivityRule.launchActivity(new Intent());
         intended(hasComponent(Authentication.class.getName()));
-        assertNoUnverifiedIntents();
+
+        assertNull(mActivityRule.getActivity());
     }
 
     @Test

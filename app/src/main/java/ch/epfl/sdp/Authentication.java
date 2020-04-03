@@ -50,17 +50,13 @@ public class Authentication extends AppCompatActivity {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         // Build a GoogleSignInClient with the options specified by gso.
         googleSignInClient = GoogleSignIn.getClient(this, gso);
-        findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switch (v.getId()) {
-                    case R.id.sign_in_button:
-                        signIn();
-                        break;
-                    // ...
-                }
+        findViewById(R.id.sign_in_button).setOnClickListener(v -> {
+            switch (v.getId()) {
+                case R.id.sign_in_button:
+                    signIn();
+                    break;
+                // ...
             }
-
         });
 
     }

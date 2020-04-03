@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="188dp"
         android:layout_marginTop="164dp"
-        android:text="TextView"
+        android:text="@string/textview"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -25,6 +25,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.561"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/exchange_status" />
+        app:layout_constraintTop_toBottomOf="@+id/exchange_status"
+        android:importantForAutofill="no" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

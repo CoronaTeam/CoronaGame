@@ -122,13 +122,25 @@ public class ConcreteAnalysisTest {
             }
         }
 
+        private boolean timeIsInRange(long k, Date startDate, Date endDate) {
+            return startDate.getTime() <= k && k <= endDate.getTime();
+        }
+
+        private void merge(Map<Carrier, Integer> r, Carrier carrier) {
+            if (r.containsKey(carrier)) {
+                r.put(carrier, r.get(carrier)+1);
+            } else {
+                r.put(carrier, 1);
+            }
+        }
+
         private Map<Carrier, Integer> filterByTime(GeoPoint location, Date startDate, Date endDate) {
             Map<Carrier, Integer> res = new HashMap<>();
             for (long k : city.get(location).keySet()) {
-                if (startDate.getTime() <= k && k <= endDate.getTime()) {
-                    city.get(location).get(k).forEach(carrier -> {
-                        res.merge(carrier, 1, (a, b) -> a+b);
-                    });
+                if (timeIsInRange(k, startDate, endDate)) {
+                    for (Carrier carrier : city.get(location).get(k)) {
+                        merge(res, carrier);
+                    }
                 }
             }
 

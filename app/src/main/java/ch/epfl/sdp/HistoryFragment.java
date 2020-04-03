@@ -20,10 +20,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
+import androidx.test.espresso.idling.CountingIdlingResource;
 
 public class HistoryFragment extends Fragment {
 
-    private FirestoreInteractor db;
+    private HistoryFirestoreInteractor db;
 
     private Account account;
 
@@ -91,7 +92,7 @@ public class HistoryFragment extends Fragment {
 
     @VisibleForTesting
     void setFirestoreInteractor(FirestoreInteractor interactor) {
-        db = interactor;
+        db.setFirestoreInteractor(interactor);
     }
 
     private void refreshHistory(View view) {

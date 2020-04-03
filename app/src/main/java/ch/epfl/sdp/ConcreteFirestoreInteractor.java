@@ -23,26 +23,26 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
     }
 
     public void writeDocument(String path, Map<String, Object> document,
-                              OnSuccessListener onSuccess, OnFailureListener onFailure) {
+                              OnSuccessListener successListener, OnFailureListener failureListener) {
         try {
             serverIdlingResource.increment();
             db.collection(path)
                     .add(document)
-                    .addOnSuccessListener(onSuccess)
-                    .addOnFailureListener(onFailure);
+                    .addOnSuccessListener(successListener)
+                    .addOnFailureListener(failureListener);
         } finally {
             serverIdlingResource.decrement();
         }
     }
 
     public void writeDocumentWithID(String path, String documentID, Map<String, Object> document,
-                                    OnSuccessListener onSuccess, OnFailureListener onFailure) {
+                                    OnSuccessListener successListener, OnFailureListener failureListener) {
         try {
             serverIdlingResource.increment();
             db.collection(path).document(documentID)
                     .set(document)
-                    .addOnSetSuccessListener(onSuccess)
-                    .addOnSetFailureListener(onFailure);
+                    .addOnSetSuccessListener(successListener)
+                    .addOnSetFailureListener(failureListener);
         } finally {
             serverIdlingResource.decrement();
         }

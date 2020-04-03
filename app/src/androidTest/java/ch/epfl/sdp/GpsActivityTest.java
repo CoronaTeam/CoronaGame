@@ -82,8 +82,26 @@ public class GpsActivityTest {
 
         FirestoreInteractor successfulInteractor = new FirestoreInteractor() {
             @Override
-            public void write(Map<String, PositionRecord> content, OnSuccessListener success, OnFailureListener failure) {
-                success.onSuccess(null);
+            public void writeDocument(String path, Map<String, Object> document,
+                                      OnSuccessListener successListener, OnFailureListener failureListener) {
+                successListener.onSuccess(null);
+            }
+
+            @Override
+            public void writeDocumentWithID(String path, String documentID,
+                                            Map<String, Object> document,
+                                            OnSuccessListener successListener, OnFailureListener failureListener) {
+                successListener.onSuccess(null);
+            }
+
+            @Override
+            public void readDocument(String path, QueryHandler handler) {
+
+            }
+
+            @Override
+            public void readDocumentWithID(String path, String documentID, QueryHandler handler) {
+
             }
         };
         mActivityRule.getActivity().setFirestoreInteractor(successfulInteractor);
@@ -101,8 +119,23 @@ public class GpsActivityTest {
 
         FirestoreInteractor failingInteractor = new FirestoreInteractor() {
             @Override
-            public void write(Map<String, PositionRecord> content, OnSuccessListener success, OnFailureListener failure) {
-                failure.onFailure(new Exception());
+            public void writeDocument(String path, Map<String, Object> document, OnSuccessListener successListener, OnFailureListener failureListener) {
+                failureListener.onFailure(new Exception());
+            }
+
+            @Override
+            public void writeDocumentWithID(String path, String documentID, Map<String, Object> document, OnSuccessListener successListener, OnFailureListener failureListener) {
+                failureListener.onFailure(new Exception());
+            }
+
+            @Override
+            public void readDocument(String path, QueryHandler handler) {
+
+            }
+
+            @Override
+            public void readDocumentWithID(String path, String documentID, QueryHandler handler) {
+
             }
         };
 

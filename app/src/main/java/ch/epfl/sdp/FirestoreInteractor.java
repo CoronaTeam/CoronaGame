@@ -39,11 +39,11 @@ public abstract class FirestoreInteractor {
     ////////////////////////////////////////////////////////////
 
     public abstract void writeDocument(String path, Map<String, Object> document,
-                                       OnSuccessListener onSuccess, OnFailureListener onFailure);
+                                       OnSuccessListener successListener, OnFailureListener failureListener);
 
     public abstract void writeDocumentWithID(String path, String documentID,
                                              Map<String, Object> document,
-                                             OnSuccessListener onSuccess, OnFailureListener onFailure);
+                                             OnSuccessListener successListener, OnFailureListener failureListener);
 
     public abstract void readDocument(String path, QueryHandler handler);
 

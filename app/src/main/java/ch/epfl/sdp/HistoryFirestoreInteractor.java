@@ -1,25 +1,30 @@
 package ch.epfl.sdp;
 
+import androidx.annotation.VisibleForTesting;
+import androidx.test.espresso.idling.CountingIdlingResource;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class HistoryFirestoreInteractor extends FirestoreInteractor {
+public class HistoryFirestoreInteractor {
 
-    private FirestoreWrapper wrapper;
+    private FirestoreInteractor fsi;
     private Account user;
 
-    HistoryFirestoreInteractor(FirestoreWrapper wrapper, Account user) {
-        this.wrapper = wrapper;
+    HistoryFirestoreInteractor(FirestoreWrapper firestoreWrapper, Account user) {
+        this.fsi = new ConcreteFirestoreInteractor(firestoreWrapper, new CountingIdlingResource(
+                "HistoryCalls"));
         this.user = user;
     }
 
-    @Override
     public void read(QueryHandler handler) {
         String path = "History/" + user.getId() + "/Positions";
-        wrapper.collection(path)
+        fsi.readDocument(path, handler);
+
+        /*wrapper.collection(path)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -27,23 +32,34 @@ public class HistoryFirestoreInteractor extends FirestoreInteractor {
                     } else {
                         handler.onFailure();
                     }
-                });
+                });*/
     }
 
-    @Override
-    public void write(Map<String, PositionRecord> content, OnSuccessListener success, OnFailureListener failure) {
+
+    public void write(Map<String, Object> content, OnSuccessListener success,
+                      OnFailureListener failure) {
         String path = "History/" + user.getId() + "/Positions";
-        PositionRecord posRec = (PositionRecord)content.values().toArray()[0];
+        PositionRecord posRec = (PositionRecord) content.values().toArray()[0];
+
         Map<String, Object> lastPos = new HashMap<>();
         lastPos.put("geoPoint", posRec.getGeoPoint());
         lastPos.put("timeStamp", posRec.getTimestamp());
-        wrapper.collection(path)
+
+        fsi.writeDocumentWithID(path, posRec.calculateID(), content, success, failure);
+        fsi.writeDocumentWithID("LastPositions", user.getId(), lastPos, success, failure);
+
+        /*wrapper.collection(path)
                 .document(posRec.calculateID())
                 .set(content)
                 .addOnSetSuccessListener(success)
                 .addOnSetFailureListener(failure);
 
 
-        wrapper.collection("LastPositions").document(user.getId()).set(lastPos);
+        wrapper.collection("LastPositions").document(user.getId()).set(lastPos);*/
+    }
+
+    @VisibleForTesting
+    public void setFirestoreInteractor(FirestoreInteractor interactor) {
+        fsi = interactor;
     }
 }

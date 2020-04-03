@@ -45,7 +45,7 @@ public class MainActivityTest {
         onView(withId(UIelementID)).check(matches(isDisplayed()));
     }
 
-    @Test
+    @Test @Ignore
     public void testCanGoToUserAuthActivity() {
         clickAndCheck(R.id.button_launch_signin, R.id.sign_in_button);
     }

@@ -10,6 +10,7 @@ import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,7 +44,7 @@ public class AuthenticationActivityIntroTest {
         Intents.release();
     }
 
-    @Test
+    @Test @Ignore
     public void testSkipsIntroWhenAlreadyOpenedOnce() {
         preferencesEditor.putBoolean(Authentication.OPENED_BEFORE_PREFERENCE, true);
         preferencesEditor.commit();

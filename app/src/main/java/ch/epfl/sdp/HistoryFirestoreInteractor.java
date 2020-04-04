@@ -1,7 +1,6 @@
 package ch.epfl.sdp;
 
 import androidx.annotation.VisibleForTesting;
-import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -16,8 +15,7 @@ public class HistoryFirestoreInteractor {
     private Account user;
 
     HistoryFirestoreInteractor(FirebaseFirestore firebaseFirestore, Account user) {
-        this.fsi = new ConcreteFirestoreInteractor(firebaseFirestore, new CountingIdlingResource(
-                "HistoryCalls"));
+        this.fsi = new ConcreteFirestoreInteractor();
         this.user = user;
     }
 

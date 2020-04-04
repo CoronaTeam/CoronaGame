@@ -1,14 +1,10 @@
 package ch.epfl.sdp;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.test.espresso.idling.CountingIdlingResource;
-
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,8 +22,7 @@ public class FirebaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_firebase);
 
-        fs = new ConcreteFirestoreInteractor(FirebaseFirestore.getInstance(), new CountingIdlingResource(
-                "FirestoreServerCalls"));
+        fs = new ConcreteFirestoreInteractor();
 
     }
 

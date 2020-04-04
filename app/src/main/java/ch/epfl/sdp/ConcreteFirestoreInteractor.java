@@ -4,25 +4,23 @@ import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 
 import java.util.Map;
 
 public class ConcreteFirestoreInteractor extends FirestoreInteractor {
     final CountingIdlingResource serverIdlingResource;
-    private final FirebaseFirestore db;
 
-    public ConcreteFirestoreInteractor(FirebaseFirestore firebaseFirestore,
-                                       CountingIdlingResource firestoreServerIdlingResource) {
-        this.db = firebaseFirestore;
-        this.serverIdlingResource = firestoreServerIdlingResource;
+    public ConcreteFirestoreInteractor() {
+        this.serverIdlingResource = new CountingIdlingResource("firestoreCountingResource");
     }
 
-    public void writeDocument(String path, Map<String, Object> document,
+    public void writeDocument(CollectionReference collectionReference, Map<String, Object> document,
                               OnSuccessListener successListener, OnFailureListener failureListener) {
         try {
             serverIdlingResource.increment();
-            db.collection(path)
+            collectionReference
                     .add(document)
                     .addOnSuccessListener(successListener)
                     .addOnFailureListener(failureListener);
@@ -31,11 +29,11 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
         }
     }
 
-    public void writeDocumentWithID(String path, String documentID, Map<String, Object> document,
+    public void writeDocumentWithID(DocumentReference documentReference, Map<String, Object> document,
                                     OnSuccessListener successListener, OnFailureListener failureListener) {
         try {
             serverIdlingResource.increment();
-            db.collection(path).document(documentID)
+            documentReference
                     .set(document).addOnSuccessListener(successListener)
                     .addOnFailureListener(failureListener);
         } finally {
@@ -43,10 +41,10 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
         }
     }
 
-    public void readDocument(String path, QueryHandler handler) {
+    public void readDocument(CollectionReference collectionReference, QueryHandler handler) {
         try {
             serverIdlingResource.increment();
-            db.collection(path)
+            collectionReference
                     .get()
                     .addOnCompleteListener(querySnapshotOnCompleteListener(handler));
         } finally {
@@ -54,10 +52,10 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
         }
     }
 
-    public void readDocumentWithID(String path, String documentID, Callback callback) {
+    public void readDocumentWithID(DocumentReference documentReference, Callback callback) {
         try {
             serverIdlingResource.increment();
-            db.collection(path).document(documentID)
+            documentReference
                     .get()
                     .addOnCompleteListener(documentSnapshotOnCompleteListener(callback));
         } finally {

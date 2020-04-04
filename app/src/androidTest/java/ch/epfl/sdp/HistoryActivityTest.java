@@ -5,6 +5,8 @@ import androidx.test.rule.ActivityTestRule;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -74,22 +76,24 @@ public class HistoryActivityTest {
         FirestoreInteractor successInteractor = new FirestoreInteractor() {
 
             @Override
-            public void writeDocument(String path, Map<String, Object> document, OnSuccessListener successListener, OnFailureListener failureListener) {
+            public void writeDocument(CollectionReference collectionReference, Map<String, Object> document,
+                                      OnSuccessListener successListener, OnFailureListener failureListener) {
 
             }
 
             @Override
-            public void writeDocumentWithID(String path, String documentID, Map<String, Object> document, OnSuccessListener successListener, OnFailureListener failureListener) {
+            public void writeDocumentWithID(DocumentReference documentReference, Map<String, Object> document,
+                                            OnSuccessListener successListener, OnFailureListener failureListener) {
 
             }
 
             @Override
-            public void readDocument(String path, QueryHandler handler) {
+            public void readDocument(CollectionReference collectionReference, QueryHandler handler) {
                 handler.onSuccess(querySnapshot);
             }
 
             @Override
-            public void readDocumentWithID(String path, String documentID, Callback callback) {
+            public void readDocumentWithID(DocumentReference documentReference, Callback callback) {
                 callback.onCallback(querySnapshot);
             }
         };
@@ -120,22 +124,24 @@ public class HistoryActivityTest {
         FirestoreInteractor failureInteractor = new FirestoreInteractor() {
 
             @Override
-            public void writeDocument(String path, Map<String, Object> document, OnSuccessListener successListener, OnFailureListener failureListener) {
+            public void writeDocument(CollectionReference collectionReference, Map<String, Object> document,
+                                      OnSuccessListener successListener, OnFailureListener failureListener) {
 
             }
 
             @Override
-            public void writeDocumentWithID(String path, String documentID, Map<String, Object> document, OnSuccessListener successListener, OnFailureListener failureListener) {
+            public void writeDocumentWithID(DocumentReference documentReference, Map<String,
+                    Object> document, OnSuccessListener successListener, OnFailureListener failureListener) {
 
             }
 
             @Override
-            public void readDocument(String path, QueryHandler handler) {
+            public void readDocument(CollectionReference collectionReference, QueryHandler handler) {
                 handler.onFailure();
             }
 
             @Override
-            public void readDocumentWithID(String path, String documentID, Callback callback) {
+            public void readDocumentWithID(DocumentReference documentReference, Callback callback) {
                 callback.onCallback("Error");
             }
         };
@@ -150,22 +156,24 @@ public class HistoryActivityTest {
         FirestoreInteractor unreadableInteractor = new FirestoreInteractor() {
 
             @Override
-            public void writeDocument(String path, Map<String, Object> document, OnSuccessListener successListener, OnFailureListener failureListener) {
+            public void writeDocument(CollectionReference collectionReference, Map<String, Object> document,
+                                      OnSuccessListener successListener, OnFailureListener failureListener) {
 
             }
 
             @Override
-            public void writeDocumentWithID(String path, String documentID, Map<String, Object> document, OnSuccessListener successListener, OnFailureListener failureListener) {
+            public void writeDocumentWithID(DocumentReference documentReference, Map<String, Object> document,
+                                            OnSuccessListener successListener, OnFailureListener failureListener) {
 
             }
 
             @Override
-            public void readDocument(String path, QueryHandler handler) {
+            public void readDocument(CollectionReference collectionReference, QueryHandler handler) {
                 handler.onSuccess(unreadableSnapshot);
             }
 
             @Override
-            public void readDocumentWithID(String path, String documentID, Callback callback) {
+            public void readDocumentWithID(DocumentReference documentReference, Callback callback) {
                 callback.onCallback(unreadableSnapshot);
             }
         };

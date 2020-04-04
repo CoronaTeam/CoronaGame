@@ -13,6 +13,8 @@ import androidx.test.rule.GrantPermissionRule;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -82,25 +84,25 @@ public class GpsActivityTest {
 
         FirestoreInteractor successfulInteractor = new FirestoreInteractor() {
             @Override
-            public void writeDocument(String path, Map<String, Object> document,
+            public void writeDocument(CollectionReference collectionReference, Map<String, Object> document,
                                       OnSuccessListener successListener, OnFailureListener failureListener) {
                 successListener.onSuccess(null);
             }
 
             @Override
-            public void writeDocumentWithID(String path, String documentID,
+            public void writeDocumentWithID(DocumentReference documentReference,
                                             Map<String, Object> document,
                                             OnSuccessListener successListener, OnFailureListener failureListener) {
                 successListener.onSuccess(null);
             }
 
             @Override
-            public void readDocument(String path, QueryHandler handler) {
+            public void readDocument(CollectionReference collectionReference, QueryHandler handler) {
 
             }
 
             @Override
-            public void readDocumentWithID(String path, String documentID, Callback callback) {
+            public void readDocumentWithID(DocumentReference documentReference, Callback callback) {
 
             }
         };
@@ -119,22 +121,24 @@ public class GpsActivityTest {
 
         FirestoreInteractor failingInteractor = new FirestoreInteractor() {
             @Override
-            public void writeDocument(String path, Map<String, Object> document, OnSuccessListener successListener, OnFailureListener failureListener) {
+            public void writeDocument(CollectionReference collectionReference, Map<String, Object> document,
+                                      OnSuccessListener successListener, OnFailureListener failureListener) {
                 failureListener.onFailure(new Exception());
             }
 
             @Override
-            public void writeDocumentWithID(String path, String documentID, Map<String, Object> document, OnSuccessListener successListener, OnFailureListener failureListener) {
+            public void writeDocumentWithID(DocumentReference documentReference, Map<String, Object> document,
+                                            OnSuccessListener successListener, OnFailureListener failureListener) {
                 failureListener.onFailure(new Exception());
             }
 
             @Override
-            public void readDocument(String path, QueryHandler handler) {
+            public void readDocument(CollectionReference collectionReference, QueryHandler handler) {
 
             }
 
             @Override
-            public void readDocumentWithID(String path, String documentID, Callback callback) {
+            public void readDocumentWithID(DocumentReference documentReference, Callback callback) {
 
             }
         };

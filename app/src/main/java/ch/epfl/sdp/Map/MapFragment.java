@@ -15,10 +15,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -75,7 +73,7 @@ public class MapFragment extends Fragment implements LocationListener {
         }
         userAccount = AccountFragment.getAccount(getActivity());
 
-        db = new ConcreteFirestoreInteractor(FirebaseFirestore.getInstance(), new CountingIdlingResource("MapFragment"));
+        db = new ConcreteFirestoreInteractor();
 
         // Mapbox access token is configured here. This needs to be called either in your application
         // object or in the same activity which contains the mapview.

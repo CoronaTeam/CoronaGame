@@ -10,6 +10,7 @@ import java.util.Map;
 
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
+import ch.epfl.sdp.firestore.QueryHandler;
 
 public class HistoryFirestoreInteractor {
 

@@ -7,9 +7,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 
-import ch.epfl.sdp.Callback;
-import ch.epfl.sdp.QueryHandler;
-
 public class ConcreteFirestoreInteractor extends FirestoreInteractor {
     private final CountingIdlingResource serverIdlingResource;
 
@@ -47,18 +44,19 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
             serverIdlingResource.increment();
             collectionReference
                     .get()
-                    .addOnCompleteListener(querySnapshotOnCompleteListener(handler));
+                    .addOnCompleteListener(onCompleteListenerBuilder(handler));
         } finally {
             serverIdlingResource.decrement();
         }
     }
 
-    public void readDocument(DocumentReference documentReference, Callback callback) {
+    public void readDocument(DocumentReference documentReference,
+                             QueryHandler<DocumentReference> handler) {
         try {
             serverIdlingResource.increment();
             documentReference
                     .get()
-                    .addOnCompleteListener(documentSnapshotOnCompleteListener(callback));
+                    .addOnCompleteListener(onCompleteListenerBuilder(handler));
         } finally {
             serverIdlingResource.decrement();
         }

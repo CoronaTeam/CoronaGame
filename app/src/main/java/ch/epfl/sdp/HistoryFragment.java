@@ -21,6 +21,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 
 import ch.epfl.sdp.firestore.FirestoreInteractor;
+import ch.epfl.sdp.firestore.QueryHandler;
 
 public class HistoryFragment extends Fragment {
 
@@ -66,7 +67,7 @@ public class HistoryFragment extends Fragment {
         ListView historyTracker = view.findViewById(R.id.history_tracker);
         historyTracker.setAdapter(historyAdapter);
 
-        handler = new QueryHandler() {
+        handler = new QueryHandler<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot snapshot) {
                 historyAdapter.clear();

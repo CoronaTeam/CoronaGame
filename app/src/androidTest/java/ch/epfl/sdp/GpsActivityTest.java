@@ -15,6 +15,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -22,6 +23,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import ch.epfl.sdp.firestore.FirestoreInteractor;
+import ch.epfl.sdp.firestore.QueryHandler;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -102,7 +104,8 @@ public class GpsActivityTest {
             }
 
             @Override
-            public void readDocument(DocumentReference documentReference, Callback callback) {
+            public void readDocument(DocumentReference documentReference,
+                                     QueryHandler handler) {
 
             }
         };
@@ -138,7 +141,7 @@ public class GpsActivityTest {
             }
 
             @Override
-            public void readDocument(DocumentReference documentReference, Callback callback) {
+            public void readDocument(DocumentReference documentReference, QueryHandler handler) {
 
             }
         };

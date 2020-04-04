@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.epfl.sdp.firestore.FirestoreInteractor;
+import ch.epfl.sdp.firestore.QueryHandler;
 
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
@@ -95,8 +96,8 @@ public class HistoryActivityTest {
             }
 
             @Override
-            public void readDocument(DocumentReference documentReference, Callback callback) {
-                callback.onCallback(querySnapshot);
+            public void readDocument(DocumentReference documentReference, QueryHandler handler) {
+                handler.onSuccess(querySnapshot);
             }
         };
 
@@ -142,8 +143,8 @@ public class HistoryActivityTest {
             }
 
             @Override
-            public void readDocument(DocumentReference documentReference, Callback callback) {
-                callback.onCallback("Error");
+            public void readDocument(DocumentReference documentReference, QueryHandler handler) {
+                handler.onFailure();
             }
         };
 
@@ -174,8 +175,8 @@ public class HistoryActivityTest {
             }
 
             @Override
-            public void readDocument(DocumentReference documentReference, Callback callback) {
-                callback.onCallback(unreadableSnapshot);
+            public void readDocument(DocumentReference documentReference, QueryHandler handler) {
+                handler.onSuccess(unreadableSnapshot);
             }
         };
 

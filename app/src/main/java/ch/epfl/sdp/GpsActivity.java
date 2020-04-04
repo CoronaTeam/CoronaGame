@@ -30,6 +30,7 @@ import ch.epfl.sdp.contamination.ConcreteDataSender;
 import ch.epfl.sdp.contamination.ConcretePositionAggregator;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.contamination.InfectionActivity;
+import ch.epfl.sdp.firestore.FirestoreInteractor;
 
 import static ch.epfl.sdp.LocationBroker.Provider.GPS;
 import static java.lang.String.*;
@@ -178,11 +179,11 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         // TODO: Take real account
         account = AuthenticationManager.getAccount(this);
 
-        db = new HistoryFirestoreInteractor(FirebaseFirestore.getInstance(), account);
+        db = new HistoryFirestoreInteractor(account);
         Log.e("TEST", account.getId());
 
         // TODO: Instantiate an aggregator using a DataSender using changes from feature/infectmodelview
-        this.aggregator = new ConcretePositionAggregator(new ConcreteDataSender(new GridFirestoreInteractor(FirebaseFirestore.getInstance()), account), InfectionActivity.getAnalyst());
+        this.aggregator = new ConcretePositionAggregator(new ConcreteDataSender(new GridFirestoreInteractor(), account), InfectionActivity.getAnalyst());
     }
 
     // TODO: think about using bluetooth technology to improve accuracy

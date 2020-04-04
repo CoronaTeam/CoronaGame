@@ -20,11 +20,6 @@ import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
 public class BiometricUtils {
 
 
-
-    /**
-     * Condition II: Check if the if the device has authentication capabilities
-     *
-     * */
     public static boolean canAuthenticate(Context context) {
         if (!isPermissionGranted(context))
             return false;
@@ -45,12 +40,6 @@ public class BiometricUtils {
         return false;
     }
 
-    /**
-     * Condition III: Check if the permission has been added to
-     * the app. This permission will be granted as soon as the user
-     * installs the app on their device.
-     *
-     * */
     private static boolean isPermissionGranted(Context context) {
         return ActivityCompat.checkSelfPermission(context,
                 Manifest.permission.USE_FINGERPRINT) ==

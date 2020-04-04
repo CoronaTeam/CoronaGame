@@ -1,4 +1,4 @@
-package ch.epfl.sdp;
+package ch.epfl.sdp.firestore;
 
 import androidx.test.espresso.idling.CountingIdlingResource;
 
@@ -7,16 +7,17 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 
-import java.util.Map;
+import ch.epfl.sdp.Callback;
+import ch.epfl.sdp.QueryHandler;
 
 public class ConcreteFirestoreInteractor extends FirestoreInteractor {
-    final CountingIdlingResource serverIdlingResource;
+    private final CountingIdlingResource serverIdlingResource;
 
     public ConcreteFirestoreInteractor() {
         this.serverIdlingResource = new CountingIdlingResource("firestoreCountingResource");
     }
 
-    public void writeDocument(CollectionReference collectionReference, Map<String, Object> document,
+    public void writeDocument(CollectionReference collectionReference, Object document,
                               OnSuccessListener successListener, OnFailureListener failureListener) {
         try {
             serverIdlingResource.increment();
@@ -29,7 +30,7 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
         }
     }
 
-    public void writeDocumentWithID(DocumentReference documentReference, Map<String, Object> document,
+    public void writeDocumentWithID(DocumentReference documentReference, Object document,
                                     OnSuccessListener successListener, OnFailureListener failureListener) {
         try {
             serverIdlingResource.increment();
@@ -41,7 +42,7 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
         }
     }
 
-    public void readDocument(CollectionReference collectionReference, QueryHandler handler) {
+    public void readCollection(CollectionReference collectionReference, QueryHandler handler) {
         try {
             serverIdlingResource.increment();
             collectionReference
@@ -52,7 +53,7 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
         }
     }
 
-    public void readDocumentWithID(DocumentReference documentReference, Callback callback) {
+    public void readDocument(DocumentReference documentReference, Callback callback) {
         try {
             serverIdlingResource.increment();
             documentReference

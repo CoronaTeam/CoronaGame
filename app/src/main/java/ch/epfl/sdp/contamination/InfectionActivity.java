@@ -19,11 +19,10 @@ import ch.epfl.sdp.fragment.AccountFragment;
 
 public class InfectionActivity extends AppCompatActivity {
 
-    private static GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor(FirebaseFirestore.getInstance());
+    private static GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor();
     private static InfectionAnalyst analyst = new ConcreteAnalysis(new Layman(Carrier.InfectionStatus.HEALTHY), new ConcreteDataReceiver(gridInteractor));
     private static DataReceiver receiver = new ConcreteDataReceiver(gridInteractor);
     private TextView infectionStatus;
-    ;
     private ProgressBar infectionProbability;
     private long lastUpdateTime;
 
@@ -34,7 +33,7 @@ public class InfectionActivity extends AppCompatActivity {
 
     @VisibleForTesting
     void setReceiver(DataReceiver receiver) {
-        this.receiver = receiver;
+        InfectionActivity.receiver = receiver;
     }
 
     public static InfectionAnalyst getAnalyst() {
@@ -43,7 +42,7 @@ public class InfectionActivity extends AppCompatActivity {
 
     @VisibleForTesting
     void setAnalyst(InfectionAnalyst analyst) {
-        this.analyst = analyst;
+        InfectionActivity.analyst = analyst;
     }
 
     @Override

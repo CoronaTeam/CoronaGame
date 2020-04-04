@@ -21,7 +21,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.Map;
+import ch.epfl.sdp.firestore.FirestoreInteractor;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -84,25 +84,25 @@ public class GpsActivityTest {
 
         FirestoreInteractor successfulInteractor = new FirestoreInteractor() {
             @Override
-            public void writeDocument(CollectionReference collectionReference, Map<String, Object> document,
+            public void writeDocument(CollectionReference collectionReference, Object document,
                                       OnSuccessListener successListener, OnFailureListener failureListener) {
                 successListener.onSuccess(null);
             }
 
             @Override
             public void writeDocumentWithID(DocumentReference documentReference,
-                                            Map<String, Object> document,
+                                            Object document,
                                             OnSuccessListener successListener, OnFailureListener failureListener) {
                 successListener.onSuccess(null);
             }
 
             @Override
-            public void readDocument(CollectionReference collectionReference, QueryHandler handler) {
+            public void readCollection(CollectionReference collectionReference, QueryHandler handler) {
 
             }
 
             @Override
-            public void readDocumentWithID(DocumentReference documentReference, Callback callback) {
+            public void readDocument(DocumentReference documentReference, Callback callback) {
 
             }
         };
@@ -121,24 +121,24 @@ public class GpsActivityTest {
 
         FirestoreInteractor failingInteractor = new FirestoreInteractor() {
             @Override
-            public void writeDocument(CollectionReference collectionReference, Map<String, Object> document,
+            public void writeDocument(CollectionReference collectionReference, Object document,
                                       OnSuccessListener successListener, OnFailureListener failureListener) {
                 failureListener.onFailure(new Exception());
             }
 
             @Override
-            public void writeDocumentWithID(DocumentReference documentReference, Map<String, Object> document,
+            public void writeDocumentWithID(DocumentReference documentReference, Object document,
                                             OnSuccessListener successListener, OnFailureListener failureListener) {
                 failureListener.onFailure(new Exception());
             }
 
             @Override
-            public void readDocument(CollectionReference collectionReference, QueryHandler handler) {
+            public void readCollection(CollectionReference collectionReference, QueryHandler handler) {
 
             }
 
             @Override
-            public void readDocumentWithID(DocumentReference documentReference, Callback callback) {
+            public void readDocument(DocumentReference documentReference, Callback callback) {
 
             }
         };

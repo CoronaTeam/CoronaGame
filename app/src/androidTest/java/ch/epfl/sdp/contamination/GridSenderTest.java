@@ -104,7 +104,7 @@ public class GridSenderTest {
 
         // TODO: GridFirestoreInteractor should become an interface too
         MockGridInteractor() {
-            super(null);
+            super();
         }
     }
 

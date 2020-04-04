@@ -4,34 +4,26 @@ import androidx.annotation.VisibleForTesting;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
+import ch.epfl.sdp.firestore.FirestoreInteractor;
 
 public class HistoryFirestoreInteractor {
 
     private FirestoreInteractor fsi;
     private Account user;
 
-    HistoryFirestoreInteractor(FirebaseFirestore firebaseFirestore, Account user) {
+    HistoryFirestoreInteractor(Account user) {
         this.fsi = new ConcreteFirestoreInteractor();
         this.user = user;
     }
 
     public void read(QueryHandler handler) {
         String path = "History/" + user.getId() + "/Positions";
-        fsi.readDocument(path, handler);
-
-        /*wrapper.collection(path)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        handler.onSuccess(task.getResult());
-                    } else {
-                        handler.onFailure();
-                    }
-                });*/
+        fsi.readCollection(path, handler);
     }
 
 
@@ -46,15 +38,6 @@ public class HistoryFirestoreInteractor {
 
         fsi.writeDocumentWithID(path, posRec.calculateID(), content, success, failure);
         fsi.writeDocumentWithID("LastPositions", user.getId(), lastPos, success, failure);
-
-        /*wrapper.collection(path)
-                .document(posRec.calculateID())
-                .set(content)
-                .addOnSetSuccessListener(success)
-                .addOnSetFailureListener(failure);
-
-
-        wrapper.collection("LastPositions").document(user.getId()).set(lastPos);*/
     }
 
     @VisibleForTesting

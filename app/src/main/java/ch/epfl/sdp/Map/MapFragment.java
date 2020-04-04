@@ -34,7 +34,7 @@ import java.util.Map;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.BuildConfig;
-import ch.epfl.sdp.ConcreteFirestoreInteractor;
+import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.ConcreteLocationBroker;
 import ch.epfl.sdp.LocationBroker;
 import ch.epfl.sdp.R;

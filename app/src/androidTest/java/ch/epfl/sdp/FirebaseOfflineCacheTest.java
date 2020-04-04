@@ -14,6 +14,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import ch.epfl.sdp.firestore.FirebaseActivity;
+
 /*
       Run tests in debug mode to see logs & values prints
  */

@@ -9,7 +9,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -20,7 +19,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
-import androidx.test.espresso.idling.CountingIdlingResource;
+
+import ch.epfl.sdp.firestore.FirestoreInteractor;
 
 public class HistoryFragment extends Fragment {
 
@@ -33,6 +33,33 @@ public class HistoryFragment extends Fragment {
     private TextView connectionStatus;
 
     private View view;
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.fragment_history, container, false);
+
+        account = AuthenticationManager.getAccount(getActivity());
+        db = new HistoryFirestoreInteractor(account);
+        connectionStatus = view.findViewById(R.id.conn_status);
+        initQueryHandler();
+        refreshHistory(null);
+
+        // Callbacks have to be manually added instead of onClick in xml
+        view.findViewById(R.id.refresh_history).setOnClickListener(this::refreshHistory);
+
+        return view;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @VisibleForTesting
+    void setFirestoreInteractor(FirestoreInteractor interactor) {
+        db.setFirestoreInteractor(interactor);
+    }
 
     private void initQueryHandler() {
         ArrayAdapter historyAdapter = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_list_item_1);
@@ -62,36 +89,6 @@ public class HistoryFragment extends Fragment {
                 connectionStatus.setText(R.string.connection_error);
             }
         };
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_history, container, false);
-
-        account = AuthenticationManager.getAccount(getActivity());
-        db = new HistoryFirestoreInteractor(FirebaseFirestore.getInstance(), account);
-
-        connectionStatus = view.findViewById(R.id.conn_status);
-
-        initQueryHandler();
-
-        refreshHistory(null);
-
-        // Callbacks have to be manually added instead of onClick in xml
-        view.findViewById(R.id.refresh_history).setOnClickListener(this::refreshHistory);
-
-        return view;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @VisibleForTesting
-    void setFirestoreInteractor(FirestoreInteractor interactor) {
-        db.setFirestoreInteractor(interactor);
     }
 
     private void refreshHistory(View view) {

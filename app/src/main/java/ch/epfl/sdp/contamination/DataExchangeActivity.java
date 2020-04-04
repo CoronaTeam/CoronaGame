@@ -47,7 +47,7 @@ public class DataExchangeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sender = new ConcreteDataSender(new GridFirestoreInteractor(FirebaseFirestore.getInstance()),
+        sender = new ConcreteDataSender(new GridFirestoreInteractor(),
                 AuthenticationManager.getAccount(this)).setOnSuccessListener(successListener).setOnFailureListener(failureListener);
 
         setContentView(R.layout.activity_dataexchange);
@@ -55,6 +55,6 @@ public class DataExchangeActivity extends AppCompatActivity {
         exchangeContent = findViewById(R.id.exchange_content);
 
         receiver = new ConcreteDataReceiver(
-                new GridFirestoreInteractor(FirebaseFirestore.getInstance()));
+                new GridFirestoreInteractor());
     }
 }

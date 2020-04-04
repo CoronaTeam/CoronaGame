@@ -1,4 +1,4 @@
-package ch.epfl.sdp;
+package ch.epfl.sdp.firestore;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -15,22 +15,24 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import ch.epfl.sdp.Callback;
+import ch.epfl.sdp.QueryHandler;
+
 public abstract class FirestoreInteractor {
     FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
 
-    public abstract void writeDocument(CollectionReference collectionReference, Map<String, Object> document,
+    public abstract void writeDocument(CollectionReference collectionReference, Object document,
                                        OnSuccessListener successListener, OnFailureListener failureListener);
 
     public abstract void writeDocumentWithID(DocumentReference docRef,
-                                             Map<String, Object> document,
+                                             Object document,
                                              OnSuccessListener successListener,
                                              OnFailureListener failureListener);
 
-    public abstract void readDocument(CollectionReference collectionReference, QueryHandler handler);
+    public abstract void readCollection(CollectionReference collectionReference, QueryHandler handler);
 
-    public abstract void readDocumentWithID(DocumentReference docRef, Callback callback);
-
+    public abstract void readDocument(DocumentReference docRef, Callback callback);
 
     //////////////////////////////////////////////////////////////
 
@@ -42,56 +44,56 @@ public abstract class FirestoreInteractor {
         return collectionReference(path).document(documentID);
     }
 
-    public void writeDocument(String path, Map<String, Object> document,
+    public void writeDocument(String path, Object document,
                               OnSuccessListener successListener,
                               OnFailureListener failureListener) {
         writeDocument(collectionReference(path), document, successListener, failureListener);
     }
 
-    public void writeDocument(String path, Map<String, Object> document, Callback<Optional<Exception>> callback) {
+    public void writeDocument(String path, Object document, Callback<Optional<Exception>> callback) {
         writeDocument(path, document, onSuccessBuilder(callback), onFailureBuilder(callback));
     }
 
-    public void writeDocument(CollectionReference collectionReference, Map<String, Object> document,
+    public void writeDocument(CollectionReference collectionReference, Object document,
                               Callback<Optional<Exception>> callback) {
         writeDocument(collectionReference, document, onSuccessBuilder(callback), onFailureBuilder(callback));
     }
 
     public void writeDocumentWithID(String path, String documentID,
-                                    Map<String, Object> document,
+                                    Object document,
                                     OnSuccessListener successListener,
                                     OnFailureListener failureListener) {
         writeDocumentWithID(documentReference(path, documentID), document, successListener,
                 failureListener);
     }
 
-    public void writeDocumentWithID(String path, String documentID, Map<String, Object> document,
+    public void writeDocumentWithID(String path, String documentID, Object document,
                                     Callback<Optional<Exception>> callback) {
         writeDocumentWithID(path, documentID, document, onSuccessBuilder(callback),
                 onFailureBuilder(callback));
     }
 
-    public void writeDocumentWithID(DocumentReference documentReference, Map<String, Object> document,
+    public void writeDocumentWithID(DocumentReference documentReference, Object document,
                                     Callback<Optional<Exception>> callback) {
         writeDocumentWithID(documentReference, document, onSuccessBuilder(callback),
                 onFailureBuilder(callback));
     }
 
-    public void readDocument(String path, QueryHandler handler) {
-        readDocument(collectionReference(path), handler);
+    public void readCollection(String path, QueryHandler handler) {
+        readCollection(collectionReference(path), handler);
     }
 
-    public void readDocument(String path, Callback<Map<String, Map<String, Object>>> callback) {
-        readDocument(path, queryHandlerBuilder(callback));
+    public void readCollection(String path, Callback<Map<String, Map<String, Object>>> callback) {
+        readCollection(path, queryHandlerBuilder(callback));
     }
 
-    public void readDocument(CollectionReference collectionReference,
-                             Callback<Map<String, Map<String, Object>>> callback) {
-        readDocument(collectionReference, queryHandlerBuilder(callback));
+    public void readCollection(CollectionReference collectionReference,
+                               Callback<Map<String, Map<String, Object>>> callback) {
+        readCollection(collectionReference, queryHandlerBuilder(callback));
     }
 
-    public void readDocumentWithID(String path, String documentID, Callback callback) {
-        readDocumentWithID(documentReference(path, documentID), callback);
+    public void readDocument(String path, String documentID, Callback callback) {
+        readDocument(documentReference(path, documentID), callback);
     }
 
     private QueryHandler queryHandlerBuilder(Callback<Map<String, Map<String, Object>>> callback) {

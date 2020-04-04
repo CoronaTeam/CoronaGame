@@ -1,4 +1,4 @@
-package ch.epfl.sdp;
+package ch.epfl.sdp.firestore;
 
 import android.os.Bundle;
 import android.view.View;
@@ -10,20 +10,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import ch.epfl.sdp.Callback;
+import ch.epfl.sdp.R;
+
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
 
 public class FirebaseActivity extends AppCompatActivity {
-    private static final String TAG = "FirebaseActivity";;
     private ConcreteFirestoreInteractor fs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_firebase);
-
         fs = new ConcreteFirestoreInteractor();
-
     }
 
     public void addUser1(View view) {
@@ -49,13 +49,13 @@ public class FirebaseActivity extends AppCompatActivity {
 
     public void readData2(View view) {
         databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
-                R.string.can_t_Download_Offline, textView -> fs.readDocumentWithID("Tests/FirebaseActivity/Download", "DownloadTest",
+                R.string.can_t_Download_Offline, textView -> fs.readDocument("Tests/FirebaseActivity/Download", "DownloadTest",
                         stringMapMap -> textView.setText(stringMapMap.toString())));
     }
 
     public void readData1(View view){
         databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
-                R.string.can_t_Download_Offline, textView -> fs.readDocument("Tests/FirebaseActivity/Download",
+                R.string.can_t_Download_Offline, textView -> fs.readCollection("Tests/FirebaseActivity/Download",
                         stringMapMap -> {
                             textView.setText(stringMapMap.toString());
                         }));

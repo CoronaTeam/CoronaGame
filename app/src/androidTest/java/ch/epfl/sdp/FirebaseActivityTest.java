@@ -8,19 +8,10 @@ import androidx.core.content.ContextCompat;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.QuerySnapshot;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.util.Map;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -63,7 +54,7 @@ public class FirebaseActivityTest {
     public void testDataDownloadIsDisplayed2() {
         clickWaitAndCheckText(R.id.FirebaseDownloadButton2,
                 R.id.FirebaseDownloadResult,
-                "{DownloadTest={value=success}}",
+                "{value=success}",
                 30000);
     }
 
@@ -124,72 +115,5 @@ public class FirebaseActivityTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
-
-    public class MockFirestoreWrapper implements FirestoreWrapper {
-
-        private DocumentReference documentReference;
-        private Task<Void> documentSetReferenceTask;
-
-        @Override
-        public <A, B> FirestoreWrapper add(Map<A, B> map) {
-            return this;
-        }
-
-        @Override
-        public <A> FirestoreWrapper add(A obj) {
-            return this;
-        }
-
-        @Override
-        public FirestoreWrapper collection(String collectionPath) {
-            return this;
-        }
-
-        @Override
-        public FirestoreWrapper addOnSuccessListener(OnSuccessListener<? super DocumentReference> onSuccessListener) {
-            return this;
-        }
-
-        @Override
-        public FirestoreWrapper addOnFailureListener(OnFailureListener onFailureListener) {
-            return this;
-        }
-
-        @Override
-        public FirestoreWrapper addOnCompleteListener(OnCompleteListener<QuerySnapshot> onCompleteListener) {
-
-            return this;
-        }
-
-        @Override
-        public FirestoreWrapper get() {
-            return null;
-        }
-
-        @Override
-        public FirestoreWrapper addOnSetSuccessListener(OnSuccessListener<Void> onSuccessListener) {
-            documentSetReferenceTask.addOnSuccessListener(onSuccessListener);
-            return this;
-        }
-
-        @Override
-        public FirestoreWrapper addOnSetFailureListener(OnFailureListener onFailureListener) {
-            documentSetReferenceTask.addOnFailureListener(onFailureListener);
-            return this;
-        }
-
-        @Override
-        public FirestoreWrapper document(String documentPath) {
-            this.documentReference = null;
-            return this;
-        }
-
-        @Override
-        public <A, B> FirestoreWrapper set(Map<A, B> map) {
-            this.documentSetReferenceTask = documentReference.set(map);
-            return this;
-        }
-
     }
 }

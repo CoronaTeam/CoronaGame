@@ -89,8 +89,8 @@ public class HistoryActivityTest {
             }
 
             @Override
-            public void readDocumentWithID(String path, String documentID, QueryHandler handler) {
-                handler.onSuccess(querySnapshot);
+            public void readDocumentWithID(String path, String documentID, Callback callback) {
+                callback.onCallback(querySnapshot);
             }
         };
 
@@ -135,8 +135,8 @@ public class HistoryActivityTest {
             }
 
             @Override
-            public void readDocumentWithID(String path, String documentID, QueryHandler handler) {
-                handler.onFailure();
+            public void readDocumentWithID(String path, String documentID, Callback callback) {
+                callback.onCallback("Error");
             }
         };
 
@@ -165,8 +165,8 @@ public class HistoryActivityTest {
             }
 
             @Override
-            public void readDocumentWithID(String path, String documentID, QueryHandler handler) {
-                handler.onSuccess(unreadableSnapshot);
+            public void readDocumentWithID(String path, String documentID, Callback callback) {
+                callback.onCallback(unreadableSnapshot);
             }
         };
 

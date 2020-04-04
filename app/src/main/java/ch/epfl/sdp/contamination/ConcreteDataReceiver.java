@@ -165,9 +165,9 @@ class ConcreteDataReceiver implements DataReceiver {
 
     @Override
     public void getMyLastLocation(Account account, Callback<Location> callback) {
-        interactor.readLastLocation(account, new QueryHandler() {
+        interactor.readLastLocation(account, new Callback<QuerySnapshot>() {
             @Override
-            public void onSuccess(QuerySnapshot snapshot) {
+            public void onCallback(QuerySnapshot snapshot) {
                 if (snapshot.iterator().hasNext()) {
                     GeoPoint geoPoint = (GeoPoint) snapshot.iterator().next().get("geoPoint");
                     Location location = new Location(LocationManager.GPS_PROVIDER);
@@ -175,11 +175,6 @@ class ConcreteDataReceiver implements DataReceiver {
                     location.setLongitude(geoPoint.getLongitude());
                     callback.onCallback(location);
                 }
-            }
-
-            @Override
-            public void onFailure() {
-                // TODO: What do we do when queries fail?
             }
         });
     }

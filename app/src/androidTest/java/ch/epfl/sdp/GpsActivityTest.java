@@ -100,7 +100,7 @@ public class GpsActivityTest {
             }
 
             @Override
-            public void readDocumentWithID(String path, String documentID, QueryHandler handler) {
+            public void readDocumentWithID(String path, String documentID, Callback callback) {
 
             }
         };
@@ -134,7 +134,7 @@ public class GpsActivityTest {
             }
 
             @Override
-            public void readDocumentWithID(String path, String documentID, QueryHandler handler) {
+            public void readDocumentWithID(String path, String documentID, Callback callback) {
 
             }
         };

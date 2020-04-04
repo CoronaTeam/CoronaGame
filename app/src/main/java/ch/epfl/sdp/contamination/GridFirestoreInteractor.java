@@ -10,8 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.epfl.sdp.Account;
-import ch.epfl.sdp.ConcreteFirestoreInteractor;
-import ch.epfl.sdp.FirestoreWrapper;
+import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.QueryHandler;
 
 public class GridFirestoreInteractor {
@@ -19,10 +18,10 @@ public class GridFirestoreInteractor {
     // MODEL: Round the location to the 5th decimal digit
     static final int COORDINATE_PRECISION = 100000;
 
-    private FirestoreWrapper db;
+    private FirebaseFirestore fs;
 
-    public GridFirestoreInteractor(FirestoreWrapper wrapper) {
-        this.db = wrapper;
+    public GridFirestoreInteractor(FirebaseFirestore firebaseFirestore) {
+        this.fs = firebaseFirestore;
     }
 
     String getGridId(Location location) {
@@ -36,7 +35,7 @@ public class GridFirestoreInteractor {
     }
 
     public void getTimes(Location location, QueryHandler handler) {
-        db.collection("LiveGrid/" + getGridId(location) + "/Times")
+        fs.collection("LiveGrid/" + getGridId(location) + "/Times")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -47,21 +46,21 @@ public class GridFirestoreInteractor {
                 });
     }
 
-    public void readLastLocation(Account account, QueryHandler handler) {
-        db.collection("LastPositions")
+    public void readLastLocation(Account account, Callback callback) {
+        fs.collection("LastPositions")
                 .document(account.getId())
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        handler.onSuccess(task.getResult());
+                        callback.onCallback(task.getResult());
                     } else {
-                        handler.onFailure();
+                        callback.onCallback(task.getException());
                     }
                 });
     }
 
     public void read(Location location, long time, QueryHandler handler) {
-        db.collection("LiveGrid/" + getGridId(location) + "/" + time)
+        fs.collection("LiveGrid/" + getGridId(location) + "/" + time)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -75,10 +74,10 @@ public class GridFirestoreInteractor {
     public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
         Map<String, String> timeMap = new HashMap<>();
         timeMap.put("Time", time);
-        db.collection("LiveGrid/" + getGridId(location) + "/Times")
+        fs.collection("LiveGrid/" + getGridId(location) + "/Times")
                 .document(time)
                 .set(timeMap);
-        db.collection("LiveGrid/" + getGridId(location) + "/" + time)
+        fs.collection("LiveGrid/" + getGridId(location) + "/" + time)
                 .add(carrier)
                 .addOnSuccessListener(success)
                 .addOnFailureListener(failure);

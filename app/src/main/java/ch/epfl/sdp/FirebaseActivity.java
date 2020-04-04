@@ -18,8 +18,7 @@ import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
 
 public class FirebaseActivity extends AppCompatActivity {
-    private static final String TAG = "FirebaseActivity";
-    CountingIdlingResource countingResource;
+    private static final String TAG = "FirebaseActivity";;
     private ConcreteFirestoreInteractor fs;
 
     @Override
@@ -27,16 +26,8 @@ public class FirebaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_firebase);
 
-        // Get the Intent that started this activity and extract the string
-        FirestoreWrapper wrapper;
-        Intent intent = getIntent();
-        if (intent.hasExtra("wrapper")) {
-            wrapper = (FirestoreWrapper) intent.getSerializableExtra("wrapper");
-        } else {
-            wrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
-        }
-        this.countingResource = new CountingIdlingResource("FirestoreServerCalls");
-        fs = new ConcreteFirestoreInteractor(wrapper, countingResource);
+        fs = new ConcreteFirestoreInteractor(FirebaseFirestore.getInstance(), new CountingIdlingResource(
+                "FirestoreServerCalls"));
 
     }
 

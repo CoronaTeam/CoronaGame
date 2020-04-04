@@ -2,23 +2,19 @@ package ch.epfl.sdp;
 
 import androidx.test.espresso.idling.CountingIdlingResource;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 public class ConcreteFirestoreInteractor extends FirestoreInteractor {
     final CountingIdlingResource serverIdlingResource;
-    private final FirestoreWrapper db;
+    private final FirebaseFirestore db;
 
-    public ConcreteFirestoreInteractor(FirestoreWrapper firestoreFirestoreWrapper,
+    public ConcreteFirestoreInteractor(FirebaseFirestore firebaseFirestore,
                                        CountingIdlingResource firestoreServerIdlingResource) {
-        this.db = firestoreFirestoreWrapper;
+        this.db = firebaseFirestore;
         this.serverIdlingResource = firestoreServerIdlingResource;
     }
 
@@ -40,9 +36,8 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
         try {
             serverIdlingResource.increment();
             db.collection(path).document(documentID)
-                    .set(document)
-                    .addOnSetSuccessListener(successListener)
-                    .addOnSetFailureListener(failureListener);
+                    .set(document).addOnSuccessListener(successListener)
+                    .addOnFailureListener(failureListener);
         } finally {
             serverIdlingResource.decrement();
         }
@@ -53,18 +48,18 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
             serverIdlingResource.increment();
             db.collection(path)
                     .get()
-                    .addOnCompleteListener(onCompleteBuilder(handler));
+                    .addOnCompleteListener(querySnapshotOnCompleteListener(handler));
         } finally {
             serverIdlingResource.decrement();
         }
     }
 
-    public void readDocumentWithID(String path, String documentID, QueryHandler handler) {
+    public void readDocumentWithID(String path, String documentID, Callback callback) {
         try {
             serverIdlingResource.increment();
             db.collection(path).document(documentID)
                     .get()
-                    .addOnCompleteListener(onCompleteBuilder(handler));
+                    .addOnCompleteListener(documentSnapshotOnCompleteListener(callback));
         } finally {
             serverIdlingResource.decrement();
         }

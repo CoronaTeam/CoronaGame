@@ -178,12 +178,11 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         // TODO: Take real account
         account = AuthenticationManager.getAccount(this);
 
-        FirestoreWrapper wrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
-        db = new HistoryFirestoreInteractor(wrapper, account);
+        db = new HistoryFirestoreInteractor(FirebaseFirestore.getInstance(), account);
         Log.e("TEST", account.getId());
 
         // TODO: Instantiate an aggregator using a DataSender using changes from feature/infectmodelview
-        this.aggregator = new ConcretePositionAggregator(new ConcreteDataSender(new GridFirestoreInteractor(wrapper), account), InfectionActivity.getAnalyst());
+        this.aggregator = new ConcretePositionAggregator(new ConcreteDataSender(new GridFirestoreInteractor(FirebaseFirestore.getInstance()), account), InfectionActivity.getAnalyst());
     }
 
     // TODO: think about using bluetooth technology to improve accuracy

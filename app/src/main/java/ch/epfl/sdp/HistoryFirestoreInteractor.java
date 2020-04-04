@@ -5,6 +5,7 @@ import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,8 +15,8 @@ public class HistoryFirestoreInteractor {
     private FirestoreInteractor fsi;
     private Account user;
 
-    HistoryFirestoreInteractor(FirestoreWrapper firestoreWrapper, Account user) {
-        this.fsi = new ConcreteFirestoreInteractor(firestoreWrapper, new CountingIdlingResource(
+    HistoryFirestoreInteractor(FirebaseFirestore firebaseFirestore, Account user) {
+        this.fsi = new ConcreteFirestoreInteractor(firebaseFirestore, new CountingIdlingResource(
                 "HistoryCalls"));
         this.user = user;
     }

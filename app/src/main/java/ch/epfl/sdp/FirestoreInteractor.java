@@ -1,9 +1,9 @@
 package ch.epfl.sdp;
 
-import com.bumptech.glide.load.Option;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -12,31 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import kotlin.NotImplementedError;
-
 // TODO: This should become an interface again (is abstract class for legacy compatibility)
 public abstract class FirestoreInteractor {
-
-    /*
-    Generic read/write operations on String results
-     */
-    void readDocument(Callback<String> callback) {
-        throw new NotImplementedError();
-    }
-
-    void writeDocument(Callback<String> callback) {
-        throw new NotImplementedError();
-    }
-
-    /*
-    Specific read operation (for QuerySnapshot), by default it uses readDocument
-     */
-    public void read(QueryHandler handler) {
-        // TODO: Convert this class to interface
-        throw new NotImplementedError();
-    }
-
-    ////////////////////////////////////////////////////////////
 
     public abstract void writeDocument(String path, Map<String, Object> document,
                                        OnSuccessListener successListener, OnFailureListener failureListener);
@@ -47,7 +24,7 @@ public abstract class FirestoreInteractor {
 
     public abstract void readDocument(String path, QueryHandler handler);
 
-    public abstract void readDocumentWithID(String path, String documentID, QueryHandler handler);
+    public abstract void readDocumentWithID(String path, String documentID, Callback callback);
 
     public void writeDocument(String path, Map<String, Object> document, Callback<Optional<Exception>> callback) {
         writeDocument(path, document, onSuccessBuilder(callback), onFailureBuilder(callback));
@@ -63,9 +40,9 @@ public abstract class FirestoreInteractor {
         readDocument(path, queryHandlerBuilder(callback));
     }
 
-    public void readDocumentWithID(String path, String documentID, Callback<Map<String, Map<String, Object>>> callback) {
+    /*public void readDocumentWithID(String path, String documentID, Callback<Map<String, Map<String, Object>>> callback) {
         readDocumentWithID(path, documentID, queryHandlerBuilder(callback));
-    }
+    }*/
 
     private QueryHandler queryHandlerBuilder(Callback<Map<String, Map<String, Object>>> callback) {
         return new QueryHandler() {
@@ -86,7 +63,6 @@ public abstract class FirestoreInteractor {
     }
 
     private OnSuccessListener onSuccessBuilder(Callback<Optional<Exception>> callback) {
-
         return e -> callback.onCallback(Optional.empty());
     }
 
@@ -94,7 +70,7 @@ public abstract class FirestoreInteractor {
         return e -> callback.onCallback(Optional.of(e));
     }
 
-    OnCompleteListener<QuerySnapshot> onCompleteBuilder(QueryHandler handler) {
+    OnCompleteListener<QuerySnapshot> querySnapshotOnCompleteListener(QueryHandler handler) {
         return task -> {
             if (task.isSuccessful()) {
                 handler.onSuccess(task.getResult());
@@ -104,4 +80,16 @@ public abstract class FirestoreInteractor {
         };
     }
 
+    OnCompleteListener<DocumentSnapshot> documentSnapshotOnCompleteListener(Callback callback) {
+        return task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    callback.onCallback(document.getData());
+                } else {
+                    callback.onCallback(task.getException());
+                }
+            }
+        };
+    }
 }

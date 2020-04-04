@@ -14,19 +14,17 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Date;
 
-import ch.epfl.sdp.ConcreteFirestoreWrapper;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.fragment.AccountFragment;
 
 public class InfectionActivity extends AppCompatActivity {
 
-    private TextView infectionStatus;
-    private ProgressBar infectionProbability;
-
-    private static GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor(new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance()));
-    private static InfectionAnalyst analyst = new ConcreteAnalysis(new Layman(Carrier.InfectionStatus.HEALTHY), new ConcreteDataReceiver(gridInteractor));;
+    private static GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor(FirebaseFirestore.getInstance());
+    private static InfectionAnalyst analyst = new ConcreteAnalysis(new Layman(Carrier.InfectionStatus.HEALTHY), new ConcreteDataReceiver(gridInteractor));
     private static DataReceiver receiver = new ConcreteDataReceiver(gridInteractor);
-
+    private TextView infectionStatus;
+    ;
+    private ProgressBar infectionProbability;
     private long lastUpdateTime;
 
     // TODO: The following 2 static methods must be deleted when GpsActivity is turned into a background service
@@ -34,8 +32,18 @@ public class InfectionActivity extends AppCompatActivity {
         return receiver;
     }
 
+    @VisibleForTesting
+    void setReceiver(DataReceiver receiver) {
+        this.receiver = receiver;
+    }
+
     public static InfectionAnalyst getAnalyst() {
         return analyst;
+    }
+
+    @VisibleForTesting
+    void setAnalyst(InfectionAnalyst analyst) {
+        this.analyst = analyst;
     }
 
     @Override
@@ -58,16 +66,6 @@ public class InfectionActivity extends AppCompatActivity {
         infectionStatus.setText("Refresh to see your status");
     }
 
-    @VisibleForTesting
-    void setAnalyst(InfectionAnalyst analyst) {
-        this.analyst = analyst;
-    }
-
-    @VisibleForTesting
-    void setReceiver(DataReceiver receiver) {
-        this.receiver = receiver;
-    }
-
     public void onModelRefresh(View v) {
 
         Date refreshTime = new Date(lastUpdateTime);
@@ -79,7 +77,7 @@ public class InfectionActivity extends AppCompatActivity {
             analyst.updateInfectionPredictions(location, refreshTime, n -> {
                 InfectionActivity.this.runOnUiThread(() -> {
                     infectionStatus.setText(analyst.getCarrier().getInfectionStatus().toString());
-                    infectionProbability.setProgress(Math.round(analyst.getCarrier().getIllnessProbability()*100));
+                    infectionProbability.setProgress(Math.round(analyst.getCarrier().getIllnessProbability() * 100));
                     Log.e("PROB:", analyst.getCarrier().getIllnessProbability() + "");
                 });
             });

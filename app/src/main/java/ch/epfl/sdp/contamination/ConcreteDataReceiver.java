@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.Callback;
-import ch.epfl.sdp.QueryHandler;
+import ch.epfl.sdp.firestore.QueryHandler;
 
 class ConcreteDataReceiver implements DataReceiver {
 
@@ -37,7 +37,7 @@ class ConcreteDataReceiver implements DataReceiver {
     @Override
     public void getUserNearby(Location location, Date date, Callback<Set<? extends Carrier>> callback) {
 
-        QueryHandler nearbyHandler = new QueryHandler() {
+        QueryHandler nearbyHandler = new QueryHandler<QuerySnapshot>() {
 
             @Override
             public void onSuccess(QuerySnapshot snapshot) {
@@ -74,7 +74,7 @@ class ConcreteDataReceiver implements DataReceiver {
         return validTimes;
     }
 
-    private class SliceQueryHandle implements QueryHandler {
+    private class SliceQueryHandle implements QueryHandler<QuerySnapshot> {
 
         private Map<Carrier, Integer> metDuringInterval;
         private AtomicInteger done;
@@ -132,7 +132,7 @@ class ConcreteDataReceiver implements DataReceiver {
 
         Set<Carrier> carriers = new HashSet<>();
 
-        interactor.getTimes(location, new QueryHandler() {
+        interactor.getTimes(location, new QueryHandler<QuerySnapshot>() {
 
             @Override
             public void onSuccess(QuerySnapshot snapshot) {
@@ -165,9 +165,9 @@ class ConcreteDataReceiver implements DataReceiver {
 
     @Override
     public void getMyLastLocation(Account account, Callback<Location> callback) {
-        interactor.readLastLocation(account, new QueryHandler() {
+        interactor.readLastLocation(account, new Callback<QuerySnapshot>() {
             @Override
-            public void onSuccess(QuerySnapshot snapshot) {
+            public void onCallback(QuerySnapshot snapshot) {
                 if (snapshot.iterator().hasNext()) {
                     GeoPoint geoPoint = (GeoPoint) snapshot.iterator().next().get("geoPoint");
                     Location location = new Location(LocationManager.GPS_PROVIDER);
@@ -175,11 +175,6 @@ class ConcreteDataReceiver implements DataReceiver {
                     location.setLongitude(geoPoint.getLongitude());
                     callback.onCallback(location);
                 }
-            }
-
-            @Override
-            public void onFailure() {
-                // TODO: What do we do when queries fail?
             }
         });
     }

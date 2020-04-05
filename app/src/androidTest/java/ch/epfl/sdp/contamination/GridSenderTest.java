@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.epfl.sdp.Callback;
-import ch.epfl.sdp.QueryHandler;
+import ch.epfl.sdp.firestore.QueryHandler;
 import ch.epfl.sdp.R;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -104,7 +104,7 @@ public class GridSenderTest {
 
         // TODO: GridFirestoreInteractor should become an interface too
         MockGridInteractor() {
-            super(null);
+            super();
         }
     }
 

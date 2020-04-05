@@ -13,6 +13,9 @@ public class Layman implements Carrier{
     // TODO: Properly set the uniqueID (!!)
     private String uniqueID;
 
+    public Layman() {
+    }
+
     // TODO: Properly set uniqueID (also modify equalsTo and hashCode!!)
     public Layman(InfectionStatus initialStatus) {
         this(initialStatus, initialStatus == InfectionStatus.INFECTED ? 1 : 0);
@@ -93,5 +96,12 @@ public class Layman implements Carrier{
     @Override
     public String getUniqueId() {
         return uniqueID;
+    }
+
+
+    ///Getters Needed for the conversion from Object to Map<String, Object> during the Fierbase
+    // Upload
+    public InfectionStatus getMyStatus() {
+        return myStatus;
     }
 }

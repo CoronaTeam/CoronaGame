@@ -15,7 +15,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -84,31 +83,7 @@ public class GpsActivityTest {
         MockBroker mockBroker = new MockBroker();
         startActivityWithBroker(mockBroker);
 
-        FirestoreInteractor successfulInteractor = new FirestoreInteractor() {
-            @Override
-            public void writeDocument(CollectionReference collectionReference, Object document,
-                                      OnSuccessListener successListener, OnFailureListener failureListener) {
-                successListener.onSuccess(null);
-            }
-
-            @Override
-            public void writeDocumentWithID(DocumentReference documentReference,
-                                            Object document,
-                                            OnSuccessListener successListener, OnFailureListener failureListener) {
-                successListener.onSuccess(null);
-            }
-
-            @Override
-            public void readCollection(CollectionReference collectionReference, QueryHandler handler) {
-
-            }
-
-            @Override
-            public void readDocument(DocumentReference documentReference,
-                                     QueryHandler handler) {
-
-            }
-        };
+        FirestoreInteractor successfulInteractor = createWriteFirestoreInteractor(true, null);
         mActivityRule.getActivity().setFirestoreInteractor(successfulInteractor);
 
         mockBroker.setProviderStatus(true);
@@ -122,29 +97,7 @@ public class GpsActivityTest {
         MockBroker mockBroker = new MockBroker();
         startActivityWithBroker(mockBroker);
 
-        FirestoreInteractor failingInteractor = new FirestoreInteractor() {
-            @Override
-            public void writeDocument(CollectionReference collectionReference, Object document,
-                                      OnSuccessListener successListener, OnFailureListener failureListener) {
-                failureListener.onFailure(new Exception());
-            }
-
-            @Override
-            public void writeDocumentWithID(DocumentReference documentReference, Object document,
-                                            OnSuccessListener successListener, OnFailureListener failureListener) {
-                failureListener.onFailure(new Exception());
-            }
-
-            @Override
-            public void readCollection(CollectionReference collectionReference, QueryHandler handler) {
-
-            }
-
-            @Override
-            public void readDocument(DocumentReference documentReference, QueryHandler handler) {
-
-            }
-        };
+        FirestoreInteractor failingInteractor = createWriteFirestoreInteractor(false, null);
 
         mActivityRule.getActivity().setFirestoreInteractor(failingInteractor);
 
@@ -279,6 +232,43 @@ public class GpsActivityTest {
         @Override
         public void requestPermissions(int requestCode) {
             // Trivial since always has permissions
+        }
+    }
+
+    private FirestoreInteractor createWriteFirestoreInteractor(Boolean success, Object onSuccess) {
+        return new FirestoreInteractor() {
+            @Override
+            public void writeDocument(CollectionReference collectionReference, Object document,
+                                      OnSuccessListener successListener, OnFailureListener failureListener) {
+                writeBody(success, onSuccess, successListener, failureListener);
+            }
+
+            @Override
+            public void writeDocumentWithID(DocumentReference documentReference,
+                                            Object document,
+                                            OnSuccessListener successListener, OnFailureListener failureListener) {
+                writeBody(success, onSuccess, successListener, failureListener);
+            }
+
+            @Override
+            public void readCollection(CollectionReference collectionReference, QueryHandler handler) {
+
+            }
+
+            @Override
+            public void readDocument(DocumentReference documentReference,
+                                     QueryHandler handler) {
+
+            }
+        };
+    }
+
+    private void writeBody(Boolean success, Object onSuccess, OnSuccessListener successListener,
+                           OnFailureListener failureListener){
+        if (success) {
+            successListener.onSuccess(onSuccess);
+        }else{
+            failureListener.onFailure(new Exception());
         }
     }
 }

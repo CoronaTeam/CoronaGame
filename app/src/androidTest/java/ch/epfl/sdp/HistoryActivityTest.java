@@ -76,30 +76,7 @@ public class HistoryActivityTest {
     @Test
     @Ignore
     public void historyIsUpdated() {
-        FirestoreInteractor successInteractor = new FirestoreInteractor() {
-
-            @Override
-            public void writeDocument(CollectionReference collectionReference, Object document,
-                                      OnSuccessListener successListener, OnFailureListener failureListener) {
-
-            }
-
-            @Override
-            public void writeDocumentWithID(DocumentReference documentReference, Object document,
-                                            OnSuccessListener successListener, OnFailureListener failureListener) {
-
-            }
-
-            @Override
-            public void readCollection(CollectionReference collectionReference, QueryHandler handler) {
-                handler.onSuccess(querySnapshot);
-            }
-
-            @Override
-            public void readDocument(DocumentReference documentReference, QueryHandler handler) {
-                handler.onSuccess(querySnapshot);
-            }
-        };
+        FirestoreInteractor successInteractor = createReadTestFSI(true, querySnapshot);
 
         fragment.setFirestoreInteractor(successInteractor);
 
@@ -122,9 +99,29 @@ public class HistoryActivityTest {
     }
 
     @Test
-    @Ignore
     public void failureIsNotified() {
-        FirestoreInteractor failureInteractor = new FirestoreInteractor() {
+        FirestoreInteractor failureInteractor = createReadTestFSI(false, null);
+
+        fragment.setFirestoreInteractor(failureInteractor);
+        onView(withId(R.id.refresh_history)).perform(click());
+    }
+
+    @Test
+    public void unreadableContentIsPurged() {
+        FirestoreInteractor unreadableInteractor = createReadTestFSI(true, unreadableSnapshot);
+
+        fragment.setFirestoreInteractor(unreadableInteractor);
+
+        onView(withId(R.id.refresh_history)).perform(click());
+        sleep(500);
+        onData(anything())
+                .inAdapterView(withId(R.id.history_tracker))
+                .atPosition(0)
+                .check(matches(withText("[...unreadable.:).]")));
+    }
+
+    private FirestoreInteractor createReadTestFSI(Boolean success, QuerySnapshot snapshot) {
+        return new FirestoreInteractor() {
 
             @Override
             public void writeDocument(CollectionReference collectionReference, Object document,
@@ -139,7 +136,11 @@ public class HistoryActivityTest {
 
             @Override
             public void readCollection(CollectionReference collectionReference, QueryHandler handler) {
-                handler.onFailure();
+                if (success) {
+                    handler.onSuccess(snapshot);
+                } else {
+                    handler.onFailure();
+                }
             }
 
             @Override
@@ -147,46 +148,5 @@ public class HistoryActivityTest {
                 handler.onFailure();
             }
         };
-
-        fragment.setFirestoreInteractor(failureInteractor);
-        onView(withId(R.id.refresh_history)).perform(click());
-    }
-
-    @Test
-    @Ignore
-    public void unreadableContentIsPurged() {
-        FirestoreInteractor unreadableInteractor = new FirestoreInteractor() {
-
-            @Override
-            public void writeDocument(CollectionReference collectionReference, Object document,
-                                      OnSuccessListener successListener, OnFailureListener failureListener) {
-
-            }
-
-            @Override
-            public void writeDocumentWithID(DocumentReference documentReference, Object document,
-                                            OnSuccessListener successListener, OnFailureListener failureListener) {
-
-            }
-
-            @Override
-            public void readCollection(CollectionReference collectionReference, QueryHandler handler) {
-                handler.onSuccess(unreadableSnapshot);
-            }
-
-            @Override
-            public void readDocument(DocumentReference documentReference, QueryHandler handler) {
-                handler.onSuccess(unreadableSnapshot);
-            }
-        };
-
-        fragment.setFirestoreInteractor(unreadableInteractor);
-
-        onView(withId(R.id.refresh_history)).perform(click());
-        sleep(500);
-        onData(anything())
-                .inAdapterView(withId(R.id.history_tracker))
-                .atPosition(0)
-                .check(matches(withText("[...unreadable.:).]")));
     }
 }

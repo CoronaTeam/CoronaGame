@@ -188,17 +188,4 @@ public abstract class FirestoreInteractor {
             }
         };
     }
-
-    OnCompleteListener<DocumentSnapshot> documentSnapshotOnCompleteListener(Callback callback) {
-        return task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
-                if (document.exists()) {
-                    callback.onCallback(document.getData());
-                } else {
-                    callback.onCallback(task.getException());
-                }
-            }
-        };
-    }
 }

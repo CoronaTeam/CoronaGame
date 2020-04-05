@@ -80,31 +80,12 @@ public class GpsActivityTest {
 
     @Test
     public void detectsSuccessfulFirestoreUpdate() throws Throwable {
-        MockBroker mockBroker = new MockBroker();
-        startActivityWithBroker(mockBroker);
-
-        FirestoreInteractor successfulInteractor = createWriteFirestoreInteractor(true, null);
-        mActivityRule.getActivity().setFirestoreInteractor(successfulInteractor);
-
-        mockBroker.setProviderStatus(true);
-        mockBroker.setFakeLocation(buildLocation(10, 20));
-
-        onView(withId(R.id.history_upload_status)).check(matches(withText("SYNC OK")));
+        detectsTest(true, null, "SYNC OK");
     }
 
     @Test
     public void detectsFailedFirestoreUpdate() throws Throwable {
-        MockBroker mockBroker = new MockBroker();
-        startActivityWithBroker(mockBroker);
-
-        FirestoreInteractor failingInteractor = createWriteFirestoreInteractor(false, null);
-
-        mActivityRule.getActivity().setFirestoreInteractor(failingInteractor);
-
-        mockBroker.setProviderStatus(true);
-        mockBroker.setFakeLocation(buildLocation(10, 20));
-
-        onView(withId(R.id.history_upload_status)).check(matches(withText("SYNC ERROR!")));
+        detectsTest(false, null, "SYNC ERROR!");
     }
 
     @Test
@@ -270,5 +251,19 @@ public class GpsActivityTest {
         }else{
             failureListener.onFailure(new Exception());
         }
+    }
+
+    private void detectsTest(Boolean isSuccess, Object onSuccess, String expectedText) throws Throwable {
+        MockBroker mockBroker = new MockBroker();
+        startActivityWithBroker(mockBroker);
+
+        FirestoreInteractor interactor = createWriteFirestoreInteractor(isSuccess, onSuccess);
+
+        mActivityRule.getActivity().setFirestoreInteractor(interactor);
+
+        mockBroker.setProviderStatus(true);
+        mockBroker.setFakeLocation(buildLocation(10, 20));
+
+        onView(withId(R.id.history_upload_status)).check(matches(withText(expectedText)));
     }
 }

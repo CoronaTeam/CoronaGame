@@ -106,7 +106,7 @@ public class HistoryActivityTest {
         onView(withId(R.id.refresh_history)).perform(click());
     }
 
-    @Test
+    @Test @Ignore
     public void unreadableContentIsPurged() {
         FirestoreInteractor unreadableInteractor = createReadTestFSI(true, unreadableSnapshot);
 

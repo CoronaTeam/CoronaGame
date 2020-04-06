@@ -24,7 +24,6 @@ DEMO FOR USERS LOCATED ON MAP:
 Create a grid with lots of users at some place and less at some other place.
 These places are located around EPFL.
  */
-@Ignore
 public class DataForDemo {
 
     private GridFirestoreInteractor gridFirestoreInteractor =
@@ -42,8 +41,8 @@ public class DataForDemo {
      * Generate 30 users around 46.51700,6.56600 and 5 users around 46.51800, 6.56700.
      * These latitude, longitude correspond to areas at EPFL.
      */
-    @Test
-    public void uploadFakeUsersLocations() {
+     @Test
+    public void upload2GroupsFakeUsersLocations() {
         Date rightNow = new Date(System.currentTimeMillis());
 
         // dense location forms a square of side 6
@@ -97,5 +96,32 @@ public class DataForDemo {
         dataSender.registerLocation(healthyCarrier3,location5,rightNow);
 
 
+    }
+
+    /**
+     * Generate 1000 HEALTHY,HEALTHY_CARRIER,INFECTED,IMMUNE,UNKNOWN users starting from location 4600000, 600000
+     */
+    @Test
+    public void uploadBunchOfUsersAtEPFL() {
+        Date rightNow = new Date(System.currentTimeMillis());
+        for (int i = 0; i < 100; ++i) {
+            for (int j = 0; j < 100; ++j){
+                Carrier carrier;
+                if (i < 40 && j < 40) {
+                    carrier = new Layman(Carrier.InfectionStatus.INFECTED, 1);
+                } else if (i < 60 && j < 60) {
+                    carrier = new Layman(Carrier.InfectionStatus.UNKNOWN, 0.5f);
+                } else if (i < 80 && j < 80) {
+                    carrier = new Layman(Carrier.InfectionStatus.IMMUNE, 0);
+                } else if (i < 90 && j < 90) {
+                    carrier = new Layman(Carrier.InfectionStatus.HEALTHY_CARRIER, 1);
+                } else {
+                    carrier = new Layman(Carrier.InfectionStatus.HEALTHY, 0);
+                }
+                Location userLocation = newLoc(DENSE_INITIAL_EPFL_LATITUDE + i/COORDINATE_PRECISION,
+                        DENSE_INITIAL_EPFL_LONGITUDE + j/COORDINATE_PRECISION);
+                dataSender.registerLocation(carrier,userLocation,rightNow);
+            }
+        }
     }
 }

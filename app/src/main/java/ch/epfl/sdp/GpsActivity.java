@@ -26,8 +26,10 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-
+import ch.epfl.sdp.contamination.ConcreteDataSender;
 import ch.epfl.sdp.contamination.ConcretePositionAggregator;
+import ch.epfl.sdp.contamination.GridFirestoreInteractor;
+import ch.epfl.sdp.contamination.InfectionActivity;
 
 import static ch.epfl.sdp.LocationBroker.Provider.GPS;
 
@@ -51,7 +53,7 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
 
     private FirestoreInteractor db;
 
-//    private ConcretePositionAggregator aggregator;
+    private ConcretePositionAggregator aggregator;
 
     @VisibleForTesting
     void setLocationBroker(LocationBroker testBroker) {
@@ -87,14 +89,12 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
     }
 
     private void registerNewLocation(Location newLocation) {
-        uploadStatus.setText("Uploading...");
+        uploadStatus.setText(R.string.uploading_with_dots);
         Map<String, PositionRecord> element = new HashMap();
-        element.put("Position", new PositionRecord(Timestamp.now(), new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude())));
-        db.write(element, o -> {
-            uploadStatus.setText("SYNC OK");
-        }, e -> {
-            uploadStatus.setText("SYNC ERROR!");
-        });
+        element.put("Position", new PositionRecord(Timestamp.now(),
+                new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude())));
+        db.write(element, o -> uploadStatus.setText(R.string.sync_ok), e ->
+                uploadStatus.setText(R.string.sync_error));
     }
 
     @Override
@@ -103,7 +103,7 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
             registerNewLocation(location);
             displayNewLocation(location);
             //TODO : send new position the the aggregator
-//            aggregator.addPosition(location);
+            aggregator.addPosition(location);
         } else {
             Toast.makeText(this, "Missing permission", Toast.LENGTH_LONG).show();
         }
@@ -113,7 +113,7 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         locationBroker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, this);
         Toast.makeText(this, R.string.gps_status_on, Toast.LENGTH_SHORT).show();
         //TODO : notify the aggregator that we are back online
-//        aggregator.updateToOnline();
+        aggregator.updateToOnline();
     }
 
     private void goOffline() {
@@ -121,7 +121,7 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         longitudeBox.setText(R.string.gps_signal_missing);
         Toast.makeText(this, R.string.gps_status_off, Toast.LENGTH_LONG).show();
         //TODO : notify the aggregator that we are now offline
-//        aggregator.updateToOffline();
+        aggregator.updateToOffline();
     }
 
     @Override
@@ -176,14 +176,14 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         }
 
         // TODO: Take real account
-        account = AccountGetting.getAccount(this);
+        account = AuthenticationManager.getAccount(this);
 
         FirestoreWrapper wrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
         db = new HistoryFirestoreInteractor(wrapper, account);
         Log.e("TEST", account.getId());
 
         // TODO: Instantiate an aggregator using a DataSender using changes from feature/infectmodelview
-//        this.aggregator = new ConcretePositionAggregator(new ConcreteDataSender(new GridFirestoreInteractor(wrapper)),account);
+        this.aggregator = new ConcretePositionAggregator(new ConcreteDataSender(new GridFirestoreInteractor(wrapper), account), InfectionActivity.getAnalyst());
     }
 
     // TODO: think about using bluetooth technology to improve accuracy

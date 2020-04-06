@@ -28,7 +28,7 @@ public class ConcreteLocationBroker implements LocationBroker {
     private final LocationManager locationManager;
     private final Activity activity;
 
-    ConcreteLocationBroker(LocationManager locationManager, Activity activity) {
+    public ConcreteLocationBroker(LocationManager locationManager, Activity activity) {
         this.locationManager = locationManager;
         this.activity = activity;
     }

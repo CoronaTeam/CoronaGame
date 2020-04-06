@@ -57,8 +57,7 @@ public interface TestTools {
                 if (!pausedField.getBoolean(activityRecord)) {
                     Field activityField = activityRecordClass.getDeclaredField("activity");
                     activityField.setAccessible(true);
-                    Activity activity = (Activity) activityField.get(activityRecord);
-                    return activity;
+                    return (Activity) activityField.get(activityRecord);
                 }
             }
         } catch (Exception e) {

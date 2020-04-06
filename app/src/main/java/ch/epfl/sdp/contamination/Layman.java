@@ -10,19 +10,23 @@ public class Layman implements Carrier{
     private InfectionStatus myStatus;
     private float infectedWithProbability;
 
-    // TODO: Add another field to distinguish among Carrier (also modify equalsTo and hashCode!!)
+    // TODO: Properly set the uniqueID (!!)
+    private String uniqueID;
+
+    // TODO: Properly set uniqueID (also modify equalsTo and hashCode!!)
     public Layman(InfectionStatus initialStatus) {
-        myStatus = initialStatus;
-        if (initialStatus == InfectionStatus.INFECTED) {
-            infectedWithProbability = 1;
-        } else {
-            infectedWithProbability = 0;
-        }
+        this(initialStatus, initialStatus == InfectionStatus.INFECTED ? 1 : 0);
     }
 
-    public Layman(InfectionStatus infectionStatus, float infectedWithProbability) {
-        this.myStatus = infectionStatus;
+    public Layman(InfectionStatus initialStatus, float infectedWithProbability) {
+        this(initialStatus, infectedWithProbability, "__NOT_UNIQUE_NOW");
+    }
+
+    public Layman(InfectionStatus initialStatus, float infectedWithProbability, String uniqueID) {
+        this.myStatus = initialStatus;
         this.infectedWithProbability = infectedWithProbability;
+
+        this.uniqueID = uniqueID;
     }
 
     @Override
@@ -45,11 +49,10 @@ public class Layman implements Carrier{
             case HEALTHY_CARRIER:
             case INFECTED:
                 return 1;
-            case UNKNOWN:
+            default:
                 // Only useful case: the infection hits the 10% of the population overall
                 return infectedWithProbability;
         }
-        return 0;
     }
 
     @Override
@@ -58,7 +61,7 @@ public class Layman implements Carrier{
             return false;
         }
 
-        if (myStatus != InfectionStatus.HEALTHY_CARRIER && myStatus != InfectionStatus.UNKNOWN) {
+        if (myStatus == InfectionStatus.IMMUNE || myStatus == InfectionStatus.INFECTED) {
             return false;
         }
 
@@ -70,6 +73,7 @@ public class Layman implements Carrier{
     @Override
     public boolean equals(@Nullable Object obj) {
         return (obj instanceof Layman) &&
+                ((Layman)obj).uniqueID == this.uniqueID &&
                 ((Layman)obj).myStatus == this.myStatus &&
                 ((Layman)obj).infectedWithProbability == this.infectedWithProbability;
     }
@@ -77,11 +81,17 @@ public class Layman implements Carrier{
     @NonNull
     @Override
     public String toString() {
-        return String.format("%s (p=%f)", myStatus, infectedWithProbability);
+        return String.format("#%s: %s (p=%f)", uniqueID, myStatus, infectedWithProbability);
+    }
+
+    // TODO: If uniqueID is properly assigned, its hash can be the hash of the carrier
+    @Override
+    public int hashCode() {
+        return Objects.hash(uniqueID, myStatus, infectedWithProbability);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(myStatus, infectedWithProbability);
+    public String getUniqueId() {
+        return uniqueID;
     }
 }

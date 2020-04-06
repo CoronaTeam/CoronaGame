@@ -19,7 +19,6 @@ import java.util.Map;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 public class HistoryFragment extends Fragment {
@@ -43,7 +42,7 @@ public class HistoryFragment extends Fragment {
             @Override
             public void onSuccess(QuerySnapshot snapshot) {
                 historyAdapter.clear();
-                connectionStatus.setText("QUERY OK");
+                connectionStatus.setText(R.string.query_ok);
                 for (QueryDocumentSnapshot qs : snapshot) {
                     try {
                         Map<String, Object> positionRecord = qs.getData();
@@ -59,7 +58,7 @@ public class HistoryFragment extends Fragment {
 
             @Override
             public void onFailure() {
-                connectionStatus.setText("CONNECTION ERROR");
+                connectionStatus.setText(R.string.connection_error);
             }
         };
     }
@@ -69,7 +68,7 @@ public class HistoryFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_history, container, false);
 
-        account = AccountGetting.getAccount(getActivity());
+        account = AuthenticationManager.getAccount(getActivity());
         FirestoreWrapper firestoreWrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
         db = new HistoryFirestoreInteractor(firestoreWrapper, account);
 
@@ -96,7 +95,7 @@ public class HistoryFragment extends Fragment {
     }
 
     private void refreshHistory(View view) {
-        connectionStatus.setText("Loading...");
+        connectionStatus.setText(R.string.loading_with_dots);
         db.read(handler);
     }
 

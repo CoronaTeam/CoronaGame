@@ -16,7 +16,16 @@ public interface Carrier {
         INFECTED,
         IMMUNE,
         UNKNOWN
-    };
+    }
+
+    /**
+     * Returns a unique identifier of the carrier:
+     * This identifier should NOT be the account ID
+     * since it's only used to distinguish between
+     * different carriers
+     * @return
+     */
+    String getUniqueId();
 
     /**
      * Returns the stage of the infection

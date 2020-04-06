@@ -10,13 +10,12 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import ch.epfl.sdp.contamination.InfectionActivity;
+
 public class MainActivity extends AppCompatActivity {
 
     public static boolean IS_ONLINE = true;
     public static boolean IS_NETWORK_DEBUG = false;
-
-    public static String APP_PREFERENCES = "APP_PREFERENCES";
-    public static String OPENED_BEFORE_PREFERENCE = "OPENED_BEFORE";
 
     public static void checkNetworkStatus(AppCompatActivity activity) {
         if (!IS_NETWORK_DEBUG) {
@@ -33,20 +32,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        SharedPreferences sp = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
-        if (!sp.getBoolean(OPENED_BEFORE_PREFERENCE, false)) {
-            SharedPreferences.Editor editor = sp.edit();
-            editor.putBoolean(OPENED_BEFORE_PREFERENCE, true);
-            editor.apply();
-            setIntroView();
-        }
-    }
-
-    /** Called when the user opens the app for the first time */
-    public void setIntroView() {
-        Intent intent = new Intent(this, IntroActivity.class);
-        startActivity(intent);
     }
 
     /**
@@ -88,6 +73,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void setUserInfectionView(View v) {
         Intent intent = new Intent(this, UserInfectionActivity.class);
+        startActivity(intent);
+    }
+
+    public void setInfectionView(View v) {
+        Intent intent = new Intent(this, InfectionActivity.class);
         startActivity(intent);
     }
 }

@@ -72,7 +72,7 @@ public class ConcreteFirestoreInteractorTest {
     }
 
     @Test @Ignore
-    public void testDataDownloadwithIDIsReceived(){
+    public void testDataDownloadWithIDIsReceived(){
         FirestoreInteractor firestoreInteractor =
                 new ConcreteFirestoreInteractor(new ConcreteFirestoreWrapper(
                         FirebaseFirestore.getInstance()),

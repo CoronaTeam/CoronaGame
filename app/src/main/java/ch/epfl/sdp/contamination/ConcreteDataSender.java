@@ -24,7 +24,6 @@ public class ConcreteDataSender implements DataSender {
 
     // Default Failure listener
     private OnFailureListener failureListener = e -> { };
-
     public ConcreteDataSender(FirestoreInteractor interactor, Account account) {
         this.gridInteractor = new GridFirestoreInteractor(interactor);
         this.normalInteractor = interactor;

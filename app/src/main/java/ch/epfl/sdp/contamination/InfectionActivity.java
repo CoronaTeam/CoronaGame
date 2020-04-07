@@ -20,6 +20,7 @@ import ch.epfl.sdp.fragment.AccountFragment;
 public class InfectionActivity extends AppCompatActivity {
 
     private static GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor();
+//    private static DataSender sender = new ConcreteDataSender();
     private static InfectionAnalyst analyst = new ConcreteAnalysis(new Layman(Carrier.InfectionStatus.HEALTHY), new ConcreteDataReceiver(gridInteractor));
     private static DataReceiver receiver = new ConcreteDataReceiver(gridInteractor);
     private TextView infectionStatus;

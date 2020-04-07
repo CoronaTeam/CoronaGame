@@ -13,6 +13,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 
 public class DataExchangeActivity extends AppCompatActivity {
 
@@ -47,7 +48,7 @@ public class DataExchangeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sender = new ConcreteDataSender(new GridFirestoreInteractor(),
+        sender = new ConcreteDataSender(new ConcreteFirestoreInteractor(),
                 AuthenticationManager.getAccount(this)).setOnSuccessListener(successListener).setOnFailureListener(failureListener);
 
         setContentView(R.layout.activity_dataexchange);

@@ -19,4 +19,8 @@ public interface DataSender {
      * @param time : date associated to that location
      */
     void registerLocation(Carrier carrier, Location location, Date time);
+    /**
+     * Notifies a user he has been close to an infected person
+     */
+    void sendAlert(String userId);
 }

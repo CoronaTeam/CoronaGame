@@ -18,11 +18,13 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     private final PositionAggregator aggregator;
     private final Carrier me;
     private final DataReceiver receiver;
+    private final DataSender sender;
 
-    ConcreteAnalysis(Carrier me, DataReceiver receiver, PositionAggregator positionAggregator) {
+    ConcreteAnalysis(Carrier me, DataReceiver receiver,DataSender dataSender, PositionAggregator positionAggregator) {
         this.me = me;
         this.receiver = receiver;
         this.aggregator = positionAggregator;
+        this.sender = dataSender;
     }
 
     private float calculateCarrierInfectionProbability(Map<Carrier, Integer> suspectedContacts, float cumulativeSocialTime) {
@@ -108,6 +110,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
             modelInfectionEvolution(identifySuspectContacts(aroundMe));
             callback.onCallback(null);
         });
+        //TODO: see if you met Infected Persons yesterday.
     }
 
     @Override
@@ -129,10 +132,13 @@ public class ConcreteAnalysis implements InfectionAnalyst {
 
                 Set<String> userIds = new HashSet<>();
                 lastPositions.forEach((date,location) -> receiver.getUserNearby(location,date,around->{
-                    around.forEach(neighbors -> userIds.add(neighbors.getUniqueId()));
+                    around.forEach(neighbor -> {
+                        if(neighbor.getInfectionStatus()!= InfectionStatus.INFECTED) // only non-infected users need to be informed
+                            userIds.add(neighbor.getUniqueId());
+                    });
                 }));
                 //Tell those user that they have been close to you
-
+                userIds.forEach(u ->sender.sendAlert(u));
             }
             return true;
         }else{

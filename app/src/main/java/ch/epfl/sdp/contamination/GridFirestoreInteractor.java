@@ -24,9 +24,11 @@ public class GridFirestoreInteractor {
     private FirestoreInteractor fsi;
 
     public GridFirestoreInteractor() {
-        this.fsi = new ConcreteFirestoreInteractor();
+        this(new ConcreteFirestoreInteractor());
     }
-
+    public GridFirestoreInteractor(FirestoreInteractor interactor){
+        this.fsi = interactor;
+    }
     String getGridId(Location location) {
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();

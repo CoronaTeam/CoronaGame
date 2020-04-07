@@ -110,7 +110,8 @@ public class ConcreteAnalysis implements InfectionAnalyst {
             modelInfectionEvolution(identifySuspectContacts(aroundMe));
             callback.onCallback(null);
         });
-        //TODO: see if you met Infected Persons yesterday.
+        int badMeetings = receiver.removeSickNeighbors(me.getUniqueId());
+        updateCarrierInfectionProbability(me.getIllnessProbability() + badMeetings*TRANSMISSION_FACTOR);
     }
 
     @Override

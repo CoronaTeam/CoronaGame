@@ -179,8 +179,9 @@ class ConcreteDataReceiver implements DataReceiver {
         });
     }
 
-    public int getSickNeighbors(String userId){
-        interactor.readDocument("publicPlayers/",userId, res ->{
-        }  );
+    public int removeSickNeighbors(String userId){
+        AtomicInteger temp = new AtomicInteger();
+        interactor.readDocument("publicPlayers/",userId, res ->temp.set((int)res));
+        return temp.get();
     }
 }

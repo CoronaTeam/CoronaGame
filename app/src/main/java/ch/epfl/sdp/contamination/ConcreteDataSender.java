@@ -18,16 +18,14 @@ import ch.epfl.sdp.firestore.QueryHandler;
 public class ConcreteDataSender implements DataSender {
     private Account account;
     private GridFirestoreInteractor gridInteractor;
-    private FirestoreInteractor normalInteractor; //for alerts
 
     // Default success listener
     private OnSuccessListener successListener = o -> { };
 
     // Default Failure listener
     private OnFailureListener failureListener = e -> { };
-    public ConcreteDataSender(FirestoreInteractor interactor, Account account) {
-        this.gridInteractor = new GridFirestoreInteractor(interactor);
-        this.normalInteractor = interactor;
+    public ConcreteDataSender(GridFirestoreInteractor interactor, Account account) {
+        this.gridInteractor = interactor;
         this.account = account;
     }
 

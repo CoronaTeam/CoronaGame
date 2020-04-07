@@ -32,4 +32,11 @@ public interface DataReceiver {
      * @return : last location of the user using the app
      */
     void getMyLastLocation(Account account, Callback<Location> callback);
+
+    /**
+     * Gets the # of sock neighbors met yesterday, and set this value to zero.
+     * @param userId
+     * @return
+     */
+    int removeSickNeighbors(String userId);
 }

@@ -4,7 +4,10 @@ import android.location.Location;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
 
 import ch.epfl.sdp.Callback;
 
@@ -120,11 +123,16 @@ public class ConcreteAnalysis implements InfectionAnalyst {
                 //Now, retrieve all user that have been nearby the last UNINTENTIONAL_CONTAGION_TIME milliseconds
 
                 //1: retrieve your own last positions
-                Map<Long,Location> lastPositions = aggregator.getLastPositions();
-                
+                SortedMap<Date,Location> lastPositions = aggregator.getLastPositions();
+
                 //2: Ask firebase who was there
 
-                //during the process, tell those user that they have been close to you
+                Set<String> userIds = new HashSet<>();
+                lastPositions.forEach((date,location) -> receiver.getUserNearby(location,date,around->{
+                    around.forEach(neighbors -> userIds.add(neighbors.getUniqueId()));
+                }));
+                //Tell those user that they have been close to you
+
             }
             return true;
         }else{

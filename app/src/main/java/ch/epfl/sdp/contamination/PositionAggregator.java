@@ -5,6 +5,7 @@ import android.location.Location;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
+import java.util.SortedMap;
 
 /**
  * A positionAggregator should take the average value of multiple points in space during a given interval in time.
@@ -34,5 +35,5 @@ public interface PositionAggregator {
      *
      * @return: locations and times of a given user for a given amount of time
      */
-    Map<Long,Location> getLastPositions();
+    SortedMap<Date,Location> getLastPositions();
 }

@@ -19,6 +19,9 @@ public interface InfectionAnalyst {
     // MODEL: This parameter models the contagiousness of the disease
     float TRANSMISSION_FACTOR = 0.05f;
 
+    //MODEL: This parameters models how long we are contagious before we remark our illness
+    int UNINTENTIONAL_CONTAGION_TIME = 86400000; //[ms] actual : 24 hours
+
     /**
      * Updates the infection probability after staying at 'location' starting from startTime
      * @param startTime
@@ -32,6 +35,7 @@ public interface InfectionAnalyst {
     Carrier getCarrier();
     /**
      * This will update the carrier status. Gets called by UserInfectionActivity, i.e. when a user discovers his illness,
+     * @return
      */
-    void updateStatus(Carrier.InfectionStatus stat);
+    boolean updateStatus(Carrier.InfectionStatus stat);
 }

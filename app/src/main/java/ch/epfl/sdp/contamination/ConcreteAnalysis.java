@@ -12,12 +12,14 @@ import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
 
 public class ConcreteAnalysis implements InfectionAnalyst {
 
-    private Carrier me;
-    private DataReceiver receiver;
+    private final PositionAggregator aggregator;
+    private final Carrier me;
+    private final DataReceiver receiver;
 
-    ConcreteAnalysis(Carrier me, DataReceiver receiver) {
+    ConcreteAnalysis(Carrier me, DataReceiver receiver, PositionAggregator positionAggregator) {
         this.me = me;
         this.receiver = receiver;
+        this.aggregator = positionAggregator;
     }
 
     private float calculateCarrierInfectionProbability(Map<Carrier, Integer> suspectedContacts, float cumulativeSocialTime) {
@@ -111,8 +113,23 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     }
 
     @Override
-    public void updateStatus(InfectionStatus stat) {
+    public boolean updateStatus(InfectionStatus stat) {
+        if(stat != me.getInfectionStatus()){
+            me.evolveInfection(stat);
+            if(stat == InfectionStatus.INFECTED) {
+                //Now, retrieve all user that have been nearby the last UNINTENTIONAL_CONTAGION_TIME milliseconds
 
+                //1: retrieve your own last positions
+                Map<Long,Location> lastPositions = aggregator.getLastPositions();
+                
+                //2: Ask firebase who was there
+
+                //during the process, tell those user that they have been close to you
+            }
+            return true;
+        }else{
+            return false;
+        }
     }
 
     public Carrier getCurrentCarrier(){

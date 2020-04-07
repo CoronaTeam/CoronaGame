@@ -1,49 +1,48 @@
 package ch.epfl.sdp;
 
+import androidx.annotation.VisibleForTesting;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class HistoryFirestoreInteractor extends FirestoreInteractor {
+import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
+import ch.epfl.sdp.firestore.FirestoreInteractor;
+import ch.epfl.sdp.firestore.QueryHandler;
 
-    private FirestoreWrapper wrapper;
+public class HistoryFirestoreInteractor {
+
+    private FirestoreInteractor fsi;
     private Account user;
 
-    HistoryFirestoreInteractor(FirestoreWrapper wrapper, Account user) {
-        this.wrapper = wrapper;
+    HistoryFirestoreInteractor(Account user) {
+        this.fsi = new ConcreteFirestoreInteractor();
         this.user = user;
     }
 
-    @Override
     public void read(QueryHandler handler) {
         String path = "History/" + user.getId() + "/Positions";
-        wrapper.collection(path)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        handler.onSuccess(task.getResult());
-                    } else {
-                        handler.onFailure();
-                    }
-                });
+        fsi.readCollection(path, handler);
     }
 
-    @Override
-    public void write(Map<String, PositionRecord> content, OnSuccessListener success, OnFailureListener failure) {
+
+    public void write(Map<String, Object> content, OnSuccessListener success,
+                      OnFailureListener failure) {
         String path = "History/" + user.getId() + "/Positions";
-        PositionRecord posRec = (PositionRecord)content.values().toArray()[0];
+        PositionRecord posRec = (PositionRecord) content.values().toArray()[0];
+
         Map<String, Object> lastPos = new HashMap<>();
         lastPos.put("geoPoint", posRec.getGeoPoint());
         lastPos.put("timeStamp", posRec.getTimestamp());
-        wrapper.collection(path)
-                .document(posRec.calculateID())
-                .set(content)
-                .addOnSetSuccessListener(success)
-                .addOnSetFailureListener(failure);
 
+        fsi.writeDocumentWithID(path, posRec.calculateID(), content, success, failure);
+        fsi.writeDocumentWithID("LastPositions", user.getId(), lastPos, success, failure);
+    }
 
-        wrapper.collection("LastPositions").document(user.getId()).set(lastPos);
+    @VisibleForTesting
+    public void setFirestoreInteractor(FirestoreInteractor interactor) {
+        fsi = interactor;
     }
 }

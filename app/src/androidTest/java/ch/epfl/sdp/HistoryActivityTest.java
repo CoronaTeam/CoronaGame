@@ -2,7 +2,11 @@ package ch.epfl.sdp;
 
 import androidx.test.rule.ActivityTestRule;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -22,6 +26,9 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
+
+import ch.epfl.sdp.firestore.FirestoreInteractor;
+import ch.epfl.sdp.firestore.QueryHandler;
 
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
@@ -69,12 +76,7 @@ public class HistoryActivityTest {
     @Test
     @Ignore
     public void historyIsUpdated() {
-        FirestoreInteractor successInteractor = new FirestoreInteractor() {
-            @Override
-            public void read(QueryHandler handler) {
-                handler.onSuccess(querySnapshot);
-            }
-        };
+        FirestoreInteractor successInteractor = createReadTestFSI(true, querySnapshot);
 
         fragment.setFirestoreInteractor(successInteractor);
 
@@ -97,28 +99,16 @@ public class HistoryActivityTest {
     }
 
     @Test
-    @Ignore
     public void failureIsNotified() {
-        FirestoreInteractor failureInteractor = new FirestoreInteractor() {
-            @Override
-            public void read(QueryHandler handler) {
-                handler.onFailure();
-            }
-        };
+        FirestoreInteractor failureInteractor = createReadTestFSI(false, null);
 
         fragment.setFirestoreInteractor(failureInteractor);
         onView(withId(R.id.refresh_history)).perform(click());
     }
 
-    @Test
-    @Ignore
+    @Test @Ignore
     public void unreadableContentIsPurged() {
-        FirestoreInteractor unreadableInteractor = new FirestoreInteractor() {
-            @Override
-            public void read(QueryHandler handler) {
-                handler.onSuccess(unreadableSnapshot);
-            }
-        };
+        FirestoreInteractor unreadableInteractor = createReadTestFSI(true, unreadableSnapshot);
 
         fragment.setFirestoreInteractor(unreadableInteractor);
 
@@ -128,5 +118,35 @@ public class HistoryActivityTest {
                 .inAdapterView(withId(R.id.history_tracker))
                 .atPosition(0)
                 .check(matches(withText("[...unreadable.:).]")));
+    }
+
+    private FirestoreInteractor createReadTestFSI(Boolean success, QuerySnapshot snapshot) {
+        return new FirestoreInteractor() {
+
+            @Override
+            public void writeDocument(CollectionReference collectionReference, Object document,
+                                      OnSuccessListener successListener, OnFailureListener failureListener) {
+
+            }
+
+            @Override
+            public void writeDocumentWithID(DocumentReference documentReference, Object document, OnSuccessListener successListener, OnFailureListener failureListener) {
+
+            }
+
+            @Override
+            public void readCollection(CollectionReference collectionReference, QueryHandler handler) {
+                if (success) {
+                    handler.onSuccess(snapshot);
+                } else {
+                    handler.onFailure();
+                }
+            }
+
+            @Override
+            public void readDocument(DocumentReference documentReference, QueryHandler handler) {
+                handler.onFailure();
+            }
+        };
     }
 }

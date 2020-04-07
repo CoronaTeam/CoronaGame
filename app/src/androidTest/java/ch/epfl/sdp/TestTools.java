@@ -91,7 +91,7 @@ public interface TestTools {
      * @param coor
      * @return
      */
-    public static double roundCoordinate(double coor){
+    static double roundCoordinate(double coor){
         return (double)Math.round(coor * 100000d) / 100000d;//fast rounding to 5 digits
     }
 
@@ -100,7 +100,7 @@ public interface TestTools {
      * @param l
      * @return
      */
-    public static Location roundLocation(Location l){
+    static Location roundLocation(Location l){
         if(l == null){
             throw new IllegalArgumentException("Location can't be null");
         }

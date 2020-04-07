@@ -2,7 +2,6 @@ package ch.epfl.sdp;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -11,6 +10,7 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 
 import ch.epfl.sdp.contamination.InfectionActivity;
+import ch.epfl.sdp.firestore.FirebaseActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -71,11 +71,13 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**Called when the user taps the UserInfection button*/
     public void setUserInfectionView(View v) {
         Intent intent = new Intent(this, UserInfectionActivity.class);
         startActivity(intent);
     }
 
+    /**Called when the user taps the Infection button*/
     public void setInfectionView(View v) {
         Intent intent = new Intent(this, InfectionActivity.class);
         startActivity(intent);

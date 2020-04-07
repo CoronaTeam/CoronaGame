@@ -30,8 +30,10 @@ import ch.epfl.sdp.contamination.ConcreteDataSender;
 import ch.epfl.sdp.contamination.ConcretePositionAggregator;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.contamination.InfectionActivity;
+import ch.epfl.sdp.firestore.FirestoreInteractor;
 
 import static ch.epfl.sdp.LocationBroker.Provider.GPS;
+import static java.lang.String.*;
 
 public class GpsActivity extends AppCompatActivity implements LocationListener {
 
@@ -51,7 +53,7 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
 
     private Account account;
 
-    private FirestoreInteractor db;
+    private HistoryFirestoreInteractor db;
 
     private ConcretePositionAggregator aggregator;
 
@@ -63,12 +65,12 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
 
     @VisibleForTesting
     void setFirestoreInteractor(FirestoreInteractor interactor) {
-        db = interactor;
+        db.setFirestoreInteractor(interactor);
     }
 
     private void displayNewLocation(Location newLocation) {
-        latitudeBox.setText(String.valueOf(newLocation.getLatitude()), TextView.BufferType.SPANNABLE);
-        longitudeBox.setText(String.valueOf(newLocation.getLongitude()), TextView.BufferType.SPANNABLE);
+        latitudeBox.setText(valueOf(newLocation.getLatitude()), TextView.BufferType.SPANNABLE);
+        longitudeBox.setText(valueOf(newLocation.getLongitude()), TextView.BufferType.SPANNABLE);
 
         if (prevLocation == null) {
             prevLocation = newLocation;
@@ -79,7 +81,7 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
                 Math.abs(newLocation.getLongitude() - prevLocation.getLongitude()) > differenceThreshold) {
             prevLocation = newLocation;
             Calendar now = Calendar.getInstance();
-            trackerAdapter.insert(String.format("Last seen on %d:%d:%d @ %f, %f",
+            trackerAdapter.insert(format("Last seen on %d:%d:%d @ %f, %f",
                     now.get(Calendar.HOUR_OF_DAY),
                     now.get(Calendar.MINUTE),
                     now.get(Calendar.SECOND),
@@ -90,11 +92,10 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
 
     private void registerNewLocation(Location newLocation) {
         uploadStatus.setText(R.string.uploading_with_dots);
-        Map<String, PositionRecord> element = new HashMap();
+        Map<String, Object> element = new HashMap();
         element.put("Position", new PositionRecord(Timestamp.now(),
                 new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude())));
-        db.write(element, o -> uploadStatus.setText(R.string.sync_ok), e ->
-                uploadStatus.setText(R.string.sync_error));
+        db.write(element, o -> uploadStatus.setText(R.string.sync_ok), e -> uploadStatus.setText(R.string.sync_error));
     }
 
     @Override
@@ -178,12 +179,11 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         // TODO: Take real account
         account = AuthenticationManager.getAccount(this);
 
-        FirestoreWrapper wrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
-        db = new HistoryFirestoreInteractor(wrapper, account);
+        db = new HistoryFirestoreInteractor(account);
         Log.e("TEST", account.getId());
 
         // TODO: Instantiate an aggregator using a DataSender using changes from feature/infectmodelview
-        this.aggregator = new ConcretePositionAggregator(new ConcreteDataSender(new GridFirestoreInteractor(wrapper), account), InfectionActivity.getAnalyst());
+        this.aggregator = new ConcretePositionAggregator(new ConcreteDataSender(new GridFirestoreInteractor(), account), InfectionActivity.getAnalyst());
     }
 
     // TODO: think about using bluetooth technology to improve accuracy

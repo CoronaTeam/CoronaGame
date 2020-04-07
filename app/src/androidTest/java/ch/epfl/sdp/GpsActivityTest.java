@@ -13,13 +13,16 @@ import androidx.test.rule.GrantPermissionRule;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.Map;
+import ch.epfl.sdp.firestore.FirestoreInteractor;
+import ch.epfl.sdp.firestore.QueryHandler;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -77,41 +80,12 @@ public class GpsActivityTest {
 
     @Test
     public void detectsSuccessfulFirestoreUpdate() throws Throwable {
-        MockBroker mockBroker = new MockBroker();
-        startActivityWithBroker(mockBroker);
-
-        FirestoreInteractor successfulInteractor = new FirestoreInteractor() {
-            @Override
-            public void write(Map<String, PositionRecord> content, OnSuccessListener success, OnFailureListener failure) {
-                success.onSuccess(null);
-            }
-        };
-        mActivityRule.getActivity().setFirestoreInteractor(successfulInteractor);
-
-        mockBroker.setProviderStatus(true);
-        mockBroker.setFakeLocation(buildLocation(10, 20));
-
-        onView(withId(R.id.history_upload_status)).check(matches(withText("SYNC OK")));
+        detectsTest(true, null, "SYNC OK");
     }
 
     @Test
     public void detectsFailedFirestoreUpdate() throws Throwable {
-        MockBroker mockBroker = new MockBroker();
-        startActivityWithBroker(mockBroker);
-
-        FirestoreInteractor failingInteractor = new FirestoreInteractor() {
-            @Override
-            public void write(Map<String, PositionRecord> content, OnSuccessListener success, OnFailureListener failure) {
-                failure.onFailure(new Exception());
-            }
-        };
-
-        mActivityRule.getActivity().setFirestoreInteractor(failingInteractor);
-
-        mockBroker.setProviderStatus(true);
-        mockBroker.setFakeLocation(buildLocation(10, 20));
-
-        onView(withId(R.id.history_upload_status)).check(matches(withText("SYNC ERROR!")));
+        detectsTest(false, null, "SYNC ERROR!");
     }
 
     @Test
@@ -240,5 +214,56 @@ public class GpsActivityTest {
         public void requestPermissions(int requestCode) {
             // Trivial since always has permissions
         }
+    }
+
+    private FirestoreInteractor createWriteFirestoreInteractor(Boolean success, Object onSuccess) {
+        return new FirestoreInteractor() {
+            @Override
+            public void writeDocument(CollectionReference collectionReference, Object document,
+                                      OnSuccessListener successListener, OnFailureListener failureListener) {
+                writeBody(success, onSuccess, successListener, failureListener);
+            }
+
+            @Override
+            public void writeDocumentWithID(DocumentReference documentReference,
+                                            Object document,
+                                            OnSuccessListener successListener, OnFailureListener failureListener) {
+                writeBody(success, onSuccess, successListener, failureListener);
+            }
+
+            @Override
+            public void readCollection(CollectionReference collectionReference, QueryHandler handler) {
+
+            }
+
+            @Override
+            public void readDocument(DocumentReference documentReference,
+                                     QueryHandler handler) {
+
+            }
+        };
+    }
+
+    private void writeBody(Boolean success, Object onSuccess, OnSuccessListener successListener,
+                           OnFailureListener failureListener){
+        if (success) {
+            successListener.onSuccess(onSuccess);
+        }else{
+            failureListener.onFailure(new Exception());
+        }
+    }
+
+    private void detectsTest(Boolean isSuccess, Object onSuccess, String expectedText) throws Throwable {
+        MockBroker mockBroker = new MockBroker();
+        startActivityWithBroker(mockBroker);
+
+        FirestoreInteractor interactor = createWriteFirestoreInteractor(isSuccess, onSuccess);
+
+        mActivityRule.getActivity().setFirestoreInteractor(interactor);
+
+        mockBroker.setProviderStatus(true);
+        mockBroker.setFakeLocation(buildLocation(10, 20));
+
+        onView(withId(R.id.history_upload_status)).check(matches(withText(expectedText)));
     }
 }

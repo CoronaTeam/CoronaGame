@@ -12,8 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -26,24 +29,14 @@ import com.mapbox.mapboxsdk.plugins.annotation.Circle;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.test.espresso.idling.CountingIdlingResource;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Timer;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.BuildConfig;
-import ch.epfl.sdp.ConcreteFirestoreInteractor;
-import ch.epfl.sdp.ConcreteFirestoreWrapper;
+import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.ConcreteLocationBroker;
-import ch.epfl.sdp.FirestoreWrapper;
 import ch.epfl.sdp.LocationBroker;
-import ch.epfl.sdp.QueryHandler;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.fragment.AccountFragment;
 
@@ -51,13 +44,11 @@ import static ch.epfl.sdp.LocationBroker.Provider.GPS;
 
 public class MapFragment extends Fragment implements LocationListener {
 
-    private MapView mapView;
-    private MapboxMap map;
-
     public final static int LOCATION_PERMISSION_REQUEST = 20201;
     private static final int MIN_UP_INTERVAL_MILLISECS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
-
+    private MapView mapView;
+    private MapboxMap map;
     private LocationBroker locationBroker;
 
     private LatLng prevLocation = new LatLng(0, 0);
@@ -82,8 +73,7 @@ public class MapFragment extends Fragment implements LocationListener {
         }
         userAccount = AccountFragment.getAccount(getActivity());
 
-        FirestoreWrapper wrapper = new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance());
-        db = new ConcreteFirestoreInteractor(wrapper, new CountingIdlingResource("MapFragment"));
+        db = new ConcreteFirestoreInteractor();
 
         // Mapbox access token is configured here. This needs to be called either in your application
         // object or in the same activity which contains the mapview.
@@ -121,17 +111,20 @@ public class MapFragment extends Fragment implements LocationListener {
     @Override
     public void onLocationChanged(Location newLocation) {
         if (locationBroker.hasPermissions(GPS)) {
-            prevLocation =  new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
+            prevLocation = new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
             updateUserMarkerPosition(prevLocation);
             System.out.println("new location");
 
             Map<String, Object> element = new HashMap<>();
             element.put("geoPoint", new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude()));
             element.put("timeStamp", Timestamp.now());
-            db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
+            db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> {
+            }, e -> {
+            });
 
             //wrapper.collection("LastPositions").document(user.getId()).set(lastPos);
-            db.writeDocumentWithID("LastPositions", userAccount.getId(), element, e -> {});
+            db.writeDocumentWithID("LastPositions", userAccount.getId(), element, e -> {
+            });
         } else {
             Toast.makeText(getActivity(), "Missing permission", Toast.LENGTH_LONG).show();
         }
@@ -247,11 +240,11 @@ public class MapFragment extends Fragment implements LocationListener {
         mapView.onSaveInstanceState(outState);
     }
 
-    void OnDidFinishLoadingMapListener(MapView.OnDidFinishLoadingMapListener listener){
+    void OnDidFinishLoadingMapListener(MapView.OnDidFinishLoadingMapListener listener) {
         mapView.addOnDidFinishLoadingMapListener(listener);
     }
 
-    protected LatLng getPreviousLocation(){
+    protected LatLng getPreviousLocation() {
         return prevLocation;
     }
 }

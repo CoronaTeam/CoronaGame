@@ -10,18 +10,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.epfl.sdp.Account;
-import ch.epfl.sdp.FirestoreWrapper;
-import ch.epfl.sdp.QueryHandler;
+import ch.epfl.sdp.Callback;
+import ch.epfl.sdp.firestore.QueryHandler;
+import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
+import ch.epfl.sdp.firestore.FirestoreInteractor;
 
 public class GridFirestoreInteractor {
 
     // MODEL: Round the location to the 5th decimal digit
     public static final int COORDINATE_PRECISION = 100000;
 
-    private FirestoreWrapper db;
+    private FirebaseFirestore fs;
+    private FirestoreInteractor fsi;
 
-    public GridFirestoreInteractor(FirestoreWrapper wrapper) {
-        this.db = wrapper;
+    public GridFirestoreInteractor() {
+        this.fsi = new ConcreteFirestoreInteractor();
     }
 
     String getGridId(Location location) {
@@ -35,51 +38,25 @@ public class GridFirestoreInteractor {
     }
 
     public void getTimes(Location location, QueryHandler handler) {
-        db.collection("LiveGrid/" + getGridId(location) + "/Times")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        handler.onSuccess(task.getResult());
-                    } else {
-                        handler.onFailure();
-                    }
-                });
+        String path = "LiveGrid/" + getGridId(location) + "/Times";
+        fsi.readCollection(path, handler);
     }
 
-    public void readLastLocation(Account account, QueryHandler handler) {
-        db.collection("LastPositions")
-                .document(account.getId())
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        handler.onSuccess(task.getResult());
-                    } else {
-                        handler.onFailure();
-                    }
-                });
+    public void readLastLocation(Account account, Callback callback) {
+        fsi.readDocument("LastPositions", account.getId(), callback);
     }
 
     public void read(Location location, long time, QueryHandler handler) {
-        db.collection("LiveGrid/" + getGridId(location) + "/" + time)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        handler.onSuccess(task.getResult());
-                    } else {
-                        handler.onFailure();
-                    }
-                });
+        String path = "LiveGrid/" + getGridId(location) + "/" + time;
+        fsi.readCollection(path, handler);
     }
 
     public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
-        Map<String, String> timeMap = new HashMap<>();
+        Map<String, Object> timeMap = new HashMap<>();
         timeMap.put("Time", time);
-        db.collection("LiveGrid/" + getGridId(location) + "/Times")
-                .document(time)
-                .set(timeMap);
-        db.collection("LiveGrid/" + getGridId(location) + "/" + time)
-                .add(carrier)
-                .addOnSuccessListener(success)
-                .addOnFailureListener(failure);
+
+        fsi.writeDocumentWithID("LiveGrid/" + getGridId(location) + "/Times", time, timeMap,
+                success, failure);
+        fsi.writeDocument("LiveGrid/" + getGridId(location) + "/" + time, carrier, success, failure);
     }
 }

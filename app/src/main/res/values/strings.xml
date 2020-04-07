@@ -10,12 +10,14 @@
 
     <string name="coronagame">CoronaGame</string>
 
+    <string name="docSnap_success_upload">Document snapshot successfully added to firestore.</string>
+
     <string name="download">Download</string>
 
     <string name="downloading">Downloading …</string>
 
     <string name="exchange_failed">EXCHANGE Failed</string>
-    <string name="exchange_succeded">EXCHANGE Succeeded</string>
+    <string name="exchange_succed">EXCHANGE Succeeded</string>
 
     <string name="gps_signal_missing">Missing GPS signal</string>
     <string name="gps_status_off">GPS signal lost</string>
@@ -59,11 +61,11 @@
     <string name="sync_error">SYNC ERROR!</string>
     <string name="sync_ok">SYNC OK</string>
 
+    <string name="tab_account">Account</string>
     <string name="tab_history">History</string>
     <string name="tab_map">Map</string>
-    <string name="tab_account">Account</string>
 
-    <string name="textview">TextView</string>
+    <string name="textView">TextView</string>
 
     <string name="three_dots">…</string>
 

@@ -17,8 +17,8 @@ import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import ch.epfl.sdp.ConcreteFirestoreInteractor;
-import ch.epfl.sdp.QueryHandler;
+import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
+import ch.epfl.sdp.firestore.QueryHandler;
 
 public class HeatMapHandler {
     private Timer updateOtherPosTimer;
@@ -85,7 +85,7 @@ public class HeatMapHandler {
     }
     private void initFireBaseQueryHandler() {
 
-        fireBaseHandler = new QueryHandler() {
+        fireBaseHandler = new QueryHandler<QuerySnapshot>() {
 
             @Override
             public void onSuccess(QuerySnapshot snapshot) {
@@ -123,7 +123,7 @@ public class HeatMapHandler {
             public void run() {
                 if (db != null && fireBaseHandler != null){
                     //db.read(fireBaseHandler);
-                    db.readDocument("LastPositions", fireBaseHandler);
+                    db.readCollection("LastPositions", fireBaseHandler);
                 }
             }
         }

@@ -63,7 +63,6 @@ public class UserInfectionActivity extends AppCompatActivity {
                 this.biometricPrompt = (BiometricPromptWrapper) intent.getSerializableExtra("wrapper");
             } else {
                 this.biometricPrompt = biometricPromptBuilder(this.executor);
-                ;
             }
             this.promptInfo = promptInfoBuilder();
         }

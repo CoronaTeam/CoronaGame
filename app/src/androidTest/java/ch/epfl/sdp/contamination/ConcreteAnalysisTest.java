@@ -20,9 +20,12 @@ import java.util.Set;
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.TestTools;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isClickable;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static ch.epfl.sdp.TestUtils.buildLocation;
@@ -242,6 +245,8 @@ public class ConcreteAnalysisTest {
         Thread.sleep(10);
 
         // Now there should be some risk that I was infected
+        onView(withId(R.id.my_infection_refresh)).perform(click());
+        TestTools.sleep();
         onView(withId(R.id.my_infection_status)).check(matches(withText("UNKNOWN")));
 
     }

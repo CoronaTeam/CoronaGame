@@ -51,7 +51,7 @@
         </activity>
 
         <activity
-            android:name=".FirebaseActivity"
+            android:name=".firestore.FirebaseActivity"
             android:parentActivityName=".MainActivity">
         </activity>
 

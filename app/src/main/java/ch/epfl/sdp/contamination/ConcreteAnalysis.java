@@ -109,6 +109,12 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     public Carrier getCarrier() {
         return me;
     }
+
+    @Override
+    public void updateStatus(InfectionStatus stat) {
+
+    }
+
     public Carrier getCurrentCarrier(){
         return new Layman(me.getInfectionStatus(),me.getIllnessProbability());
     }

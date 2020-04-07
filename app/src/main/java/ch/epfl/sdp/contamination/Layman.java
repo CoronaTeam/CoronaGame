@@ -37,11 +37,18 @@ public class Layman implements Carrier{
         return myStatus;
     }
 
+    /**
+     * This method should only be called by someone 100% sure about the actual status.
+     * @param newStatus
+     * @return
+     */
     @Override
     public boolean evolveInfection(InfectionStatus newStatus) {
         myStatus = newStatus;
         if (newStatus == InfectionStatus.INFECTED) {
             infectedWithProbability = 1;
+        }else if(newStatus == InfectionStatus.HEALTHY){
+            infectedWithProbability = 0;
         }
         return true;
     }

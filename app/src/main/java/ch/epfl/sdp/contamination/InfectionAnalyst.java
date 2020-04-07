@@ -30,4 +30,8 @@ public interface InfectionAnalyst {
      * @return
      */
     Carrier getCarrier();
+    /**
+     * This will update the carrier status. Gets called by UserInfectionActivity, i.e. when a user discovers his illness,
+     */
+    void updateStatus(Carrier.InfectionStatus stat);
 }

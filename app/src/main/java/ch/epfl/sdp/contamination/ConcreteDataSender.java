@@ -53,8 +53,10 @@ public class ConcreteDataSender implements DataSender {
 
     @Override
     public void sendAlert(String userId) {
-//        String path = "publicPlayers/" + userId;// + "/lastMetPerson";
-//        normalInteractor.readDocument(path, /*new QueryHandler<DocumentReference> */ h ->{
+        String path = "publicPlayers/" ;//+ "/lastMetPerson";
+        DocumentReference ref = FirestoreInteractor.documentReference(path,userId);
+        normalInteractor.readDocument(path, /*new QueryHandler<DocumentReference> */ h ->{
 
+        }
     }
 }

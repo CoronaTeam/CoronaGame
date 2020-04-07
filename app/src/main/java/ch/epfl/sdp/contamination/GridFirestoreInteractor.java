@@ -15,19 +15,13 @@ import ch.epfl.sdp.firestore.QueryHandler;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 
-public class GridFirestoreInteractor {
+public class GridFirestoreInteractor extends ConcreteFirestoreInteractor{
 
     // MODEL: Round the location to the 5th decimal digit
     static final int COORDINATE_PRECISION = 100000;
 
-    private FirebaseFirestore fs;
-    private FirestoreInteractor fsi;
-
     public GridFirestoreInteractor() {
-        this(new ConcreteFirestoreInteractor());
-    }
-    public GridFirestoreInteractor(FirestoreInteractor interactor){
-        this.fsi = interactor;
+        super();
     }
     String getGridId(Location location) {
         double latitude = location.getLatitude();
@@ -41,24 +35,24 @@ public class GridFirestoreInteractor {
 
     public void getTimes(Location location, QueryHandler handler) {
         String path = "LiveGrid/" + getGridId(location) + "/Times";
-        fsi.readCollection(path, handler);
+        super.readCollection(path, handler);
     }
 
     public void readLastLocation(Account account, Callback callback) {
-        fsi.readDocument("LastPositions", account.getId(), callback);
+        super.readDocument("LastPositions", account.getId(), callback);
     }
 
     public void read(Location location, long time, QueryHandler handler) {
         String path = "LiveGrid/" + getGridId(location) + "/" + time;
-        fsi.readCollection(path, handler);
+        super.readCollection(path, handler);
     }
 
     public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
         Map<String, Object> timeMap = new HashMap<>();
         timeMap.put("Time", time);
 
-        fsi.writeDocumentWithID("LiveGrid/" + getGridId(location) + "/Times", time, timeMap,
+        super.writeDocumentWithID("LiveGrid/" + getGridId(location) + "/Times", time, timeMap,
                 success, failure);
-        fsi.writeDocument("LiveGrid/" + getGridId(location) + "/" + time, carrier, success, failure);
+        super.writeDocument("LiveGrid/" + getGridId(location) + "/" + time, carrier, success, failure);
     }
 }

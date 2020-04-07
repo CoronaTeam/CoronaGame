@@ -7,6 +7,7 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 
 import java.util.Date;
 
@@ -55,8 +56,6 @@ public class ConcreteDataSender implements DataSender {
     public void sendAlert(String userId) {
         String path = "publicPlayers/" ;//+ "/lastMetPerson";
         DocumentReference ref = FirestoreInteractor.documentReference(path,userId);
-        normalInteractor.readDocument(path, /*new QueryHandler<DocumentReference> */ h ->{
-
-        }
+        ref.update("/lastMetPerson", FieldValue.increment(1));
     }
 }

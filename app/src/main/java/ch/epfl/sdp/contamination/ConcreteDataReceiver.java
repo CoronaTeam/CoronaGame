@@ -178,4 +178,9 @@ class ConcreteDataReceiver implements DataReceiver {
             }
         });
     }
+
+    public int getSickNeighbors(String userId){
+        interactor.readDocument("publicPlayers/",userId, res ->{
+        }  );
+    }
 }

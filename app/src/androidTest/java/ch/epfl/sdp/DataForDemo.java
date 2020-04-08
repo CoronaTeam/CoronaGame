@@ -22,6 +22,7 @@ DEMO FOR USERS LOCATED ON MAP:
 Create a grid with lots of users at some place and less at some other place.
 These places are located around EPFL.
  */
+@Ignore
 public class DataForDemo {
 
     private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
@@ -42,9 +43,7 @@ public class DataForDemo {
      @Test
     public void upload2GroupsFakeUsersLocations() {
         Date rightNow = new Date(System.currentTimeMillis());
-        System.out.println("-----------------------------------------TIME-----------------------------------------------");
-        System.out.println(String.valueOf(rightNow.getTime()));
-/*
+
         // dense location forms a square of side 6
         // dense location infected forms a square of side 4 (16 infected people and 20 healthy)
         for (int i = 0; i < 6; ++i) {
@@ -94,8 +93,6 @@ public class DataForDemo {
         Location location5 = newLoc(SPARSE_INITIAL_EPFL_LATITUDE+5/COORDINATE_PRECISION,
                 SPARSE_INITIAL_EPFL_LONGITUDE+5/COORDINATE_PRECISION);
         dataSender.registerLocation(healthyCarrier3,location5,rightNow);
-*/
-
     }
 
     /**

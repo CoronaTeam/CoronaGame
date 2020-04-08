@@ -23,7 +23,7 @@ public class FirebaseOfflineCacheTest {
 
     private static final String TAG = "OFFLINE CACHE TEST";
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private String localChanges = "local changes";
+    private String localChanges = "local changes blob";
 
     @Rule
     public final ActivityTestRule<FirebaseActivity> mActivityRule =
@@ -59,8 +59,14 @@ public class FirebaseOfflineCacheTest {
         db.collection("Tests")
                 .document("LocalChangeSyncTest").get()
                 .addOnSuccessListener(documentSnapshot ->
-                        System.out.println("SYNCHRONISE LOCAL/BACKEND: locallyChangedValue = " +
-                                documentSnapshot.get("locallyChangedValue")))
+                {
+                    System.out.println("SYNCHRONISE LOCAL/BACKEND: locallyChangedValue = " +
+                            documentSnapshot.get("locallyChangedValue"));
+                    SnapshotMetadata metadata = documentSnapshot.getMetadata();
+                    String source = metadata.isFromCache() ? "local cache" : "server";
+                    System.out.println("Data fetched from " + source);
+                }
+                )
                 .addOnFailureListener(e ->
                         Log.w(TAG, "Error retrieving locallyChangedValue from Firestore while online.", e));
     }

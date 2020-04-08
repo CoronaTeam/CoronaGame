@@ -2,8 +2,6 @@ package ch.epfl.sdp;
 
 import android.location.Location;
 
-import com.google.firebase.firestore.FirebaseFirestore;
-
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -26,12 +24,12 @@ These places are located around EPFL.
  */
 public class DataForDemo {
 
-    private GridFirestoreInteractor gridFirestoreInteractor =
-            new GridFirestoreInteractor(
-                    new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance()));
+    private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
     private DataSender dataSender = (carrier, location, time) ->
             gridFirestoreInteractor.write(location, String.valueOf(time.getTime()), carrier,
-                    o -> {}, e -> {});
+                    o -> System.out.println("location successfully added to firestore"),
+                    e -> System.out.println("location could not be uploaded to firestore")
+                );
     private static double DENSE_INITIAL_EPFL_LATITUDE = 46.51700;
     private static double DENSE_INITIAL_EPFL_LONGITUDE = 6.56600;
     private static double SPARSE_INITIAL_EPFL_LATITUDE = 46.51800;
@@ -44,7 +42,9 @@ public class DataForDemo {
      @Test
     public void upload2GroupsFakeUsersLocations() {
         Date rightNow = new Date(System.currentTimeMillis());
-
+        System.out.println("-----------------------------------------TIME-----------------------------------------------");
+        System.out.println(String.valueOf(rightNow.getTime()));
+/*
         // dense location forms a square of side 6
         // dense location infected forms a square of side 4 (16 infected people and 20 healthy)
         for (int i = 0; i < 6; ++i) {
@@ -94,7 +94,7 @@ public class DataForDemo {
         Location location5 = newLoc(SPARSE_INITIAL_EPFL_LATITUDE+5/COORDINATE_PRECISION,
                 SPARSE_INITIAL_EPFL_LONGITUDE+5/COORDINATE_PRECISION);
         dataSender.registerLocation(healthyCarrier3,location5,rightNow);
-
+*/
 
     }
 

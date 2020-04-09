@@ -3,8 +3,9 @@ package ch.epfl.sdp.contamination;
 import android.location.Location;
 
 import java.util.Date;
+import java.util.SortedMap;
 
-public interface DataSender {
+public interface CachingDataSender {
     int EXPAND_FACTOR = 100000; //determines the GPS coordinates precision
     static Location RoundAndExpandLocation(Location l){
         int a = (int)(0.5 + l.getLatitude()*EXPAND_FACTOR);
@@ -23,4 +24,9 @@ public interface DataSender {
      * Notifies a user he has been close to an infected person
      */
     void sendAlert(String userId);
+    /**
+     *
+     * @return: locations and times of a given user for a given amount of time
+     */
+    SortedMap<Date, Location> getLastPositions();
 }

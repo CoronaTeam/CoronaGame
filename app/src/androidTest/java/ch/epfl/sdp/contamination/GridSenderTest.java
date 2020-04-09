@@ -109,7 +109,7 @@ public class GridSenderTest {
     }
 
     private void setSuccessfulSender() {
-        ((ConcreteDataSender) mActivityRule.getActivity().getSender()).setInteractor(new MockGridInteractor() {
+        ((ConcreteCachingDataSender) mActivityRule.getActivity().getSender()).setInteractor(new MockGridInteractor() {
             @Override
             public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
                 success.onSuccess(null);
@@ -130,7 +130,7 @@ public class GridSenderTest {
     }
 
     private void setFailingSender() {
-        ((ConcreteDataSender) mActivityRule.getActivity().getSender()).setInteractor(new MockGridInteractor() {
+        ((ConcreteCachingDataSender) mActivityRule.getActivity().getSender()).setInteractor(new MockGridInteractor() {
             @Override
             public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
                 failure.onFailure(null);

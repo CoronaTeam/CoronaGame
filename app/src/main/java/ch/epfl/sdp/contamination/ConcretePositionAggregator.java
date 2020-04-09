@@ -3,15 +3,12 @@ package ch.epfl.sdp.contamination;
 import android.location.Location;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Observable;
-import java.util.SortedMap;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.TreeMap;
 
 /**
  * @author lucas
@@ -22,26 +19,26 @@ public final class ConcretePositionAggregator extends Observable implements Posi
     private Location newestLocation;
     private Date newestDate;
     private boolean isOnline;
-    private DataSender dataSender;
+    private CachingDataSender cachingDataSender;
     private InfectionAnalyst analyst;
     private Timer updatePosTimer;
     HashMap<Long, List<Location>> buffer;
-    public ConcretePositionAggregator(DataSender dataSender, InfectionAnalyst analyst,int maxLocationsPerAggregation){
-        if(dataSender == null || analyst == null){
+    public ConcretePositionAggregator(CachingDataSender cachingDataSender, InfectionAnalyst analyst, int maxLocationsPerAggregation){
+        if(cachingDataSender == null || analyst == null){
             throw new IllegalArgumentException("DataSender or analyst should not be null");
         }else if(maxLocationsPerAggregation == 0){
             throw new IllegalArgumentException("There should be more than zero locations per aggregation!");
         }
         this.timelapBetweenNewLocationRegistration =  WINDOW_FOR_LOCATION_AGGREGATION / maxLocationsPerAggregation;
         this.buffer = new HashMap<>();
-        this.dataSender = dataSender;
+        this.cachingDataSender = cachingDataSender;
         this.analyst = analyst;
         this.lastDate = null;
         this.isOnline = false;
         startTimer();
     }
-    public ConcretePositionAggregator(DataSender dataSender, InfectionAnalyst analyst){
-       this(dataSender,analyst,PositionAggregator.MAXIMAL_NUMBER_OF_LOCATIONS_PER_AGGREGATION);
+    public ConcretePositionAggregator(CachingDataSender cachingDataSender, InfectionAnalyst analyst){
+       this(cachingDataSender,analyst,PositionAggregator.MAXIMAL_NUMBER_OF_LOCATIONS_PER_AGGREGATION);
     }
 
     /**
@@ -103,9 +100,9 @@ public final class ConcretePositionAggregator extends Observable implements Posi
         if(lastDate != null){
             List<Location> targetLocations = buffer.remove(lastDate.getTime());
             Location meanLocation = getMean(targetLocations);
-            Location expandedLocation = DataSender.RoundAndExpandLocation(meanLocation);
+            Location expandedLocation = CachingDataSender.RoundAndExpandLocation(meanLocation);
 //            System.out.println("----SENDING-----"+expandedLocation.toString() + " with date : "+lastDate.toString());
-            dataSender.registerLocation(analyst.getCarrier(),expandedLocation,lastDate);
+            cachingDataSender.registerLocation(analyst.getCarrier(),expandedLocation,lastDate);
         }
     }
 

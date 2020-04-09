@@ -2,8 +2,6 @@ package ch.epfl.sdp.contamination;
 
 import android.location.Location;
 
-import androidx.core.widget.TextViewCompat;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,12 +19,12 @@ import static org.junit.Assert.assertTrue;
 public class ConcretePositionAggregatorTest {
     private final int maxNumberOfLoc = 1000;
     private ConcretePositionAggregator aggregator;
-    private FakeDataSender sender;
+    private FakeCachingDataSender sender;
     private int timelap;
 
     @Before
     public void initTest(){
-        this.sender  = new FakeDataSender();
+        this.sender  = new FakeCachingDataSender();
         this.aggregator = new ConcretePositionAggregator(sender,new FakeAnalyst(),maxNumberOfLoc);
         aggregator.updateToOnline();
         timelap = PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION/maxNumberOfLoc;
@@ -41,7 +39,7 @@ public class ConcretePositionAggregatorTest {
     }
     @Test(expected = IllegalArgumentException.class)
     public void canNotInstantiateAggregatorWithNullAnalyst(){
-        new ConcretePositionAggregator(new FakeDataSender(),null);
+        new ConcretePositionAggregator(new FakeCachingDataSender(),null);
     }
     private void addAndWait(Location l, Date d){
         aggregator.addPosition(l,d);
@@ -90,16 +88,16 @@ public class ConcretePositionAggregatorTest {
         //TEST 1
         Map<Date,Location> firebaseLoc = sender.getMap();
         assertNotNull(firebaseLoc);
-        Location res = newLoc(5*DataSender.EXPAND_FACTOR,5*DataSender.EXPAND_FACTOR);
+        Location res = newLoc(5* CachingDataSender.EXPAND_FACTOR,5* CachingDataSender.EXPAND_FACTOR);
         assertTrue(firebaseLoc.containsKey(now));
         assertTrue(expandedLocEquals(firebaseLoc.get(now),res));
 
         // TEST 2
-        Location res2 = newLoc(5.75*DataSender.EXPAND_FACTOR,4.5*DataSender.EXPAND_FACTOR);
+        Location res2 = newLoc(5.75* CachingDataSender.EXPAND_FACTOR,4.5* CachingDataSender.EXPAND_FACTOR);
         assertTrue(firebaseLoc.containsKey(now1));
         assertTrue(expandedLocEquals(firebaseLoc.get(now1),res2));
         // TEST 3
-        Location res3 = newLoc(7*DataSender.EXPAND_FACTOR,4*DataSender.EXPAND_FACTOR);
+        Location res3 = newLoc(7* CachingDataSender.EXPAND_FACTOR,4* CachingDataSender.EXPAND_FACTOR);
         assertTrue(firebaseLoc.containsKey(now1));
         assertTrue(expandedLocEquals(firebaseLoc.get(now2),res3));
     }

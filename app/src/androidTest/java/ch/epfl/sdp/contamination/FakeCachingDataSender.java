@@ -1,23 +1,22 @@
 package ch.epfl.sdp.contamination;
 
 import android.location.Location;
-import android.util.Pair;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
 
 import ch.epfl.sdp.User;
 
 /**
  * This class, made to make testing other classes convenient, simulates the behavior of a regular datasender to firestore, but store info locally
  */
-public final class FakeDataSender implements DataSender{
+public final class FakeCachingDataSender implements CachingDataSender {
     HashMap<Date, Location> firebaseStore;
     private String userID;
-    public FakeDataSender(){
+    public FakeCachingDataSender(){
         this.firebaseStore = new HashMap<>();
         String userID = User.DEFAULT_USERID;
     }
@@ -40,5 +39,15 @@ public final class FakeDataSender implements DataSender{
     @Override
     public void registerLocation(Carrier carrier, Location location, Date time) {
         firebaseStore.put(time, location);
+    }
+
+    @Override
+    public void sendAlert(String userId) {
+
+    }
+
+    @Override
+    public SortedMap<Date, Location> getLastPositions() {
+        return null;
     }
 }

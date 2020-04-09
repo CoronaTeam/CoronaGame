@@ -14,11 +14,9 @@ import java.util.Date;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import ch.epfl.sdp.Account;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
-import ch.epfl.sdp.firestore.QueryHandler;
 
-public class ConcreteDataSender implements DataSender,AggregationCache {
+public class ConcreteCachingDataSender implements CachingDataSender {
     private GridFirestoreInteractor gridInteractor;
     SortedMap<Date,Location> lastPositions;
     // Default success listener
@@ -26,17 +24,17 @@ public class ConcreteDataSender implements DataSender,AggregationCache {
 
     // Default Failure listener
     private OnFailureListener failureListener = e -> { };
-    public ConcreteDataSender(GridFirestoreInteractor interactor) {
+    public ConcreteCachingDataSender(GridFirestoreInteractor interactor) {
         this.gridInteractor = interactor;
         this.lastPositions = new TreeMap<>();
     }
 
-    public ConcreteDataSender setOnSuccessListener(OnSuccessListener successListener) {
+    public ConcreteCachingDataSender setOnSuccessListener(OnSuccessListener successListener) {
         this.successListener = successListener;
         return this;
     }
 
-    public ConcreteDataSender setOnFailureListener(OnFailureListener failureListener) {
+    public ConcreteCachingDataSender setOnFailureListener(OnFailureListener failureListener) {
         this.failureListener = failureListener;
         return this;
     }

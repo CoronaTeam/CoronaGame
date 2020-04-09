@@ -24,4 +24,9 @@ public class FakeAnalyst implements InfectionAnalyst {
     public Carrier getCarrier() {
         return new Layman(carrier.getInfectionStatus(),carrier.getIllnessProbability());
     }
+
+    @Override
+    public boolean updateStatus(Carrier.InfectionStatus stat) {
+        return false;
+    }
 }

@@ -59,6 +59,9 @@ public class AuthenticationManager {
     }
 
     public static Account getAccount(Activity activity) {
+        if(activity==null){     //for tests
+            return getNonNullAccount(null);
+        }
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(activity);
         return getNonNullAccount(acct);
     }

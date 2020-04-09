@@ -10,13 +10,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-public class DataSenderTest {
+public class CachingDataSenderTest {
     @Test
     public void RoundAndExpandLocationIsCorrect(){
         Location location = new Location("provider");
         location.setLatitude(12.1234567);
         location.setLongitude(134.9876543);
-        DataSender.RoundAndExpandLocation(location);
+        CachingDataSender.RoundAndExpandLocation(location);
         Location manuallyRoundedLocation = new Location("provider");
         manuallyRoundedLocation.setLongitude(13498765);
         manuallyRoundedLocation.setLatitude(1212346);

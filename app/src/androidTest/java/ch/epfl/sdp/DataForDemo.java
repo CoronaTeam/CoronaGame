@@ -35,6 +35,7 @@ public class DataForDemo {
     private static double DENSE_INITIAL_EPFL_LONGITUDE = 6.56600;
     private static double SPARSE_INITIAL_EPFL_LATITUDE = 46.51800;
     private static double SPARSE_INITIAL_EPFL_LONGITUDE = 6.56700;
+    private Date rightNow = new Date(System.currentTimeMillis());
 
     /**
      * Generate 30 users around 46.51700,6.56600 and 5 users around 46.51800, 6.56700.
@@ -42,8 +43,6 @@ public class DataForDemo {
      */
      @Test
     public void upload2GroupsFakeUsersLocations() {
-        Date rightNow = new Date(System.currentTimeMillis());
-
         // dense location forms a square of side 6
         // dense location infected forms a square of side 4 (16 infected people and 20 healthy)
         for (int i = 0; i < 6; ++i) {
@@ -65,34 +64,19 @@ public class DataForDemo {
         // there are 2 infected people in this location, and 3 healthy
 
         // infected at (0, 0)
-        Carrier infectedCarrier1 = new Layman(Carrier.InfectionStatus.INFECTED, 1);
-        Location location1 = newLoc(SPARSE_INITIAL_EPFL_LATITUDE,
-                SPARSE_INITIAL_EPFL_LONGITUDE);
-        dataSender.registerLocation(infectedCarrier1,location1,rightNow);
+         sparseCarrierAndPositionCreation(Carrier.InfectionStatus.INFECTED, 1, 0, 0);
 
         // infected at (0, 5)
-        Carrier infectedCarrier2 = new Layman(Carrier.InfectionStatus.INFECTED, 1);
-        Location location2 = newLoc(SPARSE_INITIAL_EPFL_LATITUDE,
-                SPARSE_INITIAL_EPFL_LONGITUDE+5/COORDINATE_PRECISION);
-        dataSender.registerLocation(infectedCarrier2,location2,rightNow);
+         sparseCarrierAndPositionCreation(Carrier.InfectionStatus.INFECTED, 1, 0, 5);
 
         // healthy at (2, 2)
-        Carrier healthyCarrier1 = new Layman(Carrier.InfectionStatus.HEALTHY, 0);
-        Location location3 = newLoc(SPARSE_INITIAL_EPFL_LATITUDE+2/COORDINATE_PRECISION,
-                SPARSE_INITIAL_EPFL_LONGITUDE+2/COORDINATE_PRECISION);
-        dataSender.registerLocation(healthyCarrier1,location3,rightNow);
+         sparseCarrierAndPositionCreation(Carrier.InfectionStatus.HEALTHY, 0, 2, 2);
 
-        //healthy at (5, 0)
-        Carrier healthyCarrier2 = new Layman(Carrier.InfectionStatus.HEALTHY, 0);
-        Location location4 = newLoc(SPARSE_INITIAL_EPFL_LATITUDE+5/COORDINATE_PRECISION,
-                SPARSE_INITIAL_EPFL_LONGITUDE);
-        dataSender.registerLocation(healthyCarrier2,location4,rightNow);
+        // healthy at (5, 0)
+         sparseCarrierAndPositionCreation(Carrier.InfectionStatus.HEALTHY, 0, 5, 0);
 
         // healthy at (5, 5)
-        Carrier healthyCarrier3 = new Layman(Carrier.InfectionStatus.HEALTHY, 0);
-        Location location5 = newLoc(SPARSE_INITIAL_EPFL_LATITUDE+5/COORDINATE_PRECISION,
-                SPARSE_INITIAL_EPFL_LONGITUDE+5/COORDINATE_PRECISION);
-        dataSender.registerLocation(healthyCarrier3,location5,rightNow);
+         sparseCarrierAndPositionCreation(Carrier.InfectionStatus.HEALTHY, 0, 5, 5);
     }
 
     /**
@@ -120,5 +104,13 @@ public class DataForDemo {
                 dataSender.registerLocation(carrier,userLocation,rightNow);
             }
         }
+    }
+    private void sparseCarrierAndPositionCreation(Carrier.InfectionStatus infectionStatus,
+                                                  float infectionProbability, double latiOffset,
+                                                  double longiOffset){
+        Carrier carrier = new Layman(infectionStatus, infectionProbability);
+        Location location = newLoc(SPARSE_INITIAL_EPFL_LATITUDE+latiOffset/COORDINATE_PRECISION,
+                SPARSE_INITIAL_EPFL_LONGITUDE+longiOffset/COORDINATE_PRECISION);
+        dataSender.registerLocation(carrier, location, rightNow);
     }
 }

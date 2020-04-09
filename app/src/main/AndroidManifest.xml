@@ -19,13 +19,6 @@
         android:theme="@style/AppTheme">
 
         <activity android:name=".Authentication">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <action android:name="android.intent.action.AUTH" />
-                <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <!-- >   <category android:name="" /><! -->
-            </intent-filter>
         </activity>
 
         <activity android:name=".UserInfectionActivity"
@@ -43,6 +36,13 @@
         <activity
             android:name=".IntroActivity"
             android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.AUTH" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <!-- >   <category android:name="" /><! -->
+            </intent-filter>
         </activity>
 
         <activity

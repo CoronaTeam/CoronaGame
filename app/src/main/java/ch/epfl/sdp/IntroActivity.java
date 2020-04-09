@@ -1,15 +1,17 @@
 package ch.epfl.sdp;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.View;
 
 import com.github.paolorotolo.appintro.AppIntro2;
 import com.github.paolorotolo.appintro.AppIntro2Fragment;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import ch.epfl.sdp.fragment.AuthenticationFragment;
 
 public class IntroActivity extends AppIntro2 {
 
@@ -77,18 +79,16 @@ public class IntroActivity extends AppIntro2 {
                     slide.descriptionColor
             ));
         }
+        addSlide(new AuthenticationFragment());
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if (account != null) AuthenticationFragment.signInComplete(this);
+
         showSkipButton(false);
+        findViewById(R.id.done).setAlpha(0); //FIXME: showDoneButton(bool) is deprecated
     }
 
     @Override
     public void onDonePressed(Fragment currentFragment) {
         super.onDonePressed(currentFragment);
-
-        // Navigate to main screen
-        //startActivity(new Intent(this, MainActivity.class));
-
-        // Finish current activity (return to previous one)
-        setResult(Activity.RESULT_OK);
-        finish();
     }
 }

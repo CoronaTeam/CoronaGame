@@ -51,7 +51,7 @@ public class AuthenticationManager {
             getGoogleClient(activity).signOut()
                     .addOnCompleteListener(activity, task -> {
                         Toast.makeText(activity, "Signed out successfully!", Toast.LENGTH_LONG).show();
-                        Intent intent = new Intent(activity, Authentication.class);// New activity
+                        Intent intent = new Intent(activity, IntroActivity.class);// New activity
 //                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); //clears this activity's stack
                         activity.startActivity(intent);
                         activity.finish();

@@ -267,12 +267,12 @@ public class ConcreteAnalysisTest {
         GeoPoint b = new GeoPoint(12,13.24);
         assertThat(a.equals(b), equalTo(true));
     }
-    /*
+
     @Test
     public void getCarrierReturnsACopyOfTheCarrier(){
         Carrier me = new Layman(HEALTHY);
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
         assertNotNull(analyst.getCarrier());
         assertSame(me,analyst.getCarrier());
-    }*/
+    }
 }

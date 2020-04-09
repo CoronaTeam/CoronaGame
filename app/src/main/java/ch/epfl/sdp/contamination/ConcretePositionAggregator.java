@@ -26,7 +26,7 @@ public final class ConcretePositionAggregator extends Observable implements Posi
     public ConcretePositionAggregator(CachingDataSender cachingDataSender, InfectionAnalyst analyst, int maxLocationsPerAggregation){
         if(cachingDataSender == null || analyst == null){
             throw new IllegalArgumentException("DataSender or analyst should not be null");
-        }else if(maxLocationsPerAggregation == 0){
+        }else if(maxLocationsPerAggregation <= 0){
             throw new IllegalArgumentException("There should be more than zero locations per aggregation!");
         }
         this.timelapBetweenNewLocationRegistration =  WINDOW_FOR_LOCATION_AGGREGATION / maxLocationsPerAggregation;

@@ -30,6 +30,14 @@ public class ConcretePositionAggregatorTest {
         timelap = PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION/maxNumberOfLoc;
     }
     @Test(expected = IllegalArgumentException.class)
+    public void cantInstantiateOnZeroMaxLocationPerAggregation(){
+        new ConcretePositionAggregator(sender,new FakeAnalyst(),0);
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void cantInstantiateOnNegativeMaxLocationPerAggregation(){
+        new ConcretePositionAggregator(sender,new FakeAnalyst(),-1);
+    }
+    @Test(expected = IllegalArgumentException.class)
     public void addPositionFailsOnNullInput(){
         aggregator.addPosition(null,null);
     }

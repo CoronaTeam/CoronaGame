@@ -31,4 +31,6 @@ public interface PositionAggregator {
         date.setTime(roundedTime);
         return date;
     }
+    void updateToOffline();
+    void updateToOnline();
 }

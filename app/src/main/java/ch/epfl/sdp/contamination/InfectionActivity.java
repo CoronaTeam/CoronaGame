@@ -48,6 +48,9 @@ public class InfectionActivity extends AppCompatActivity {
     public static InfectionAnalyst getAnalyst() {
         return analyst;
     }
+    public static PositionAggregator getAggregator(){
+        return aggregator;
+    }
 
     @VisibleForTesting
     void setAnalyst(InfectionAnalyst analyst) {

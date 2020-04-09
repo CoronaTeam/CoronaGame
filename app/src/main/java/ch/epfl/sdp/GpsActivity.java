@@ -19,17 +19,14 @@ import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.epfl.sdp.contamination.ConcreteDataSender;
-import ch.epfl.sdp.contamination.ConcretePositionAggregator;
-import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.contamination.InfectionActivity;
+import ch.epfl.sdp.contamination.PositionAggregator;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 
 import static ch.epfl.sdp.LocationBroker.Provider.GPS;
@@ -55,7 +52,7 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
 
     private HistoryFirestoreInteractor db;
 
-    private ConcretePositionAggregator aggregator;
+    private PositionAggregator aggregator;
 
     @VisibleForTesting
     void setLocationBroker(LocationBroker testBroker) {
@@ -183,7 +180,7 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         Log.e("TEST", account.getId());
 
         // TODO: Instantiate an aggregator using a DataSender using changes from feature/infectmodelview
-        this.aggregator = new ConcretePositionAggregator(new ConcreteDataSender(new GridFirestoreInteractor(), account), InfectionActivity.getAnalyst());
+        this.aggregator = InfectionActivity.getAggregator();//new ConcretePositionAggregator(new ConcreteDataSender(new GridFirestoreInteractor(), account), InfectionActivity.getAnalyst());
     }
 
     // TODO: think about using bluetooth technology to improve accuracy

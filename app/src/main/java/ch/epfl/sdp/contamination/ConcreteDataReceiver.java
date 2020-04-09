@@ -5,6 +5,8 @@ import android.location.LocationManager;
 
 import androidx.annotation.VisibleForTesting;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -19,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.Callback;
+import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.firestore.QueryHandler;
 
 class ConcreteDataReceiver implements DataReceiver {
@@ -179,9 +182,12 @@ class ConcreteDataReceiver implements DataReceiver {
         });
     }
 
-    public int removeSickNeighbors(String userId){
+    public int getAndResetSickNeighbors(String userId){
         AtomicInteger temp = new AtomicInteger();
-        interactor.readDocument("publicPlayers/",userId, res ->temp.set((int)res));
+        String path = "publicPlayers/";
+        interactor.readDocument(path,userId, res ->temp.set((int)res));
+        DocumentReference ref = FirestoreInteractor.documentReference(path,userId);
+        ref.update("/lastMetPerson", FieldValue.delete());
         return temp.get();
     }
 }

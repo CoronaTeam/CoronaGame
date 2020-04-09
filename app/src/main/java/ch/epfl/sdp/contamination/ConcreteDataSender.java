@@ -9,24 +9,26 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.firestore.QueryHandler;
 
-public class ConcreteDataSender implements DataSender {
-    private Account account;
+public class ConcreteDataSender implements DataSender,AggregationCache {
     private GridFirestoreInteractor gridInteractor;
-
+    SortedMap<Date,Location> lastPositions;
     // Default success listener
     private OnSuccessListener successListener = o -> { };
 
     // Default Failure listener
     private OnFailureListener failureListener = e -> { };
-    public ConcreteDataSender(GridFirestoreInteractor interactor, Account account) {
+    public ConcreteDataSender(GridFirestoreInteractor interactor) {
         this.gridInteractor = interactor;
-        this.account = account;
+        this.lastPositions = new TreeMap<>();
     }
 
     public ConcreteDataSender setOnSuccessListener(OnSuccessListener successListener) {
@@ -46,8 +48,16 @@ public class ConcreteDataSender implements DataSender {
 
     @Override
     public void registerLocation(Carrier carrier, Location location, Date time) {
-
+        refreshLastPositions(time,location);
         gridInteractor.write(location, String.valueOf(time.getTime()), carrier, successListener, failureListener);
+    }
+    /**
+     * removes every locations older than UNINTENTIONAL_CONTAGION_TIME ms and adds a new position
+     */
+    private void refreshLastPositions(Date time, Location location) {
+        Date oldestDate = new Date(time.getTime()-InfectionAnalyst.UNINTENTIONAL_CONTAGION_TIME);
+        lastPositions.headMap(oldestDate).clear();
+        lastPositions.put(time,location);
     }
 
     @Override
@@ -55,5 +65,10 @@ public class ConcreteDataSender implements DataSender {
         String path = "publicPlayers/" ;//+ "/lastMetPerson";
         DocumentReference ref = FirestoreInteractor.documentReference(path,userId);
         ref.update("/lastMetPerson", FieldValue.increment(1));
+    }
+
+    @Override
+    public SortedMap<Date,Location> getLastPositions() {
+        return Collections.unmodifiableSortedMap(lastPositions);
     }
 }

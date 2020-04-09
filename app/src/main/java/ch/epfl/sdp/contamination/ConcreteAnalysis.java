@@ -15,16 +15,14 @@ import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
 
 public class ConcreteAnalysis implements InfectionAnalyst {
 
-    private final PositionAggregator aggregator;
     private final Carrier me;
     private final DataReceiver receiver;
-    private final DataSender sender;
+    private final ConcreteDataSender cachedSender;
 
-    ConcreteAnalysis(Carrier me, DataReceiver receiver,DataSender dataSender, PositionAggregator positionAggregator) {
+    ConcreteAnalysis(Carrier me, DataReceiver receiver,ConcreteDataSender dataSender) {
         this.me = me;
         this.receiver = receiver;
-        this.aggregator = positionAggregator;
-        this.sender = dataSender;
+        this.cachedSender = dataSender;
     }
 
     private float calculateCarrierInfectionProbability(Map<Carrier, Integer> suspectedContacts, float cumulativeSocialTime) {
@@ -110,7 +108,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
             modelInfectionEvolution(identifySuspectContacts(aroundMe));
             callback.onCallback(null);
         });
-        int badMeetings = receiver.removeSickNeighbors(me.getUniqueId());
+        int badMeetings = receiver.getAndResetSickNeighbors(me.getUniqueId());
         updateCarrierInfectionProbability(me.getIllnessProbability() + badMeetings*TRANSMISSION_FACTOR);
     }
 
@@ -127,7 +125,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
                 //Now, retrieve all user that have been nearby the last UNINTENTIONAL_CONTAGION_TIME milliseconds
 
                 //1: retrieve your own last positions
-                SortedMap<Date,Location> lastPositions = aggregator.getLastPositions();
+                SortedMap<Date,Location> lastPositions = cachedSender.getLastPositions();
 
                 //2: Ask firebase who was there
 
@@ -139,7 +137,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
                     });
                 }));
                 //Tell those user that they have been close to you
-                userIds.forEach(u ->sender.sendAlert(u));
+                userIds.forEach(u -> cachedSender.sendAlert(u));
             }
             return true;
         }else{

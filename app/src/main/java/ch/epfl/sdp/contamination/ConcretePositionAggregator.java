@@ -26,7 +26,6 @@ public final class ConcretePositionAggregator extends Observable implements Posi
     private InfectionAnalyst analyst;
     private Timer updatePosTimer;
     HashMap<Long, List<Location>> buffer;
-    SortedMap<Date,Location> lastPositions;
     public ConcretePositionAggregator(DataSender dataSender, InfectionAnalyst analyst,int maxLocationsPerAggregation){
         if(dataSender == null || analyst == null){
             throw new IllegalArgumentException("DataSender or analyst should not be null");
@@ -39,7 +38,6 @@ public final class ConcretePositionAggregator extends Observable implements Posi
         this.analyst = analyst;
         this.lastDate = null;
         this.isOnline = false;
-        this.lastPositions = new TreeMap<>();
         startTimer();
     }
     public ConcretePositionAggregator(DataSender dataSender, InfectionAnalyst analyst){
@@ -94,10 +92,6 @@ public final class ConcretePositionAggregator extends Observable implements Posi
         this.newestDate = date;
     }
 
-    @Override
-    public SortedMap<Date,Location> getLastPositions() {
-        return Collections.unmodifiableSortedMap(lastPositions);
-    }
 
     /**
      * Every WINDOW_FOR_LOCATION_AGGREGATION time, the PositionAggregator should send the mean value of the
@@ -111,23 +105,11 @@ public final class ConcretePositionAggregator extends Observable implements Posi
             Location meanLocation = getMean(targetLocations);
             Location expandedLocation = DataSender.RoundAndExpandLocation(meanLocation);
 //            System.out.println("----SENDING-----"+expandedLocation.toString() + " with date : "+lastDate.toString());
-            refreshLastPositions(lastDate,expandedLocation);
             dataSender.registerLocation(analyst.getCarrier(),expandedLocation,lastDate);
         }
     }
 
-    /**
-     * removes every locations older than UNINTENTIONAL_CONTAGION_TIME ms and adds a new position
-     */
-    private void refreshLastPositions(Date time, Location location) {
-        Date oldestDate = new Date(time.getTime()-InfectionAnalyst.UNINTENTIONAL_CONTAGION_TIME);
-        lastPositions.headMap(oldestDate).clear();
-//        lastPositions.entrySet()
-//                .stream()
-//                .filter(x -> x.getKey() > oldestTime)
-//                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        lastPositions.put(time,location);
-    }
+
 
     private Location getMean(List<Location> targetLocations) {
         if(targetLocations == null || targetLocations.size() == 0){

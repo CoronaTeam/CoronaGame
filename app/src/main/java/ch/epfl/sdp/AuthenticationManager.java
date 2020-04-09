@@ -23,11 +23,47 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import java.lang.reflect.Field;
+import java.util.Map;
+
 public class AuthenticationManager {
+
+    /* TODO : REMOVE THIS METHOD AS SOON AS WE DO A GETCONTEXT OR THAT IT IS NOT USED ANYMORE
+        This method was found on the internet for getting the current activity
+     */
+    public static Activity getActivity() {
+        try {
+            Class activityThreadClass = Class.forName("android.app.ActivityThread");
+            Object activityThread = activityThreadClass.getMethod("currentActivityThread").invoke(null);
+            Field activitiesField = activityThreadClass.getDeclaredField("mActivities");
+            activitiesField.setAccessible(true);
+
+            Map<Object, Object> activities = (Map<Object, Object>) activitiesField.get(activityThread);
+            if (activities == null)
+                return null;
+
+            for (Object activityRecord : activities.values()) {
+                Class activityRecordClass = activityRecord.getClass();
+                Field pausedField = activityRecordClass.getDeclaredField("paused");
+                pausedField.setAccessible(true);
+                if (!pausedField.getBoolean(activityRecord)) {
+                    Field activityField = activityRecordClass.getDeclaredField("activity");
+                    activityField.setAccessible(true);
+                    return (Activity) activityField.get(activityRecord);
+                }
+            }
+        } catch (Exception e) {
+            return null;    //there should not be any exception, if so, try another way for getting the activity.
+        }
+        return null;
+    }
 
     public static Account getAccount(Activity activity) {
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(activity);
         return getNonNullAccount(acct);
+    }
+    public static String getUserId(Activity activity){
+        return getAccount(activity).getId();
     }
 
     public static GoogleSignInClient getGoogleClient(Activity activity) {
@@ -40,7 +76,6 @@ public class AuthenticationManager {
         if (acct == null) {
             User u = new User();//generic test user
             return new AccountFactory(u);
-
         } else {
             return new AccountFactory(acct);
         }

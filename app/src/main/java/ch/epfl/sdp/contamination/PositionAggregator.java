@@ -31,9 +31,4 @@ public interface PositionAggregator {
         date.setTime(roundedTime);
         return date;
     }
-    /**
-     *
-     * @return: locations and times of a given user for a given amount of time
-     */
-    SortedMap<Date,Location> getLastPositions();
 }

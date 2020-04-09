@@ -38,5 +38,5 @@ public interface DataReceiver {
      * @param userId
      * @return
      */
-    int removeSickNeighbors(String userId);
+    int getAndResetSickNeighbors(String userId);
 }

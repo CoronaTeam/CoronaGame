@@ -29,9 +29,6 @@ public class UserInfectionTest {
     public GrantPermissionRule fingerprintPermissionRule =
             GrantPermissionRule.grant(Manifest.permission.USE_FINGERPRINT);
     @Rule
-    public ActivityScenarioRule<UserInfectionActivity> rule =
-            new ActivityScenarioRule<>(UserInfectionActivity.class);
-    @Rule
     public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
 
     @Before

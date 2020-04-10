@@ -56,7 +56,7 @@ public class UserInfectionTest {
         IS_NETWORK_DEBUG = true;
         IS_ONLINE = false;
         onView(withId(R.id.infectionStatusButton)).perform(click());
-        waitingForTravis(5000);
+        TestTools.sleep(5000);
         onView(withId(R.id.onlineStatusView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
         IS_ONLINE = true;
         IS_NETWORK_DEBUG = false;
@@ -70,20 +70,5 @@ public class UserInfectionTest {
         IS_ONLINE = true;
         onView(withId(R.id.onlineStatusView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)));
         IS_NETWORK_DEBUG = false;
-    }
-
-    private void clickWaitAndCheckTexts(int buttonID, int textID, String expectedButtonText, String expectedText, int waitingTime) {
-        onView(withId(buttonID)).perform(click());
-        waitingForTravis(waitingTime);
-        onView(withId(textID)).check(matches(withText(expectedText)));
-        onView(withId(buttonID)).check(matches(withText(expectedButtonText)));
-    }
-
-    private void waitingForTravis(int time) {
-        try {
-            Thread.sleep(time);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 }

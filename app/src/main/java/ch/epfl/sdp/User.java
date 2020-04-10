@@ -136,7 +136,6 @@ public class User implements Account {
     }
 
     public boolean retrieveUserInfectionStatus(Callback<Boolean> callbackBoolean) {
-        String path = "Users/" + displayName + "/Infected";
         db.collection("Users").document(displayName).get().addOnSuccessListener(documentSnapshot ->
         {
             Log.d(TAG, "Infected status successfully loaded.");

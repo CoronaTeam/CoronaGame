@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class is there for testing purposes
+ * This class is there for testing purposes and for representing a user in UserInfectionActivity
  */
 public class User implements Account {
     private static final String TAG = "User class";

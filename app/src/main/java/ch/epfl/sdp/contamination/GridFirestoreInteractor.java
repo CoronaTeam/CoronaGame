@@ -18,7 +18,7 @@ import ch.epfl.sdp.firestore.FirestoreInteractor;
 public class GridFirestoreInteractor {
 
     // MODEL: Round the location to the 5th decimal digit
-    static final int COORDINATE_PRECISION = 100000;
+    public static final int COORDINATE_PRECISION = 100000;
 
     private FirebaseFirestore fs;
     private FirestoreInteractor fsi;

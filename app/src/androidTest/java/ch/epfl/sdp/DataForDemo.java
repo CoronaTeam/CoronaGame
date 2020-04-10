@@ -15,12 +15,12 @@ import ch.epfl.sdp.contamination.Layman;
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.contamination.GridFirestoreInteractor.COORDINATE_PRECISION;
 
-/*
-This class is used for creating fake data for the app demo.
-
-DEMO FOR USERS LOCATED ON MAP:
-Create a grid with lots of users at some place and less at some other place.
-These places are located around EPFL.
+/**
+ * This class is used for creating fake data for the app demo.
+ *
+ * DEMO FOR USERS LOCATED ON MAP:
+ * Create a grid with lots of users at some place and less at some other place.
+ * These places are located around EPFL.
  */
 @Ignore("This is not a proper test, it is used for testing and demos, but it does not test anything, only generates data.")
 public class DataForDemo {

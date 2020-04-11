@@ -15,14 +15,14 @@ import ch.epfl.sdp.contamination.Layman;
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.contamination.GridFirestoreInteractor.COORDINATE_PRECISION;
 
-/*
-This class is used for creating fake data for the app demo.
-
-DEMO FOR USERS LOCATED ON MAP:
-Create a grid with lots of users at some place and less at some other place.
-These places are located around EPFL.
+/**
+ * This class is used for creating fake data for the app demo.
+ *
+ * DEMO FOR USERS LOCATED ON MAP:
+ * Create a grid with lots of users at some place and less at some other place.
+ * These places are located around EPFL.
  */
-@Ignore
+@Ignore("This is not a proper test, it is used for testing and demos, but it does not test anything, only generates data.")
 public class DataForDemo {
 
     private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
@@ -42,42 +42,42 @@ public class DataForDemo {
      * These latitude, longitude correspond to areas at EPFL.
      */
      @Test
-    public void upload2GroupsFakeUsersLocations() {
-        // dense location forms a square of side 6
-        // dense location infected forms a square of side 4 (16 infected people and 20 healthy)
-        for (int i = 0; i < 6; ++i) {
-            for (int j = 0; j < 6; ++j) {
-                Carrier carrier;
-                if (i < 4 && j < 4) {
-                    carrier = new Layman(Carrier.InfectionStatus.INFECTED, 1);
-                } else {
-                    carrier = new Layman(Carrier.InfectionStatus.HEALTHY, 0);
+     public void upload2GroupsFakeUsersLocations() {
+         // dense location forms a square of side 6
+         // dense location infected forms a square of side 4 (16 infected people and 20 healthy)
+         for (double i = 0; i < 6; ++i) {
+             for (double j = 0; j < 6; ++j) {
+                 Carrier carrier;
+                 if (i < 4 && j < 4) {
+                     carrier = new Layman(Carrier.InfectionStatus.INFECTED, 1);
+                 } else {
+                     carrier = new Layman(Carrier.InfectionStatus.HEALTHY, 0);
 
-                }
-                Location userLocation = newLoc(DENSE_INITIAL_EPFL_LATITUDE + i/COORDINATE_PRECISION,
-                        DENSE_INITIAL_EPFL_LONGITUDE + j/COORDINATE_PRECISION);
-                dataSender.registerLocation(carrier,userLocation,rightNow);
-            }
-        }
+                 }
+                 Location userLocation = newLoc(DENSE_INITIAL_EPFL_LATITUDE + i/COORDINATE_PRECISION,
+                         DENSE_INITIAL_EPFL_LONGITUDE + j /COORDINATE_PRECISION);
+                 dataSender.registerLocation(carrier,userLocation,rightNow);
+             }
+         }
 
-        // sparse location forms square of side 6
-        // there are 2 infected people in this location, and 3 healthy
+         // sparse location forms square of side 6
+         // there are 2 infected people in this location, and 3 healthy
 
-        // infected at (0, 0)
+         // infected at coordinate (0, 0) of the square
          sparseCarrierAndPositionCreation(Carrier.InfectionStatus.INFECTED, 1, 0, 0);
 
-        // infected at (0, 5)
+         // infected at (0, 5)
          sparseCarrierAndPositionCreation(Carrier.InfectionStatus.INFECTED, 1, 0, 5);
 
-        // healthy at (2, 2)
+         // healthy at (2, 2)
          sparseCarrierAndPositionCreation(Carrier.InfectionStatus.HEALTHY, 0, 2, 2);
 
-        // healthy at (5, 0)
+         // healthy at (5, 0)
          sparseCarrierAndPositionCreation(Carrier.InfectionStatus.HEALTHY, 0, 5, 0);
 
-        // healthy at (5, 5)
+         // healthy at (5, 5)
          sparseCarrierAndPositionCreation(Carrier.InfectionStatus.HEALTHY, 0, 5, 5);
-    }
+     }
 
     /**
      * Generate 1000 HEALTHY,HEALTHY_CARRIER,INFECTED,IMMUNE,UNKNOWN users starting from location 4600000, 600000
@@ -85,8 +85,8 @@ public class DataForDemo {
     @Test
     public void uploadBunchOfUsersAtEPFL() {
         Date rightNow = new Date(System.currentTimeMillis());
-        for (int i = 0; i < 100; ++i) {
-            for (int j = 0; j < 100; ++j){
+        for (double i = 0; i < 100; ++i) {
+            for (double j = 0; j < 100; ++j){
                 Carrier carrier;
                 if (i < 40 && j < 40) {
                     carrier = new Layman(Carrier.InfectionStatus.INFECTED, 1);

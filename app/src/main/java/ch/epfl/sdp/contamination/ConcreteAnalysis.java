@@ -15,7 +15,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     private Carrier me;
     private DataReceiver receiver;
 
-    ConcreteAnalysis(Carrier me, DataReceiver receiver) {
+    public ConcreteAnalysis(Carrier me, DataReceiver receiver) {
         this.me = me;
         this.receiver = receiver;
     }

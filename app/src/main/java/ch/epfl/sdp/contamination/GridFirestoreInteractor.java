@@ -4,23 +4,21 @@ import android.location.Location;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.Callback;
-import ch.epfl.sdp.firestore.QueryHandler;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
+import ch.epfl.sdp.firestore.QueryHandler;
 
 public class GridFirestoreInteractor {
 
     // MODEL: Round the location to the 5th decimal digit
     public static final int COORDINATE_PRECISION = 100000;
 
-    private FirebaseFirestore fs;
     private FirestoreInteractor fsi;
 
     public GridFirestoreInteractor() {
@@ -42,7 +40,7 @@ public class GridFirestoreInteractor {
         fsi.readCollection(path, handler);
     }
 
-    public void readLastLocation(Account account, Callback callback) {
+    public void readLastLocation(Account account, Callback<Map<String, Object>> callback) {
         fsi.readDocument("LastPositions", account.getId(), callback);
     }
 

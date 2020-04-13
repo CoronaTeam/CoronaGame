@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import ch.epfl.sdp.contamination.InfectionActivity;
 import ch.epfl.sdp.firestore.FirebaseActivity;
+import ch.epfl.sdp.location.LocationService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,6 +33,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Start LocationService here
+        // TODO: Write code to stop the service somewhere
+        startService(new Intent(this, LocationService.class));
     }
 
     /**

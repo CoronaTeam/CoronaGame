@@ -9,10 +9,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.Date;
 
-import ch.epfl.sdp.Account;
-
 public class ConcreteDataSender implements DataSender {
-    private Account account;
     private GridFirestoreInteractor interactor;
 
     // Default success listener
@@ -21,9 +18,8 @@ public class ConcreteDataSender implements DataSender {
     // Default Failure listener
     private OnFailureListener failureListener = e -> { };
 
-    public ConcreteDataSender(GridFirestoreInteractor interactor, Account account) {
+    public ConcreteDataSender(GridFirestoreInteractor interactor) {
         this.interactor = interactor;
-        this.account = account;
     }
 
     public ConcreteDataSender setOnSuccessListener(OnSuccessListener successListener) {

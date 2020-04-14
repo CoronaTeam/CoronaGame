@@ -11,15 +11,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.epfl.sdp.User;
-import kotlin.NotImplementedError;
 
 /**
  * This class, made to make testing other classes convenient, simulates the behavior of a regular datasender to firestore, but store info locally
  */
 public final class FakeDataSender implements DataSender{
-    HashMap<Date, Location> firebaseStore;
+    private HashMap<Date, Location> firebaseStore;
     private String userID;
-    public FakeDataSender(){
+    FakeDataSender(){
         this.firebaseStore = new HashMap<>();
         String userID = User.DEFAULT_USERID;
     }
@@ -30,7 +29,6 @@ public final class FakeDataSender implements DataSender{
 
     /**
      * Again, this function is to be used only for testing
-     * @return
      */
     public Map<Date, Location> getMap(){
         if(firebaseStore.size() !=0){
@@ -46,6 +44,6 @@ public final class FakeDataSender implements DataSender{
 
     @Override
     public void registerLocation(Carrier carrier, Location location, Date time, OnSuccessListener successListener, OnFailureListener failureListener) {
-        throw new NotImplementedError();
+        throw new UnsupportedOperationException();
     }
 }

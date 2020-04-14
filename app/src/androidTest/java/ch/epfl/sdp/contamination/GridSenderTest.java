@@ -167,6 +167,8 @@ public class GridSenderTest {
 
     @Test
     public void dataReceiverFindsContacts() {
+        resetRealSenderAndReceiver();
+
         ((ConcreteDataReceiver) mActivityRule.getActivity().getService().getReceiver()).setInteractor(new MockGridInteractor() {
             @Override
             public void read(Location location, long time, QueryHandler handler) {

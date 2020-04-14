@@ -121,20 +121,20 @@ public class GridSenderTest {
         }
     }
 
-    private void setSuccessfulSender() {
+    private void programSenderAction(GridFirestoreInteractor mockInteractor) {
         resetRealSenderAndReceiver();
 
-        ((ConcreteDataSender) mActivityRule.getActivity().getService().getSender()).setInteractor(new MockGridInteractor() {
+        ((ConcreteDataSender) mActivityRule.getActivity().getService().getSender()).setInteractor(mockInteractor);
+    }
+
+    @Test
+    public void dataSenderUploadsInformation() {
+        programSenderAction(new MockGridInteractor(){
             @Override
             public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
                 success.onSuccess(null);
             }
         });
-    }
-
-    @Test
-    public void dataSenderUploadsInformation() {
-        setSuccessfulSender();
 
         mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().getService().getSender().registerLocation(
                 new Layman(Carrier.InfectionStatus.HEALTHY),
@@ -146,20 +146,14 @@ public class GridSenderTest {
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
     }
 
-    private void setFailingSender() {
-        resetRealSenderAndReceiver();
-
-        ((ConcreteDataSender) mActivityRule.getActivity().getService().getSender()).setInteractor(new MockGridInteractor() {
+    @Test
+    public void dataSenderFailsWithError() {
+        programSenderAction(new MockGridInteractor() {
             @Override
             public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
                 failure.onFailure(null);
             }
         });
-    }
-
-    @Test
-    public void dataSenderFailsWithError() {
-        setFailingSender();
 
         mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().getService().getSender().registerLocation(
                 new Layman(Carrier.InfectionStatus.HEALTHY),

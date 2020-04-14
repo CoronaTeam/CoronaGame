@@ -62,7 +62,7 @@ public class ConcreteCachingDataSender implements CachingDataSender {
     public void sendAlert(String userId) {
         String path = "publicPlayers/" ;//+ "/lastMetPerson";
         DocumentReference ref = FirestoreInteractor.documentReference(path,userId);
-        ref.update("/lastMetPerson", FieldValue.increment(1));
+        ref.update("lastMetPerson", FieldValue.increment(1));
     }
 
     @Override

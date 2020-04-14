@@ -40,6 +40,12 @@ public final class ConcretePositionAggregator extends Observable implements Posi
     public ConcretePositionAggregator(CachingDataSender cachingDataSender, InfectionAnalyst analyst){
        this(cachingDataSender,analyst,PositionAggregator.MAXIMAL_NUMBER_OF_LOCATIONS_PER_AGGREGATION);
     }
+    protected void setAnalyst(InfectionAnalyst a){
+        if(a == null){
+            throw new IllegalArgumentException("Null analyst");
+        }
+        this.analyst = a;
+    }
 
     /**
      * The timer will automatically re-enter the position if the user is not moving and online so that the average is more accurate

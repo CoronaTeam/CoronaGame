@@ -51,6 +51,7 @@ public class InfectionActivity extends AppCompatActivity {
     @VisibleForTesting
     void setAnalyst(InfectionAnalyst analyst) {
         InfectionActivity.analyst = analyst;
+        aggregator.setAnalyst(analyst);
     }
 
     @Override

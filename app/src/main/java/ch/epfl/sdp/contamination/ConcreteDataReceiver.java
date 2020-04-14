@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.Account;
@@ -182,12 +183,22 @@ class ConcreteDataReceiver implements DataReceiver {
         });
     }
 
-    public int getAndResetSickNeighbors(String userId){
-        AtomicInteger temp = new AtomicInteger();
+    public int getAndResetSickNeighbors(String userId){//,Callback<Map<String,Object>> callback){
+        AtomicInteger temp = new AtomicInteger(-1);
+
         String path = "publicPlayers/";
-        interactor.readDocument(path,userId, res ->temp.set((int)res));
+        interactor.readDocument(path,userId,res ->temp.set((int)res));
         DocumentReference ref = FirestoreInteractor.documentReference(path,userId);
-        ref.update("/lastMetPerson", FieldValue.delete());
+        ref.update("lastMetPerson", FieldValue.delete());
+        return temp.get();
+    }
+    public int getAndResetSickNeighbors(String userId,Callback<Integer> callback){
+        AtomicInteger temp = new AtomicInteger(-1);
+
+        String path = "publicPlayers/";
+        interactor.readDocument(path,userId,callback);
+        DocumentReference ref = FirestoreInteractor.documentReference(path,userId);
+        ref.update("lastMetPerson", FieldValue.delete());
         return temp.get();
     }
 }

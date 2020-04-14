@@ -132,8 +132,9 @@ public class ConcreteAnalysis implements InfectionAnalyst {
                 Set<String> userIds = new HashSet<>();
                 lastPositions.forEach((date,location) -> receiver.getUserNearby(location,date,around->{
                     around.forEach(neighbor -> {
-                        if(neighbor.getInfectionStatus()!= InfectionStatus.INFECTED) // only non-infected users need to be informed
-                            userIds.add(neighbor.getUniqueId());
+                        if(neighbor.getInfectionStatus()!= InfectionStatus.INFECTED){ // only non-infected users need to be informed
+                            userIds.add(neighbor.getUniqueId()); //won't add someone already in the set
+                        }
                     });
                 }));
                 //Tell those user that they have been close to you

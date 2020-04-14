@@ -38,5 +38,5 @@ public interface DataReceiver {
      * @param userId
      * @return
      */
-    int getAndResetSickNeighbors(String userId);
+    int getAndResetSickNeighbors(String userId);//,Callback<Map<String,Object>> callback);
 }

@@ -167,10 +167,8 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         longitudeBox = findViewById(R.id.gpsLongitude);
         uploadStatus = findViewById(R.id.history_upload_status);
 
-        ListView locationTracker = findViewById(R.id.location_tracker);
-
         trackerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
-        locationTracker.setAdapter(trackerAdapter);
+        ((ListView)findViewById(R.id.location_tracker)).setAdapter(trackerAdapter);
 
 
         // TODO: Take real account

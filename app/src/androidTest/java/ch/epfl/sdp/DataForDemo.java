@@ -2,6 +2,9 @@ package ch.epfl.sdp;
 
 import android.location.Location;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -11,6 +14,7 @@ import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.DataSender;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.contamination.Layman;
+import kotlin.NotImplementedError;
 
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.contamination.GridFirestoreInteractor.COORDINATE_PRECISION;
@@ -26,11 +30,21 @@ import static ch.epfl.sdp.contamination.GridFirestoreInteractor.COORDINATE_PRECI
 public class DataForDemo {
 
     private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
-    private DataSender dataSender = (carrier, location, time) ->
+    private DataSender dataSender = new DataSender() {
+        @Override
+        public void registerLocation(Carrier carrier, Location location, Date time) {
             gridFirestoreInteractor.write(location, String.valueOf(time.getTime()), carrier,
                     o -> System.out.println("location successfully added to firestore"),
                     e -> System.out.println("location could not be uploaded to firestore")
-                );
+            );
+        }
+
+        @Override
+        public void registerLocation(Carrier carrier, Location location, Date time, OnSuccessListener successListener, OnFailureListener failureListener) {
+            throw new NotImplementedError();
+        }
+    };
+
     private static double DENSE_INITIAL_EPFL_LATITUDE = 46.51700;
     private static double DENSE_INITIAL_EPFL_LONGITUDE = 6.56600;
     private static double SPARSE_INITIAL_EPFL_LATITUDE = 46.51800;

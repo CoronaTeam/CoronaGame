@@ -53,8 +53,9 @@ public class GridFirestoreInteractor {
         Map<String, Object> timeMap = new HashMap<>();
         timeMap.put("Time", time);
 
-        fsi.writeDocumentWithID("LiveGrid/" + getGridId(location) + "/Times", time, timeMap,
-                success, failure);
-        fsi.writeDocument("LiveGrid/" + getGridId(location) + "/" + time, carrier, success, failure);
+        // LiveGrid/[location] must be updated only if the time has been successfully inserted in the list
+        fsi.writeDocumentWithID("LiveGrid/" + getGridId(location) + "/Times", time, timeMap, s ->
+                    fsi.writeDocument("LiveGrid/" + getGridId(location) + "/" + time, carrier, success, failure),
+                failure);
     }
 }

@@ -13,23 +13,13 @@ public class ConcreteDataSender implements DataSender {
     private GridFirestoreInteractor interactor;
 
     // Default success listener
-    private OnSuccessListener successListener = o -> { };
+    private OnSuccessListener defaultSuccess = o -> { };
 
     // Default Failure listener
-    private OnFailureListener failureListener = e -> { };
+    private OnFailureListener defaultFailure = e -> { };
 
     public ConcreteDataSender(GridFirestoreInteractor interactor) {
         this.interactor = interactor;
-    }
-
-    public ConcreteDataSender setOnSuccessListener(OnSuccessListener successListener) {
-        this.successListener = successListener;
-        return this;
-    }
-
-    public ConcreteDataSender setOnFailureListener(OnFailureListener failureListener) {
-        this.failureListener = failureListener;
-        return this;
     }
 
     @VisibleForTesting
@@ -39,7 +29,15 @@ public class ConcreteDataSender implements DataSender {
 
     @Override
     public void registerLocation(Carrier carrier, Location location, Date time) {
+        interactor.write(location, String.valueOf(time.getTime()), carrier, defaultSuccess, defaultFailure);
+    }
 
+    @Override
+    public void registerLocation(Carrier carrier,
+                                 Location location,
+                                 Date time,
+                                 OnSuccessListener successListener,
+                                 OnFailureListener failureListener) {
         interactor.write(location, String.valueOf(time.getTime()), carrier, successListener, failureListener);
     }
 }

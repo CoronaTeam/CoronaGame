@@ -1,5 +1,6 @@
 package ch.epfl.sdp.location;
 
+import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -26,7 +27,6 @@ import ch.epfl.sdp.contamination.DataSender;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
 import ch.epfl.sdp.contamination.Layman;
-import kotlin.NotImplementedError;
 
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 
@@ -47,6 +47,8 @@ public class LocationService extends Service implements LocationListener {
 
     private InfectionAnalyst analyst;
 
+    private boolean hasGpsPermissions = false;
+
     @Override
     public void onCreate() {
         GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor();
@@ -60,6 +62,11 @@ public class LocationService extends Service implements LocationListener {
 
         analyst = new ConcreteAnalysis(me, receiver);
         aggregator = new ConcretePositionAggregator(sender, analyst);
+
+        refreshPermissions();
+        if (hasGpsPermissions) {
+            startAggregator();
+        }
     }
 
     @Override
@@ -70,6 +77,18 @@ public class LocationService extends Service implements LocationListener {
     public class LocationBinder extends android.os.Binder {
         public LocationService getService() {
             return LocationService.this;
+        }
+        public boolean hasGpsPermissions() {
+            return hasGpsPermissions;
+        }
+        public void requestGpsPermissions(Activity activity) {
+            broker.requestPermissions(activity, LOCATION_PERMISSION_REQUEST);
+        }
+        public boolean startAggregator() {
+            return LocationService.this.startAggregator();
+        }
+        private void stopAggregator() {
+            LocationService.this.stopAggregator();
         }
     }
 
@@ -84,9 +103,14 @@ public class LocationService extends Service implements LocationListener {
         handler.post(() -> Toast.makeText(this.getApplicationContext(), message, Toast.LENGTH_LONG).show());
     }
 
+    private void refreshPermissions() {
+        hasGpsPermissions = broker.hasPermissions(GPS);
+    }
+
     @Override
     public void onLocationChanged(Location location) {
-        if (broker.hasPermissions(GPS)) {
+        refreshPermissions();
+        if (hasGpsPermissions) {
             aggregator.addPosition(location);
         } else {
             displayToast("Missing permission");
@@ -98,33 +122,27 @@ public class LocationService extends Service implements LocationListener {
         // Deprecated, do nothing
     }
 
-    private void goOnline() {
-        broker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, this);
-        displayToast(getString(R.string.gps_status_on));
-        aggregator.updateToOnline();
+    private boolean startAggregator() {
+        if (broker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, this)) {
+            displayToast(getString(R.string.aggregator_status_on));
+            aggregator.updateToOnline();
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    private void goOffline() {
-        displayToast(getString(R.string.gps_status_off));
+    private void stopAggregator() {
+        displayToast(getString(R.string.aggregator_status_off));
         aggregator.updateToOffline();
     }
 
     @Override
     public void onProviderEnabled(String provider) {
         if (provider.equals(LocationManager.GPS_PROVIDER)) {
-            if (broker.hasPermissions(GPS)) {
-                goOnline();
-            } else {
-                // TODO: Do something effective to obtain permissions
-                throw new NotImplementedError();
-                //broker.requestPermissions(, LOCATION_PERMISSION_REQUEST);
-                /* USED IN onRequestPermissionResult
-                if (requestCode == LOCATION_PERMISSION_REQUEST
-                        && grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    goOnline();
-                }
-                 */
+            refreshPermissions();
+            if (hasGpsPermissions) {
+                startAggregator();
             }
         }
     }
@@ -132,7 +150,7 @@ public class LocationService extends Service implements LocationListener {
     @Override
     public void onProviderDisabled(String provider) {
         if (provider.equals(LocationManager.GPS_PROVIDER)) {
-            goOffline();
+            stopAggregator();
         }
     }
 
@@ -162,6 +180,7 @@ public class LocationService extends Service implements LocationListener {
         this.sender = sender;
     }
 
+    @VisibleForTesting
     public void setBroker(LocationBroker broker) {
         this.broker = broker;
     }

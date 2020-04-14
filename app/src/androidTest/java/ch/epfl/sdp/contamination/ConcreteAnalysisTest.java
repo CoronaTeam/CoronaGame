@@ -174,13 +174,6 @@ public class ConcreteAnalysisTest {
         }
     }
 
-    private void populateLocation(GeoPoint location, Carrier.InfectionStatus status, int rounds, float startProbability) {
-        city.put(location, new HashMap<>());
-        for (int i = 0; i < rounds; i++) {
-            city.get(location).put(System.currentTimeMillis()+1000*i, Collections.singleton(new Layman(status, startProbability + i)));
-        }
-    }
-
     @Test
     public void infectionProbabilityIsUpdated() throws Throwable {
 

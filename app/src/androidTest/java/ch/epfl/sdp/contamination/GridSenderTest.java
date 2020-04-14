@@ -26,8 +26,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.epfl.sdp.Callback;
-import ch.epfl.sdp.firestore.QueryHandler;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.firestore.QueryHandler;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -81,6 +81,9 @@ public class GridSenderTest {
     final long rangeEnd = 1585223373963L;
     final long outsideRange = 1585223373983L;
 
+    OnSuccessListener exchangeSucceeded;
+    OnFailureListener exchangeFailed;
+
     @Before
     public void setupMockito() {
         when(querySnapshot.iterator()).thenReturn(Collections.singletonList(queryDocumentSnapshot).iterator());
@@ -100,6 +103,18 @@ public class GridSenderTest {
         when(afterRangeDocumentSnapshot.get("Time")).thenReturn(String.valueOf(outsideRange));
     }
 
+    @Before
+    public void setupListeners() {
+        exchangeSucceeded = mActivityRule.getActivity().successListener;
+        exchangeFailed = mActivityRule.getActivity().failureListener;
+    }
+
+    private void resetRealSenderAndReceiver() {
+        GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor();
+        mActivityRule.getActivity().getService().setReceiver(new ConcreteDataReceiver(gridInteractor));
+        mActivityRule.getActivity().getService().setSender(new ConcreteDataSender(gridInteractor));
+    }
+
     class MockGridInteractor extends GridFirestoreInteractor {
 
         // TODO: GridFirestoreInteractor should become an interface too
@@ -109,7 +124,9 @@ public class GridSenderTest {
     }
 
     private void setSuccessfulSender() {
-        ((ConcreteDataSender) mActivityRule.getActivity().getSender()).setInteractor(new MockGridInteractor() {
+        resetRealSenderAndReceiver();
+
+        ((ConcreteDataSender) mActivityRule.getActivity().getService().getSender()).setInteractor(new MockGridInteractor() {
             @Override
             public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
                 success.onSuccess(null);
@@ -121,16 +138,20 @@ public class GridSenderTest {
     public void dataSenderUploadsInformation() {
         setSuccessfulSender();
 
-        mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().getSender().registerLocation(
+        mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().getService().getSender().registerLocation(
                 new Layman(Carrier.InfectionStatus.HEALTHY),
                 buildLocation(10, 20),
-                new Date(System.currentTimeMillis())));
+                new Date(System.currentTimeMillis()),
+                exchangeSucceeded,
+                exchangeFailed));
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
     }
 
     private void setFailingSender() {
-        ((ConcreteDataSender) mActivityRule.getActivity().getSender()).setInteractor(new MockGridInteractor() {
+        resetRealSenderAndReceiver();
+
+        ((ConcreteDataSender) mActivityRule.getActivity().getService().getSender()).setInteractor(new MockGridInteractor() {
             @Override
             public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
                 failure.onFailure(null);
@@ -142,17 +163,19 @@ public class GridSenderTest {
     public void dataSenderFailsWithError() {
         setFailingSender();
 
-        mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().getSender().registerLocation(
+        mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().getService().getSender().registerLocation(
                 new Layman(Carrier.InfectionStatus.HEALTHY),
                 buildLocation(10, 20),
-                new Date(System.currentTimeMillis())));
+                new Date(System.currentTimeMillis()),
+                exchangeSucceeded,
+                exchangeFailed));
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Failed")));
     }
 
     @Test
     public void dataReceiverFindsContacts() {
-        ((ConcreteDataReceiver) mActivityRule.getActivity().getReceiver()).setInteractor(new MockGridInteractor() {
+        ((ConcreteDataReceiver) mActivityRule.getActivity().getService().getReceiver()).setInteractor(new MockGridInteractor() {
             @Override
             public void read(Location location, long time, QueryHandler handler) {
                 handler.onSuccess(querySnapshot);
@@ -165,14 +188,16 @@ public class GridSenderTest {
             assertThat(value.iterator().next().getIllnessProbability(), greaterThan(0.0f));
         };
 
-        mActivityRule.getActivity().getReceiver().getUserNearby(
+        mActivityRule.getActivity().getService().getReceiver().getUserNearby(
                 buildLocation(10, 20),
                 new Date(1585223373883L),
                 successCallback);
     }
 
     private void setFakeReceiver(Location testLocation) {
-        ((ConcreteDataReceiver) mActivityRule.getActivity().getReceiver()).setInteractor(new MockGridInteractor() {
+        resetRealSenderAndReceiver();
+
+        ((ConcreteDataReceiver) mActivityRule.getActivity().getService().getReceiver()).setInteractor(new MockGridInteractor() {
 
             @Override
             public void getTimes(Location location, QueryHandler handler) {
@@ -212,7 +237,7 @@ public class GridSenderTest {
             assertThat(value.get(new Layman(Carrier.InfectionStatus.UNKNOWN, 0.75f)), is(1));
         };
 
-        mActivityRule.getActivity().getReceiver().getUserNearbyDuring(
+        mActivityRule.getActivity().getService().getReceiver().getUserNearbyDuring(
                 testLocation,
                 new Date(rangeStart),
                 new Date(rangeEnd),
@@ -238,7 +263,7 @@ public class GridSenderTest {
         AtomicBoolean done = new AtomicBoolean();
         done.set(false);
 
-        mActivityRule.runOnUiThread(() -> mActivityRule.getActivity().getReceiver().getUserNearby(somewhere, rightNow, people -> {
+        mActivityRule.runOnUiThread(() -> mActivityRule.getActivity().getService().getReceiver().getUserNearby(somewhere, rightNow, people -> {
             for (Carrier c : people) {
                 result.put(c, false);
             }
@@ -253,15 +278,19 @@ public class GridSenderTest {
     @Test
     public void dataReallyComeAndGoFromServer() throws Throwable {
         // The following test uses the actual Firestore
+        resetRealSenderAndReceiver();
 
         Carrier aFakeCarrier = new Layman(Carrier.InfectionStatus.UNKNOWN, 0.2734f);
         Date rightNow = new Date(System.currentTimeMillis());
 
-        mActivityRule.getActivity().getSender().registerLocation(aFakeCarrier, buildLocation(12, 73), rightNow);
+        mActivityRule.getActivity().getService().getSender().registerLocation(
+                aFakeCarrier,
+                buildLocation(12, 73),
+                rightNow,
+                exchangeSucceeded,
+                exchangeFailed);
 
-        Thread.sleep(1000);
-
-        onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
+        Thread.sleep(2000);
 
         Map<Carrier, Boolean> result = getBackSliceData(buildLocation(12, 73), rightNow);
 
@@ -275,7 +304,7 @@ public class GridSenderTest {
         Map<Carrier, Integer> result = new ConcurrentHashMap<>();
 
         // Get data back
-        mActivityRule.runOnUiThread(() -> mActivityRule.getActivity().getReceiver().getUserNearbyDuring(somewhere, rangeStart, rangeEnd, contactFrequency -> {
+        mActivityRule.runOnUiThread(() -> mActivityRule.getActivity().getService().getReceiver().getUserNearbyDuring(somewhere, rangeStart, rangeEnd, contactFrequency -> {
             result.putAll(contactFrequency);
             done.set(true);
         }));
@@ -289,6 +318,8 @@ public class GridSenderTest {
     public void complexQueriesComeAndGoFromServer() throws Throwable {
         // The following test uses the actual Firestore
 
+        resetRealSenderAndReceiver();
+
         Carrier aFakeCarrier = new Layman(Carrier.InfectionStatus.UNKNOWN, 0.2734f);
         Carrier trulyHealthy = new Layman(Carrier.InfectionStatus.IMMUNE, 0f);
 
@@ -297,8 +328,16 @@ public class GridSenderTest {
         Date rightNow = new Date(System.currentTimeMillis());
         Date aLittleLater = new Date(rightNow.getTime() + 10);
 
-        mActivityRule.getActivity().getSender().registerLocation(aFakeCarrier, somewhereInTheWorld, rightNow);
-        mActivityRule.getActivity().getSender().registerLocation(trulyHealthy, somewhereInTheWorld, aLittleLater);
+        mActivityRule.getActivity().getService().getSender().registerLocation(
+                aFakeCarrier,
+                somewhereInTheWorld,
+                rightNow,
+                exchangeSucceeded,
+                exchangeFailed);
+        mActivityRule.getActivity().getService().getSender().registerLocation(
+                trulyHealthy,
+                somewhereInTheWorld,
+                aLittleLater);
 
         Thread.sleep(1000);
 
@@ -318,15 +357,27 @@ public class GridSenderTest {
     public void repetitionsOfSameCarrierAreDetected() throws Throwable {
         // The following test uses the actual Firestore
 
+        resetRealSenderAndReceiver();
+
         Carrier aFakeCarrier = new Layman(Carrier.InfectionStatus.UNKNOWN, 0.2734f);
 
         Location somewhereInTheWorld = buildLocation(12, 73);
 
         Date rightNow = new Date(System.currentTimeMillis());
-        Date aLittleLater = new Date(rightNow.getTime() + 10);
+        Date aLittleLater = new Date(rightNow.getTime() + 1000);
 
-        mActivityRule.getActivity().getSender().registerLocation(aFakeCarrier, somewhereInTheWorld, rightNow);
-        mActivityRule.getActivity().getSender().registerLocation(aFakeCarrier, somewhereInTheWorld, aLittleLater);
+        mActivityRule.runOnUiThread(() -> {
+            mActivityRule.getActivity().getService().getSender().registerLocation(
+                    aFakeCarrier,
+                    somewhereInTheWorld,
+                    rightNow,
+                    exchangeSucceeded,
+                    exchangeFailed);
+            mActivityRule.getActivity().getService().getSender().registerLocation(
+                    aFakeCarrier,
+                    somewhereInTheWorld,
+                    aLittleLater);
+        });
 
         Thread.sleep(1000);
 

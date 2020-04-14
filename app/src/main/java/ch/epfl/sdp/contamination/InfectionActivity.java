@@ -37,12 +37,6 @@ public class InfectionActivity extends AppCompatActivity {
         infectionStatus = findViewById(R.id.my_infection_status);
         infectionProbability = findViewById(R.id.my_infection_probability);
 
-        /*
-        GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor(new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance()));
-        analyst = new ConcreteAnalysis(new Layman(Carrier.InfectionStatus.HEALTHY), new ConcreteDataReceiver(gridInteractor));
-        receiver = new ConcreteDataReceiver(gridInteractor);
-         */
-
         lastUpdateTime = System.currentTimeMillis();
 
         infectionStatus.setText("Refresh to see your status");

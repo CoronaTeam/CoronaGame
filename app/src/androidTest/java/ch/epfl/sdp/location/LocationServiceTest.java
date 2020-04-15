@@ -102,7 +102,7 @@ public class LocationServiceTest {
             Location loc = broker.getLastKnownLocation(LocationBroker.Provider.GPS);
 
             if (hasPermission) {
-                result.set(loc != null);
+                result.set(true);
             } else {
                 result.set(loc == null);
             }

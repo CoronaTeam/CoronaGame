@@ -21,11 +21,11 @@ import ch.epfl.sdp.Account;
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.TestTools;
+import ch.epfl.sdp.location.LocationService;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isClickable;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static ch.epfl.sdp.TestUtils.buildLocation;
@@ -174,22 +174,17 @@ public class ConcreteAnalysisTest {
         }
     }
 
-    private void populateLocation(GeoPoint location, Carrier.InfectionStatus status, int rounds, float startProbability) {
-        city.put(location, new HashMap<>());
-        for (int i = 0; i < rounds; i++) {
-            city.get(location).put(System.currentTimeMillis()+1000*i, Collections.singleton(new Layman(status, startProbability + i)));
-        }
-    }
-
     @Test
     public void infectionProbabilityIsUpdated() throws Throwable {
 
         CityDataReceiver cityReceiver = new CityDataReceiver();
         Carrier me = new Layman(HEALTHY);
 
-        mActivityRule.getActivity().setReceiver(cityReceiver);
+        LocationService service = mActivityRule.getActivity().getLocationService();
+
+        service.setReceiver(cityReceiver);
         InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver);
-        mActivityRule.getActivity().setAnalyst(analysis);
+        service.setAnalyst(analysis);
 
         cityReceiver.setMyCurrentLocation(buildLocation(0, 0));
 

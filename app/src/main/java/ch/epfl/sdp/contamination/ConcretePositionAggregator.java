@@ -23,7 +23,7 @@ public final class ConcretePositionAggregator extends Observable implements Posi
     private InfectionAnalyst analyst;
     private Timer updatePosTimer;
     HashMap<Long, List<Location>> buffer;
-    public ConcretePositionAggregator(DataSender dataSender, InfectionAnalyst analyst,int maxLocationsPerAggregation){
+    public ConcretePositionAggregator(DataSender dataSender, InfectionAnalyst analyst, int maxLocationsPerAggregation){
         if(dataSender == null || analyst == null){
             throw new IllegalArgumentException("DataSender or analyst should not be null");
         }else if(maxLocationsPerAggregation == 0){
@@ -38,7 +38,7 @@ public final class ConcretePositionAggregator extends Observable implements Posi
         startTimer();
     }
     public ConcretePositionAggregator(DataSender dataSender, InfectionAnalyst analyst){
-       this(dataSender,analyst,PositionAggregator.MAXIMAL_NUMBER_OF_LOCATIONS_PER_AGGREGATION);
+       this(dataSender, analyst, PositionAggregator.MAXIMAL_NUMBER_OF_LOCATIONS_PER_AGGREGATION);
     }
 
     /**
@@ -101,7 +101,7 @@ public final class ConcretePositionAggregator extends Observable implements Posi
             Location meanLocation = getMean(targetLocations);
             Location expandedLocation = DataSender.RoundAndExpandLocation(meanLocation);
 //            System.out.println("----SENDING-----"+expandedLocation.toString() + " with date : "+lastDate.toString());
-            dataSender.registerLocation(analyst.getCarrier(),expandedLocation,lastDate);
+            dataSender.registerLocation(analyst.getCarrier(), expandedLocation,lastDate);
         }
     }
     private Location getMean(List<Location> targetLocations) {

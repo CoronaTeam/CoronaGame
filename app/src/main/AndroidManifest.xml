@@ -48,6 +48,10 @@
         <activity
             android:name=".GpsActivity"
             android:parentActivityName=".MainActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
         <activity
@@ -83,6 +87,10 @@
         <activity android:name=".TabActivity"
             android:parentActivityName=".MainActivity">
         </activity>
+
+        <service android:name=".location.LocationService">
+            
+        </service>
 
     </application>
 

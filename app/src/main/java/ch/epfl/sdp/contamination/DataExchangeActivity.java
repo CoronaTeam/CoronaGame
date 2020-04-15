@@ -1,6 +1,10 @@
 package ch.epfl.sdp.contamination;
 
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -9,52 +13,49 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 
-import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.location.LocationService;
 
 public class DataExchangeActivity extends AppCompatActivity {
 
     // TODO: This activity will be converted into a Service
-
-    private DataSender sender;
-    private DataReceiver receiver;
+    private LocationService service;
 
     private TextView exchangeStatus;
-    private TextView exchangeContent;
 
-    private OnSuccessListener successListener = o -> {
+    OnSuccessListener successListener = o -> {
         exchangeStatus.setText("EXCHANGE Succeeded");
     };
 
-    private OnFailureListener failureListener = e -> {
+    OnFailureListener failureListener = e -> {
         exchangeStatus.setText("EXCHANGE Failed");
     };
 
-
     @VisibleForTesting
-    DataSender getSender() {
-        return sender;
+    public LocationService getService() {
+        return service;
     }
-
-    @VisibleForTesting
-    DataReceiver getReceiver() {
-        return receiver;
-    }
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sender = new ConcreteDataSender(new GridFirestoreInteractor(),
-                AuthenticationManager.getAccount(this)).setOnSuccessListener(successListener).setOnFailureListener(failureListener);
 
         setContentView(R.layout.activity_dataexchange);
         exchangeStatus = findViewById(R.id.exchange_status);
-        exchangeContent = findViewById(R.id.exchange_content);
 
-        receiver = new ConcreteDataReceiver(
-                new GridFirestoreInteractor());
+        ServiceConnection conn = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                LocationService.LocationBinder binder = (LocationService.LocationBinder) service;
+                DataExchangeActivity.this.service = binder.getService();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                DataExchangeActivity.this.service = null;
+            }
+        };
+        bindService(new Intent(this, LocationService.class), conn, BIND_AUTO_CREATE);
     }
 }

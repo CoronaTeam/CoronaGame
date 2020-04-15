@@ -33,7 +33,7 @@ public class DataExchangeActivity extends AppCompatActivity {
     };
 
     @VisibleForTesting
-    LocationService getService() {
+    public LocationService getService() {
         return service;
     }
 

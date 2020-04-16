@@ -36,10 +36,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
 
     private Button infectionStatusButton;
     private TextView infectionStatusView;
-    private TextView infectionUploadView;
-    private TextView userNameView;
     private TextView onlineStatusView;
-    private Button refreshButton;
     private Account account;
     private User user;
     private String userName;
@@ -65,16 +62,9 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         infectionStatusView = view.findViewById(R.id.infectionStatusView);
         infectionStatusButton = view.findViewById(R.id.infectionStatusButton);
         infectionStatusButton.setOnClickListener(this);
-        infectionUploadView = view.findViewById(R.id.infectionStatusUploadConfirmation);
-        userNameView = view.findViewById(R.id.userName);
-
-        view.findViewById(R.id.refreshButton).setOnClickListener(this);
-
 
         checkOnline();
         getLoggedInUser();
-
-        userNameView.setText(userName);
 
         infectionStatusView.setSaveEnabled(true);
         infectionStatusButton.setSaveEnabled(true);
@@ -110,9 +100,6 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
             case R.id.infectionStatusButton:
                 onClickChangeStatus(v);
                 break;
-            case R.id.refreshButton:
-                onClickRefresh(v);
-                break;
             // other buttons...
         }
     }
@@ -133,7 +120,6 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
 
     private boolean checkOnline() {
         onlineStatusView = view.findViewById(R.id.onlineStatusView);
-        refreshButton = view.findViewById(R.id.refreshButton);
         checkNetworkStatus(getActivity());
         setOnlineOfflineVisibility(IS_ONLINE);
         return IS_ONLINE;
@@ -143,11 +129,8 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         int onlineVisibility = isOnline ? View.VISIBLE : View.INVISIBLE;
         int offlineVisibility = isOnline ? View.INVISIBLE : View.VISIBLE;
         onlineStatusView.setVisibility(offlineVisibility);
-        refreshButton.setVisibility(offlineVisibility);
         infectionStatusButton.setVisibility(onlineVisibility);
         infectionStatusView.setVisibility(onlineVisibility);
-        infectionUploadView.setVisibility(onlineVisibility);
-        userNameView.setVisibility(onlineVisibility);
     }
 
     private void getLoggedInUser() {
@@ -166,14 +149,14 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
             setView(infectionStatusButton, infectionStatusView, true);
             //upload to firebase
             user.modifyUserInfectionStatus(userName, true,
-                    value -> infectionUploadView.setText(value));
+                    value -> {});
 
 
         } else {
             setView(infectionStatusButton, infectionStatusView, false);
             //upload to firebase
             user.modifyUserInfectionStatus(userName, false,
-                    value -> infectionUploadView.setText(value));
+                    value -> {});
         }
     }
 
@@ -229,8 +212,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         clickAction(infectionStatusButton, infectionStatusView, buttonTextID,
                 messageID, colorID);
         user.modifyUserInfectionStatus(userName, infected,
-                value -> infectionUploadView.setText(String.format("%s at %s", value,
-                        Calendar.getInstance().getTime())));
+                value -> {});
     }
 
     private void displayAuthFailedToast() {

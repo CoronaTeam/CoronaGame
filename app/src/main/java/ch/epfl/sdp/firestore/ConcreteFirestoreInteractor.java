@@ -4,8 +4,12 @@ import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+
+import java.util.concurrent.CompletableFuture;
 
 public class ConcreteFirestoreInteractor extends FirestoreInteractor {
     private final CountingIdlingResource serverIdlingResource;
@@ -39,6 +43,11 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
         }
     }
 
+    @Override
+    public void readDocument(DocumentReference documentReference, QueryHandler<DocumentReference> handler) {
+
+    }
+
     public void readCollection(CollectionReference collectionReference, QueryHandler handler) {
         try {
             serverIdlingResource.increment();
@@ -50,15 +59,24 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
         }
     }
 
-    public void readDocument(DocumentReference documentReference,
-                             QueryHandler<DocumentReference> handler) {
+    public <T> CompletableFuture<T> readDocument(DocumentReference documentReference,
+                                                 Class<T> classType) {
+        CompletableFuture<DocumentSnapshot> completableFuture;
         try {
             serverIdlingResource.increment();
-            documentReference
-                    .get()
-                    .addOnCompleteListener(onCompleteListenerBuilder(handler));
+            Task<DocumentSnapshot> task = documentReference.get();
+            completableFuture = taskToFuture(task);
         } finally {
             serverIdlingResource.decrement();
         }
+        //return completableFuture.thenApplyAsync(doc -> doc.toObject(classType));
+        return completableFuture.thenApply(
+                doc -> {
+                    if (doc.exists()) {
+                        return doc.toObject(classType);
+                    } else {
+                        throw new RuntimeException("Document does not exist ");
+                    }
+                });
     }
 }

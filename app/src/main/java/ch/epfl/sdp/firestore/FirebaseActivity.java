@@ -6,9 +6,15 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.firestore.DocumentReference;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.R;
@@ -47,10 +53,20 @@ public class FirebaseActivity extends AppCompatActivity {
                         stringMapMap -> textView.setText(R.string.docSnap_success_upload)));
     }
 
-    public void readData2(View view) {
-        databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
-                R.string.can_t_Download_Offline, textView -> fs.readDocument("Tests/FirebaseActivity/Download", "DownloadTest",
-                        stringMapMap -> textView.setText(stringMapMap.toString())));
+    public void readData2(View view) throws ExecutionException, InterruptedException, TimeoutException {
+        DocumentReference documentReference = fs.documentReference("Tests/FirebaseActivity" +
+                "/Download", "DownloadTest");
+       /* databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
+                R.string.can_t_Download_Offline, textView -> fs.readDocument(documentReference,
+                        stringMapMap -> textView.setText(stringMapMap.toString())));*/
+        TextView outputView = findViewById(R.id.FirebaseDownloadResult);
+        checkNetworkStatus(this);
+        if (IS_ONLINE) {
+            outputView.setText(R.string.downloading);
+            fs.readDocument(documentReference, Map.class).thenAccept(s -> outputView.setText(s.toString()));
+        } else {
+            outputView.setText(R.string.can_t_Download_Offline);
+        }
     }
 
     public void readData1(View view){

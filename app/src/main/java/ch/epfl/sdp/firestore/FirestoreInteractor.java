@@ -3,6 +3,7 @@ package ch.epfl.sdp.firestore;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -14,6 +15,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import ch.epfl.sdp.Callback;
 
@@ -77,6 +80,13 @@ public abstract class FirestoreInteractor {
 
     public DocumentReference documentReference(String path, String documentID) {
         return collectionReference(path).document(documentID);
+    }
+
+    public static <T> CompletableFuture<T> taskToFuture(Task<T> task) {
+        CompletableFuture<T> future = new CompletableFuture<>();
+        task.addOnSuccessListener(value -> future.complete(value));
+        task.addOnFailureListener(failure -> future.completeExceptionally(failure));
+        return future;
     }
 
     public void writeDocument(String path, Object document,

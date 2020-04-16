@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -39,10 +40,11 @@ import ch.epfl.sdp.ConcreteLocationBroker;
 import ch.epfl.sdp.LocationBroker;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.fragment.AccountFragment;
+import ch.epfl.sdp.fragment.HistoryDialogFragment;
 
 import static ch.epfl.sdp.LocationBroker.Provider.GPS;
 
-public class MapFragment extends Fragment implements LocationListener {
+public class MapFragment extends Fragment implements LocationListener, View.OnClickListener {
 
     public final static int LOCATION_PERMISSION_REQUEST = 20201;
     private static final int MIN_UP_INTERVAL_MILLISECS = 1000;
@@ -104,6 +106,8 @@ public class MapFragment extends Fragment implements LocationListener {
                 });
             }
         });
+
+        view.findViewById(R.id.history_button).setOnClickListener(this);
 
         return view;
     }
@@ -246,5 +250,20 @@ public class MapFragment extends Fragment implements LocationListener {
 
     protected LatLng getPreviousLocation() {
         return prevLocation;
+    }
+
+    private void onClickHistory() {
+        HistoryDialogFragment dialog = HistoryDialogFragment.newInstance();
+        dialog.show(getActivity().getSupportFragmentManager(), "history_dialog_fragment");
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.history_button: {
+                onClickHistory();
+            } break;
+            default: break;
+        }
     }
 }

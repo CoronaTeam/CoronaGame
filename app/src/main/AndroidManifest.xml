@@ -20,10 +20,8 @@
 
         <activity android:name=".Authentication">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.AUTH" />
-                <category android:name="android.intent.category.LAUNCHER" />
-                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.MAIN" />
                 <!-- >   <category android:name="" /><! -->
             </intent-filter>
         </activity>
@@ -43,6 +41,11 @@
         <activity
             android:name=".IntroActivity"
             android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <activity
@@ -81,7 +84,8 @@
         </activity>
 
         <activity android:name=".TabActivity"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
 
     </application>

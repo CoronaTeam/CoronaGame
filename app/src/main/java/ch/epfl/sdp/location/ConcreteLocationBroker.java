@@ -1,8 +1,9 @@
-package ch.epfl.sdp;
+package ch.epfl.sdp.location;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -10,14 +11,23 @@ import android.location.LocationManager;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static ch.epfl.sdp.LocationBroker.Provider.GPS;
-import static ch.epfl.sdp.LocationBroker.Provider.NETWORK;
+import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
+import static ch.epfl.sdp.location.LocationBroker.Provider.NETWORK;
 
 public class ConcreteLocationBroker implements LocationBroker {
+
+    private LocationManager locationManager;
+    private Context context;
+
+    public ConcreteLocationBroker(LocationManager locationManager, Context context) {
+        this.locationManager = locationManager;
+        this.context = context;
+    }
 
     // TODO: use Map.of()
     private static final Map<Provider, String> providerToString = new HashMap<Provider, String>() {{
@@ -25,20 +35,11 @@ public class ConcreteLocationBroker implements LocationBroker {
         put(NETWORK, LocationManager.NETWORK_PROVIDER);
     }};
 
-    private final LocationManager locationManager;
-    private final Activity activity;
-
-    public ConcreteLocationBroker(LocationManager locationManager, Activity activity) {
-        this.locationManager = locationManager;
-        this.activity = activity;
-    }
-
     @Override
     public boolean isProviderEnabled(@NonNull Provider provider) {
         assert provider != null;
         return locationManager.isProviderEnabled(providerToString.get(provider));
     }
-
 
     @SuppressLint("MissingPermission")
     @Override
@@ -76,11 +77,12 @@ public class ConcreteLocationBroker implements LocationBroker {
         if (provider != GPS) {
             throw new IllegalArgumentException();
         }
-        return ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
-    public void requestPermissions(int requestCode) {
+    public void requestPermissions(Activity activity, int requestCode) {
         // TODO: uncomment this
         /* This is the correct implementation. Could not test it!
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {

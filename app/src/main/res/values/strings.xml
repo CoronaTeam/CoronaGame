@@ -3,7 +3,7 @@
     <string name="app_id" translatable="false">807375232223</string>
     <string name="app_name">CoronaGame</string>
 
-    <string name="can_t_Download_Offline">Can\'t download while offline</string>
+    <string name="can_t_Download_Offline" translatable="false">Can\'t download while offline</string>
     <string name="can_t_Upload_Offline">Can\'t upload while offline</string>
 
     <string name="connection_error" translatable="false">CONNECTION ERROR</string>
@@ -82,4 +82,6 @@
 
     <string name="your_user_status_is_set_to_infected">Your user status is set to infected.</string>
     <string name="your_user_status_is_set_to_not_infected">Your user status is set to not infected.</string>
+    <string name="aggregator_status_on">You are online now</string>
+    <string name="aggregator_status_off">Noo! You are offline</string>
 </resources>

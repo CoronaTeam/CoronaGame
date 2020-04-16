@@ -11,13 +11,13 @@
     <string name="gps_status_on">"Signal GPS acquis "</string>
     <string name="gps_status_off">Signal GPS perdu</string>
     <string name="gps_signal_missing">Signal GPS manquant</string>
-    <string name="downloading">Téléchargement en cours...</string>
+    <string name="downloading">Téléchargement en cours…</string>
     <string name="download">Télécharger</string>
     <string name="your_user_status_is_set_to_not_infected">Votre statut utilisateur est défini sur non-infecté(e)</string>
     <string name="your_user_status_is_set_to_infected">Votre statut utilisateur est défini sur infecté(e)</string>
     <string name="you_cannot_update_your_status_you_are_offline">Téléchargement hors ligne impossible</string>
-    <string name="waiting_for_gps">En attente du GPS...</string>
-    <string name="uploading_with_dots">Transfert...</string>
+    <string name="waiting_for_gps">En attente du GPS…</string>
+    <string name="uploading_with_dots">Transfert…</string>
     <string name="launch_intro">Lancer l\'intro</string>
     <string name="past_positions">Dernières positions</string>
     <string name="tab_account">Compte</string>
@@ -29,11 +29,13 @@
     <string name="no_data_uploaded_yet">Aucune donnée transférée</string>
     <string name="query_ok">Requête OK</string>
     <string name="send">Envoyer</string>
-    <string name="uploading">Transfert...</string>
-    <string name="loading_with_dots">Chargement...</string>
+    <string name="uploading">Transfert…</string>
+    <string name="loading_with_dots">Chargement…</string>
     <string name="longitude">Longitude</string>
     <string name="launch_signin">Lancer SignIn</string>
     <string name="launch_tabs">Lancer Tabs</string>
     <string name="launch_user_infection">Lancer User Infection</string>
     <string name="latitude">Latitude</string>
+    <string name="aggregator_status_on">Vous êtes maintenant en ligne</string>
+    <string name="aggregator_status_off">Zut! Vous êtes hors ligne</string>
 </resources>

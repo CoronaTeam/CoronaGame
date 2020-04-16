@@ -63,6 +63,7 @@
 
     <string name="tab_account">Account</string>
     <string name="tab_history">History</string>
+    <string name="tab_status">Status</string>
     <string name="tab_map">Map</string>
 
     <string name="textView">TextView</string>

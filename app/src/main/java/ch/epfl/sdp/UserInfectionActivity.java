@@ -253,7 +253,7 @@ public class UserInfectionActivity extends AppCompatActivity {
 
     private void clickAction(Button button, TextView textView, int buttonText, int textViewText, int textColor) {
         button.setText(buttonText);
-        textView.setTextColor(getResources().getColorStateList(textColor));
+        textView.setTextColor(getResources().getColorStateList(textColor, this.getTheme()));
         textView.setText(textViewText);
     }
 
@@ -262,7 +262,7 @@ public class UserInfectionActivity extends AppCompatActivity {
         int textViewText = infected ? R.string.your_user_status_is_set_to_infected : R.string.your_user_status_is_set_to_not_infected;
         int textColor = infected ? R.color.colorRedInfected : R.color.colorGreenCured;
         button.setText(buttonText);
-        textView.setTextColor(getResources().getColorStateList(textColor));
+        textView.setTextColor(getResources().getColorStateList(textColor, this.getTheme()));
         textView.setText(textViewText);
     }
 }

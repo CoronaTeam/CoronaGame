@@ -2,6 +2,7 @@ package ch.epfl.sdp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -12,9 +13,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
@@ -29,7 +36,8 @@ public class UserInfectionActivity extends AppCompatActivity {
     private TextView onlineStatusView;
     private Button refreshButton;
     private Account account;
-    private User user;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private static final String TAG = "User Infection Activity";
     private String userName;
 
     private Executor executor;
@@ -114,9 +122,7 @@ public class UserInfectionActivity extends AppCompatActivity {
     private void getLoggedInUser() {
         account = AuthenticationManager.getAccount(this);
         userName = account.getDisplayName();
-        user = new User(userName, account.getFamilyName(), account.getEmail(),
-                account.getPhotoUrl(), account.getPlayerId(this), account.getId(), User.DEFAULT_AGE, false);
-        user.retrieveUserInfectionStatus(
+        retrieveUserInfectionStatus(
                 value -> setView(infectionStatusButton, infectionStatusView, value));
     }
 
@@ -126,14 +132,14 @@ public class UserInfectionActivity extends AppCompatActivity {
         if (buttonText.equals(getResources().getString(R.string.i_am_infected))) {
             setView(infectionStatusButton, infectionStatusView, true);
             //upload to firebase
-            user.modifyUserInfectionStatus(userName, true,
+            modifyUserInfectionStatus(userName, true,
                     value -> infectionUploadView.setText(value));
 
 
         } else {
             setView(infectionStatusButton, infectionStatusView, false);
             //upload to firebase
-            user.modifyUserInfectionStatus(userName, false,
+            modifyUserInfectionStatus(userName, false,
                     value -> infectionUploadView.setText(value));
         }
     }
@@ -185,11 +191,42 @@ public class UserInfectionActivity extends AppCompatActivity {
         }
     }
 
+    public void modifyUserInfectionStatus(String userPath, Boolean infected, Callback<String> callback) {
+        Map<String, Object> user = new HashMap<>();
+        user.put("Infected", infected);
+        db.collection("Users").document(userPath)
+                .set(user, SetOptions.merge());
+
+        DocumentReference userRef = db.collection("Users").document(userPath);
+
+        userRef
+                .update("Infected", infected)
+                .addOnSuccessListener(documentReference ->
+                        callback.onCallback("User infection status successfully updated!"))
+                .addOnFailureListener(e ->
+                        callback.onCallback("Error updating user infection status."));
+    }
+
+    public void retrieveUserInfectionStatus(Callback<Boolean> callbackBoolean) {
+        db.collection("Users").document(userName).get().addOnSuccessListener(documentSnapshot ->
+        {
+            Log.d(TAG, "Infected status successfully loaded.");
+            Object infected = documentSnapshot.get("Infected");
+            if (infected == null) {
+                callbackBoolean.onCallback(false);
+            } else {
+                callbackBoolean.onCallback((boolean) infected);
+            }
+        })
+                .addOnFailureListener(e ->
+                        Log.w(TAG, "Error retrieving infection status from Firestore.", e));
+    }
+
     private void setInfectionColorAndMessage(int buttonTextID, int messageID, int colorID,
                                              boolean infected) {
         clickAction(infectionStatusButton, infectionStatusView, buttonTextID,
                 messageID, colorID);
-        user.modifyUserInfectionStatus(userName, infected,
+        modifyUserInfectionStatus(userName, infected,
                 value -> infectionUploadView.setText(String.format("%s at %s", value,
                         Calendar.getInstance().getTime())));
     }

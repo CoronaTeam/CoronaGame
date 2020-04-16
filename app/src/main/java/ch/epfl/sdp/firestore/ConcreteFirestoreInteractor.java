@@ -73,7 +73,11 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
         return completableFuture.thenApply(
                 doc -> {
                     if (doc.exists()) {
-                        return doc.toObject(classType);
+                        // FIXME: doc.toObject fails silently
+                        //return doc.toObject(classType);
+                        // -> java.lang.RuntimeException: Could not deserialize object. Class java.util.Map has generic type parameters, please use GenericTypeIndicator instead
+                        // but GenericTypeIndicator is not implemented in the library, see https://github.com/firebase/firebase-android-sdk/issues/222
+                        return (T)doc.getData();
                     } else {
                         throw new RuntimeException("Document does not exist ");
                     }

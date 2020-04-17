@@ -92,6 +92,11 @@ public class ConcreteAnalysisTest {
         public int getAndResetSickNeighbors(String userId) {
             return 0;
         }
+
+        @Override
+        public void getSickNeighbors(String userId, Callback callback) {
+
+        }
     };
     CachingDataSender sender = new FakeCachingDataSender();
 
@@ -181,6 +186,11 @@ public class ConcreteAnalysisTest {
         @Override
         public int getAndResetSickNeighbors(String userId) {
             return 0;
+        }
+
+        @Override
+        public void getSickNeighbors(String userId, Callback callback) {
+
         }
     }
 

@@ -123,7 +123,6 @@ public class ConcreteAnalysis implements InfectionAnalyst {
             updateCarrierInfectionProbability(me.getIllnessProbability() + number * TRANSMISSION_FACTOR);
             cachedSender.resetSickAlerts(me.getUniqueId());
         });
-
     }
 
     @Override

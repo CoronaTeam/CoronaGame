@@ -47,6 +47,11 @@ public final class FakeCachingDataSender implements CachingDataSender {
     }
 
     @Override
+    public void resetSickAlerts(String userId) {
+
+    }
+
+    @Override
     public SortedMap<Date, Location> getLastPositions() {
         return null;
     }

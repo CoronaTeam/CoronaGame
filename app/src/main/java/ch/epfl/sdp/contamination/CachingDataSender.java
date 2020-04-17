@@ -7,6 +7,9 @@ import java.util.SortedMap;
 
 public interface CachingDataSender {
     int EXPAND_FACTOR = 100000; //determines the GPS coordinates precision
+    String publicUserFolder = "publicUser/";
+    String publicAlertAttribute = "recentlySickMeetingCounter";
+
     static Location RoundAndExpandLocation(Location l){
         int a = (int)(0.5 + l.getLatitude()*EXPAND_FACTOR);
         int b = (int)(0.5 + l.getLongitude()*EXPAND_FACTOR);
@@ -24,6 +27,8 @@ public interface CachingDataSender {
      * Notifies a user he has been close to an infected person
      */
     void sendAlert(String userId);
+
+    void resetSickAlerts(String userId);
     /**
      *
      * @return: locations and times of a given user for a given amount of time

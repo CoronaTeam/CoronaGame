@@ -11,6 +11,7 @@ import java.util.SortedMap;
 
 import ch.epfl.sdp.Callback;
 
+import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
 
 public class ConcreteAnalysis implements InfectionAnalyst {
@@ -108,8 +109,21 @@ public class ConcreteAnalysis implements InfectionAnalyst {
             modelInfectionEvolution(identifySuspectContacts(aroundMe));
             callback.onCallback(null);
         });
+
+        //Method 1 : (synchrone)
         int badMeetings = receiver.getAndResetSickNeighbors(me.getUniqueId());
         updateCarrierInfectionProbability(me.getIllnessProbability() + badMeetings*TRANSMISSION_FACTOR);
+
+        //method 2 : (asynchrone)
+        receiver.getSickNeighbors(me.getUniqueId(),res -> {
+            int number = 0;
+            if(!((HashMap)(res)).isEmpty()){
+                number = ((int) ((long) (((HashMap) (res)).get(publicAlertAttribute))));
+            }
+            updateCarrierInfectionProbability(me.getIllnessProbability() + number * TRANSMISSION_FACTOR);
+            cachedSender.resetSickAlerts(me.getUniqueId());
+        });
+
     }
 
     @Override

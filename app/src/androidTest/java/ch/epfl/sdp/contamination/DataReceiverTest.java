@@ -20,6 +20,7 @@ import ch.epfl.sdp.User;
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.contamination.InfectionActivity.getReceiver;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class DataReceiverTest {
 
@@ -60,9 +61,16 @@ public class DataReceiverTest {
         FakeGridInteractor interactor = new FakeGridInteractor();
         ((ConcreteDataReceiver)getReceiver()).setInteractor(interactor);
         interactor.addMeeting();
-        int res = ((ConcreteDataReceiver)getReceiver()).getAndResetSickNeighbors(User.DEFAULT_USERID);
+        int res = getReceiver().getAndResetSickNeighbors(User.DEFAULT_USERID);
 
         assertEquals(1,res);
+    }
+    @Test
+    public void getAndResetDoesReset(){
+        long res = getReceiver().getAndResetSickNeighbors(User.DEFAULT_USERID);
+        assertEquals(1024,res);
+//        long res2 = getReceiver().getAndResetSickNeighbors(User.DEFAULT_USERID);
+//        assertEquals(0,res2);
     }
 
 }

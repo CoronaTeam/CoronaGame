@@ -13,11 +13,13 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Future;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.Account;
@@ -25,9 +27,13 @@ import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.firestore.QueryHandler;
 
+import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
+import static ch.epfl.sdp.contamination.CachingDataSender.publicUserFolder;
+
 class ConcreteDataReceiver implements DataReceiver {
 
     private GridFirestoreInteractor interactor;
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     ConcreteDataReceiver(GridFirestoreInteractor gridInteractor) {
         this.interactor = gridInteractor;
@@ -182,23 +188,65 @@ class ConcreteDataReceiver implements DataReceiver {
             }
         });
     }
-
+    //USELESS
+    private void resetSickNeighbors(String userId){
+        DocumentReference ref = FirestoreInteractor.documentReference(publicUserFolder,userId);
+        ref.update(publicAlertAttribute, 0);
+    }
+    //USELESS
     public int getAndResetSickNeighbors(String userId){//,Callback<Map<String,Object>> callback){
         AtomicInteger temp = new AtomicInteger(-1);
+        final HashMap<String,Object> map;
 
-        String path = "publicPlayers/";
-        interactor.readDocument(path,userId,res ->temp.set((int)res));
-        DocumentReference ref = FirestoreInteractor.documentReference(path,userId);
-        ref.update("lastMetPerson", FieldValue.delete());
+            interactor.readDocument(publicUserFolder, userId, res -> {
+                    if(!((HashMap)(res)).isEmpty()){
+                        temp.set((int) ((long) (((HashMap) (res)).get(publicAlertAttribute))));
+                    }else{
+                        temp.set(0);
+                    }
+                }
+             );
+
+        try{
+            Thread.sleep(5000);
+        }catch (InterruptedException e){
+
+        }
+        resetSickNeighbors(userId);
+        try{
+            Thread.sleep(5000);
+        }catch (InterruptedException e){
+
+        }
         return temp.get();
     }
-    public int getAndResetSickNeighbors(String userId,Callback<Integer> callback){
-        AtomicInteger temp = new AtomicInteger(-1);
 
-        String path = "publicPlayers/";
-        interactor.readDocument(path,userId,callback);
-        DocumentReference ref = FirestoreInteractor.documentReference(path,userId);
-        ref.update("lastMetPerson", FieldValue.delete());
-        return temp.get();
+
+
+    public void getSickNeighbors(String userId,Callback callback){
+        interactor.readDocument(publicUserFolder, userId, callback);
     }
+//    public Future<Integer> getAndResetSickNeighbors(String userId){//,Callback<Map<String,Object>> callback){
+//        AtomicInteger temp = new AtomicInteger(-1);
+//
+//        String path = "publicPlayers/";
+//        Future<Integer> futur = executor.submit(()->{interactor.readDocument(path,userId,res ->
+//                return (int)res);
+////                temp.set((int)res));
+////        return temp.get();
+//        });
+//        interactor.readDocument(path,userId,res ->
+//                temp.set((int)res));
+//        DocumentReference ref = FirestoreInteractor.documentReference(path,userId);
+//        ref.update("lastMetPerson", FieldValue.delete());
+//        return temp.get();
+//    }
+//    public int getAndResetSickNeighbors(String userId,Callback<Integer> callback){
+//        AtomicInteger temp = new AtomicInteger(-1);
+//
+//        interactor.readDocument(publicUserFolder,userId,callback);
+//        DocumentReference ref = FirestoreInteractor.documentReference(publicUserFolder,userId);
+//        ref.update(publicAlertAttribute, FieldValue.delete());
+//        return temp.get();
+//    }
 }

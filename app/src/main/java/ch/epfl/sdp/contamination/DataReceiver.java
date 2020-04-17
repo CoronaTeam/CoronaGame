@@ -39,4 +39,6 @@ public interface DataReceiver {
      * @return
      */
     int getAndResetSickNeighbors(String userId);//,Callback<Map<String,Object>> callback);
+
+    void getSickNeighbors(String userId,Callback callback);
 }

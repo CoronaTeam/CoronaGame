@@ -58,8 +58,6 @@ public class UserInfectionActivity extends AppCompatActivity {
         checkOnline();
         getLoggedInUser();
 
-        userNameView.setText(userName);
-
         infectionStatusView.setSaveEnabled(true);
         infectionStatusButton.setSaveEnabled(true);
 
@@ -122,6 +120,7 @@ public class UserInfectionActivity extends AppCompatActivity {
     private void getLoggedInUser() {
         account = AuthenticationManager.getAccount(this);
         userName = account.getDisplayName();
+        userNameView.setText(userName);
         retrieveUserInfectionStatus(
                 value -> setView(infectionStatusButton, infectionStatusView, value));
     }

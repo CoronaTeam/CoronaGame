@@ -32,7 +32,7 @@ public interface CachingDataSender {
      * Notifies a user he has been close to an infected person
      */
     default void sendAlert(String userId){
-        sendAlert(userId,0);
+        sendAlert(userId,0f);
     }
 
     /**
@@ -43,7 +43,7 @@ public interface CachingDataSender {
      */
     default void sendAlert(String userId, float previousIllnessProbability){
         DocumentReference ref = FirestoreInteractor.documentReference(publicUserFolder,userId);
-        ref.update(publicAlertAttribute, FieldValue.increment(1-previousIllnessProbability));
+        ref.update(publicAlertAttribute, FieldValue.increment(1f-previousIllnessProbability));
     }
 
     default void resetSickAlerts(String userId){

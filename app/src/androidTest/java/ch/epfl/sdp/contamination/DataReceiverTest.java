@@ -26,14 +26,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 public class DataReceiverTest {
-    ConcreteDataReceiver receiver;
+    DataReceiver receiver;
     ConcreteCachingDataSender sender;
     @Rule
     public final ActivityTestRule<InfectionActivity> mActivityRule = new ActivityTestRule<>(InfectionActivity.class);
 
     @Before
     public void init(){
-        receiver = ((ConcreteDataReceiver)getReceiver());
+        receiver = getReceiver();
         sender = (ConcreteCachingDataSender) getSender();
     }
     class FakeGridInteractor extends GridFirestoreInteractor {
@@ -68,7 +68,7 @@ public class DataReceiverTest {
     public void getSickNeighborDoesGetIt(){
         sender.resetSickAlerts(User.DEFAULT_USERID);
         sender.sendAlert(User.DEFAULT_USERID);
-        receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID, res ->assertEquals(1,((float) ((double) (((HashMap) (res)).get(publicAlertAttribute)))),0.00001));
+        receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID, res ->assertEquals(1f, ((float)(double) (((HashMap) (res)).get(publicAlertAttribute))),0.00001));
         sleep();
     }
 

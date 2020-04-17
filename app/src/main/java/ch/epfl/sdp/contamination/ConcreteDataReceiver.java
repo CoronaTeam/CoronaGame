@@ -5,15 +5,12 @@ import android.location.LocationManager;
 
 import androidx.annotation.VisibleForTesting;
 
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -24,16 +21,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.Callback;
-import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.firestore.QueryHandler;
 
-import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicUserFolder;
 
 class ConcreteDataReceiver implements DataReceiver {
 
     private GridFirestoreInteractor interactor;
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     ConcreteDataReceiver(GridFirestoreInteractor gridInteractor) {
         this.interactor = gridInteractor;
@@ -140,7 +134,6 @@ class ConcreteDataReceiver implements DataReceiver {
     @Override
     public void getUserNearbyDuring(Location location, Date startDate, Date endDate, Callback<Map<? extends Carrier, Integer>> callback) {
 
-        Set<Carrier> carriers = new HashSet<>();
 
         interactor.getTimes(location, new QueryHandler<QuerySnapshot>() {
 

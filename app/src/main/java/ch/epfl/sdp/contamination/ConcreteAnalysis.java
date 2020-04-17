@@ -160,8 +160,4 @@ public class ConcreteAnalysis implements InfectionAnalyst {
             return false;
         }
     }
-
-    public Carrier getCurrentCarrier(){
-        return new Layman(me.getInfectionStatus(),me.getIllnessProbability());
-    }
 }

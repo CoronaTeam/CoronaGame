@@ -10,12 +10,15 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.Callback;
@@ -27,13 +30,18 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestUtils.buildLocation;
+import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
+import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
@@ -41,7 +49,12 @@ public class ConcreteAnalysisTest {
 
     Location testLocation = buildLocation(65, 63);
     Date testDate = new Date(System.currentTimeMillis());
-
+    HashMap<String,Double> recentSickMeetingCounter = new HashMap<>();
+    static Layman man1 ;
+    static Layman man2 ;
+    static Layman man3 ;
+    static Layman man4;
+    static SortedMap<Date, Location> lastPositions;
     static Set<Carrier> peopleAround;
 
     static Map<Long, Carrier> rangePeople;
@@ -52,24 +65,58 @@ public class ConcreteAnalysisTest {
     public final ActivityTestRule<InfectionActivity> mActivityRule = new ActivityTestRule<>(InfectionActivity.class);
 
     @BeforeClass
-    public static void createFewNeighbors() {
+    public static void initiateData() {
+        lastPositions = new TreeMap<>();
+        lastPositions.put(PositionAggregator.getWindowForDate(Calendar.getInstance().getTime()),newLoc(20,20));
+        lastPositions.put(PositionAggregator.getWindowForDate(new Date(System.currentTimeMillis()-PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION)),newLoc(10,10));
+        lastPositions.put(PositionAggregator.getWindowForDate(new Date(System.currentTimeMillis()-2*PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION)),newLoc(40,40));
+        lastPositions.put(PositionAggregator.getWindowForDate(new Date(System.currentTimeMillis()-3*PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION)),newLoc(30,30));
+
+
         peopleAround = new HashSet<>();
-        peopleAround.add(new Layman(HEALTHY));
+        peopleAround.add(new Layman(HEALTHY,"Woman1"));
+        peopleAround.add(new Layman(INFECTED,"Woman2"));
+        peopleAround.add(new Layman(UNKNOWN,"Woman3"));
 
         rangePeople = new HashMap<>();
-        rangePeople.put(1585223363913L, new Layman(Carrier.InfectionStatus.INFECTED));
-        rangePeople.put(1585223373883L, new Layman(Carrier.InfectionStatus.IMMUNE));
-        rangePeople.put(1585223373893L, new Layman(Carrier.InfectionStatus.UNKNOWN, 0.3f));
-        rangePeople.put(1585223373903L, new Layman(HEALTHY));
+        man1 =new Layman(Carrier.InfectionStatus.INFECTED,"Man1");
+        man2 =new Layman(Carrier.InfectionStatus.IMMUNE,"Man2");
+        man3 =new Layman(Carrier.InfectionStatus.UNKNOWN,0.3f,"Man3");
+        man4= new Layman(HEALTHY,"Man4");
+
+        rangePeople.put(1585223363913L,man1 );
+        rangePeople.put(1585223373883L, man2);
+        rangePeople.put(1585223373893L, man3);
+        rangePeople.put(1585223373903L, man4);
+
+
 
     }
 
     DataReceiver mockReceiver = new DataReceiver() {
         @Override
         public void getUserNearby(Location location, Date date, Callback<Set<? extends Carrier>> callback) {
-            if (location == testLocation && date.equals(testDate)) {
-                callback.onCallback(peopleAround);
+            HashSet<Carrier> res = new HashSet<>();
+            switch((int)(location.getLatitude())){
+                case 20:
+                    res.add(man2);
+                    break;
+                case 10:
+                    res.add(man1);
+                    break;
+                case 30:
+                    res.add(man3);
+                    break;
+                case 40:
+                    res.add(man4);
+                    break;
+                default:
+                    if (location == testLocation && date.equals(testDate)) {
+                        callback.onCallback(peopleAround);
+                        return;
+                    }
             }
+            callback.onCallback(res);
         }
 
         @Override
@@ -89,16 +136,33 @@ public class ConcreteAnalysisTest {
         }
 
         @Override
-        public int getAndResetSickNeighbors(String userId) {
-            return 0;
+        public void getNumberOfSickNeighbors(String userId, Callback callback) {
+            callback.onCallback(recentSickMeetingCounter.getOrDefault(userId,0.0));
+        }
+    };
+    CachingDataSender sender = new FakeCachingDataSender(){
+        @Override
+        public void registerLocation(Carrier carrier, Location location, Date time) {
+            firebaseStore.put(time, location);
+        }
+        @Override
+        public void sendAlert(String userId, float previousIllnessProbability){
+            double tmp = 0;
+            if(recentSickMeetingCounter.containsKey(userId)){
+                tmp = recentSickMeetingCounter.get(userId);
+            }
+            recentSickMeetingCounter.replace(userId,tmp + 1-previousIllnessProbability);
+        }
+        @Override
+        public void resetSickAlerts(String userId){
+            recentSickMeetingCounter.replace(userId,0.0);
         }
 
         @Override
-        public void getSickNeighbors(String userId, Callback callback) {
-
+        public SortedMap<Date, Location> getLastPositions() {
+            return lastPositions;
         }
     };
-    CachingDataSender sender = new FakeCachingDataSender();
 
     @Test
     public void noEvolutionWithInfection() {
@@ -184,14 +248,16 @@ public class ConcreteAnalysisTest {
         }
 
         @Override
-        public int getAndResetSickNeighbors(String userId) {
-            return 0;
-        }
+        public void getNumberOfSickNeighbors(String userId, Callback callback) {
 
-        @Override
-        public void getSickNeighbors(String userId, Callback callback) {
-
-        }
+            if(recentSickMeetingCounter.containsKey(userId)) {
+                HashMap<String,Double> res = new HashMap<>();
+                res.put(publicAlertAttribute, recentSickMeetingCounter.get(userId));
+                callback.onCallback(res);
+            }else{
+                callback.onCallback(Collections.emptyMap());
+            }
+    }
     }
 
     private void populateLocation(GeoPoint location, Carrier.InfectionStatus status, int rounds, float startProbability) {
@@ -279,10 +345,32 @@ public class ConcreteAnalysisTest {
     }
 
     @Test
-    public void getCarrierReturnsACopyOfTheCarrier(){
+    public void getCarrierReturnsTheSameCarrier(){
         Carrier me = new Layman(HEALTHY);
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
         assertNotNull(analyst.getCarrier());
         assertSame(me,analyst.getCarrier());
+    }
+    @Test
+    public void updateStatusMakesNothingIfStatusRemainsTheSame(){
+        Carrier me = new Layman(HEALTHY);
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
+        assertFalse(analyst.updateStatus(HEALTHY));
+    }
+    /*
+        man1 =new Layman(Carrier.InfectionStatus.INFECTED,"Man1");
+        man2 =new Layman(Carrier.InfectionStatus.IMMUNE,"Man2");
+        man3 =new Layman(Carrier.InfectionStatus.UNKNOWN,0.3f,"Man3");
+        man4= new Layman(HEALTHY,"Man4");
+     */
+    @Test
+    public void notifiesSickNeighborsWhenYouGetSick(){
+        Carrier me = new Layman(HEALTHY);
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
+        analyst.updateStatus(INFECTED);
+        mockReceiver.getNumberOfSickNeighbors("man1", res -> assertTrue(((HashMap)(res)).isEmpty()));
+        mockReceiver.getNumberOfSickNeighbors("man2", res -> assertEquals(1f,((HashMap)(res)).get(publicAlertAttribute)));
+        mockReceiver.getNumberOfSickNeighbors("man3", res -> assertTrue(((HashMap)(res)).isEmpty()));
+        mockReceiver.getNumberOfSickNeighbors("man4", res -> assertTrue(((HashMap)(res)).isEmpty()));
     }
 }

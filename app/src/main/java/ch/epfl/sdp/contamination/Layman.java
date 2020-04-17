@@ -2,6 +2,7 @@ package ch.epfl.sdp.contamination;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 
 import java.util.Objects;
 
@@ -23,6 +24,10 @@ public class Layman implements Carrier{
 
     public Layman(InfectionStatus initialStatus, float infectedWithProbability) {
         this(initialStatus, infectedWithProbability, "__NOT_UNIQUE_NOW");
+    }
+    @VisibleForTesting
+    public Layman(InfectionStatus initialStatus, String uniqueID){
+        this(initialStatus, initialStatus == InfectionStatus.INFECTED ? 1 : 0,uniqueID);
     }
 
     public Layman(InfectionStatus initialStatus, float infectedWithProbability, String uniqueID) {

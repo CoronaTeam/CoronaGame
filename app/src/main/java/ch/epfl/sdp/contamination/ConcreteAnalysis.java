@@ -115,13 +115,13 @@ public class ConcreteAnalysis implements InfectionAnalyst {
 //        updateCarrierInfectionProbability(me.getIllnessProbability() + badMeetings*TRANSMISSION_FACTOR);
 
         //method 2 : (asynchrone)
-        receiver.getSickNeighbors(me.getUniqueId(),res -> {
-            int badMeetings = 0;
+        receiver.getNumberOfSickNeighbors(me.getUniqueId(), res -> {
+            float badMeetings = 0;
             if(!((HashMap)(res)).isEmpty()){
-                badMeetings = ((int) ((long) (((HashMap) (res)).get(publicAlertAttribute))));
+                badMeetings = ((float) ((double) (((HashMap) (res)).get(publicAlertAttribute))));
             }
             updateCarrierInfectionProbability(me.getIllnessProbability() + badMeetings * TRANSMISSION_FACTOR);
-            CachingDataSender.resetSickAlerts(me.getUniqueId());
+            cachedSender.resetSickAlerts(me.getUniqueId());
         });
     }
 
@@ -133,6 +133,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     @Override
     public boolean updateStatus(InfectionStatus stat) {
         if(stat != me.getInfectionStatus()){
+            float previousIllnessProbability = me.getIllnessProbability();
             me.evolveInfection(stat);
             if(stat == InfectionStatus.INFECTED) {
                 //Now, retrieve all user that have been nearby the last UNINTENTIONAL_CONTAGION_TIME milliseconds
@@ -151,7 +152,8 @@ public class ConcreteAnalysis implements InfectionAnalyst {
                     });
                 }));
                 //Tell those user that they have been close to you
-                userIds.forEach(u -> CachingDataSender.sendAlert(u));
+                //TODO: discuss whether considering only the previous Illness probability is good
+                userIds.forEach(u -> cachedSender.sendAlert(u,previousIllnessProbability));
             }
             return true;
         }else{

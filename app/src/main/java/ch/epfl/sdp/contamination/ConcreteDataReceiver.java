@@ -223,7 +223,7 @@ class ConcreteDataReceiver implements DataReceiver {
 
 
 
-    public void getSickNeighbors(String userId,Callback callback){
+    public void getNumberOfSickNeighbors(String userId, Callback callback){
         interactor.readDocument(publicUserFolder, userId, callback);
     }
 //    public Future<Integer> getAndResetSickNeighbors(String userId){//,Callback<Map<String,Object>> callback){

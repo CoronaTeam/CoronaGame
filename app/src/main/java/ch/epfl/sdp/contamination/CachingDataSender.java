@@ -31,12 +31,22 @@ public interface CachingDataSender {
     /**
      * Notifies a user he has been close to an infected person
      */
-    static void sendAlert(String userId){
-        DocumentReference ref = FirestoreInteractor.documentReference(publicUserFolder,userId);
-        ref.update(publicAlertAttribute, FieldValue.increment(1));
+    default void sendAlert(String userId){
+        sendAlert(userId,0);
     }
 
-    static void resetSickAlerts(String userId){
+    /**
+     * If yesterday you were 90% surely sick, the person you met were already aware that they might be infected.
+     * Thus, it is "less" scary for them to know you are know sick. This method implements just that.
+     * @param userId
+     * @param previousIllnessProbability
+     */
+    default void sendAlert(String userId, float previousIllnessProbability){
+        DocumentReference ref = FirestoreInteractor.documentReference(publicUserFolder,userId);
+        ref.update(publicAlertAttribute, FieldValue.increment(1-previousIllnessProbability));
+    }
+
+    default void resetSickAlerts(String userId){
         DocumentReference ref = FirestoreInteractor.documentReference(publicUserFolder,userId);
         ref.update(publicAlertAttribute, FieldValue.delete());
     }

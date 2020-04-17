@@ -21,9 +21,11 @@ import static org.junit.Assert.assertTrue;
 
 public class CachingDataSenderTest {
     DataReceiver receiver;
+    CachingDataSender sender;
     @Before
     public void init(){
         receiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
+        sender = new ConcreteCachingDataSender(new GridFirestoreInteractor());
     }
 
     @Test
@@ -41,20 +43,20 @@ public class CachingDataSenderTest {
     }
     @Test
     public void resetAlertsDeletesAlertAttribute(){
-        CachingDataSender.sendAlert(User.DEFAULT_USERID);
-        CachingDataSender.resetSickAlerts(User.DEFAULT_USERID);
+        sender.sendAlert(User.DEFAULT_USERID);
+        sender.resetSickAlerts(User.DEFAULT_USERID);
 //        DataReceiver receiver = new ConcreteDataReceiver(new GridFirestoreInteractor());<
-        receiver.getSickNeighbors(User.DEFAULT_USERID, res -> assertTrue(((HashMap)(res)).isEmpty()));
+        receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID, res -> assertTrue(((HashMap)(res)).isEmpty()));
         sleep();
     }
     @Test
     public void sendAlertIncrementsOrCreatesAlertAttribute(){
-        CachingDataSender.resetSickAlerts(User.DEFAULT_USERID);
-        CachingDataSender.sendAlert(User.DEFAULT_USERID);
-        receiver.getSickNeighbors(User.DEFAULT_USERID,res -> assertFalse(((HashMap)(res)).isEmpty()));
+        sender.resetSickAlerts(User.DEFAULT_USERID);
+        sender.sendAlert(User.DEFAULT_USERID);
+        receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID, res -> assertFalse(((HashMap)(res)).isEmpty()));
         sleep();
-        CachingDataSender.sendAlert(User.DEFAULT_USERID);
-        receiver.getSickNeighbors(User.DEFAULT_USERID,res ->assertEquals(2,((int) ((long) (((HashMap) (res)).get(publicAlertAttribute))))));
+        sender.sendAlert(User.DEFAULT_USERID);
+        receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID, res ->assertEquals(2,((int) ((long) (((HashMap) (res)).get(publicAlertAttribute))))));
         sleep();
     }
 }

@@ -35,6 +35,9 @@ public class InfectionActivity extends AppCompatActivity {
     public static DataReceiver getReceiver() {
         return receiver;
     }
+    public static CachingDataSender getSender(){
+        return sender;
+    }
 
     @VisibleForTesting
     void setReceiver(DataReceiver receiver) {

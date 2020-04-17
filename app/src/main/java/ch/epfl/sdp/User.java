@@ -16,7 +16,6 @@ import java.util.Map;
  * This class is there for testing purposes and for representing a user in UserInfectionActivity
  */
 public class User implements Account {
-    private static final String TAG = "User class";
     public static String DEFAULT_DISPLAY_NAME = "MyDisplayName";
     public static String DEFAULT_FAMILY_NAME = "MyFamilyName";
     public static String DEFAULT_EMAIL = "MyEmal@epfl.ch";
@@ -36,7 +35,6 @@ public class User implements Account {
     private String userID;
     private int age;
     private boolean infected;
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     public User(String dName, String fName, String email, Uri photoUrl, String playerId, String userID, int age, boolean infected) {
         this.displayName = dName;
@@ -47,7 +45,6 @@ public class User implements Account {
         this.userID = userID;
         this.age = age;
         this.infected = infected;
-        addUserToFirestore();
     }
 
     public User() {
@@ -96,59 +93,6 @@ public class User implements Account {
 
     public int getAge() {
         return age;
-    }
-
-    private void addUserToFirestore() {
-        Map<String, Object> user = new HashMap<>();
-        user.put("Display name", displayName);
-        user.put("Family name", familyName);
-        user.put("Email", email);
-        //user.put("PhotoUrl", photoUrl); TODO: be able to upload this "photoUrl" to Firestore
-        user.put("Player id", playerId);
-        user.put("User id", userID);
-        user.put("Age", age);
-        user.put("Infected", infected);
-
-        db.collection("Users")
-                .add(user)
-                .addOnSuccessListener(documentReference ->
-                        Log.d(TAG, "DocumentSnapshot written with ID: "
-                                + documentReference.getId()))
-                .addOnFailureListener(e ->
-                        Log.w(TAG, "Error adding document", e));
-    }
-
-    public void modifyUserInfectionStatus(String userPath, Boolean infected, Callback<String> callback) {
-        Map<String, Object> user = new HashMap<>();
-        user.put("Infected", infected);
-        db.collection("Users").document(userPath)
-                .set(user, SetOptions.merge());
-
-        DocumentReference userRef = db.collection("Users").document(userPath);
-
-        userRef
-                .update("Infected", infected)
-                .addOnSuccessListener(documentReference ->
-                        callback.onCallback("User infection status successfully updated!"))
-                .addOnFailureListener(e ->
-                        callback.onCallback("Error updating user infection status."));
-        this.infected = infected;
-    }
-
-    public boolean retrieveUserInfectionStatus(Callback<Boolean> callbackBoolean) {
-        db.collection("Users").document(displayName).get().addOnSuccessListener(documentSnapshot ->
-        {
-            Log.d(TAG, "Infected status successfully loaded.");
-            Object infected = documentSnapshot.get("Infected");
-            if (infected == null) {
-                callbackBoolean.onCallback(false);
-            } else {
-                callbackBoolean.onCallback((boolean) infected);
-            }
-        })
-                .addOnFailureListener(e ->
-                        Log.w(TAG, "Error retrieving infection status from Firestore.", e));
-        return infected;
     }
 
 }

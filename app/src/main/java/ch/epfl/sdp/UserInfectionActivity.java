@@ -2,6 +2,7 @@ package ch.epfl.sdp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -12,9 +13,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 
-import org.jetbrains.annotations.NotNull;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
@@ -29,7 +34,8 @@ public class UserInfectionActivity extends AppCompatActivity {
     private TextView onlineStatusView;
     private Button refreshButton;
     private Account account;
-    private User user;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private static final String TAG = "User Infection Activity";
     private String userName;
 
     private Executor executor;
@@ -50,11 +56,6 @@ public class UserInfectionActivity extends AppCompatActivity {
         checkOnline();
         getLoggedInUser();
 
-        userNameView.setText(userName);
-
-        infectionStatusView.setSaveEnabled(true);
-        infectionStatusButton.setSaveEnabled(true);
-
         this.executor = ContextCompat.getMainExecutor(this);
         Intent intent = getIntent();
 
@@ -66,16 +67,6 @@ public class UserInfectionActivity extends AppCompatActivity {
             }
             this.promptInfo = promptInfoBuilder();
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(@NotNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        TextView infectionText = findViewById(R.id.infectionStatusView);
-        Button infectionButton = findViewById(R.id.infectionStatusButton);
-        outState.putCharSequence("INFECTION_STATUS_TEXT", infectionText.getText());
-        outState.putCharSequence("INFECTION_STATUS_BUTTON", infectionButton.getText());
-        infectionStatusButton.setOnClickListener(v -> statusButtonAction((Button) v));
     }
 
     public void onClickChangeStatus(View view) {
@@ -114,28 +105,71 @@ public class UserInfectionActivity extends AppCompatActivity {
     private void getLoggedInUser() {
         account = AuthenticationManager.getAccount(this);
         userName = account.getDisplayName();
-        user = new User(userName, account.getFamilyName(), account.getEmail(),
-                account.getPhotoUrl(), account.getPlayerId(this), account.getId(), User.DEFAULT_AGE, false);
-        user.retrieveUserInfectionStatus(
-                value -> setView(infectionStatusButton, infectionStatusView, value));
+        userNameView.setText(userName);
+        retrieveUserInfectionStatus(
+                this::setInfectionColorAndMessage);
     }
 
-    private void statusButtonAction(Button b) {
-        checkOnline();
-        CharSequence buttonText = b.getText();
-        if (buttonText.equals(getResources().getString(R.string.i_am_infected))) {
-            setView(infectionStatusButton, infectionStatusView, true);
-            //upload to firebase
-            user.modifyUserInfectionStatus(userName, true,
-                    value -> infectionUploadView.setText(value));
-
-
+    private void executeHealthStatusChange() {
+        CharSequence buttonText = infectionStatusButton.getText();
+        boolean infected = buttonText.equals(getResources().getString(R.string.i_am_infected));
+        if (infected) {
+            setInfectionColorAndMessage(true);
+            modifyUserInfectionStatus(userName, true,
+                    value -> infectionUploadView.setText(String.format("%s at %s", value,
+                            Calendar.getInstance().getTime())));
         } else {
-            setView(infectionStatusButton, infectionStatusView, false);
-            //upload to firebase
-            user.modifyUserInfectionStatus(userName, false,
-                    value -> infectionUploadView.setText(value));
+            setInfectionColorAndMessage(false);
+            modifyUserInfectionStatus(userName, false,
+                    value -> infectionUploadView.setText(String.format("%s at %s", value,
+                            Calendar.getInstance().getTime())));
         }
+    }
+
+    public void modifyUserInfectionStatus(String userPath, Boolean infected, Callback<String> callback) {
+        Map<String, Object> user = new HashMap<>();
+        user.put("Infected", infected);
+        db.collection("Users").document(userPath)
+                .set(user, SetOptions.merge());
+
+        DocumentReference userRef = db.collection("Users").document(userPath);
+
+        userRef
+                .update("Infected", infected)
+                .addOnSuccessListener(documentReference ->
+                        callback.onCallback(getString(R.string.user_status_update)))
+                .addOnFailureListener(e ->
+                        callback.onCallback(getString(R.string.error_status_update)));
+    }
+
+    public void retrieveUserInfectionStatus(Callback<Boolean> callbackBoolean) {
+        db.collection("Users").document(userName).get().addOnSuccessListener(documentSnapshot ->
+        {
+            Log.d(TAG, "Infected status successfully loaded.");
+            Object infected = documentSnapshot.get("Infected");
+            if (infected == null) {
+                callbackBoolean.onCallback(false);
+            } else {
+                callbackBoolean.onCallback((boolean) infected);
+            }
+        })
+                .addOnFailureListener(e ->
+                        Log.w(TAG, "Error retrieving infection status from Firestore.", e));
+    }
+
+    private void setInfectionColorAndMessage(boolean infected) {
+        int buttonTextID = infected ? R.string.i_am_cured : R.string.i_am_infected;
+        int messageID = infected ? R.string.your_user_status_is_set_to_infected :
+                R.string.your_user_status_is_set_to_not_infected;
+        int colorID = infected ? R.color.colorRedInfected : R.color.colorGreenCured;
+        clickAction(infectionStatusButton, infectionStatusView, buttonTextID,
+                messageID, colorID);
+    }
+
+    private void clickAction(Button button, TextView textView, int buttonText, int textViewText, int textColor) {
+        button.setText(buttonText);
+        textView.setTextColor(getResources().getColorStateList(textColor, this.getTheme()));
+        textView.setText(textViewText);
     }
 
     private BiometricPromptWrapper biometricPromptBuilder(Executor executor) {
@@ -173,27 +207,6 @@ public class UserInfectionActivity extends AppCompatActivity {
                 .build();
     }
 
-    private void executeHealthStatusChange() {
-        CharSequence buttonText = infectionStatusButton.getText();
-        if (buttonText.equals(getResources().getString(R.string.i_am_infected))) {
-            setInfectionColorAndMessage(R.string.i_am_cured,
-                    R.string.your_user_status_is_set_to_infected, R.color.colorRedInfected, true);
-        } else {
-            setInfectionColorAndMessage(R.string.i_am_infected,
-                    R.string.your_user_status_is_set_to_not_infected, R.color.colorGreenCured,
-                    false);
-        }
-    }
-
-    private void setInfectionColorAndMessage(int buttonTextID, int messageID, int colorID,
-                                             boolean infected) {
-        clickAction(infectionStatusButton, infectionStatusView, buttonTextID,
-                messageID, colorID);
-        user.modifyUserInfectionStatus(userName, infected,
-                value -> infectionUploadView.setText(String.format("%s at %s", value,
-                        Calendar.getInstance().getTime())));
-    }
-
     private void displayAuthFailedToast() {
         Toast.makeText(getApplicationContext(), "Authentication failed",
                 Toast.LENGTH_SHORT)
@@ -212,20 +225,5 @@ public class UserInfectionActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(),
                 "Authentication succeeded!", Toast.LENGTH_SHORT).show();
         executeHealthStatusChange();
-    }
-
-    private void clickAction(Button button, TextView textView, int buttonText, int textViewText, int textColor) {
-        button.setText(buttonText);
-        textView.setTextColor(getResources().getColorStateList(textColor));
-        textView.setText(textViewText);
-    }
-
-    private void setView(Button button, TextView textView, boolean infected) {
-        int buttonText = infected ? R.string.i_am_cured : R.string.i_am_infected;
-        int textViewText = infected ? R.string.your_user_status_is_set_to_infected : R.string.your_user_status_is_set_to_not_infected;
-        int textColor = infected ? R.color.colorRedInfected : R.color.colorGreenCured;
-        button.setText(buttonText);
-        textView.setTextColor(getResources().getColorStateList(textColor));
-        textView.setText(textViewText);
     }
 }

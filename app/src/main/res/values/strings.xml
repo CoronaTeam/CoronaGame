@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <resources>
-    <string name="app_id">807375232223</string>
+    <string name="app_id" translatable="false">807375232223</string>
     <string name="app_name">CoronaGame</string>
 
-    <string name="can_t_Download_Offline" translatable="false">Can\'t download while offline</string>
+    <string name="can_t_Download_Offline">Can\'t download while offline</string>
     <string name="can_t_Upload_Offline">Can\'t upload while offline</string>
 
-    <string name="connection_error">CONNECTION ERROR</string>
+    <string name="connection_error" translatable="false">CONNECTION ERROR</string>
 
-    <string name="coronagame">CoronaGame</string>
+    <string name="coronagame" translatable="false">CoronaGame</string>
 
-    <string name="docSnap_success_upload">Document snapshot successfully added to firestore.</string>
+    <string name="docSnap_success_upload" translatable="false">Document snapshot successfully added to firestore.</string>
 
     <string name="download">Download</string>
 
     <string name="downloading">Downloading …</string>
 
-    <string name="exchange_failed">EXCHANGE Failed</string>
-    <string name="exchange_succed">EXCHANGE Succeeded</string>
+    <string name="exchange_failed" translatable="false">EXCHANGE Failed</string>
+    <string name="exchange_succed" translatable="false">EXCHANGE Succeeded</string>
 
     <string name="gps_signal_missing">Missing GPS signal</string>
     <string name="gps_status_off">GPS signal lost</string>
@@ -38,7 +38,7 @@
 
     <string name="loading_with_dots">Loading…</string>
 
-    <string name="logged_in_user">logged in user</string>
+    <string name="logged_in_user" translatable="false">logged in user</string>
 
     <string name="longitude">Longitude</string>
 
@@ -54,24 +54,24 @@
 
     <string name="send">Send</string>
 
-    <string name="sign_in">SignIn</string>
+    <string name="sign_in" translatable="false">SignIn</string>
 
     <string name="signout">SignOut</string>
 
-    <string name="sync_error">SYNC ERROR!</string>
-    <string name="sync_ok">SYNC OK</string>
+    <string name="sync_error" translatable="false">SYNC ERROR!</string>
+    <string name="sync_ok" translatable="false">SYNC OK</string>
 
     <string name="tab_account">Account</string>
     <string name="tab_history">History</string>
     <string name="tab_map">Map</string>
 
-    <string name="textView">TextView</string>
+    <string name="textView" translatable="false">TextView</string>
 
-    <string name="three_dots">…</string>
+    <string name="three_dots" translatable="false">…</string>
 
-    <string name="title_activity_firebase">FirebaseActivity</string>
+    <string name="title_activity_firebase" translatable="false">FirebaseActivity</string>
 
-    <string name="todo">TODO</string>
+    <string name="todo" translatable="false">TODO</string>
 
     <string name="uploading">Uploading …</string>
     <string name="uploading_with_dots">Uploading…</string>

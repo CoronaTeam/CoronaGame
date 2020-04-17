@@ -58,9 +58,6 @@ public class UserInfectionActivity extends AppCompatActivity {
         checkOnline();
         getLoggedInUser();
 
-        infectionStatusView.setSaveEnabled(true);
-        infectionStatusButton.setSaveEnabled(true);
-
         this.executor = ContextCompat.getMainExecutor(this);
         Intent intent = getIntent();
 
@@ -72,16 +69,6 @@ public class UserInfectionActivity extends AppCompatActivity {
             }
             this.promptInfo = promptInfoBuilder();
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(@NotNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        TextView infectionText = findViewById(R.id.infectionStatusView);
-        Button infectionButton = findViewById(R.id.infectionStatusButton);
-        outState.putCharSequence("INFECTION_STATUS_TEXT", infectionText.getText());
-        outState.putCharSequence("INFECTION_STATUS_BUTTON", infectionButton.getText());
-        infectionStatusButton.setOnClickListener(v -> statusButtonAction((Button) v));
     }
 
     public void onClickChangeStatus(View view) {

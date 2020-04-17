@@ -33,7 +33,7 @@ public class FakeCachingDataSender implements CachingDataSender {
 
     @Override
     public void registerLocation(Carrier carrier, Location location, Date time) {
-
+        firebaseStore.put(time, location);
     }
 
     @Override

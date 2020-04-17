@@ -112,10 +112,17 @@ public class UserInfectionActivity extends AppCompatActivity {
 
     private void executeHealthStatusChange() {
         CharSequence buttonText = infectionStatusButton.getText();
-        if (buttonText.equals(getResources().getString(R.string.i_am_infected))) {
+        boolean infected = buttonText.equals(getResources().getString(R.string.i_am_infected));
+        if (infected) {
             setInfectionColorAndMessage(true);
+            modifyUserInfectionStatus(userName, true,
+                    value -> infectionUploadView.setText(String.format("%s at %s", value,
+                            Calendar.getInstance().getTime())));
         } else {
             setInfectionColorAndMessage(false);
+            modifyUserInfectionStatus(userName, false,
+                    value -> infectionUploadView.setText(String.format("%s at %s", value,
+                            Calendar.getInstance().getTime())));
         }
     }
 
@@ -157,9 +164,6 @@ public class UserInfectionActivity extends AppCompatActivity {
         int colorID = infected ? R.color.colorRedInfected : R.color.colorGreenCured;
         clickAction(infectionStatusButton, infectionStatusView, buttonTextID,
                 messageID, colorID);
-        modifyUserInfectionStatus(userName, infected,
-                value -> infectionUploadView.setText(String.format("%s at %s", value,
-                        Calendar.getInstance().getTime())));
     }
 
     private void clickAction(Button button, TextView textView, int buttonText, int textViewText, int textColor) {

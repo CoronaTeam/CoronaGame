@@ -130,9 +130,9 @@ public class UserInfectionActivity extends AppCompatActivity {
         userRef
                 .update("Infected", infected)
                 .addOnSuccessListener(documentReference ->
-                        callback.onCallback("User infection status successfully updated!"))
+                        callback.onCallback(getString(R.string.user_status_update)))
                 .addOnFailureListener(e ->
-                        callback.onCallback("Error updating user infection status."));
+                        callback.onCallback(getString(R.string.error_status_update)));
     }
 
     public void retrieveUserInfectionStatus(Callback<Boolean> callbackBoolean) {

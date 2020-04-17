@@ -41,15 +41,7 @@ public final class FakeCachingDataSender implements CachingDataSender {
         firebaseStore.put(time, location);
     }
 
-    @Override
-    public void sendAlert(String userId) {
 
-    }
-
-    @Override
-    public void resetSickAlerts(String userId) {
-
-    }
 
     @Override
     public SortedMap<Date, Location> getLastPositions() {

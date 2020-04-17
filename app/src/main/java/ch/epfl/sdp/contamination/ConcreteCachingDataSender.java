@@ -59,16 +59,6 @@ public class ConcreteCachingDataSender implements CachingDataSender {
     }
 
     @Override
-    public void sendAlert(String userId) {
-        DocumentReference ref = FirestoreInteractor.documentReference(publicUserFolder,userId);
-        ref.update(publicAlertAttribute, FieldValue.increment(1));
-    }
-    public void resetSickAlerts(String userId){
-        DocumentReference ref = FirestoreInteractor.documentReference(publicUserFolder,userId);
-        ref.update(publicAlertAttribute, 0);
-    }
-
-    @Override
     public SortedMap<Date,Location> getLastPositions() {
         return Collections.unmodifiableSortedMap(lastPositions);
     }

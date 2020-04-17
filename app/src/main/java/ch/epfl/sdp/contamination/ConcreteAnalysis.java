@@ -111,17 +111,17 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         });
 
         //Method 1 : (synchrone)
-        int badMeetings = receiver.getAndResetSickNeighbors(me.getUniqueId());
-        updateCarrierInfectionProbability(me.getIllnessProbability() + badMeetings*TRANSMISSION_FACTOR);
+//        int badMeetings = receiver.getAndResetSickNeighbors(me.getUniqueId());
+//        updateCarrierInfectionProbability(me.getIllnessProbability() + badMeetings*TRANSMISSION_FACTOR);
 
         //method 2 : (asynchrone)
         receiver.getSickNeighbors(me.getUniqueId(),res -> {
-            int number = 0;
+            int badMeetings = 0;
             if(!((HashMap)(res)).isEmpty()){
-                number = ((int) ((long) (((HashMap) (res)).get(publicAlertAttribute))));
+                badMeetings = ((int) ((long) (((HashMap) (res)).get(publicAlertAttribute))));
             }
-            updateCarrierInfectionProbability(me.getIllnessProbability() + number * TRANSMISSION_FACTOR);
-            cachedSender.resetSickAlerts(me.getUniqueId());
+            updateCarrierInfectionProbability(me.getIllnessProbability() + badMeetings * TRANSMISSION_FACTOR);
+            CachingDataSender.resetSickAlerts(me.getUniqueId());
         });
     }
 
@@ -151,7 +151,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
                     });
                 }));
                 //Tell those user that they have been close to you
-                userIds.forEach(u -> cachedSender.sendAlert(u));
+                userIds.forEach(u -> CachingDataSender.sendAlert(u));
             }
             return true;
         }else{

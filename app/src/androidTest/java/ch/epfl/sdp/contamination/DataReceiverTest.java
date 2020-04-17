@@ -7,6 +7,7 @@ import androidx.test.rule.ActivityTestRule;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -18,16 +19,21 @@ import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.User;
 
 import static ch.epfl.sdp.TestTools.newLoc;
+import static ch.epfl.sdp.TestTools.sleep;
+import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.contamination.InfectionActivity.getReceiver;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 public class DataReceiverTest {
-
+    ConcreteDataReceiver receiver;
     @Rule
     public final ActivityTestRule<InfectionActivity> mActivityRule = new ActivityTestRule<>(InfectionActivity.class);
 
-
+    @Before
+    public void init(){
+        receiver = ((ConcreteDataReceiver)getReceiver());
+    }
     class FakeGridInteractor extends GridFirestoreInteractor {
         private Map<Location,String> locationData;
         private Map<String,Integer> meetings;
@@ -57,20 +63,11 @@ public class DataReceiverTest {
         }
     }
     @Test
-    public void getAndResetDoesAGet(){
-        FakeGridInteractor interactor = new FakeGridInteractor();
-        ((ConcreteDataReceiver)getReceiver()).setInteractor(interactor);
-        interactor.addMeeting();
-        int res = getReceiver().getAndResetSickNeighbors(User.DEFAULT_USERID);
-
-        assertEquals(1,res);
-    }
-    @Test
-    public void getAndResetDoesReset(){
-        long res = getReceiver().getAndResetSickNeighbors(User.DEFAULT_USERID);
-        assertEquals(1024,res);
-//        long res2 = getReceiver().getAndResetSickNeighbors(User.DEFAULT_USERID);
-//        assertEquals(0,res2);
+    public void getSickNeighborDoesGetIt(){
+        CachingDataSender.resetSickAlerts(User.DEFAULT_USERID);
+        CachingDataSender.sendAlert(User.DEFAULT_USERID);
+        receiver.getSickNeighbors(User.DEFAULT_USERID,res ->assertEquals(1,((int) ((long) (((HashMap) (res)).get(publicAlertAttribute))))));
+        sleep();
     }
 
 }

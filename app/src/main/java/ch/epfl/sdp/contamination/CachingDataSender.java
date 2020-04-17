@@ -2,8 +2,13 @@ package ch.epfl.sdp.contamination;
 
 import android.location.Location;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+
 import java.util.Date;
 import java.util.SortedMap;
+
+import ch.epfl.sdp.firestore.FirestoreInteractor;
 
 public interface CachingDataSender {
     int EXPAND_FACTOR = 100000; //determines the GPS coordinates precision
@@ -26,12 +31,18 @@ public interface CachingDataSender {
     /**
      * Notifies a user he has been close to an infected person
      */
-    void sendAlert(String userId);
+    static void sendAlert(String userId){
+        DocumentReference ref = FirestoreInteractor.documentReference(publicUserFolder,userId);
+        ref.update(publicAlertAttribute, FieldValue.increment(1));
+    }
 
-    void resetSickAlerts(String userId);
+    static void resetSickAlerts(String userId){
+        DocumentReference ref = FirestoreInteractor.documentReference(publicUserFolder,userId);
+        ref.update(publicAlertAttribute, FieldValue.delete());
+    }
     /**
-     *
-     * @return: locations and times of a given user for a given amount of time
+     *  This is the cache part of the CachedSender.
+     * @return:  positions send to firebase during the last UNINTENTIONAL_CONTAGION_TIME time.
      */
     SortedMap<Date, Location> getLastPositions();
 }

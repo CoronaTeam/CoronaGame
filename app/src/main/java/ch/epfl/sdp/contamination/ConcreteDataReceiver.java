@@ -188,38 +188,38 @@ class ConcreteDataReceiver implements DataReceiver {
             }
         });
     }
-    //USELESS
-    private void resetSickNeighbors(String userId){
-        DocumentReference ref = FirestoreInteractor.documentReference(publicUserFolder,userId);
-        ref.update(publicAlertAttribute, 0);
-    }
-    //USELESS
-    public int getAndResetSickNeighbors(String userId){//,Callback<Map<String,Object>> callback){
-        AtomicInteger temp = new AtomicInteger(-1);
-        final HashMap<String,Object> map;
-
-            interactor.readDocument(publicUserFolder, userId, res -> {
-                    if(!((HashMap)(res)).isEmpty()){
-                        temp.set((int) ((long) (((HashMap) (res)).get(publicAlertAttribute))));
-                    }else{
-                        temp.set(0);
-                    }
-                }
-             );
-
-        try{
-            Thread.sleep(5000);
-        }catch (InterruptedException e){
-
-        }
-        resetSickNeighbors(userId);
-        try{
-            Thread.sleep(5000);
-        }catch (InterruptedException e){
-
-        }
-        return temp.get();
-    }
+//    //USELESS
+//    private void resetSickNeighbors(String userId){
+//        DocumentReference ref = FirestoreInteractor.documentReference(publicUserFolder,userId);
+//        ref.update(publicAlertAttribute, 0);
+//    }
+//    //USELESS
+//    public int getAndResetSickNeighbors(String userId){//,Callback<Map<String,Object>> callback){
+//        AtomicInteger temp = new AtomicInteger(-1);
+//        final HashMap<String,Object> map;
+//
+//            interactor.readDocument(publicUserFolder, userId, res -> {
+//                    if(!((HashMap)(res)).isEmpty()){
+//                        temp.set((int) ((long) (((HashMap) (res)).get(publicAlertAttribute))));
+//                    }else{
+//                        temp.set(0);
+//                    }
+//                }
+//             );
+//
+//        try{
+//            Thread.sleep(5000);
+//        }catch (InterruptedException e){
+//
+//        }
+//        resetSickNeighbors(userId);
+//        try{
+//            Thread.sleep(5000);
+//        }catch (InterruptedException e){
+//
+//        }
+//        return temp.get();
+//    }
 
 
 

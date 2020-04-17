@@ -33,12 +33,12 @@ public interface DataReceiver {
      */
     void getMyLastLocation(Account account, Callback<Location> callback);
 
-    /**
-     * Gets the # of sock neighbors met yesterday, and set this value to zero.
-     * @param userId
-     * @return
-     */
-    int getAndResetSickNeighbors(String userId);//,Callback<Map<String,Object>> callback);
 
+//    int getAndResetSickNeighbors(String userId);//,Callback<Map<String,Object>> callback);
+
+    /**
+     * @param userId
+     * @return # of sick neighbors met yesterday
+     */
     void getSickNeighbors(String userId,Callback callback);
 }

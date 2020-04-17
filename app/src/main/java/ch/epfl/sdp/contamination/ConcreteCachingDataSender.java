@@ -55,11 +55,14 @@ public class ConcreteCachingDataSender implements CachingDataSender {
     private void refreshLastPositions(Date time, Location location) {
         Date oldestDate = new Date(time.getTime()-InfectionAnalyst.UNINTENTIONAL_CONTAGION_TIME);
         lastPositions.headMap(oldestDate).clear();
-        lastPositions.put(time,location);
+        if(location!=null){
+            lastPositions.put(time,location);
+        }
     }
 
     @Override
     public SortedMap<Date,Location> getLastPositions() {
+        refreshLastPositions(new Date(System.currentTimeMillis()),null);
         return Collections.unmodifiableSortedMap(lastPositions);
     }
 }

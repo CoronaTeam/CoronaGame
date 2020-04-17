@@ -117,8 +117,8 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         //method 2 : (asynchrone)
         receiver.getNumberOfSickNeighbors(me.getUniqueId(), res -> {
             float badMeetings = 0;
-            if(!((HashMap)(res)).isEmpty()){
-                badMeetings = ((float) ((double) (((HashMap) (res)).get(publicAlertAttribute))));
+            if(!((Map)(res)).isEmpty()){
+                badMeetings =  ((float) (((HashMap) (res)).get(publicAlertAttribute)));
             }
             updateCarrierInfectionProbability(me.getIllnessProbability() + badMeetings * TRANSMISSION_FACTOR);
             cachedSender.resetSickAlerts(me.getUniqueId());

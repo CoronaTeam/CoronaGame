@@ -8,6 +8,7 @@ import androidx.test.espresso.intent.Intents;
 import androidx.test.rule.ActivityTestRule;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -15,6 +16,7 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
 
 public interface TestTools {
     /**
@@ -121,5 +123,14 @@ public interface TestTools {
     }
     static boolean expandedLocEquals(Location loc1, Location loc2){
         return loc1.getLatitude() == loc2.getLatitude() && loc1.getLongitude() == loc2.getLongitude();
+    }
+
+    /**
+     * Use with parcymony !
+     * @param res
+     * @return
+     */
+    static float getMapValue(Object res){
+        return  ((float) (((Map) (res)).get(publicAlertAttribute)));
     }
 }

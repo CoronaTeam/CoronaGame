@@ -30,12 +30,15 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static ch.epfl.sdp.TestTools.getMapValue;
 import static ch.epfl.sdp.TestTools.newLoc;
+import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.TestUtils.buildLocation;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
+import static ch.epfl.sdp.contamination.InfectionAnalyst.TRANSMISSION_FACTOR;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -49,7 +52,7 @@ public class ConcreteAnalysisTest {
 
     Location testLocation = buildLocation(65, 63);
     Date testDate = new Date(System.currentTimeMillis());
-    HashMap<String,Double> recentSickMeetingCounter = new HashMap<>();
+    static HashMap<String,Float> recentSickMeetingCounter = new HashMap<>();
     static Layman man1 ;
     static Layman man2 ;
     static Layman man3 ;
@@ -96,6 +99,7 @@ public class ConcreteAnalysisTest {
     DataReceiver mockReceiver = new DataReceiver() {
         @Override
         public void getUserNearby(Location location, Date date, Callback<Set<? extends Carrier>> callback) {
+            System.out.println("ASKING FOR USER NEARBYYYYYYYYYYYYYYYYYYYYYYYYYYY "+location.getLatitude());
             HashSet<Carrier> res = new HashSet<>();
             switch((int)(location.getLatitude())){
                 case 20:
@@ -121,14 +125,18 @@ public class ConcreteAnalysisTest {
 
         @Override
         public void getUserNearbyDuring(Location location, Date startDate, Date endDate, Callback<Map<? extends Carrier, Integer>> callback) {
-            Map<Carrier, Integer> met = new HashMap<>();
-            for (long t : rangePeople.keySet()) {
-                if (startDate.getTime() <= t && t <= endDate.getTime()) {
-                    met.put(rangePeople.get(t), 1);
+            if(location==null){
+                callback.onCallback(Collections.emptyMap());
+            }else{
+                Map<Carrier, Integer> met = new HashMap<>();
+                for (long t : rangePeople.keySet()) {
+                    if (startDate.getTime() <= t && t <= endDate.getTime()) {
+                        met.put(rangePeople.get(t), 1);
+                    }
                 }
-            }
 
-            callback.onCallback(met);
+                callback.onCallback(met);
+            }
         }
 
         @Override
@@ -137,7 +145,14 @@ public class ConcreteAnalysisTest {
 
         @Override
         public void getNumberOfSickNeighbors(String userId, Callback callback) {
-            callback.onCallback(recentSickMeetingCounter.getOrDefault(userId,0.0));
+            System.out.println("WE ARE ASKING FOR NUMBER OF SICK NEIGHBORS ++++++++++++++++++++++++++++++++++++++ :"+userId+" from to "+recentSickMeetingCounter.get(userId));
+            if(recentSickMeetingCounter.containsKey(userId)) {
+                HashMap<String,Float> res = new HashMap<>();
+                res.put(publicAlertAttribute, recentSickMeetingCounter.get(userId));
+                callback.onCallback(res);
+            }else{
+                callback.onCallback(Collections.emptyMap());
+            }
         }
     };
     CachingDataSender sender = new FakeCachingDataSender(){
@@ -147,15 +162,18 @@ public class ConcreteAnalysisTest {
         }
         @Override
         public void sendAlert(String userId, float previousIllnessProbability){
-            double tmp = 0;
-            if(recentSickMeetingCounter.containsKey(userId)){
-                tmp = recentSickMeetingCounter.get(userId);
-            }
-            recentSickMeetingCounter.replace(userId,tmp + 1-previousIllnessProbability);
+            System.out.println("AN ALERT IS BEEING SENT to ---------------------------------------------"+userId);
+            recentSickMeetingCounter.computeIfPresent(userId, (k,v) -> v+ 1 - previousIllnessProbability);
+            recentSickMeetingCounter.computeIfAbsent(userId, k->1-previousIllnessProbability);
+            System.out.println("The Counter has "+userId+" : "+recentSickMeetingCounter.containsKey(userId)+" with value "+recentSickMeetingCounter.getOrDefault(userId,-1f));
+        }
+        @Override
+        public void sendAlert(String userId){
+            sendAlert(userId,0);
         }
         @Override
         public void resetSickAlerts(String userId){
-            recentSickMeetingCounter.replace(userId,0.0);
+            recentSickMeetingCounter.remove(userId);
         }
 
         @Override
@@ -249,15 +267,7 @@ public class ConcreteAnalysisTest {
 
         @Override
         public void getNumberOfSickNeighbors(String userId, Callback callback) {
-
-            if(recentSickMeetingCounter.containsKey(userId)) {
-                HashMap<String,Double> res = new HashMap<>();
-                res.put(publicAlertAttribute, recentSickMeetingCounter.get(userId));
-                callback.onCallback(res);
-            }else{
-                callback.onCallback(Collections.emptyMap());
             }
-    }
     }
 
     private void populateLocation(GeoPoint location, Carrier.InfectionStatus status, int rounds, float startProbability) {
@@ -332,7 +342,7 @@ public class ConcreteAnalysisTest {
 
         // Now there should be some risk that I was infected
         onView(withId(R.id.my_infection_refresh)).perform(click());
-        TestTools.sleep();
+        sleep();
         onView(withId(R.id.my_infection_status)).check(matches(withText("UNKNOWN")));
 
     }
@@ -357,20 +367,25 @@ public class ConcreteAnalysisTest {
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
         assertFalse(analyst.updateStatus(HEALTHY));
     }
-    /*
-        man1 =new Layman(Carrier.InfectionStatus.INFECTED,"Man1");
-        man2 =new Layman(Carrier.InfectionStatus.IMMUNE,"Man2");
-        man3 =new Layman(Carrier.InfectionStatus.UNKNOWN,0.3f,"Man3");
-        man4= new Layman(HEALTHY,"Man4");
-     */
+
     @Test
     public void notifiesSickNeighborsWhenYouGetSick(){
         Carrier me = new Layman(HEALTHY);
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
         analyst.updateStatus(INFECTED);
-        mockReceiver.getNumberOfSickNeighbors("man1", res -> assertTrue(((HashMap)(res)).isEmpty()));
-        mockReceiver.getNumberOfSickNeighbors("man2", res -> assertEquals(1f,((HashMap)(res)).get(publicAlertAttribute)));
-        mockReceiver.getNumberOfSickNeighbors("man3", res -> assertTrue(((HashMap)(res)).isEmpty()));
-        mockReceiver.getNumberOfSickNeighbors("man4", res -> assertTrue(((HashMap)(res)).isEmpty()));
+        mockReceiver.getNumberOfSickNeighbors("Man1", res -> assertTrue(((Map)(res)).isEmpty()));
+        mockReceiver.getNumberOfSickNeighbors("Man2", res -> assertEquals(1f,getMapValue(res),0.0001));
+        mockReceiver.getNumberOfSickNeighbors("Man3", res -> assertEquals(1f,getMapValue(res),0.0001));
+        mockReceiver.getNumberOfSickNeighbors("Man4", res -> assertEquals(1f,getMapValue(res),0.0001));
+    }
+    @Test
+    public void adaptYourProbabilityOfInfectionAccordingToSickMeetingsAndThenResetItsCounter(){
+        Carrier me = new Layman(HEALTHY);
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
+        sender.sendAlert(me.getUniqueId());
+        sender.sendAlert(me.getUniqueId(),0.4f);
+        analyst.updateInfectionPredictions(null,null,res->{});
+        assertEquals(TRANSMISSION_FACTOR* (1+ (1-0.4)),me.getIllnessProbability(),0.00001f);
+        mockReceiver.getNumberOfSickNeighbors(me.getUniqueId(), res -> assertTrue(((Map)(res)).isEmpty()));
     }
 }

@@ -56,7 +56,7 @@ public class CachingDataSenderTest {
         receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID, res -> assertFalse(((HashMap)(res)).isEmpty()));
         sleep();
         sender.sendAlert(User.DEFAULT_USERID);
-        receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID, res ->assertEquals(2,((int) ((long) (((HashMap) (res)).get(publicAlertAttribute))))));
+        receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID, res ->assertEquals(2,((float) ((double) (((HashMap) (res)).get(publicAlertAttribute)))),0.0001));
         sleep();
     }
 }

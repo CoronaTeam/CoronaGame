@@ -25,7 +25,7 @@ public class Layman implements Carrier{
     public Layman(InfectionStatus initialStatus, float infectedWithProbability) {
         this(initialStatus, infectedWithProbability, "__NOT_UNIQUE_NOW");
     }
-    @VisibleForTesting
+    
     public Layman(InfectionStatus initialStatus, String uniqueID){
         this(initialStatus, initialStatus == InfectionStatus.INFECTED ? 1 : 0,uniqueID);
     }

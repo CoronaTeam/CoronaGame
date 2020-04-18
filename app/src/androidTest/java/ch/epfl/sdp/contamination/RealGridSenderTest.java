@@ -23,6 +23,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.TestUtils.buildLocation;
 import static org.hamcrest.CoreMatchers.is;
 
@@ -71,7 +72,7 @@ public class RealGridSenderTest {
                 somewhereInTheWorld,
                 aLittleLater);
 
-        Thread.sleep(1000);
+        sleep();
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
 

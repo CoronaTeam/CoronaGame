@@ -60,6 +60,7 @@ public class CachingDataSenderTest {
     public void sendAlertIncrementsOrCreatesAlertAttribute(){
         sender.resetSickAlerts(User.DEFAULT_USERID);
         sender.sendAlert(User.DEFAULT_USERID);
+        sleep();
         receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID, res -> assertFalse(((HashMap)(res)).isEmpty()));
         sleep();
         sender.sendAlert(User.DEFAULT_USERID);

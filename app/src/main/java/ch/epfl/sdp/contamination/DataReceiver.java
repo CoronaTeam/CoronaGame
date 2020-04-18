@@ -40,5 +40,5 @@ public interface DataReceiver {
      * @param userId
      * @return # of sick neighbors met yesterday
      */
-    void getNumberOfSickNeighbors(String userId, Callback callback);
+    void getNumberOfSickNeighbors(String userId, Callback<Map<String, Float>> callback);
 }

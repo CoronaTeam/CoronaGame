@@ -180,7 +180,7 @@ public class ConcreteDataReceiver implements DataReceiver {
         });
     }
 
-    public void getNumberOfSickNeighbors(String userId, Callback callback){
+    public void getNumberOfSickNeighbors(String userId, Callback<Map<String, Float>>  callback){
         interactor.readDocument(publicUserFolder, userId, callback);
     }
 }

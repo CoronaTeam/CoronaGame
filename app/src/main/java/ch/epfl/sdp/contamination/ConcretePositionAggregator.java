@@ -23,8 +23,10 @@ public final class ConcretePositionAggregator extends Observable implements Posi
     private InfectionAnalyst analyst;
     private Timer updatePosTimer;
     HashMap<Long, List<Location>> buffer;
+
     public ConcretePositionAggregator(CachingDataSender cachingDataSender, InfectionAnalyst analyst, int maxLocationsPerAggregation){
         if(cachingDataSender == null || analyst == null){
+
             throw new IllegalArgumentException("DataSender or analyst should not be null");
         }else if(maxLocationsPerAggregation <= 0){
             throw new IllegalArgumentException("There should be more than zero locations per aggregation!");
@@ -37,11 +39,12 @@ public final class ConcretePositionAggregator extends Observable implements Posi
         this.isOnline = false;
         startTimer();
     }
+
     public ConcretePositionAggregator(CachingDataSender cachingDataSender, InfectionAnalyst analyst){
        this(cachingDataSender,analyst,PositionAggregator.MAXIMAL_NUMBER_OF_LOCATIONS_PER_AGGREGATION);
     }
-    protected void setAnalyst(InfectionAnalyst a){
-        if(a == null){
+    protected void setAnalyst(InfectionAnalyst a) {
+        if (a == null) {
             throw new IllegalArgumentException("Null analyst");
         }
         this.analyst = a;
@@ -109,6 +112,7 @@ public final class ConcretePositionAggregator extends Observable implements Posi
             Location expandedLocation = CachingDataSender.RoundAndExpandLocation(meanLocation);
 //            System.out.println("----SENDING-----"+expandedLocation.toString() + " with date : "+lastDate.toString());
             cachingDataSender.registerLocation(analyst.getCarrier(),expandedLocation,lastDate);
+
         }
     }
 

@@ -49,6 +49,16 @@ public class ConcreteCachingDataSender implements CachingDataSender {
         refreshLastPositions(time,location);
         gridInteractor.write(location, String.valueOf(time.getTime()), carrier, successListener, failureListener);
     }
+    @Override
+    public void registerLocation(Carrier carrier,
+                                 Location location,
+                                 Date time,
+                                 OnSuccessListener successListener,
+                                 OnFailureListener failureListener){
+        refreshLastPositions(time,location);
+        gridInteractor.write(location, String.valueOf(time.getTime()), carrier, successListener, failureListener);
+
+    }
     /**
      * removes every locations older than UNINTENTIONAL_CONTAGION_TIME ms and adds a new position
      */

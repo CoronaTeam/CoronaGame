@@ -1,3 +1,4 @@
+
 package ch.epfl.sdp;
 
 import android.app.Activity;
@@ -8,7 +9,6 @@ import androidx.test.espresso.intent.Intents;
 import androidx.test.rule.ActivityTestRule;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.Map;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -42,30 +42,7 @@ public interface TestTools {
         This method was found on the internet for getting the current activity
      */
     static Activity getActivity() {
-        try {
-            Class activityThreadClass = Class.forName("android.app.ActivityThread");
-            Object activityThread = activityThreadClass.getMethod("currentActivityThread").invoke(null);
-            Field activitiesField = activityThreadClass.getDeclaredField("mActivities");
-            activitiesField.setAccessible(true);
-
-            Map<Object, Object> activities = (Map<Object, Object>) activitiesField.get(activityThread);
-            if (activities == null)
-                return null;
-
-            for (Object activityRecord : activities.values()) {
-                Class activityRecordClass = activityRecord.getClass();
-                Field pausedField = activityRecordClass.getDeclaredField("paused");
-                pausedField.setAccessible(true);
-                if (!pausedField.getBoolean(activityRecord)) {
-                    Field activityField = activityRecordClass.getDeclaredField("activity");
-                    activityField.setAccessible(true);
-                    return (Activity) activityField.get(activityRecord);
-                }
-            }
-        } catch (Exception e) {
-            return null;    //there should not be any exception, if so, try another way for getting the activity.
-        }
-        return null;
+        return AuthenticationManager.getActivity();
     }
 
     static void clickAndCheck(int buttonID, int UIelementID) {
@@ -124,7 +101,6 @@ public interface TestTools {
     static boolean expandedLocEquals(Location loc1, Location loc2){
         return loc1.getLatitude() == loc2.getLatitude() && loc1.getLongitude() == loc2.getLongitude();
     }
-
     /**
      * Use with parcymony !
      * @param res

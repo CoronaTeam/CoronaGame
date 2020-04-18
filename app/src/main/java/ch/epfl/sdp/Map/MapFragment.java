@@ -1,12 +1,15 @@
 package ch.epfl.sdp.Map;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,13 +37,13 @@ import java.util.Map;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.BuildConfig;
-import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
-import ch.epfl.sdp.ConcreteLocationBroker;
-import ch.epfl.sdp.LocationBroker;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.fragment.AccountFragment;
+import ch.epfl.sdp.location.LocationBroker;
+import ch.epfl.sdp.location.LocationService;
 
-import static ch.epfl.sdp.LocationBroker.Provider.GPS;
+import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 
 public class MapFragment extends Fragment implements LocationListener {
 
@@ -67,10 +70,23 @@ public class MapFragment extends Fragment implements LocationListener {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         classPointer = this;
-        // TODO: do not execute in production code
-        if (locationBroker == null) {
-            locationBroker = new ConcreteLocationBroker((LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE), getActivity());
-        }
+
+        ServiceConnection conn = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                locationBroker = ((LocationService.LocationBinder)service).getService().getBroker();
+                goOnline();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                // TODO: Check in code that the service does not become null
+                locationBroker = null;
+            }
+        };
+
+        getActivity().bindService(new Intent(getContext(), LocationService.class), conn, Context.BIND_AUTO_CREATE);
+
         userAccount = AccountFragment.getAccount(getActivity());
 
         db = new ConcreteFirestoreInteractor();
@@ -113,7 +129,6 @@ public class MapFragment extends Fragment implements LocationListener {
         if (locationBroker.hasPermissions(GPS)) {
             prevLocation = new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
             updateUserMarkerPosition(prevLocation);
-            System.out.println("new location");
 
             Map<String, Object> element = new HashMap<>();
             element.put("geoPoint", new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude()));
@@ -152,14 +167,6 @@ public class MapFragment extends Fragment implements LocationListener {
     public void onResume() {
         super.onResume();
         mapView.onResume();
-        if (locationBroker.isProviderEnabled(GPS) && locationBroker.hasPermissions(GPS)) {
-            goOnline();
-        } else if (locationBroker.isProviderEnabled(GPS)) {
-            // Must ask for permissions
-            locationBroker.requestPermissions(LOCATION_PERMISSION_REQUEST);
-        } else {
-            goOffline();
-        }
     }
 
 
@@ -168,30 +175,21 @@ public class MapFragment extends Fragment implements LocationListener {
     }
 
     private void goOnline() {
-        locationBroker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, this);
-        Toast.makeText(getActivity(), R.string.gps_status_on, Toast.LENGTH_SHORT).show();
-    }
-
-    private void goOffline() {
-        Toast.makeText(getActivity(), R.string.gps_status_off, Toast.LENGTH_LONG).show();
+        if (locationBroker.isProviderEnabled(GPS) && locationBroker.hasPermissions(GPS)) {
+            locationBroker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, this);
+        } else if (locationBroker.isProviderEnabled(GPS)) {
+            // Must ask for permissions
+            locationBroker.requestPermissions(getActivity(), LOCATION_PERMISSION_REQUEST);
+        }
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-        if (provider.equals(LocationManager.GPS_PROVIDER)) {
-            if (locationBroker.hasPermissions(GPS)) {
-                goOnline();
-            } else {
-                locationBroker.requestPermissions(LOCATION_PERMISSION_REQUEST);
-            }
-        }
+        goOnline();
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-        if (provider.equals(LocationManager.GPS_PROVIDER)) {
-            goOffline();
-        }
     }
 
     @SuppressLint("MissingPermission")

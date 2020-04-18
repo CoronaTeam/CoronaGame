@@ -2,6 +2,9 @@ package ch.epfl.sdp.contamination;
 
 import android.location.Location;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -39,5 +42,9 @@ public class FakeCachingDataSender implements CachingDataSender {
     @Override
     public SortedMap<Date, Location> getLastPositions() {
         return null;
+    }
+
+    public void registerLocation(Carrier carrier, Location location, Date time, OnSuccessListener successListener, OnFailureListener failureListener) {
+        throw new UnsupportedOperationException();
     }
 }

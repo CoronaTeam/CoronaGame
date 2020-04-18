@@ -24,6 +24,7 @@ import ch.epfl.sdp.Account;
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.TestTools;
+import ch.epfl.sdp.location.LocationService;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -99,7 +100,6 @@ public class ConcreteAnalysisTest {
     DataReceiver mockReceiver = new DataReceiver() {
         @Override
         public void getUserNearby(Location location, Date date, Callback<Set<? extends Carrier>> callback) {
-            System.out.println("ASKING FOR USER NEARBYYYYYYYYYYYYYYYYYYYYYYYYYYY "+location.getLatitude());
             HashSet<Carrier> res = new HashSet<>();
             switch((int)(location.getLatitude())){
                 case 20:
@@ -145,7 +145,6 @@ public class ConcreteAnalysisTest {
 
         @Override
         public void getNumberOfSickNeighbors(String userId, Callback callback) {
-            System.out.println("WE ARE ASKING FOR NUMBER OF SICK NEIGHBORS ++++++++++++++++++++++++++++++++++++++ :"+userId+" from to "+recentSickMeetingCounter.get(userId));
             if(recentSickMeetingCounter.containsKey(userId)) {
                 HashMap<String,Float> res = new HashMap<>();
                 res.put(publicAlertAttribute, recentSickMeetingCounter.get(userId));
@@ -162,10 +161,8 @@ public class ConcreteAnalysisTest {
         }
         @Override
         public void sendAlert(String userId, float previousIllnessProbability){
-            System.out.println("AN ALERT IS BEEING SENT to ---------------------------------------------"+userId);
             recentSickMeetingCounter.computeIfPresent(userId, (k,v) -> v+ 1 - previousIllnessProbability);
             recentSickMeetingCounter.computeIfAbsent(userId, k->1-previousIllnessProbability);
-            System.out.println("The Counter has "+userId+" : "+recentSickMeetingCounter.containsKey(userId)+" with value "+recentSickMeetingCounter.getOrDefault(userId,-1f));
         }
         @Override
         public void sendAlert(String userId){
@@ -270,22 +267,23 @@ public class ConcreteAnalysisTest {
             }
     }
 
-    private void populateLocation(GeoPoint location, Carrier.InfectionStatus status, int rounds, float startProbability) {
-        city.put(location, new HashMap<>());
-        for (int i = 0; i < rounds; i++) {
-            city.get(location).put(System.currentTimeMillis()+1000*i, Collections.singleton(new Layman(status, startProbability + i)));
-        }
-    }
-
     @Test
     public void infectionProbabilityIsUpdated() throws Throwable {
 
         CityDataReceiver cityReceiver = new CityDataReceiver();
         Carrier me = new Layman(HEALTHY);
 
-        mActivityRule.getActivity().setReceiver(cityReceiver);
+
+//        mActivityRule.getActivity().setReceiver(cityReceiver);
+//        InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver,sender);
+//        mActivityRule.getActivity().setAnalyst(analysis);
+
+        LocationService service = mActivityRule.getActivity().getLocationService();
+
+        service.setReceiver(cityReceiver);
         InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver,sender);
-        mActivityRule.getActivity().setAnalyst(analysis);
+        service.setAnalyst(analysis);
+
 
         cityReceiver.setMyCurrentLocation(buildLocation(0, 0));
 

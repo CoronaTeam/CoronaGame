@@ -25,11 +25,12 @@ import ch.epfl.sdp.firestore.QueryHandler;
 
 import static ch.epfl.sdp.contamination.CachingDataSender.publicUserFolder;
 
-class ConcreteDataReceiver implements DataReceiver {
+public class ConcreteDataReceiver implements DataReceiver {
+
 
     private GridFirestoreInteractor interactor;
 
-    ConcreteDataReceiver(GridFirestoreInteractor gridInteractor) {
+    public ConcreteDataReceiver(GridFirestoreInteractor gridInteractor) {
         this.interactor = gridInteractor;
     }
 
@@ -168,16 +169,13 @@ class ConcreteDataReceiver implements DataReceiver {
 
     @Override
     public void getMyLastLocation(Account account, Callback<Location> callback) {
-        interactor.readLastLocation(account, new Callback<QuerySnapshot>() {
-            @Override
-            public void onCallback(QuerySnapshot snapshot) {
-                if (snapshot.iterator().hasNext()) {
-                    GeoPoint geoPoint = (GeoPoint) snapshot.iterator().next().get("geoPoint");
-                    Location location = new Location(LocationManager.GPS_PROVIDER);
-                    location.setLatitude(geoPoint.getLatitude());
-                    location.setLongitude(geoPoint.getLongitude());
-                    callback.onCallback(location);
-                }
+        interactor.readLastLocation(account, snapshot -> {
+            if (snapshot.containsKey("geoPoint")) {
+                GeoPoint geoPoint = (GeoPoint) snapshot.get("geoPoint");
+                Location location = new Location(LocationManager.GPS_PROVIDER);
+                location.setLatitude(geoPoint.getLatitude());
+                location.setLongitude(geoPoint.getLongitude());
+                callback.onCallback(location);
             }
         });
     }

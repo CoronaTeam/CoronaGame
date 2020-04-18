@@ -17,13 +17,11 @@ import java.util.Map;
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.User;
 
+import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
-import static ch.epfl.sdp.contamination.InfectionActivity.getReceiver;
-import static ch.epfl.sdp.contamination.InfectionActivity.getSender;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class DataReceiverTest {
     DataReceiver receiver;
@@ -33,8 +31,10 @@ public class DataReceiverTest {
 
     @Before
     public void init(){
-        receiver = getReceiver();
-        sender = (ConcreteCachingDataSender) getSender();
+        receiver = ((InfectionActivity)(getActivity())).getLocationService().getReceiver();
+//                getReceiver();
+        sender = (ConcreteCachingDataSender)((InfectionActivity)(getActivity())).getLocationService().getSender();
+//                (ConcreteCachingDataSender) getSender();
     }
     class FakeGridInteractor extends GridFirestoreInteractor {
         private Map<Location,String> locationData;

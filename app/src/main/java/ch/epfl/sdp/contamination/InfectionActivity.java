@@ -16,57 +16,17 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Date;
 
-import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.fragment.AccountFragment;
 import ch.epfl.sdp.location.LocationService;
 
-import static ch.epfl.sdp.AuthenticationManager.getActivity;
-
 public class InfectionActivity extends AppCompatActivity {
-
-
-    private static GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor();
-
-    //TODO : remove those static attributes when GPS becomes a service
-    private static ConcreteCachingDataSender sender = new ConcreteCachingDataSender(gridInteractor);
-    private static DataReceiver receiver = new ConcreteDataReceiver(gridInteractor);
-    private static InfectionAnalyst analyst = new ConcreteAnalysis(new Layman(Carrier.InfectionStatus.HEALTHY,0, AuthenticationManager.getUserId(getActivity())), receiver,sender);
-    private static ConcretePositionAggregator aggregator = new ConcretePositionAggregator(sender,analyst);
 
     private TextView infectionStatus;
     private ProgressBar infectionProbability;
     private long lastUpdateTime;
 
-
-    // TODO: The following 2 static methods must be deleted when GpsActivity is turned into a background service
-    public static DataReceiver getReceiver() {
-        return receiver;
-    }
-    public static CachingDataSender getSender(){
-        return sender;
-    }
-
-    @VisibleForTesting
-    void setReceiver(DataReceiver receiver) {
-        InfectionActivity.receiver = receiver;
-    }
-
-    public static InfectionAnalyst getAnalyst() {
-        return analyst;
-    }
-    public static PositionAggregator getAggregator(){
-        return aggregator;
-    }
-
-    @VisibleForTesting
-    void setAnalyst(InfectionAnalyst analyst) {
-        InfectionActivity.analyst = analyst;
-        aggregator.setAnalyst(analyst);
-    }
-
     private LocationService service;
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -121,3 +81,4 @@ public class InfectionActivity extends AppCompatActivity {
         return service;
     }
 }
+

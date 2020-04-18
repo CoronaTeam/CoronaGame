@@ -19,8 +19,6 @@ public class GridFirestoreInteractor extends ConcreteFirestoreInteractor{
     // MODEL: Round the location to the 5th decimal digit
     public static final int COORDINATE_PRECISION = 100000;
 
-    private FirestoreInteractor fsi;
-
     public GridFirestoreInteractor() {
         super();
     }
@@ -51,9 +49,9 @@ public class GridFirestoreInteractor extends ConcreteFirestoreInteractor{
     public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
         Map<String, Object> timeMap = new HashMap<>();
         timeMap.put("Time", time);
-        super.writeDocumentWithID("LiveGrid/" + getGridId(location) + "/Times", time, timeMap,
-                success, failure);
-        super.writeDocument("LiveGrid/" + getGridId(location) + "/" + time, carrier, success, failure);
-
+        // LiveGrid/[location] must be updated only if the time has been successfully inserted in the list
+        super.writeDocumentWithID("LiveGrid/" + getGridId(location) + "/Times", time, timeMap, s ->
+                        super.writeDocument("LiveGrid/" + getGridId(location) + "/" + time, carrier, success, failure),
+                failure);
     }
 }

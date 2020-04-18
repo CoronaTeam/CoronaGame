@@ -55,8 +55,8 @@ public class DataExchangeActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        sender = new ConcreteCachingDataSender(new GridFirestoreInteractor())
-                .setOnSuccessListener(successListener).setOnFailureListener(failureListener);
+//        sender =                new ConcreteCachingDataSender(new GridFirestoreInteractor())
+//                .setOnSuccessListener(successListener).setOnFailureListener(failureListener);
 
         setContentView(R.layout.activity_dataexchange);
         exchangeStatus = findViewById(R.id.exchange_status);
@@ -66,11 +66,13 @@ public class DataExchangeActivity extends AppCompatActivity {
             public void onServiceConnected(ComponentName name, IBinder service) {
                 LocationService.LocationBinder binder = (LocationService.LocationBinder) service;
                 DataExchangeActivity.this.service = binder.getService();
+                DataExchangeActivity.this.sender = DataExchangeActivity.this.service.getSender();
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
                 DataExchangeActivity.this.service = null;
+                DataExchangeActivity.this.sender = null;
             }
         };
         bindService(new Intent(this, LocationService.class), conn, BIND_AUTO_CREATE);

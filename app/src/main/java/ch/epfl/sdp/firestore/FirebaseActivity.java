@@ -22,7 +22,7 @@ import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
 
 public class FirebaseActivity extends AppCompatActivity {
-    private ConcreteFirestoreInteractor fs;
+    private FirestoreInteractor fs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,18 +36,15 @@ public class FirebaseActivity extends AppCompatActivity {
         user.put("Name", "Ed Edward");
         user.put("Age", 104);
         user.put("Infected", false);
-        /*databaseOperation(R.id.FirebaseUploadConfirmation, R.string.uploading,
-                R.string.can_t_Upload_Offline, textView -> fs.writeDocument("Players", user,
-                        stringMapMap -> textView.setText(R.string.docSnap_success_upload)));*/
 
         TextView outputView = findViewById(R.id.FirebaseUploadConfirmation);
         checkNetworkStatus(this);
         if (IS_ONLINE) {
             CollectionReference collectionReference = fs.collectionReference("Players");
             fs.writeDocument(collectionReference, user)
-                    .whenComplete((r, t) -> {
-                        if (t != null) {
-                            outputView.setText("Unexpected error" + t);
+                    .whenComplete((result, throwable) -> {
+                        if (throwable != null) {
+                            outputView.setText("Unexpected error" + throwable);
                         } else {
                             outputView.setText(R.string.docSnap_success_upload);
                         }
@@ -62,10 +59,6 @@ public class FirebaseActivity extends AppCompatActivity {
         user.put("Name", "Aly Alice");
         user.put("Age", 42);
         user.put("Infected", true);
-        /*databaseOperation(R.id.FirebaseUploadConfirmation, R.string.uploading,
-                R.string.can_t_Upload_Offline, textView -> fs.writeDocumentWithID("Players",
-                        String.valueOf(new Random().nextInt()), user,
-                        stringMapMap -> textView.setText(R.string.docSnap_success_upload)));*/
 
         TextView outputView = findViewById(R.id.FirebaseUploadConfirmation);
         checkNetworkStatus(this);
@@ -73,9 +66,9 @@ public class FirebaseActivity extends AppCompatActivity {
             DocumentReference documentReference = fs.documentReference("Players",
                     String.valueOf(new Random().nextInt()));
             fs.writeDocumentWithID(documentReference, user)
-                    .whenComplete((r, t) -> {
-                        if (t != null) {
-                            outputView.setText("Unexpected error" + t);
+                    .whenComplete((result, throwable) -> {
+                        if (throwable != null) {
+                            outputView.setText("Unexpected error" + throwable);
                         } else {
                             outputView.setText(R.string.docSnap_success_upload);
                         }
@@ -89,9 +82,6 @@ public class FirebaseActivity extends AppCompatActivity {
     public void readData2(View view) throws ExecutionException, InterruptedException, TimeoutException {
         DocumentReference documentReference = fs.documentReference("Tests/FirebaseActivity" +
                 "/Download", "DownloadTest");
-       /* databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
-                R.string.can_t_Download_Offline, textView -> fs.readDocument(documentReference,
-                        stringMapMap -> textView.setText(stringMapMap.toString())));*/
         TextView outputView = findViewById(R.id.FirebaseDownloadResult);
         checkNetworkStatus(this);
         if (IS_ONLINE) {
@@ -103,12 +93,6 @@ public class FirebaseActivity extends AppCompatActivity {
     }
 
     public void readData1(View view) {
-        /*databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
-                R.string.can_t_Download_Offline, textView -> fs.readCollection("Tests/FirebaseActivity/Download",
-                        stringMapMap -> {
-                            textView.setText(stringMapMap.toString());
-                        }));*/
-
         CollectionReference collectionReference = fs.collectionReference("Tests/FirebaseActivity" +
                 "/Download");
         TextView outputView = findViewById(R.id.FirebaseDownloadResult);

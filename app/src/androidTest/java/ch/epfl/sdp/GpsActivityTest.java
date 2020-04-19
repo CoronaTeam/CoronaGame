@@ -21,6 +21,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.firestore.QueryHandler;
 
@@ -218,39 +221,34 @@ public class GpsActivityTest {
 
     private FirestoreInteractor createWriteFirestoreInteractor(Boolean success, Object onSuccess) {
         return new FirestoreInteractor() {
+
             @Override
-            public void writeDocument(CollectionReference collectionReference, Object document,
-                                      OnSuccessListener successListener, OnFailureListener failureListener) {
-                writeBody(success, onSuccess, successListener, failureListener);
+            public CompletableFuture<Map<String, Object>> readDocument(DocumentReference documentReference) {
+
+                return null;
             }
 
             @Override
-            public void writeDocumentWithID(DocumentReference documentReference,
-                                            Object document,
-                                            OnSuccessListener successListener, OnFailureListener failureListener) {
-                writeBody(success, onSuccess, successListener, failureListener);
+            public CompletableFuture<Map<String, Map<String, Object>>> readCollection(CollectionReference collectionReference) {
+                return null;
             }
 
             @Override
-            public void readCollection(CollectionReference collectionReference, QueryHandler handler) {
-
+            public CompletableFuture<Void> writeDocumentWithID(DocumentReference documentReference, Object document) {
+                CompletableFuture<Void> completableFuture = new CompletableFuture<>();
+                if(success) completableFuture.complete(null);
+                else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
+                return completableFuture;
             }
 
             @Override
-            public void readDocument(DocumentReference documentReference,
-                                     QueryHandler handler) {
-
+            public CompletableFuture<DocumentReference> writeDocument(CollectionReference collectionReference, Object document) {
+                CompletableFuture<DocumentReference> completableFuture = new CompletableFuture<>();
+                if(success) completableFuture.complete(null);
+                else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
+                return completableFuture;
             }
         };
-    }
-
-    private void writeBody(Boolean success, Object onSuccess, OnSuccessListener successListener,
-                           OnFailureListener failureListener){
-        if (success) {
-            successListener.onSuccess(onSuccess);
-        }else{
-            failureListener.onFailure(new Exception());
-        }
     }
 
     private void detectsTest(Boolean isSuccess, Object onSuccess, String expectedText) throws Throwable {

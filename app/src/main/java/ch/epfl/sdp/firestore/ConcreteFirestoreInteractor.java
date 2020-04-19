@@ -10,6 +10,9 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,53 +25,7 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
         this.serverIdlingResource = new CountingIdlingResource("firestoreCountingResource");
     }
 
-    public void writeDocument(CollectionReference collectionReference, Object document,
-                              OnSuccessListener successListener, OnFailureListener failureListener) {
-        try {
-            serverIdlingResource.increment();
-            collectionReference
-                    .add(document)
-                    .addOnSuccessListener(successListener)
-                    .addOnFailureListener(failureListener);
-        } finally {
-            serverIdlingResource.decrement();
-        }
-    }
-
-    public void writeDocumentWithID(DocumentReference documentReference, Object document,
-                                    OnSuccessListener successListener, OnFailureListener failureListener) {
-        try {
-            serverIdlingResource.increment();
-            documentReference
-                    .set(document).addOnSuccessListener(successListener)
-                    .addOnFailureListener(failureListener);
-        } finally {
-            serverIdlingResource.decrement();
-        }
-    }
-
-    @Override
-    public void readDocument(DocumentReference documentReference, QueryHandler<DocumentReference> handler) {
-
-    }
-
-    public void readCollection(CollectionReference collectionReference, QueryHandler handler) {
-        try {
-            serverIdlingResource.increment();
-            collectionReference
-                    .get()
-                    .addOnCompleteListener(onCompleteListenerBuilder(handler));
-        } finally {
-            serverIdlingResource.decrement();
-        }
-    }
-
-    /**
-     *
-     * @param documentReference A reference to a firestore Document
-     * @return A map containing all the pairs (fieldName, fieldValue).
-     */
-    public CompletableFuture<Map<String, Object>> readDocument(DocumentReference documentReference) {
+    public CompletableFuture<Map<String, Object>> readDocument(@NotNull DocumentReference documentReference) {
         try {
             serverIdlingResource.increment();
             Task<DocumentSnapshot> task = documentReference.get();
@@ -81,18 +38,14 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
                             throw new RuntimeException("Document does not exist ");
                         }
                     }).handle(((stringObjectMap, throwable) -> stringObjectMap != null ?
-                    stringObjectMap : new HashMap<>()));
+                    stringObjectMap : Collections.emptyMap()));
         } finally {
             serverIdlingResource.decrement();
         }
 
     }
 
-    /**
-     * @param collectionReference A reference to a firestore Collection
-     * @return A map containing all the pairs (DocumentID, DocumentData).
-     */
-    public CompletableFuture<Map<String, Map<String, Object>>> readCollection(CollectionReference collectionReference) {
+    public CompletableFuture<Map<String, Map<String, Object>>> readCollection(@NotNull CollectionReference collectionReference) {
         try {
             serverIdlingResource.increment();
             Task<QuerySnapshot> collectionTask = collectionReference.get();
@@ -111,27 +64,27 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
                         }
                     }
             ).handle((stringMapMap, throwable) -> stringMapMap != null ? stringMapMap :
-                    new HashMap<>());
+                    Collections.emptyMap());
         } finally {
             serverIdlingResource.decrement();
         }
     }
 
-    public CompletableFuture<Void> writeDocumentWithID(DocumentReference documentReference, Object document) {
-        try {
-            serverIdlingResource.increment();
-            Task<Void> writeTask = documentReference.set(document);
-            return taskToFuture(writeTask);
-        } finally {
-            serverIdlingResource.decrement();
-        }
-    }
-
-    public CompletableFuture<DocumentReference> writeDocument(CollectionReference collectionReference, Object document) {
+    public CompletableFuture<DocumentReference> writeDocument(@NotNull CollectionReference collectionReference, Object document) {
         try {
             serverIdlingResource.increment();
             Task<DocumentReference> documentReferenceTask = collectionReference.add(document);
             return taskToFuture(documentReferenceTask);
+        } finally {
+            serverIdlingResource.decrement();
+        }
+    }
+
+    public CompletableFuture<Void> writeDocumentWithID(@NotNull DocumentReference documentReference, Object document) {
+        try {
+            serverIdlingResource.increment();
+            Task<Void> writeTask = documentReference.set(document);
+            return taskToFuture(writeTask);
         } finally {
             serverIdlingResource.decrement();
         }

@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -35,43 +36,73 @@ class ConcreteDataReceiver implements DataReceiver {
     }
 
     @Override
-    public void getUserNearby(Location location, Date date, Callback<Set<? extends Carrier>> callback) {
+    public CompletableFuture<Set<Carrier>> getUserNearby(Location location, Date date) {
 
-        QueryHandler nearbyHandler = new QueryHandler<QuerySnapshot>() {
-
-            @Override
-            public void onSuccess(QuerySnapshot snapshot) {
-
-                Set<Carrier> carriers = new HashSet<>();
-
-                for (QueryDocumentSnapshot q : snapshot) {
-                    carriers.add(new Layman(Enum.valueOf(Carrier.InfectionStatus.class,(String) q.get("infectionStatus")), ((float)((double)q.get("illnessProbability")))));
-                }
-
-                callback.onCallback(carriers);
+        return interactor.gridRead(location, date.getTime()).thenApply(stringMapMap -> {
+            Set<Carrier> carriers = new HashSet<>();
+            for (Map.Entry<String, Map<String, Object>> doc : stringMapMap.entrySet()) {
+                carriers.add((Carrier) doc);
+                carriers.add(new Layman(Enum.valueOf(Carrier.InfectionStatus.class,
+                        (String) doc.getValue().get("infectionStatus")),
+                        ((float) ((double) doc.getValue().get(
+                                "illnessProbability")))));
             }
-
-            @Override
-            public void onFailure() {
-
-                callback.onCallback(Collections.EMPTY_SET);
-            }
-        };
-
-        interactor.read(location, date.getTime(), nearbyHandler);
+            return carriers;
+        }).exceptionally(exception -> Collections.emptySet());
     }
 
-    private Set<Long> filterValidTimes(long startDate, long endDate, QuerySnapshot snapshot) {
+    private Set<Long> filterValidTimes(long startDate, long endDate, Map<String, Map<String, Object>> snapshot) {
         Set<Long> validTimes = new HashSet<>();
-
-        for (QueryDocumentSnapshot q : snapshot) {
-            long time = Long.decode((String)q.get("Time"));
+        for (Map.Entry<String, Map<String, Object>> q : snapshot.entrySet()) {
+            long time = Long.decode((String) q.getValue().get("Time"));
             if (startDate <= time && time <= endDate) {
                 validTimes.add(time);
             }
         }
-
         return validTimes;
+    }
+
+    @Override
+    public void getUserNearbyDuring(Location location, Date startDate, Date endDate, Callback<Map<? extends Carrier, Integer>> callback) {
+
+        Set<Carrier> carriers = new HashSet<>();
+
+        interactor.getTimes(location).thenApply(stringMapMap -> {
+            Set<Long> validTimes = filterValidTimes(startDate.getTime(), endDate.getTime(), stringMapMap);
+
+            Map<Carrier, Integer> metDuringInterval = new ConcurrentHashMap<>();
+
+            AtomicInteger done = new AtomicInteger();
+
+            QueryHandler updateFromTimeSlice = new SliceQueryHandle(validTimes, metDuringInterval, done, callback);
+
+            for (long t : validTimes) {
+                interactor.gridRead(location, t);
+            //TODO: updateFromTimeSlice
+            }
+
+            // If there are not valid times, just start the callback with an empty map
+            if (validTimes.isEmpty()) {
+                callback.onCallback(metDuringInterval);
+            }
+
+        }).exceptionally(exception -> Collections.emptyMap());
+    }
+
+    @Override
+    public void getMyLastLocation(Account account, Callback<Location> callback) {
+        interactor.readLastLocation(account, new Callback<QuerySnapshot>() {
+            @Override
+            public void onCallback(QuerySnapshot snapshot) {
+                if (snapshot.iterator().hasNext()) {
+                    GeoPoint geoPoint = (GeoPoint) snapshot.iterator().next().get("geoPoint");
+                    Location location = new Location(LocationManager.GPS_PROVIDER);
+                    location.setLatitude(geoPoint.getLatitude());
+                    location.setLongitude(geoPoint.getLongitude());
+                    callback.onCallback(location);
+                }
+            }
+        });
     }
 
     private class SliceQueryHandle implements QueryHandler<QuerySnapshot> {
@@ -81,7 +112,7 @@ class ConcreteDataReceiver implements DataReceiver {
         private Set<Long> validTimes;
         private Callback<Map<? extends Carrier, Integer>> callback;
 
-        SliceQueryHandle(Set<Long> validTimes, Map<Carrier, Integer> metDuringInterval, AtomicInteger done, Callback<Map<? extends Carrier, Integer>> callback){
+        SliceQueryHandle(Set<Long> validTimes, Map<Carrier, Integer> metDuringInterval, AtomicInteger done, Callback<Map<? extends Carrier, Integer>> callback) {
             this.metDuringInterval = metDuringInterval;
             this.done = done;
             this.validTimes = validTimes;
@@ -108,8 +139,8 @@ class ConcreteDataReceiver implements DataReceiver {
             for (QueryDocumentSnapshot q : snapshot) {
 
                 Carrier c = new Layman(
-                        Enum.valueOf(Carrier.InfectionStatus.class,(String) q.get("infectionStatus")),
-                        ((float)((double)q.get("illnessProbability"))));
+                        Enum.valueOf(Carrier.InfectionStatus.class, (String) q.get("infectionStatus")),
+                        ((float) ((double) q.get("illnessProbability"))));
 
                 int numberOfMeetings = 1;
                 if (metDuringInterval.containsKey(c)) {
@@ -125,57 +156,5 @@ class ConcreteDataReceiver implements DataReceiver {
         public void onFailure() {
             // Do nothing
         }
-    }
-
-    @Override
-    public void getUserNearbyDuring(Location location, Date startDate, Date endDate, Callback<Map<? extends Carrier, Integer>> callback) {
-
-        Set<Carrier> carriers = new HashSet<>();
-
-        interactor.getTimes(location, new QueryHandler<QuerySnapshot>() {
-
-            @Override
-            public void onSuccess(QuerySnapshot snapshot) {
-
-                Set<Long> validTimes = filterValidTimes(startDate.getTime(), endDate.getTime(), snapshot);
-
-                Map<Carrier, Integer> metDuringInterval = new ConcurrentHashMap<>();
-
-                AtomicInteger done = new AtomicInteger();
-
-                QueryHandler updateFromTimeSlice = new SliceQueryHandle(validTimes, metDuringInterval, done, callback);
-
-                for (long t : validTimes) {
-                    interactor.read(location, t, updateFromTimeSlice);
-                }
-
-                // If there are not valid times, just start the callback with an empty map
-                if (validTimes.isEmpty()) {
-                    callback.onCallback(metDuringInterval);
-                }
-            }
-
-            @Override
-            public void onFailure() {
-                callback.onCallback(Collections.EMPTY_MAP);
-            }
-        });
-
-    }
-
-    @Override
-    public void getMyLastLocation(Account account, Callback<Location> callback) {
-        interactor.readLastLocation(account, new Callback<QuerySnapshot>() {
-            @Override
-            public void onCallback(QuerySnapshot snapshot) {
-                if (snapshot.iterator().hasNext()) {
-                    GeoPoint geoPoint = (GeoPoint) snapshot.iterator().next().get("geoPoint");
-                    Location location = new Location(LocationManager.GPS_PROVIDER);
-                    location.setLatitude(geoPoint.getLatitude());
-                    location.setLongitude(geoPoint.getLongitude());
-                    callback.onCallback(location);
-                }
-            }
-        });
     }
 }

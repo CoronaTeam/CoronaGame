@@ -15,13 +15,18 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.firestore.QueryHandler;
 
+import static ch.epfl.sdp.contamination.CachingDataSender.publicUserFolder;
+
 public class ConcreteDataReceiver implements DataReceiver {
+
 
     private GridFirestoreInteractor interactor;
 
@@ -130,7 +135,6 @@ public class ConcreteDataReceiver implements DataReceiver {
     @Override
     public void getUserNearbyDuring(Location location, Date startDate, Date endDate, Callback<Map<? extends Carrier, Integer>> callback) {
 
-        Set<Carrier> carriers = new HashSet<>();
 
         interactor.getTimes(location, new QueryHandler<QuerySnapshot>() {
 
@@ -174,5 +178,9 @@ public class ConcreteDataReceiver implements DataReceiver {
                 callback.onCallback(location);
             }
         });
+    }
+
+    public void getNumberOfSickNeighbors(String userId, Callback<Map<String, Float>>  callback){
+        interactor.readDocument(publicUserFolder, userId, callback);
     }
 }

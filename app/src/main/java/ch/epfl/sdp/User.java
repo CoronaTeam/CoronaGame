@@ -2,15 +2,9 @@ package ch.epfl.sdp;
 
 import android.app.Activity;
 import android.net.Uri;
-import android.util.Log;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This class is there for testing purposes and for representing a user in UserInfectionActivity
@@ -24,9 +18,6 @@ public class User implements Account {
     public static String DEFAULT_USERID = "USER_ID_X42";
     // public static String url_string = "https://pbs.twimg.com/profile_images/1173987553885556736/WuLwZF3C_400x400.jpg";
     public static Uri DEFAULT_URI = Uri.parse("https://upload.wikimedia.org/wikipedia/commons/9/9a/Gull_portrait_ca_usa.jpg");
-    //Uri.parse("https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png");
-    //Uri.parse("https://i.pinimg.com/236x/51/bf/9c/51bf9c7fdf0d4303140c4949afd1d7b8--baby-kitty-little-kitty.jpg");
-    //  Uri.parse("https://pbs.twimg.com/profile_images/1173987553885556736/WuLwZF3C_400x400.jpg");
     private String displayName;
     private String familyName;
     private String email;
@@ -34,7 +25,8 @@ public class User implements Account {
     private String playerId;
     private String userID;
     private int age;
-    private boolean infected;
+    private boolean  infected;
+
 
     public User(String dName, String fName, String email, Uri photoUrl, String playerId, String userID, int age, boolean infected) {
         this.displayName = dName;

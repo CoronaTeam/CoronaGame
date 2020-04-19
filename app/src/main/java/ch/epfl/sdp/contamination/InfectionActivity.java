@@ -81,3 +81,4 @@ public class InfectionActivity extends AppCompatActivity {
         return service;
     }
 }
+

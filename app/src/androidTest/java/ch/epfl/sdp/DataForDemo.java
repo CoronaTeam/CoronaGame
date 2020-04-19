@@ -9,9 +9,10 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Date;
+import java.util.SortedMap;
 
+import ch.epfl.sdp.contamination.CachingDataSender;
 import ch.epfl.sdp.contamination.Carrier;
-import ch.epfl.sdp.contamination.DataSender;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.contamination.Layman;
 
@@ -29,7 +30,7 @@ import static ch.epfl.sdp.contamination.GridFirestoreInteractor.COORDINATE_PRECI
 public class DataForDemo {
 
     private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
-    private DataSender dataSender = new DataSender() {
+    private CachingDataSender dataSender = new CachingDataSender() {
         @Override
         public void registerLocation(Carrier carrier, Location location, Date time) {
             gridFirestoreInteractor.write(location, String.valueOf(time.getTime()), carrier,
@@ -41,6 +42,26 @@ public class DataForDemo {
         @Override
         public void registerLocation(Carrier carrier, Location location, Date time, OnSuccessListener successListener, OnFailureListener failureListener) {
             throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void sendAlert(String userId) {
+
+        }
+
+        @Override
+        public void sendAlert(String userId, float previousIllnessProbability) {
+
+        }
+
+        @Override
+        public void resetSickAlerts(String userId) {
+
+        }
+
+        @Override
+        public SortedMap<Date, Location> getLastPositions() {
+            return null;
         }
     };
 

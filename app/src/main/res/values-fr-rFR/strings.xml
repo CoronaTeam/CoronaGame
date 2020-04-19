@@ -40,4 +40,5 @@
     <string name="aggregator_status_off">Zut! Vous êtes hors ligne</string>
     <string name="user_status_update">Statut d\'infection mis à jour!</string>
     <string name="error_status_update">Erreur lors de la mise à jour du statut d\'infection.</string>
+    <string name="tab_paths">Parcours</string>
 </resources>

@@ -6,6 +6,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 
 import java.util.HashMap;
@@ -63,18 +64,29 @@ public class FirebaseActivity extends AppCompatActivity {
         checkNetworkStatus(this);
         if (IS_ONLINE) {
             outputView.setText(R.string.downloading);
-            fs.readDocument(documentReference, Map.class).thenAccept(s -> outputView.setText(s.toString()));
+            fs.readDocument(documentReference).thenAccept(s -> outputView.setText(s.toString()));
         } else {
             outputView.setText(R.string.can_t_Download_Offline);
         }
     }
 
     public void readData1(View view){
-        databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
+        /*databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
                 R.string.can_t_Download_Offline, textView -> fs.readCollection("Tests/FirebaseActivity/Download",
                         stringMapMap -> {
                             textView.setText(stringMapMap.toString());
-                        }));
+                        }));*/
+
+        CollectionReference collectionReference = fs.collectionReference("Tests/FirebaseActivity" +
+                "/Download");
+        TextView outputView = findViewById(R.id.FirebaseDownloadResult);
+        checkNetworkStatus(this);
+        if (IS_ONLINE) {
+            outputView.setText(R.string.downloading);
+            fs.readCollection(collectionReference).thenAccept(s -> outputView.setText(s.toString()));
+        } else {
+            outputView.setText(R.string.can_t_Download_Offline);
+        }
     }
 
     private void databaseOperation(int outputViewID, int duringOperation,

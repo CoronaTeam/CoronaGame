@@ -1,13 +1,12 @@
 package ch.epfl.sdp.contamination;
 
 import android.location.Location;
-import android.util.Pair;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.User;
 
@@ -38,7 +37,8 @@ public final class FakeDataSender implements DataSender{
     }
 
     @Override
-    public void registerLocation(Carrier carrier, Location location, Date time) {
+    public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
         firebaseStore.put(time, location);
+        return null;
     }
 }

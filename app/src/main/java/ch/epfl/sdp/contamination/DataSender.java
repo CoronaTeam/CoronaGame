@@ -3,6 +3,7 @@ package ch.epfl.sdp.contamination;
 import android.location.Location;
 
 import java.util.Date;
+import java.util.concurrent.CompletableFuture;
 
 public interface DataSender {
     int EXPAND_FACTOR = 100000; //determines the GPS coordinates precision
@@ -17,6 +18,7 @@ public interface DataSender {
      *   Sends the location and date to firebase, along with the userID of the user using the app.
      * @param location : location, rounded by ~1 meter
      * @param time : date associated to that location
+     * @return
      */
-    void registerLocation(Carrier carrier, Location location, Date time);
+    CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time);
 }

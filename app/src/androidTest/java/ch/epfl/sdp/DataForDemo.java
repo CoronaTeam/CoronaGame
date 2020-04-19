@@ -27,7 +27,7 @@ public class DataForDemo {
 
     private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
     private DataSender dataSender = (carrier, location, time) ->
-            gridFirestoreInteractor.write(location, String.valueOf(time.getTime()), carrier,
+            gridFirestoreInteractor.gridWrite(location, String.valueOf(time.getTime()), carrier,
                     o -> System.out.println("location successfully added to firestore"),
                     e -> System.out.println("location could not be uploaded to firestore")
                 );

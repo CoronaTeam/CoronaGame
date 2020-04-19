@@ -57,11 +57,6 @@ public class HistoryFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
-    @VisibleForTesting
-    void setFirestoreInteractor(FirestoreInteractor interactor) {
-        db.setFirestoreInteractor(interactor);
-    }
-
     private void initQueryHandler() {
         ArrayAdapter historyAdapter = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_list_item_1);
         ListView historyTracker = view.findViewById(R.id.history_tracker);

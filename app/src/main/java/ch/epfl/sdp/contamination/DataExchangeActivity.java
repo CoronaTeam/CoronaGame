@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.R;
@@ -48,7 +47,8 @@ public class DataExchangeActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sender = new ConcreteDataSender(new GridFirestoreInteractor(),
-                AuthenticationManager.getAccount(this)).setOnSuccessListener(successListener).setOnFailureListener(failureListener);
+                AuthenticationManager.getAccount(this));
+        //TODO .setOnSuccessListener(successListener).setOnFailureListener(failureListener);
 
         setContentView(R.layout.activity_dataexchange);
         exchangeStatus = findViewById(R.id.exchange_status);

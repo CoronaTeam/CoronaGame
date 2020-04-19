@@ -61,10 +61,10 @@ public class PathsFragment extends Fragment {
             // The layer properties for our line. This is where we make the line dotted, set the
             // color, etc.
             style.addLayer(new LineLayer("linelayer", "line-source").withProperties(
-                    PropertyFactory.lineCap(Property.LINE_CAP_ROUND), // ?
-                    PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND), // ?
+                    PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
+                    //PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND), // ?
                     PropertyFactory.lineWidth(5f),
-                    PropertyFactory.lineColor(Color.parseColor("#e55e5e"))
+                    PropertyFactory.lineColor(Color.parseColor("maroon"))
             ));
         }));
 

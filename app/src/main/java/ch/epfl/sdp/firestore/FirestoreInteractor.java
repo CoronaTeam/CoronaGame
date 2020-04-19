@@ -85,7 +85,7 @@ public abstract class FirestoreInteractor {
     public static <T> CompletableFuture<T> taskToFuture(Task<T> task) {
         CompletableFuture<T> future = new CompletableFuture<>();
         task.addOnSuccessListener(value -> future.complete(value));
-        task.addOnFailureListener(failure -> future.completeExceptionally(failure));
+        task.addOnFailureListener(ex -> future.completeExceptionally(ex));
         return future;
     }
 

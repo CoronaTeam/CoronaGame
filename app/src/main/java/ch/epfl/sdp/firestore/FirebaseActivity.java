@@ -12,10 +12,8 @@ import com.google.firebase.firestore.DocumentReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
 
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.R;
@@ -38,20 +36,54 @@ public class FirebaseActivity extends AppCompatActivity {
         user.put("Name", "Ed Edward");
         user.put("Age", 104);
         user.put("Infected", false);
-        databaseOperation(R.id.FirebaseUploadConfirmation, R.string.uploading,
+        /*databaseOperation(R.id.FirebaseUploadConfirmation, R.string.uploading,
                 R.string.can_t_Upload_Offline, textView -> fs.writeDocument("Players", user,
-                        stringMapMap -> textView.setText(R.string.docSnap_success_upload)));
+                        stringMapMap -> textView.setText(R.string.docSnap_success_upload)));*/
+
+        TextView outputView = findViewById(R.id.FirebaseUploadConfirmation);
+        checkNetworkStatus(this);
+        if (IS_ONLINE) {
+            CollectionReference collectionReference = fs.collectionReference("Players");
+            fs.writeDocument(collectionReference, user)
+                    .whenComplete((r, t) -> {
+                        if (t != null) {
+                            outputView.setText("Unexpected error" + t);
+                        } else {
+                            outputView.setText(R.string.docSnap_success_upload);
+                        }
+                    });
+        } else {
+            outputView.setText(R.string.can_t_Upload_Offline);
+        }
     }
 
-    public void addUser2(View view){
+    public void addUser2(View view) {
         Map<String, Object> user = new HashMap<>();
         user.put("Name", "Aly Alice");
         user.put("Age", 42);
         user.put("Infected", true);
-        databaseOperation(R.id.FirebaseUploadConfirmation, R.string.uploading,
+        /*databaseOperation(R.id.FirebaseUploadConfirmation, R.string.uploading,
                 R.string.can_t_Upload_Offline, textView -> fs.writeDocumentWithID("Players",
                         String.valueOf(new Random().nextInt()), user,
-                        stringMapMap -> textView.setText(R.string.docSnap_success_upload)));
+                        stringMapMap -> textView.setText(R.string.docSnap_success_upload)));*/
+
+        TextView outputView = findViewById(R.id.FirebaseUploadConfirmation);
+        checkNetworkStatus(this);
+        if (IS_ONLINE) {
+            DocumentReference documentReference = fs.documentReference("Players",
+                    String.valueOf(new Random().nextInt()));
+            fs.writeDocumentWithID(documentReference, user)
+                    .whenComplete((r, t) -> {
+                        if (t != null) {
+                            outputView.setText("Unexpected error" + t);
+                        } else {
+                            outputView.setText(R.string.docSnap_success_upload);
+                        }
+                    });
+        } else {
+            outputView.setText(R.string.can_t_Upload_Offline);
+        }
+
     }
 
     public void readData2(View view) throws ExecutionException, InterruptedException, TimeoutException {
@@ -70,7 +102,7 @@ public class FirebaseActivity extends AppCompatActivity {
         }
     }
 
-    public void readData1(View view){
+    public void readData1(View view) {
         /*databaseOperation(R.id.FirebaseDownloadResult, R.string.downloading,
                 R.string.can_t_Download_Offline, textView -> fs.readCollection("Tests/FirebaseActivity/Download",
                         stringMapMap -> {

@@ -116,4 +116,24 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
             serverIdlingResource.decrement();
         }
     }
+
+    public CompletableFuture<Void> writeDocumentWithID(DocumentReference documentReference, Object document) {
+        try {
+            serverIdlingResource.increment();
+            Task<Void> writeTask = documentReference.set(document);
+            return taskToFuture(writeTask);
+        } finally {
+            serverIdlingResource.decrement();
+        }
+    }
+
+    public CompletableFuture<DocumentReference> writeDocument(CollectionReference collectionReference, Object document) {
+        try {
+            serverIdlingResource.increment();
+            Task<DocumentReference> documentReferenceTask = collectionReference.add(document);
+            return taskToFuture(documentReferenceTask);
+        } finally {
+            serverIdlingResource.decrement();
+        }
+    }
 }

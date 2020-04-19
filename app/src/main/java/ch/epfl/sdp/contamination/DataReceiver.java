@@ -23,13 +23,12 @@ public interface DataReceiver {
      * @param location
      * @param startDate
      * @param endDate : endDate (inclusive)
-     * @param callback
      */
-    void getUserNearbyDuring(Location location, Date startDate, Date endDate, Callback<Map<? extends Carrier, Integer>> callback);
-
+    CompletableFuture<Map<Carrier, Integer>> getUserNearbyDuring(Location location,
+                                                                 Date startDate, Date endDate);
     /**
      *
      * @return : location of the user using the app, at a given time
      */
-    void getMyLastLocation(Account account, Callback<Location> callback);
+    CompletableFuture<Location> getMyLastLocation(Account account);
 }

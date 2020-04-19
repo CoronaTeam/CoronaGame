@@ -109,7 +109,7 @@ public class HeatMapHandler {
                 Iterator<Circle> pmIterator = otherUsersPositionMarkers.iterator(); // local list of position marker
 
                 // update the Arraylist contents first
-                ///////updatePositionMarkersList(qsIterator, pmIterator);
+                updatePositionMarkersList(qsIterator, pmIterator);
                 // Run if there is more elements than in the last run
                 addMarkersToMarkerList(qsIterator);
 
@@ -148,7 +148,7 @@ public class HeatMapHandler {
                                     // update the Arraylist contents first
                                     updatePositionMarkersList(entryIterator, pmIterator);
                                     // Run if there is more elements than in the last run
-                                    //////addMarkersToMarkerList(entryIterator);
+                                    addMarkersToMarkerList(entryIterator);
 
                                     //refresh map data
                                     positionMarkerManager.update(otherUsersPositionMarkers);

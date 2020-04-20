@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.Account;
-import ch.epfl.sdp.Callback;
 
 public interface DataReceiver {
     /**
@@ -39,5 +38,5 @@ public interface DataReceiver {
      * @param userId
      * @return # of sick neighbors met yesterday
      */
-    void getNumberOfSickNeighbors(String userId, Callback<Map<String, Float>> callback);
+    CompletableFuture<Map<String, Object>> getNumberOfSickNeighbors(String userId);
 }

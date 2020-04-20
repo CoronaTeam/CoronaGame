@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.util.Date;
 import java.util.SortedMap;
+import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.contamination.CachingDataSender;
 import ch.epfl.sdp.contamination.Carrier;
@@ -32,15 +33,16 @@ public class DataForDemo {
     private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
     private CachingDataSender dataSender = new CachingDataSender() {
         @Override
-        public void registerLocation(Carrier carrier, Location location, Date time) {
+        public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
             gridFirestoreInteractor.write(location, String.valueOf(time.getTime()), carrier,
                     o -> System.out.println("location successfully added to firestore"),
                     e -> System.out.println("location could not be uploaded to firestore")
             );
+            return null;
         }
 
         @Override
-        public void registerLocation(Carrier carrier, Location location, Date time, OnSuccessListener successListener, OnFailureListener failureListener) {
+        public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time, OnSuccessListener successListener, OnFailureListener failureListener) {
             throw new UnsupportedOperationException();
         }
 

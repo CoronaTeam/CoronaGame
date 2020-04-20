@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.location.LocationService;
 
@@ -54,8 +55,8 @@ public class DataExchangeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sender = new ConcreteDataSender(new GridFirestoreInteractor(),
-                AuthenticationManager.getAccount(this));
+        //sender = new ConcreteDataSender(new GridFirestoreInteractor(),
+        //        AuthenticationManager.getAccount(this));
         //TODO .setOnSuccessListener(successListener).setOnFailureListener(failureListener);
 
         setContentView(R.layout.activity_dataexchange);

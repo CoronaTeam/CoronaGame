@@ -38,12 +38,13 @@ import java.util.Map;
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.BuildConfig;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.fragment.AccountFragment;
 import ch.epfl.sdp.location.LocationBroker;
 import ch.epfl.sdp.location.LocationService;
 
-import static ch.epfl.sdp.LocationBroker.Provider.GPS;
+import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;

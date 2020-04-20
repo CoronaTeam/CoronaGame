@@ -6,7 +6,6 @@ import android.location.LocationManager;
 import androidx.annotation.VisibleForTesting;
 
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Collections;
 import java.util.Date;
@@ -16,14 +15,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.Account;
-import ch.epfl.sdp.Callback;
 
 import static ch.epfl.sdp.contamination.CachingDataSender.publicUserFolder;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 
 public class ConcreteDataReceiver implements DataReceiver {
 
@@ -129,7 +126,8 @@ public class ConcreteDataReceiver implements DataReceiver {
         });
     }
 
-    public void getNumberOfSickNeighbors(String userId, Callback<Map<String, Float>>  callback){
-        interactor.readDocument(publicUserFolder, userId, callback);
+    @Override
+    public CompletableFuture<Map<String, Object>> getNumberOfSickNeighbors(String userId){
+        return interactor.readDocument(documentReference(publicUserFolder, userId));
     }
 }

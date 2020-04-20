@@ -19,11 +19,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.location.LocationService;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -156,8 +156,9 @@ public class ConcreteAnalysisTest {
     };
     CachingDataSender sender = new FakeCachingDataSender(){
         @Override
-        public void registerLocation(Carrier carrier, Location location, Date time) {
+        public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
             firebaseStore.put(time, location);
+            return null;
         }
         @Override
         public void sendAlert(String userId, float previousIllnessProbability){

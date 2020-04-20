@@ -6,11 +6,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.Set;
 import java.util.SortedMap;
-
-import ch.epfl.sdp.Callback;
+import java.util.concurrent.CompletableFuture;
 
 import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
@@ -105,23 +103,26 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     @Override
     public CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime) {
         Date now = new Date(System.currentTimeMillis());
-        return receiver.getUserNearbyDuring(location, startTime, now).thenAccept(aroundMe ->{
-            modelInfectionEvolution(identifySuspectContacts(aroundMe));
-        });
+        CompletableFuture future1 =
+                receiver.getUserNearbyDuring(location, startTime, now).thenAccept(aroundMe -> {
+                    modelInfectionEvolution(identifySuspectContacts(aroundMe));
+                });
 
         //Method 1 : (synchrone)
 //        int badMeetings = receiver.getAndResetSickNeighbors(me.getUniqueId());
 //        updateCarrierInfectionProbability(me.getIllnessProbability() + badMeetings*TRANSMISSION_FACTOR);
 
         //method 2 : (asynchrone)
-        receiver.getNumberOfSickNeighbors(me.getUniqueId(), res -> {
-            float badMeetings = 0;
-            if(!((Map)(res)).isEmpty()){
-                badMeetings =  ((float) (((HashMap) (res)).get(publicAlertAttribute)));
-            }
-            updateCarrierInfectionProbability(Math.min(me.getIllnessProbability() + badMeetings * TRANSMISSION_FACTOR,1f));
-            cachedSender.resetSickAlerts(me.getUniqueId());
-        });
+        CompletableFuture future2 =
+                receiver.getNumberOfSickNeighbors(me.getUniqueId()).thenAccept(res -> {
+                    float badMeetings = 0;
+                    if (!res.isEmpty()) {
+                        badMeetings = (float) (res.get(publicAlertAttribute));
+                    }
+                    updateCarrierInfectionProbability(Math.min(me.getIllnessProbability() + badMeetings * TRANSMISSION_FACTOR, 1f));
+                    cachedSender.resetSickAlerts(me.getUniqueId());
+                });
+        return CompletableFuture.allOf(future1, future2);
     }
 
     @Override
@@ -129,36 +130,33 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         return me;
     }
 
-    public Carrier getCurrentCarrier(){
-        return new Layman(me.getInfectionStatus(),me.getIllnessProbability());
-        
     @Override
     public boolean updateStatus(InfectionStatus stat) {
-        if(stat != me.getInfectionStatus()){
+        if (stat != me.getInfectionStatus()) {
             float previousIllnessProbability = me.getIllnessProbability();
             me.evolveInfection(stat);
-            if(stat == InfectionStatus.INFECTED) {
+            if (stat == InfectionStatus.INFECTED) {
                 //Now, retrieve all user that have been nearby the last UNINTENTIONAL_CONTAGION_TIME milliseconds
 
                 //1: retrieve your own last positions
-                SortedMap<Date,Location> lastPositions = cachedSender.getLastPositions();
+                SortedMap<Date, Location> lastPositions = cachedSender.getLastPositions();
 
                 //2: Ask firebase who was there
 
                 Set<String> userIds = new HashSet<>();
-                lastPositions.forEach((date,location) -> receiver.getUserNearby(location,date,around->{
+                lastPositions.forEach((date, location) -> receiver.getUserNearby(location, date).thenAccept(around -> {
                     around.forEach(neighbor -> {
-                        if(neighbor.getInfectionStatus()!= InfectionStatus.INFECTED){ // only non-infected users need to be informed
+                        if (neighbor.getInfectionStatus() != InfectionStatus.INFECTED) { // only non-infected users need to be informed
                             userIds.add(neighbor.getUniqueId()); //won't add someone already in the set
                         }
                     });
                 }));
                 //Tell those user that they have been close to you
                 //TODO: discuss whether considering only the previous Illness probability is good
-                userIds.forEach(u -> cachedSender.sendAlert(u,previousIllnessProbability));
+                userIds.forEach(u -> cachedSender.sendAlert(u, previousIllnessProbability));
             }
             return true;
-        }else{
+        } else {
             return false;
         }
     }

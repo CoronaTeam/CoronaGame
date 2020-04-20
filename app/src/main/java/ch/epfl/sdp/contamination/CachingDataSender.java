@@ -9,6 +9,7 @@ import com.google.firebase.firestore.FieldValue;
 
 import java.util.Date;
 import java.util.SortedMap;
+import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 
@@ -30,8 +31,9 @@ public interface CachingDataSender {
      * @param carrier : the carrier present at location
      * @param location : location, rounded by ~1 meter
      * @param time : date associated to that location
+     * @return
      */
-    void registerLocation(Carrier carrier, Location location, Date time);
+    CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time);
 
     /**
      *   Sends the location and date to firebase, along with the userID of the user using the app.
@@ -40,13 +42,14 @@ public interface CachingDataSender {
      * @param location : location, rounded by ~1 meter
      * @param time : date associated to that location
      * @param successListener : listener called in case of success
-     * @param failureListener: listener called in case of failure
+     * @param failureListener : listener called in case of failure
+     * @return
      */
-    void registerLocation(Carrier carrier,
-                          Location location,
-                          Date time,
-                          OnSuccessListener successListener,
-                          OnFailureListener failureListener);
+    CompletableFuture<Void> registerLocation(Carrier carrier,
+                                             Location location,
+                                             Date time,
+                                             OnSuccessListener successListener,
+                                             OnFailureListener failureListener);
     /**
      * Notifies a user he has been close to an infected person
      */

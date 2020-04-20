@@ -46,7 +46,7 @@ public class FakeCachingDataSender implements CachingDataSender {
         return null;
     }
 
-    public void registerLocation(Carrier carrier, Location location, Date time, OnSuccessListener successListener, OnFailureListener failureListener) {
+    public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time, OnSuccessListener successListener, OnFailureListener failureListener) {
         throw new UnsupportedOperationException();
     }
 }

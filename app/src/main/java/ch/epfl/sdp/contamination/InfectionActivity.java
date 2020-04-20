@@ -44,7 +44,7 @@ public class InfectionActivity extends AppCompatActivity {
         ServiceConnection conn = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                InfectionActivity.this.service = ((LocationService.LocationBinder)service).getService();
+                InfectionActivity.this.service = ((LocationService.LocationBinder) service).getService();
             }
 
             @Override
@@ -63,28 +63,17 @@ public class InfectionActivity extends AppCompatActivity {
         lastUpdateTime = System.currentTimeMillis();
 
         // TODO: Which location?
-        receiver.getMyLastLocation(AccountFragment.getAccount(this)).thenApplyAsync(location -> {
-            return analyst.updateInfectionPredictions(location, refreshTime).thenAccept(n ->{
-                infectionStatus.setText(analyst.getCarrier().getInfectionStatus().toString());
-                infectionProbability.setProgress(Math.round(analyst.getCarrier().getIllnessProbability() * 100));
-                Log.e("PROB:", analyst.getCarrier().getIllnessProbability() + "");
-
-        //TODO: this is the new version        
-        service.getReceiver().getMyLastLocation(AccountFragment.getAccount(this), location -> {
-            service.getAnalyst().updateInfectionPredictions(location, refreshTime, n -> {
-                InfectionActivity.this.runOnUiThread(() -> {
-                    InfectionAnalyst analyst = service.getAnalyst();
-                    infectionStatus.setText(analyst.getCarrier().getInfectionStatus().toString());
-                    infectionProbability.setProgress(Math.round(analyst.getCarrier().getIllnessProbability() * 100));
-                    Log.e("PROB:", analyst.getCarrier().getIllnessProbability() + "");
-                });
+        service.getReceiver().getMyLastLocation(AccountFragment.getAccount(this)).thenApplyAsync(location -> {
+            return service.getAnalyst().updateInfectionPredictions(location, refreshTime).thenAccept(n -> {
+                infectionStatus.setText(service.getAnalyst().getCarrier().getInfectionStatus().toString());
+                infectionProbability.setProgress(Math.round(service.getAnalyst().getCarrier().getIllnessProbability() * 100));
+                Log.e("PROB:", service.getAnalyst().getCarrier().getIllnessProbability() + "");
             });
         });
     }
 
     @VisibleForTesting
-    LocationService getLocationService() {
+    LocationService getLocationService () {
         return service;
     }
 }
-

@@ -24,7 +24,7 @@ import ch.epfl.sdp.location.LocationService;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 
-public class InfectionFragment extends Fragment {
+public class InfectionFragment extends Fragment implements View.OnClickListener {
 
     private TextView infectionStatus;
     private ProgressBar infectionProbability;
@@ -47,6 +47,7 @@ public class InfectionFragment extends Fragment {
 
         infectionStatus = view.findViewById(R.id.my_infection_status);
         infectionProbability = view.findViewById(R.id.my_infection_probability);
+        view.findViewById(R.id.my_infection_refresh).setOnClickListener(this);
 
         lastUpdateTime = System.currentTimeMillis();
 
@@ -67,6 +68,15 @@ public class InfectionFragment extends Fragment {
         getActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
 
         return view;
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.my_infection_refresh: {
+                onModelRefresh(view);
+            } break;
+        }
     }
 
     public void onModelRefresh(View v) {

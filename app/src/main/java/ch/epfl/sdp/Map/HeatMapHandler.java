@@ -68,8 +68,6 @@ class HeatMapHandler {
 
     private void createGeoJson(@NotNull Iterator<QueryDocumentSnapshot> qsIterator) {
         List<Point> infectionHeatMapPoints = new ArrayList<>();
-        infectionHeatMapPoints.add(Point.fromLngLat(-118.39439114221236, 33.397676454651766));
-
 
         for (; qsIterator.hasNext(); ) {
             QueryDocumentSnapshot qs = qsIterator.next();

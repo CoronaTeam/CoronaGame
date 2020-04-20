@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import ch.epfl.sdp.R;
 import ch.epfl.sdp.User;
 
 import static ch.epfl.sdp.TestTools.getActivity;

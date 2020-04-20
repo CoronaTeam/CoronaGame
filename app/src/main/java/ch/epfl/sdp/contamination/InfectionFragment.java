@@ -86,14 +86,11 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
 
 
         // TODO: Which location?
-        service.getReceiver().getMyLastLocation(AccountFragment.getAccount(getActivity()), location -> {
-            service.getAnalyst().updateInfectionPredictions(location, refreshTime, n -> {
-                getActivity().runOnUiThread(() -> {
-                    InfectionAnalyst analyst = service.getAnalyst();
-                    infectionStatus.setText(analyst.getCarrier().getInfectionStatus().toString());
-                    infectionProbability.setProgress(Math.round(analyst.getCarrier().getIllnessProbability() * 100));
-                    Log.e("PROB:", analyst.getCarrier().getIllnessProbability() + "");
-                });
+        service.getReceiver().getMyLastLocation(AccountFragment.getAccount(getActivity())).thenApplyAsync(location -> {
+            return service.getAnalyst().updateInfectionPredictions(location, refreshTime).thenAccept(n -> {
+                infectionStatus.setText(service.getAnalyst().getCarrier().getInfectionStatus().toString());
+                infectionProbability.setProgress(Math.round(service.getAnalyst().getCarrier().getIllnessProbability() * 100));
+                Log.e("PROB:", service.getAnalyst().getCarrier().getIllnessProbability() + "");
             });
         });
     }

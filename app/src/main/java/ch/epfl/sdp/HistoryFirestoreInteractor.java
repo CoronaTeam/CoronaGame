@@ -22,14 +22,13 @@ public class HistoryFirestoreInteractor extends ConcreteFirestoreInteractor{
         this.user = user;
     }
 
-    public CompletableFuture<Map<String, Map<String, Object>>> read(QueryHandler handler) {
+    public CompletableFuture<Map<String, Map<String, Object>>> readHistory() {
         String path = "History/" + user.getId() + "/Positions";
         return readCollection(collectionReference(path));
     }
 
 
-    public CompletableFuture<Void> write(Map<String, Object> content, OnSuccessListener success,
-                                         OnFailureListener failure) {
+    public CompletableFuture<Void> write(Map<String, Object> content) {
         String path = "History/" + user.getId() + "/Positions";
         PositionRecord posRec = (PositionRecord) content.values().toArray()[0];
 

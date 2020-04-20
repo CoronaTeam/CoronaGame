@@ -140,7 +140,7 @@ public class GridSenderTest {
                 buildLocation(10, 20),
                 new Date(System.currentTimeMillis()))
                 .thenCompose(s -> mActivityRule.getActivity().successFuture)
-                .exceptionally(s -> mActivityRule.getActivity().successFuture.join()));
+                .exceptionally(s -> mActivityRule.getActivity().failureFuture.join()));
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Failed")));
     }
 

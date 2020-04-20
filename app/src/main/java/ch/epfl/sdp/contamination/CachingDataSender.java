@@ -37,9 +37,10 @@ public interface CachingDataSender {
 
     /**
      * Notifies a user he has been close to an infected person
+     * @return
      */
-    default void sendAlert(String userId){
-        sendAlert(userId,0f);
+    default CompletableFuture<Void> sendAlert(String userId){
+        return sendAlert(userId,0f);
     }
 
     /**

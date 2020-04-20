@@ -2,9 +2,6 @@ package ch.epfl.sdp;
 
 import android.location.Location;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -46,8 +43,9 @@ public class DataForDemo {
         }
 
         @Override
-        public void sendAlert(String userId) {
+        public CompletableFuture<Void> sendAlert(String userId) {
 
+            return null;
         }
 
         @Override

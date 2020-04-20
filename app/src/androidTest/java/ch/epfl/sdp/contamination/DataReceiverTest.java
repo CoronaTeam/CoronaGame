@@ -67,9 +67,10 @@ public class DataReceiverTest {
     @Test
     public void getSickNeighborDoesGetIt(){
         sender.resetSickAlerts(User.DEFAULT_USERID);
-        sender.sendAlert(User.DEFAULT_USERID);
-        receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID).thenAccept(res ->
-                assertEquals(1f, ((float)(double) (res.get(publicAlertAttribute))),0.00001));
+        sender.sendAlert(User.DEFAULT_USERID).thenRun(() ->
+                receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID).thenAccept(res ->
+                        assertEquals(1f, ((float)(double) (res.get(publicAlertAttribute))),
+                                0.00001)));
         sleep();
     }
 

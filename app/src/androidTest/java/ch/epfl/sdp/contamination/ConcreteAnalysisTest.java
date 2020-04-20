@@ -166,8 +166,9 @@ public class ConcreteAnalysisTest {
             return null;
         }
         @Override
-        public void sendAlert(String userId){
+        public CompletableFuture<Void> sendAlert(String userId){
             sendAlert(userId,0);
+            return null;
         }
         @Override
         public CompletableFuture<Void> resetSickAlerts(String userId){
@@ -323,6 +324,8 @@ public class ConcreteAnalysisTest {
         mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().onModelRefresh(null));
 
         // I was still on healthyLocation
+        onView(withId(R.id.my_infection_refresh)).perform(click());
+        sleep();
         onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
 
         Thread.sleep(2000);

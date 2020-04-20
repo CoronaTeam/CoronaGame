@@ -14,13 +14,13 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 
-import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.firestore.QueryHandler;
 
 public class HistoryFragment extends Fragment {
@@ -48,7 +48,6 @@ public class HistoryFragment extends Fragment {
         account = AuthenticationManager.getAccount(getActivity());
         db = new HistoryFirestoreInteractor(account);
         connectionStatus = view.findViewById(R.id.conn_status);
-        initQueryHandler();
         refreshHistory(null);
 
         // Callbacks have to be manually added instead of onClick in xml
@@ -62,39 +61,31 @@ public class HistoryFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
-    private void initQueryHandler() {
-        ArrayAdapter historyAdapter = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_list_item_1);
-        ListView historyTracker = view.findViewById(R.id.history_tracker);
-        historyTracker.setAdapter(historyAdapter);
+    private CompletableFuture<Void> refreshHistory(View view) {
+        connectionStatus.setText(R.string.loading_with_dots);
+        return db.readHistory().thenAccept(res -> {
+            ArrayAdapter historyAdapter = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_list_item_1);
+            ListView historyTracker = view.findViewById(R.id.history_tracker);
+            historyTracker.setAdapter(historyAdapter);
+            historyAdapter.clear();
 
-        handler = new QueryHandler<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot snapshot) {
-                historyAdapter.clear();
-                connectionStatus.setText(R.string.query_ok);
-                for (QueryDocumentSnapshot qs : snapshot) {
-                    try {
-                        Map<String, Object> positionRecord = qs.getData();
-                        historyAdapter.insert(String.format("Found @ %s:%s on %s",
-                                ((GeoPoint)(positionRecord.get("geoPoint"))).getLatitude(),
-                                ((GeoPoint)(positionRecord.get("geoPoint"))).getLongitude(),
-                                ((Timestamp)(positionRecord.get("timeStamp"))).toDate()), 0);
-                    } catch (NullPointerException e) {
-                        historyAdapter.insert("[...unreadable.:).]", 0);
-                    }
+            connectionStatus.setText(R.string.query_ok);
+
+            for (Map.Entry<String, Map<String, Object>> mapEntry : res.entrySet()) {
+                try {
+                    Map<String, Object> positionRecord = mapEntry.getValue();
+                    historyAdapter.insert(String.format("Found @ %s:%s on %s",
+                            ((GeoPoint)(positionRecord.get("geoPoint"))).getLatitude(),
+                            ((GeoPoint)(positionRecord.get("geoPoint"))).getLongitude(),
+                            ((Timestamp)(positionRecord.get("timeStamp"))).toDate()), 0);
+                } catch (NullPointerException e) {
+                    historyAdapter.insert("[...unreadable.:).]", 0);
                 }
             }
-
-            @Override
-            public void onFailure() {
-                connectionStatus.setText(R.string.connection_error);
-            }
-        };
-    }
-
-    private void refreshHistory(View view) {
-        connectionStatus.setText(R.string.loading_with_dots);
-        db.read(handler);
+        }).exceptionally(e -> {
+            connectionStatus.setText(R.string.connection_error);
+            return null;
+        });
     }
 
 

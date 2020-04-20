@@ -65,8 +65,11 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui:2.2.1'
     implementation 'androidx.test.espresso:espresso-idling-resource:3.2.0'
 
-    implementation 'com.github.AppIntro:AppIntro:5.1.0'
-    implementation 'com.github.bumptech.glide:glide:4.11.0'  //Profile image retrieval
+    implementation 'com.github.AppIntro:AppIntro:5.1.0' // App intro slides
+
+    implementation 'de.hdodenhof:circleimageview:3.1.0' // Circle profile pictures
+
+    implementation 'com.github.bumptech.glide:glide:4.11.0'  // Profile image retrieval
 
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'com.google.android.gms:play-services-auth:18.0.0'

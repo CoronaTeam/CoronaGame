@@ -16,18 +16,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Date;
 
+import androidx.fragment.app.Fragment;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.SingleFragmentActivity;
 import ch.epfl.sdp.fragment.AccountFragment;
 import ch.epfl.sdp.location.LocationService;
 
-public class InfectionActivity extends AppCompatActivity {
-
-    private TextView infectionStatus;
-    private ProgressBar infectionProbability;
-    private long lastUpdateTime;
-
-    private LocationService service;
-
+public class InfectionActivity extends SingleFragmentActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
 
@@ -75,5 +70,7 @@ public class InfectionActivity extends AppCompatActivity {
     @VisibleForTesting
     LocationService getLocationService () {
         return service;
+    protected Fragment createFragment() {
+        return new InfectionFragment();
     }
 }

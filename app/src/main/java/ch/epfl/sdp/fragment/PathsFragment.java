@@ -1,4 +1,4 @@
-package ch.epfl.sdp.Map;
+package ch.epfl.sdp.fragment;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -16,8 +16,11 @@ import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.LineString;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.camera.CameraUpdate;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
+import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.layers.Property;
@@ -36,6 +39,7 @@ import ch.epfl.sdp.R;
  */
 public class PathsFragment extends Fragment {
     private MapView mapView;
+    private MapboxMap map;
     private List<Point> pathCoordinates;
 
     @Nullable
@@ -49,7 +53,9 @@ public class PathsFragment extends Fragment {
         mapView = view.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
 
-        mapView.getMapAsync(mapboxMap -> mapboxMap.setStyle(Style.OUTDOORS, style -> {
+        mapView.getMapAsync(mapboxMap -> {
+                map = mapboxMap;
+                mapboxMap.setStyle(Style.OUTDOORS, style -> {
 
             initPathCoordinates();
 
@@ -67,7 +73,9 @@ public class PathsFragment extends Fragment {
                     PropertyFactory.lineWidth(5f),
                     PropertyFactory.lineColor(Color.parseColor("maroon"))
             ));
-        }));
+        });});
+
+        modifyCameraPosition(33.397676454651766, -118.39439114221236);
 
         return view;
     }
@@ -138,5 +146,7 @@ public class PathsFragment extends Fragment {
         CameraPosition position = new CameraPosition.Builder()
                 .target(new LatLng(latitude, longitude))
                 .build();
+        map.animateCamera(CameraUpdateFactory.newCameraPosition(position));
     }
+
 }

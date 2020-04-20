@@ -278,7 +278,9 @@ public class ConcreteAnalysisTest {
 //        InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver,sender);
 //        mActivityRule.getActivity().setAnalyst(analysis);
 
-        LocationService service = mActivityRule.getActivity().getLocationService();
+        InfectionFragment fragment = ((InfectionFragment)mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
+
+        LocationService service = fragment.getLocationService();
 
         service.setReceiver(cityReceiver);
         InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver,sender);
@@ -287,7 +289,7 @@ public class ConcreteAnalysisTest {
 
         cityReceiver.setMyCurrentLocation(buildLocation(0, 0));
 
-        mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().onModelRefresh(null));
+        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
 
         onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
 
@@ -305,7 +307,7 @@ public class ConcreteAnalysisTest {
 
         Thread.sleep(10);
 
-        mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().onModelRefresh(null));
+        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
         Thread.sleep(10);
 
         onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
@@ -319,7 +321,7 @@ public class ConcreteAnalysisTest {
         }
         Thread.sleep(30);
 
-        mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().onModelRefresh(null));
+        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
 
         // I was still on healthyLocation
         onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
@@ -335,7 +337,7 @@ public class ConcreteAnalysisTest {
         // I go to the bad location
         cityReceiver.setMyCurrentLocation(buildLocation(40, 113.4));
 
-        mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().onModelRefresh(null));
+        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
         Thread.sleep(10);
 
         // Now there should be some risk that I was infected

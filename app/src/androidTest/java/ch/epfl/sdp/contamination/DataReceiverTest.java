@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ch.epfl.sdp.Callback;
+import ch.epfl.sdp.R;
 import ch.epfl.sdp.User;
 
 import static ch.epfl.sdp.TestTools.getActivity;
@@ -31,9 +32,11 @@ public class DataReceiverTest {
 
     @Before
     public void init(){
-        receiver = ((InfectionActivity)(getActivity())).getLocationService().getReceiver();
+        InfectionFragment fragment = ((InfectionFragment)((InfectionActivity)(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
+
+        receiver = fragment.getLocationService().getReceiver();
 //                getReceiver();
-        sender = (ConcreteCachingDataSender)((InfectionActivity)(getActivity())).getLocationService().getSender();
+        sender = (ConcreteCachingDataSender)fragment.getLocationService().getSender();
 //                (ConcreteCachingDataSender) getSender();
     }
     class FakeGridInteractor extends GridFirestoreInteractor {

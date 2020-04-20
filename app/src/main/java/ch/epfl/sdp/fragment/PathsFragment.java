@@ -39,7 +39,7 @@ import ch.epfl.sdp.R;
  */
 public class PathsFragment extends Fragment {
     private MapView mapView;
-    private MapboxMap map;
+    public MapboxMap map;
     private List<Point> pathCoordinates;
 
     @Nullable

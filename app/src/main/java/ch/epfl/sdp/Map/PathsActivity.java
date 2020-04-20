@@ -6,9 +6,11 @@ import ch.epfl.sdp.SingleFragmentActivity;
 import ch.epfl.sdp.fragment.PathsFragment;
 
 public class PathsActivity extends SingleFragmentActivity {
+    public PathsFragment pathsFragment;
 
     @Override
     protected Fragment createFragment() {
-        return new PathsFragment();
+        pathsFragment = new PathsFragment();
+        return pathsFragment;
     }
 }

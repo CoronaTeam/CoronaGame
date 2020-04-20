@@ -16,16 +16,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.Callback;
 
-class ConcreteDataReceiver implements DataReceiver {
+import static ch.epfl.sdp.contamination.CachingDataSender.publicUserFolder;
+
+public class ConcreteDataReceiver implements DataReceiver {
+
 
     private GridFirestoreInteractor interactor;
 
-    ConcreteDataReceiver(GridFirestoreInteractor gridInteractor) {
+    public ConcreteDataReceiver(GridFirestoreInteractor gridInteractor) {
         this.interactor = gridInteractor;
     }
 
@@ -122,5 +127,9 @@ class ConcreteDataReceiver implements DataReceiver {
                 return null;
             }
         });
+    }
+
+    public void getNumberOfSickNeighbors(String userId, Callback<Map<String, Float>>  callback){
+        interactor.readDocument(publicUserFolder, userId, callback);
     }
 }

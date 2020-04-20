@@ -14,11 +14,9 @@ public class GridFirestoreInteractor extends ConcreteFirestoreInteractor{
     // MODEL: Round the location to the 5th decimal digit
     public static final int COORDINATE_PRECISION = 100000;
 
-
     public GridFirestoreInteractor() {
         super();
     }
-
     String getGridId(Location location) {
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();

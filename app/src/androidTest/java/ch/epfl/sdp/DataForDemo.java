@@ -2,13 +2,17 @@ package ch.epfl.sdp;
 
 import android.location.Location;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Date;
+import java.util.SortedMap;
 
+import ch.epfl.sdp.contamination.CachingDataSender;
 import ch.epfl.sdp.contamination.Carrier;
-import ch.epfl.sdp.contamination.DataSender;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.contamination.Layman;
 
@@ -26,11 +30,41 @@ import static ch.epfl.sdp.contamination.GridFirestoreInteractor.COORDINATE_PRECI
 public class DataForDemo {
 
     private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
-    private DataSender dataSender = (carrier, location, time) ->
-            gridFirestoreInteractor.gridWrite(location, String.valueOf(time.getTime()), carrier,
+    private CachingDataSender dataSender = new CachingDataSender() {
+        @Override
+        public void registerLocation(Carrier carrier, Location location, Date time) {
+            gridFirestoreInteractor.write(location, String.valueOf(time.getTime()), carrier,
                     o -> System.out.println("location successfully added to firestore"),
                     e -> System.out.println("location could not be uploaded to firestore")
-                );
+            );
+        }
+
+        @Override
+        public void registerLocation(Carrier carrier, Location location, Date time, OnSuccessListener successListener, OnFailureListener failureListener) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void sendAlert(String userId) {
+
+        }
+
+        @Override
+        public void sendAlert(String userId, float previousIllnessProbability) {
+
+        }
+
+        @Override
+        public void resetSickAlerts(String userId) {
+
+        }
+
+        @Override
+        public SortedMap<Date, Location> getLastPositions() {
+            return null;
+        }
+    };
+
     private static double DENSE_INITIAL_EPFL_LATITUDE = 46.51700;
     private static double DENSE_INITIAL_EPFL_LONGITUDE = 6.56600;
     private static double SPARSE_INITIAL_EPFL_LATITUDE = 46.51800;

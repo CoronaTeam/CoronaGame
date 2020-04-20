@@ -1,13 +1,16 @@
 package ch.epfl.sdp;
 
+import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.IBinder;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -23,17 +26,21 @@ import org.junit.rules.ExpectedException;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.firestore.QueryHandler;
+import ch.epfl.sdp.location.ConcreteLocationBroker;
+import ch.epfl.sdp.location.LocationBroker;
+import ch.epfl.sdp.location.LocationService;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static ch.epfl.sdp.LocationBroker.Provider.GPS;
-import static ch.epfl.sdp.LocationBroker.Provider.NETWORK;
 import static ch.epfl.sdp.TestUtils.buildLocation;
+import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
+import static ch.epfl.sdp.location.LocationBroker.Provider.NETWORK;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 
 public class GpsActivityTest {
@@ -48,9 +55,26 @@ public class GpsActivityTest {
     @Rule
     public ExpectedException illegalArgument = ExpectedException.none();
 
-    private void startActivityWithBroker(LocationBroker br) {
+    private void startActivityWithBroker(LocationBroker br) throws Throwable {
         mActivityRule.launchActivity(new Intent());
-        mActivityRule.getActivity().setLocationBroker(br);
+        AtomicBoolean done = new AtomicBoolean(false);
+        ServiceConnection conn = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                done.set(true);
+                ((LocationService.LocationBinder)service).getService().setBroker(br);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                done.set(false);
+            }
+        };
+        mActivityRule.getActivity().bindService(new Intent(mActivityRule.getActivity(), LocationService.class), conn, Context.BIND_AUTO_CREATE);
+
+        while (!done.get()) {}
+
+        mActivityRule.runOnUiThread(() -> mActivityRule.getActivity().activatePosition());
     }
 
     @Test
@@ -128,7 +152,6 @@ public class GpsActivityTest {
 
     @Test
     public void asksForPermissions() throws Throwable {
-        Boolean asked = false;
         MockBroker withoutPermissions = new MockBroker() {
             private boolean fakePermissions = false;
 
@@ -138,9 +161,9 @@ public class GpsActivityTest {
             }
 
             @Override
-            public void requestPermissions(int requestCode) {
+            public void requestPermissions(Activity activity, int requestCode) {
                 fakePermissions = true;
-                ((AppCompatActivity) listeners).onRequestPermissionsResult(requestCode, new String[]{"GPS"}, new int[]{PackageManager.PERMISSION_GRANTED});
+                activity.onRequestPermissionsResult(requestCode, new String[]{"GPS"}, new int[]{PackageManager.PERMISSION_GRANTED});
             }
         };
         startActivityWithBroker(withoutPermissions);
@@ -164,23 +187,23 @@ public class GpsActivityTest {
     }
 
     private class MockBroker implements LocationBroker {
-        LocationListener listeners = null;
+        LocationListener listener = null;
 
         Location fakeLocation;
         boolean fakeStatus = true;
 
         void setFakeLocation(Location location) throws Throwable {
             fakeLocation = location;
-            mActivityRule.runOnUiThread(() -> listeners.onLocationChanged(location));
+            mActivityRule.runOnUiThread(() -> listener.onLocationChanged(location));
         }
 
         void setProviderStatus(boolean status) throws Throwable {
             fakeStatus = status;
-            if (listeners != null) {
+            if (listener != null) {
                 if (fakeStatus) {
-                    mActivityRule.runOnUiThread(() -> listeners.onProviderEnabled(LocationManager.GPS_PROVIDER));
+                    mActivityRule.runOnUiThread(() -> listener.onProviderEnabled(LocationManager.GPS_PROVIDER));
                 } else {
-                    mActivityRule.runOnUiThread(() -> listeners.onProviderDisabled(LocationManager.GPS_PROVIDER));
+                    mActivityRule.runOnUiThread(() -> listener.onProviderDisabled(LocationManager.GPS_PROVIDER));
                 }
             }
         }
@@ -193,14 +216,14 @@ public class GpsActivityTest {
         @Override
         public boolean requestLocationUpdates(Provider provider, long minTimeDelay, float minSpaceDist, LocationListener listener) {
             if (provider == GPS) {
-                listeners = listener;
+                this.listener = listener;
             }
             return true;
         }
 
         @Override
         public void removeUpdates(LocationListener listener) {
-            listeners = null;
+            this.listener = null;
         }
 
         @Override
@@ -214,7 +237,7 @@ public class GpsActivityTest {
         }
 
         @Override
-        public void requestPermissions(int requestCode) {
+        public void requestPermissions(Activity activity, int requestCode) {
             // Trivial since always has permissions
         }
     }

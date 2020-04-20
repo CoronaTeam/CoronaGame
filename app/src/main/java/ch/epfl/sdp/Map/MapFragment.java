@@ -134,16 +134,6 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             prevLocation = new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
             updateUserMarkerPosition(prevLocation);
 
-            Map<String, Object> element = new HashMap<>();
-            element.put("geoPoint", new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude()));
-            element.put("timeStamp", Timestamp.now());
-            db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> {
-            }, e -> {
-            });
-
-            //wrapper.collection("LastPositions").document(user.getId()).set(lastPos);
-            db.writeDocumentWithID("LastPositions", userAccount.getId(), element, e -> {
-            });
         } else {
             Toast.makeText(getActivity(), "Missing permission", Toast.LENGTH_LONG).show();
         }

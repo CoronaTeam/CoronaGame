@@ -33,7 +33,7 @@ import java.util.UUID;
  * Create a grid with lots of users at some place and less at some other place.
  * These places are located around EPFL.
  */
-//@Ignore("This is not a proper test, it is used for testing and demos, but it does not test anything, only generates data.")
+@Ignore("This is not a proper test, it is used for testing and demos, but it does not test anything, only generates data.")
 public class DataForDemo {
     private Random r = new Random();
     private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();

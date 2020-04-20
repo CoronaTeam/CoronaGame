@@ -15,6 +15,8 @@ import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.LineString;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
@@ -62,7 +64,6 @@ public class PathsFragment extends Fragment {
             // color, etc.
             style.addLayer(new LineLayer("linelayer", "line-source").withProperties(
                     PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
-                    //PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND), // ?
                     PropertyFactory.lineWidth(5f),
                     PropertyFactory.lineColor(Color.parseColor("maroon"))
             ));
@@ -131,5 +132,11 @@ public class PathsFragment extends Fragment {
         pathCoordinates.add(Point.fromLngLat(-118.37794345248027, 33.387810620840135));
         pathCoordinates.add(Point.fromLngLat(-118.37546662390886, 33.38847843095069));
         pathCoordinates.add(Point.fromLngLat(-118.37091717142867, 33.39114243958559));
+    }
+
+    private void modifyCameraPosition(double latitude, double longitude) {
+        CameraPosition position = new CameraPosition.Builder()
+                .target(new LatLng(latitude, longitude))
+                .build();
     }
 }

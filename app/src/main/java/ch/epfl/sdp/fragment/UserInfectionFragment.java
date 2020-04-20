@@ -2,6 +2,7 @@ package ch.epfl.sdp.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,9 +10,15 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import androidx.annotation.NonNull;
@@ -25,9 +32,11 @@ import ch.epfl.sdp.Account;
 import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.BiometricPromptWrapper;
 import ch.epfl.sdp.BiometricUtils;
+import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.ConcreteBiometricPromptWrapper;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.User;
+import ch.epfl.sdp.UserInfectionActivity;
 
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
@@ -44,6 +53,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static final String TAG = "User Infection Activity";
     private String userName;
+    private View view;
 
     private Executor executor;
     private BiometricPromptWrapper biometricPrompt;
@@ -61,18 +71,19 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
 
         view = inflater.inflate(R.layout.fragment_user_infection, container, false);
 
-        infectionStatusView = findViewById(R.id.infectionStatusView);
-        infectionStatusButton = findViewById(R.id.infectionStatusButton);
-        infectionUploadView = findViewById(R.id.infectionStatusUploadConfirmation);
-        userNameView = findViewById(R.id.userName);
+        infectionStatusView = view.findViewById(R.id.infectionStatusView);
+        infectionStatusButton = view.findViewById(R.id.infectionStatusButton);
+        infectionStatusButton.setOnClickListener(this);
+        infectionUploadView = view.findViewById(R.id.infectionStatusUploadConfirmation);
+        userNameView = view.findViewById(R.id.userName);
 
         checkOnline();
         getLoggedInUser();
 
-        this.executor = ContextCompat.getMainExecutor(this);
-        Intent intent = getIntent();
+        this.executor = ContextCompat.getMainExecutor(getActivity());
+        Intent intent = getActivity().getIntent();
 
-        if (BiometricUtils.canAuthenticate(this)) {
+        if (BiometricUtils.canAuthenticate(getActivity())) {
             if (intent.hasExtra("wrapper")) {
                 this.biometricPrompt = (BiometricPromptWrapper) intent.getSerializableExtra("wrapper");
             } else {
@@ -84,9 +95,21 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         return view;
     }
 
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.infectionStatusButton: {
+                onClickChangeStatus(view);
+            } break;
+            case R.id.refreshButton: {
+                onClickRefresh(view);
+            } break;
+        }
+    }
+
     public void onClickChangeStatus(View view) {
         if (checkOnline()) {
-            if (BiometricUtils.canAuthenticate(this)) {
+            if (BiometricUtils.canAuthenticate(getActivity())) {
                 biometricPrompt.authenticate(promptInfo);
             } else {
                 executeHealthStatusChange();
@@ -99,9 +122,10 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     }
 
     private boolean checkOnline() {
-        onlineStatusView = findViewById(R.id.onlineStatusView);
-        refreshButton = findViewById(R.id.refreshButton);
-        checkNetworkStatus(this);
+        onlineStatusView = view.findViewById(R.id.onlineStatusView);
+        refreshButton = view.findViewById(R.id.refreshButton);
+        refreshButton.setOnClickListener(this);
+        checkNetworkStatus(getActivity());
         setOnlineOfflineVisibility(IS_ONLINE);
         return IS_ONLINE;
     }
@@ -118,11 +142,10 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     }
 
     private void getLoggedInUser() {
-        account = AuthenticationManager.getAccount(this);
+        account = AuthenticationManager.getAccount(getActivity());
         userName = account.getDisplayName();
         userNameView.setText(userName);
-        retrieveUserInfectionStatus(
-                this::setInfectionColorAndMessage);
+        retrieveUserInfectionStatus(this::setInfectionColorAndMessage);
     }
 
     private void executeHealthStatusChange() {
@@ -183,13 +206,13 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
 
     private void clickAction(Button button, TextView textView, int buttonText, int textViewText, int textColor) {
         button.setText(buttonText);
-        textView.setTextColor(getResources().getColorStateList(textColor, this.getTheme()));
+        textView.setTextColor(getResources().getColorStateList(textColor, getActivity().getTheme()));
         textView.setText(textViewText);
     }
 
     private BiometricPromptWrapper biometricPromptBuilder(Executor executor) {
         return new ConcreteBiometricPromptWrapper(new BiometricPrompt(
-                UserInfectionActivity.this,
+                UserInfectionFragment.this,
                 executor, new BiometricPrompt.AuthenticationCallback() {
             @Override
             public void onAuthenticationError(int errorCode,
@@ -223,21 +246,21 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     }
 
     private void displayAuthFailedToast() {
-        Toast.makeText(getApplicationContext(), "Authentication failed",
+        Toast.makeText(getActivity().getApplicationContext(), "Authentication failed",
                 Toast.LENGTH_SHORT)
                 .show();
     }
 
     private void displayNegativeButtonToast(int errorCode) {
         if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
-            Toast.makeText(getApplicationContext(),
+            Toast.makeText(getActivity().getApplicationContext(),
                     "Come back when sure about your health status!", Toast.LENGTH_LONG)
                     .show();
         }
     }
 
     private void executeAndDisplayAuthSuccessToast() {
-        Toast.makeText(getApplicationContext(),
+        Toast.makeText(getActivity().getApplicationContext(),
                 "Authentication succeeded!", Toast.LENGTH_SHORT).show();
         executeHealthStatusChange();
     }

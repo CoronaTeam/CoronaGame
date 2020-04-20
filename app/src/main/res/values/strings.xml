@@ -89,4 +89,7 @@
     <string name="email">E-mail</string>
     <string name="aggregator_status_on">You are online now</string>
     <string name="aggregator_status_off">Noo! You are offline</string>
+
+    <string name="user_status_update">User infection status successfully updated!</string>
+    <string name="error_status_update">Error updating user infection status.</string>
 </resources>

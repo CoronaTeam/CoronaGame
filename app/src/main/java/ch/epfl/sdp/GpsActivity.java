@@ -29,11 +29,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.epfl.sdp.contamination.ConcreteDataSender;
-import ch.epfl.sdp.contamination.ConcretePositionAggregator;
-import ch.epfl.sdp.contamination.GridFirestoreInteractor;
-import ch.epfl.sdp.contamination.InfectionActivity;
-import ch.epfl.sdp.contamination.InfectionFragment;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.location.LocationService;
 
@@ -182,9 +177,6 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         db = new HistoryFirestoreInteractor(account);
         Log.e("TEST", account.getId());
 
-        // TODO: Instantiate an aggregator using a DataSender using changes from feature/infectmodelview
-        this.aggregator = new ConcretePositionAggregator(new ConcreteDataSender(new GridFirestoreInteractor(), account), InfectionFragment.getAnalyst());
-        
         ServiceConnection conn = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {

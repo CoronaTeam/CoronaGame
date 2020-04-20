@@ -1,6 +1,10 @@
 package ch.epfl.sdp.contamination;
 
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +20,9 @@ import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.fragment.AccountFragment;
+import ch.epfl.sdp.location.LocationService;
+
+import static android.content.Context.BIND_AUTO_CREATE;
 
 public class InfectionFragment extends Fragment {
 
@@ -38,8 +45,8 @@ public class InfectionFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_infection, container, false);
 
-        infectionStatus = findViewById(R.id.my_infection_status);
-        infectionProbability = findViewById(R.id.my_infection_probability);
+        infectionStatus = view.findViewById(R.id.my_infection_status);
+        infectionProbability = view.findViewById(R.id.my_infection_probability);
 
         lastUpdateTime = System.currentTimeMillis();
 
@@ -48,7 +55,7 @@ public class InfectionFragment extends Fragment {
         ServiceConnection conn = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                InfectionActivity.this.service = ((LocationService.LocationBinder)service).getService();
+                InfectionFragment.this.service = ((LocationService.LocationBinder)service).getService();
             }
 
             @Override
@@ -57,7 +64,7 @@ public class InfectionFragment extends Fragment {
             }
         };
 
-        bindService(new Intent(this, LocationService.class), conn, BIND_AUTO_CREATE);
+        getActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
 
         return view;
     }
@@ -69,9 +76,9 @@ public class InfectionFragment extends Fragment {
 
 
         // TODO: Which location?
-        service.getReceiver().getMyLastLocation(AccountFragment.getAccount(this), location -> {
+        service.getReceiver().getMyLastLocation(AccountFragment.getAccount(getActivity()), location -> {
             service.getAnalyst().updateInfectionPredictions(location, refreshTime, n -> {
-                InfectionActivity.this.runOnUiThread(() -> {
+                getActivity().runOnUiThread(() -> {
                     InfectionAnalyst analyst = service.getAnalyst();
                     infectionStatus.setText(analyst.getCarrier().getInfectionStatus().toString());
                     infectionProbability.setProgress(Math.round(analyst.getCarrier().getIllnessProbability() * 100));

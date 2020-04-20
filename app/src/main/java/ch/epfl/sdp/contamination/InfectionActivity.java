@@ -16,69 +16,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Date;
 
+import androidx.fragment.app.Fragment;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.SingleFragmentActivity;
 import ch.epfl.sdp.fragment.AccountFragment;
 import ch.epfl.sdp.location.LocationService;
 
-public class InfectionActivity extends AppCompatActivity {
-
-    private TextView infectionStatus;
-    private ProgressBar infectionProbability;
-    private long lastUpdateTime;
-
-    private LocationService service;
-
+public class InfectionActivity extends SingleFragmentActivity {
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_infection);
-
-        infectionStatus = findViewById(R.id.my_infection_status);
-        infectionProbability = findViewById(R.id.my_infection_probability);
-
-        lastUpdateTime = System.currentTimeMillis();
-
-        infectionStatus.setText("Refresh to see your status");
-
-        ServiceConnection conn = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                InfectionActivity.this.service = ((LocationService.LocationBinder)service).getService();
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                service = null;
-            }
-        };
-
-        bindService(new Intent(this, LocationService.class), conn, BIND_AUTO_CREATE);
-
-    }
-
-    public void onModelRefresh(View v) {
-
-        Date refreshTime = new Date(lastUpdateTime);
-        lastUpdateTime = System.currentTimeMillis();
-
-
-        // TODO: Which location?
-        service.getReceiver().getMyLastLocation(AccountFragment.getAccount(this), location -> {
-            service.getAnalyst().updateInfectionPredictions(location, refreshTime, n -> {
-                InfectionActivity.this.runOnUiThread(() -> {
-                    InfectionAnalyst analyst = service.getAnalyst();
-                    infectionStatus.setText(analyst.getCarrier().getInfectionStatus().toString());
-                    infectionProbability.setProgress(Math.round(analyst.getCarrier().getIllnessProbability() * 100));
-                    Log.e("PROB:", analyst.getCarrier().getIllnessProbability() + "");
-                });
-            });
-        });
-    }
-
-    @VisibleForTesting
-    LocationService getLocationService() {
-        return service;
+    protected Fragment createFragment() {
+        return new InfectionFragment();
     }
 }
 

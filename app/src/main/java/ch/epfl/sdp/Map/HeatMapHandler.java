@@ -80,10 +80,14 @@ class HeatMapHandler {
 
         }
 
-        mapStyle.addSource(new GeoJsonSource(EARTHQUAKE_SOURCE_ID,
+        GeoJsonSource a = new GeoJsonSource(EARTHQUAKE_SOURCE_ID,
                 FeatureCollection.fromFeatures(new Feature[]{Feature.fromGeometry(
                         MultiPoint.fromLngLats(infectionHeatMapPoints)
-                )})));
+                )}));
+        // Do not delete the "a" variable. If the GeoJsonSource is created inside the addSource call
+        // it takes a long time and make some tests crash. The compiler should have optimised this
+        // variable out but it works. No crash occurs when not testing
+        mapStyle.addSource(a); //
     }
 
     private void addHeatmapLayer() {

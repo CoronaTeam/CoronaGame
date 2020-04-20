@@ -35,6 +35,11 @@ public class HistoryFragment extends Fragment {
 
     private View view;
 
+    @VisibleForTesting
+    void setHistoryFirestoreInteractor(HistoryFirestoreInteractor interactor) {
+        db = interactor;
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

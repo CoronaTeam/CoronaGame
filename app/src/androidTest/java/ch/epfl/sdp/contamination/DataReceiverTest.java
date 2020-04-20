@@ -4,17 +4,14 @@ import android.location.Location;
 
 import androidx.test.rule.ActivityTestRule;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
-import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.User;
 
 import static ch.epfl.sdp.TestTools.getActivity;
@@ -45,12 +42,15 @@ public class DataReceiverTest {
             this.locationData = new HashMap<>();
             this.meetings = new HashMap<>();
         }
+
         @Override
-        public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
+        public CompletableFuture<Void> gridWrite(Location location, String time, Carrier carrier) {
             Location genericLoc = newLoc(location.getLongitude(),location.getLatitude());
             genericLoc.setTime(Integer.valueOf(time));
             locationData.put(location,carrier.getUniqueId());
+            return CompletableFuture.completedFuture(null);
         }
+
         public void addMeeting(){
             int previous = meetings.getOrDefault(User.DEFAULT_USERID,0);
             if(previous == 0){
@@ -59,16 +59,17 @@ public class DataReceiverTest {
                 meetings.replace(User.DEFAULT_USERID,previous+1);
             }
         }
-        @Override
-        public void readDocument(String path, String documentID, Callback callback) {
-            callback.onCallback(meetings.get(documentID));
+
+        public Integer readDocument(String path, String documentID) {
+            return meetings.get(documentID);
         }
     }
     @Test
     public void getSickNeighborDoesGetIt(){
         sender.resetSickAlerts(User.DEFAULT_USERID);
         sender.sendAlert(User.DEFAULT_USERID);
-        receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID, res ->assertEquals(1f, ((float)(double) (((HashMap) (res)).get(publicAlertAttribute))),0.00001));
+        receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID).thenAccept(res ->
+                assertEquals(1f, ((float)(double) (res.get(publicAlertAttribute))),0.00001));
         sleep();
     }
 

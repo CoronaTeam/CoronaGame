@@ -101,9 +101,10 @@ public class HistoryActivityTest {
 
     @Test
     public void failureIsNotified() {
-        FirestoreInteractor failureInteractor = createReadTestFSI(false, null);
+        HistoryFirestoreInteractor failureInteractor = new failureHistoryFSI(
+                AuthenticationManager.getAccount(mActivityRule.getActivity()), false, null);
 
-        fragment.setFirestoreInteractor(failureInteractor);
+        fragment.setHistoryFirestoreInteractor(failureInteractor);
         onView(withId(R.id.refresh_history)).perform(click());
     }
 
@@ -119,6 +120,43 @@ public class HistoryActivityTest {
                 .inAdapterView(withId(R.id.history_tracker))
                 .atPosition(0)
                 .check(matches(withText("[...unreadable.:).]")));
+    }
+
+    private class failureHistoryFSI extends HistoryFirestoreInteractor {
+        private Boolean success;
+        private Map<String, Object> docData;
+
+        failureHistoryFSI(Account user, Boolean success, Map<String, Object> docData) {
+            super(user);
+            this.success = success;
+            this.docData = docData;
+        }
+
+        @Override
+        public CompletableFuture<Map<String, Object>> readDocument(DocumentReference documentReference) {
+            CompletableFuture<Map<String, Object>> completableFuture = new CompletableFuture<>();
+            if(success) completableFuture.complete(docData);
+            else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
+            return completableFuture;
+        }
+
+        @Override
+        public CompletableFuture<Map<String, Map<String, Object>>> readCollection(CollectionReference collectionReference) {
+            CompletableFuture<Map<String, Map<String, Object>>> completableFuture = new CompletableFuture<>();
+            if(success) completableFuture.complete(null);
+            else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
+            return completableFuture;
+        }
+
+        @Override
+        public CompletableFuture<Void> writeDocumentWithID(DocumentReference documentReference, Object document) {
+            return null;
+        }
+
+        @Override
+        public CompletableFuture<DocumentReference> writeDocument(CollectionReference collectionReference, Object document) {
+            return null;
+        }
     }
 
     private FirestoreInteractor createReadTestFSI(Boolean success, Map<String, Object> docData) {

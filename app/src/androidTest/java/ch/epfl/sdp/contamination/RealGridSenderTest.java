@@ -62,11 +62,9 @@ public class RealGridSenderTest {
         Date aLittleLater = new Date(rightNow.getTime() + 10);
 
         mActivityRule.getActivity().getService().getSender().registerLocation(
-                aFakeCarrier,
-                somewhereInTheWorld,
-                rightNow,
-                exchangeSucceeded,
-                exchangeFailed);
+                aFakeCarrier, somewhereInTheWorld, rightNow)
+                .thenCompose(s -> mActivityRule.getActivity().successFuture)
+                .exceptionally(s -> mActivityRule.getActivity().successFuture.join());
         mActivityRule.getActivity().getService().getSender().registerLocation(
                 trulyHealthy,
                 somewhereInTheWorld,
@@ -92,14 +90,16 @@ public class RealGridSenderTest {
         AtomicBoolean done = new AtomicBoolean();
         done.set(false);
 
-        mActivityRule.runOnUiThread(() -> mActivityRule.getActivity().getService().getReceiver().getUserNearby(somewhere, rightNow, people -> {
-            for (Carrier c : people) {
-                result.put(c, false);
-            }
-            done.set(true);
-        }));
+        mActivityRule.runOnUiThread(() -> mActivityRule.getActivity().getService().getReceiver()
+                .getUserNearby(somewhere, rightNow).thenAccept(people -> {
+                    for (Carrier c : people) {
+                        result.put(c, false);
+                    }
+                    done.set(true);
+                }));
 
-        while (!done.get()) { } // Busy wait
+        while (!done.get()) {
+        } // Busy wait
 
         return result;
     }
@@ -112,12 +112,9 @@ public class RealGridSenderTest {
         Date rightNow = new Date(System.currentTimeMillis());
 
         mActivityRule.getActivity().getService().getSender().registerLocation(
-                aFakeCarrier,
-                buildLocation(12, 73),
-                rightNow,
-                exchangeSucceeded,
-                exchangeFailed);
-
+                aFakeCarrier, buildLocation(12, 73), rightNow)
+                .thenCompose(s -> mActivityRule.getActivity().successFuture)
+                .exceptionally(s -> mActivityRule.getActivity().successFuture.join());
         Thread.sleep(2000);
 
         Map<Carrier, Boolean> result = getBackSliceData(buildLocation(12, 73), rightNow);
@@ -132,12 +129,14 @@ public class RealGridSenderTest {
         Map<Carrier, Integer> result = new ConcurrentHashMap<>();
 
         // Get data back
-        mActivityRule.runOnUiThread(() -> mActivityRule.getActivity().getService().getReceiver().getUserNearbyDuring(somewhere, rangeStart, rangeEnd, contactFrequency -> {
-            result.putAll(contactFrequency);
-            done.set(true);
-        }));
+        mActivityRule.runOnUiThread(() -> mActivityRule.getActivity().getService().getReceiver()
+                .getUserNearbyDuring(somewhere, rangeStart, rangeEnd).thenAccept(contactFrequency -> {
+                    result.putAll(contactFrequency);
+                    done.set(true);
+                }));
 
-        while (!done.get()) { } // Busy wait
+        while (!done.get()) {
+        } // Busy wait
 
         return result;
     }
@@ -157,9 +156,9 @@ public class RealGridSenderTest {
             mActivityRule.getActivity().getService().getSender().registerLocation(
                     aFakeCarrier,
                     somewhereInTheWorld,
-                    rightNow,
-                    exchangeSucceeded,
-                    exchangeFailed);
+                    rightNow)
+                    .thenCompose(s -> mActivityRule.getActivity().successFuture)
+                    .exceptionally(s -> mActivityRule.getActivity().successFuture.join());
             mActivityRule.getActivity().getService().getSender().registerLocation(
                     aFakeCarrier,
                     somewhereInTheWorld,

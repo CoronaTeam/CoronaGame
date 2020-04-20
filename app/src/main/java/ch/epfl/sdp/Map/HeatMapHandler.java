@@ -2,87 +2,152 @@ package ch.epfl.sdp.Map;
 
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.MultiPoint;
+import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.plugins.annotation.Circle;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions;
+import com.mapbox.mapboxsdk.style.layers.HeatmapLayer;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.firestore.QueryHandler;
 
-public class HeatMapHandler {
-    private Timer updateOtherPosTimer;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.heatmapDensity;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.interpolate;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.linear;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.rgb;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.rgba;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
+import static com.mapbox.mapboxsdk.style.expressions.Expression.zoom;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.heatmapColor;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.heatmapIntensity;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.heatmapOpacity;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.heatmapRadius;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.heatmapWeight;
+
+class HeatMapHandler {
     private QueryHandler fireBaseHandler;
     private MapFragment parentClass;
-    private ArrayList<Circle> otherUsersPositionMarkers;
-    private CircleManager positionMarkerManager;
-    private static final int OTHER_USERS_UPDATE_INTERVAL_MILLISECS = 2500;
+
     private ConcreteFirestoreInteractor db;
+    private Style mapStyle;
+
+    private static final String EARTHQUAKE_SOURCE_ID = "earthquakes";
+    private static final String HEATMAP_LAYER_ID = "earthquakes-heat";
+    private static final String HEATMAP_LAYER_SOURCE = "earthquakes";
 
 
-    HeatMapHandler(MapFragment parentClass, ConcreteFirestoreInteractor db,
-                   CircleManager positionMarkerManager){
+    HeatMapHandler(@NonNull MapFragment parentClass, @NonNull ConcreteFirestoreInteractor db,
+                   @NonNull Style mapStyle) {
         this.parentClass = parentClass;
         this.db = db;
-        this.positionMarkerManager = positionMarkerManager;
-        otherUsersPositionMarkers = new ArrayList<>();
+        this.mapStyle = mapStyle;
         initFireBaseQueryHandler();
     }
 
-    private void updatePositionMarkersList(Iterator<QueryDocumentSnapshot> qsIterator, @NotNull Iterator<Circle> pmIterator){
-        while (pmIterator.hasNext()){
-            if(qsIterator.hasNext()){
-                QueryDocumentSnapshot qs = qsIterator.next();
-                Circle pm = pmIterator.next();
-                System.out.println(qs);
 
-                try {
-                    LatLng otherUserPos = new LatLng(((GeoPoint)(qs.get("geoPoint"))).getLatitude(),
-                            ((GeoPoint)(qs.get("geoPoint"))).getLongitude());
-                    if(!otherUserPos.equals(parentClass.getPreviousLocation())){
-                        pm.setLatLng(otherUserPos); // add point only if that's not the user
-                    }
-                } catch (NullPointerException ignored) { }
+    private void createGeoJson(@NotNull Iterator<QueryDocumentSnapshot> qsIterator) {
+        List<Point> infectionHeatMapPoints = new ArrayList<>();
+        infectionHeatMapPoints.add(Point.fromLngLat(-118.39439114221236, 33.397676454651766));
 
-            }
-            else{ // if some points were deleted remove them from the list
-                positionMarkerManager.delete(pmIterator.next());
-                pmIterator.remove();
-            }
-        }
-    }
 
-    private void addMarkersToMarkerList(@NotNull Iterator<QueryDocumentSnapshot> qsIterator){
-        while (qsIterator.hasNext()){
+        for (; qsIterator.hasNext(); ) {
             QueryDocumentSnapshot qs = qsIterator.next();
             try {
-                LatLng otherUserPos = new LatLng(((GeoPoint)(qs.get("geoPoint"))).getLatitude(),
-                        ((GeoPoint)(qs.get("geoPoint"))).getLongitude());
-                if(!otherUserPos.equals(parentClass.getPreviousLocation())){
-                    Circle pm = positionMarkerManager.create(new CircleOptions()
-                            .withLatLng(new LatLng(
-                                    ((GeoPoint)(qs.get("geoPoint"))).getLatitude(),
-                                    ((GeoPoint)(qs.get("geoPoint"))).getLongitude()))
-                            .withCircleColor("#ff6219")
-                    );
-                    otherUsersPositionMarkers.add(pm);
-                }
-
-
-            } catch (NullPointerException ignored) { }
+                infectionHeatMapPoints.add(Point.fromLngLat(((GeoPoint) (qs.get("geoPoint"))).getLongitude(),
+                        ((GeoPoint) (qs.get("geoPoint"))).getLatitude()
+                ));
+            } catch (NullPointerException ignored) {
+            }
 
         }
+
+        mapStyle.addSource(new GeoJsonSource(EARTHQUAKE_SOURCE_ID,
+                FeatureCollection.fromFeatures(new Feature[]{Feature.fromGeometry(
+                        MultiPoint.fromLngLats(infectionHeatMapPoints)
+                )})));
     }
+
+    private void addHeatmapLayer() {
+        HeatmapLayer layer = new HeatmapLayer(HEATMAP_LAYER_ID, EARTHQUAKE_SOURCE_ID);
+        //layer.setMinZoom(13);
+        layer.setMaxZoom(17);
+        layer.setMinZoom(8);
+        layer.setSourceLayer(HEATMAP_LAYER_SOURCE);
+
+        layer.setProperties(
+                // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
+                // Begin color ramp at 0-stop with a 0-transparency color
+                // to create a blur-like effect.
+                heatmapColor(
+                        interpolate(
+                                linear(), heatmapDensity(),
+                                literal(0), rgba(33, 102, 172, 0),
+                                literal(0.2), rgba(103, 169, 207, 0.5),
+                                literal(0.6), rgba(209, 229, 240, 0.5),
+                                literal(0.85), rgba(253, 219, 199, 0.6),
+                                literal(0.9), rgba(239, 138, 98, 0.65),
+                                literal(1), rgba(178, 24, 43, 0.7)
+                        )
+                ),
+
+
+                // Increase the heatmap weight based on frequency and property magnitude
+                heatmapWeight(
+                        interpolate(
+                                exponential(2), zoom(),
+                                stop(8, 0.0001),
+                                stop(18, 0.3)
+                        )
+                ),
+
+
+                // Increase the heatmap color weight weight by zoom level
+                // heatmap-intensity is a multiplier on top of heatmap-weight
+                heatmapIntensity(
+                        interpolate(
+                                linear(), zoom(),
+                                stop(8, 2),
+                                stop(18, 100)
+                        )
+                ),
+
+                // Adjust the heatmap radius by zoom level
+                heatmapRadius(
+                        interpolate(
+                                linear(), zoom(),
+                                stop(8, 2),
+                                stop(18, 60)
+                        )
+                )
+
+
+        );
+
+        mapStyle.addLayerAbove(layer, "waterway-label");
+    }
+
+
     private void initFireBaseQueryHandler() {
 
         fireBaseHandler = new QueryHandler<QuerySnapshot>() {
@@ -97,15 +162,11 @@ public class HeatMapHandler {
                  */
 
                 Iterator<QueryDocumentSnapshot> qsIterator = snapshot.iterator(); // data from firebase
-                Iterator<Circle> pmIterator = otherUsersPositionMarkers.iterator(); // local list of position marker
 
-                // update the Arraylist contents first
-                updatePositionMarkersList(qsIterator, pmIterator);
                 // Run if there is more elements than in the last run
-                addMarkersToMarkerList(qsIterator);
+                createGeoJson(qsIterator);
+                addHeatmapLayer();
 
-                //refresh map data
-                positionMarkerManager.update(otherUsersPositionMarkers);
             }
 
             @Override
@@ -114,27 +175,6 @@ public class HeatMapHandler {
             }
         };
 
-        startTimer();
-    }
-
-    private void startTimer(){
-        class UpdatePosTask extends TimerTask {
-
-            public void run() {
-                if (db != null && fireBaseHandler != null){
-                    //db.read(fireBaseHandler);
-                    db.readCollection("LastPositions", fireBaseHandler);
-                }
-            }
-        }
-        if(updateOtherPosTimer != null){
-            updateOtherPosTimer.cancel();
-        }
-        updateOtherPosTimer = new Timer();
-        updateOtherPosTimer.scheduleAtFixedRate(new UpdatePosTask(), 0, OTHER_USERS_UPDATE_INTERVAL_MILLISECS);
-    }
-
-    private void stopTimer(){
-        updateOtherPosTimer.cancel();
+        db.readCollection("LastPositions", fireBaseHandler);
     }
 }

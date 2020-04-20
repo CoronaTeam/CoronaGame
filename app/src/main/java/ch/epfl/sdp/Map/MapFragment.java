@@ -116,7 +116,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
                                 .withLatLng(prevLocation));
 
                         updateUserMarkerPosition(prevLocation);
-                        heatMapHandler = new HeatMapHandler(classPointer, db, positionMarkerManager);
+                        heatMapHandler = new HeatMapHandler(classPointer, db, style);
                     }
 
                 });

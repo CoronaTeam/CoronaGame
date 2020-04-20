@@ -45,8 +45,6 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
 
     private Button infectionStatusButton;
     private TextView infectionStatusView;
-    private TextView infectionUploadView;
-    private TextView userNameView;
     private TextView onlineStatusView;
     private Button refreshButton;
     private Account account;
@@ -74,8 +72,6 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         infectionStatusView = view.findViewById(R.id.infectionStatusView);
         infectionStatusButton = view.findViewById(R.id.infectionStatusButton);
         infectionStatusButton.setOnClickListener(this);
-        infectionUploadView = view.findViewById(R.id.infectionStatusUploadConfirmation);
-        userNameView = view.findViewById(R.id.userName);
 
         checkOnline();
         getLoggedInUser();
@@ -137,14 +133,11 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         refreshButton.setVisibility(offlineVisibility);
         infectionStatusButton.setVisibility(onlineVisibility);
         infectionStatusView.setVisibility(onlineVisibility);
-        infectionUploadView.setVisibility(onlineVisibility);
-        userNameView.setVisibility(onlineVisibility);
     }
 
     private void getLoggedInUser() {
         account = AuthenticationManager.getAccount(getActivity());
         userName = account.getDisplayName();
-        userNameView.setText(userName);
         retrieveUserInfectionStatus(this::setInfectionColorAndMessage);
     }
 
@@ -154,13 +147,15 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         if (infected) {
             setInfectionColorAndMessage(true);
             modifyUserInfectionStatus(userName, true,
-                    value -> infectionUploadView.setText(String.format("%s at %s", value,
-                            Calendar.getInstance().getTime())));
+                    value -> {
+                        //infectionUploadView.setText(String.format("%s at %s", value, Calendar.getInstance().getTime()));
+                    });
         } else {
             setInfectionColorAndMessage(false);
             modifyUserInfectionStatus(userName, false,
-                    value -> infectionUploadView.setText(String.format("%s at %s", value,
-                            Calendar.getInstance().getTime())));
+                    value -> {
+                        //infectionUploadView.setText(String.format("%s at %s", value, Calendar.getInstance().getTime()))
+                    });
         }
     }
 

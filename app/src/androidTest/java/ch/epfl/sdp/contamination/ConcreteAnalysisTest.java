@@ -22,7 +22,6 @@ import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.Account;
-import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.location.LocationService;
 
@@ -99,7 +98,7 @@ public class ConcreteAnalysisTest {
 
     DataReceiver mockReceiver = new DataReceiver() {
         @Override
-        public void getUserNearby(Location location, Date date, Callback<Set<? extends Carrier>> callback) {
+        public CompletableFuture<Set<Carrier>> getUserNearby(Location location, Date date) {
             HashSet<Carrier> res = new HashSet<>();
             switch((int)(location.getLatitude())){
                 case 20:
@@ -116,17 +115,16 @@ public class ConcreteAnalysisTest {
                     break;
                 default:
                     if (location == testLocation && date.equals(testDate)) {
-                        callback.onCallback(peopleAround);
-                        return;
+                        return CompletableFuture.completedFuture(peopleAround);
                     }
             }
-            callback.onCallback(res);
+            return CompletableFuture.completedFuture(res);
         }
 
         @Override
-        public void getUserNearbyDuring(Location location, Date startDate, Date endDate, Callback<Map<? extends Carrier, Integer>> callback) {
+        public CompletableFuture<Map<Carrier, Integer>> getUserNearbyDuring(Location location, Date startDate, Date endDate) {
             if(location==null){
-                callback.onCallback(Collections.emptyMap());
+                return CompletableFuture.completedFuture(Collections.emptyMap());
             }else{
                 Map<Carrier, Integer> met = new HashMap<>();
                 for (long t : rangePeople.keySet()) {
@@ -134,23 +132,24 @@ public class ConcreteAnalysisTest {
                         met.put(rangePeople.get(t), 1);
                     }
                 }
-
-                callback.onCallback(met);
+                return CompletableFuture.completedFuture(met);
             }
         }
 
         @Override
-        public void getMyLastLocation(Account account, Callback<Location> callback) {
+        public CompletableFuture<Location> getMyLastLocation(Account account) {
+            return null;
         }
 
         @Override
-        public void getNumberOfSickNeighbors(String userId, Callback callback) {
+        public CompletableFuture<Map<String, Object>> getNumberOfSickNeighbors(String userId) {
             if(recentSickMeetingCounter.containsKey(userId)) {
-                HashMap<String,Float> res = new HashMap<>();
+                HashMap<String,Object> res = new HashMap<>();
+                recentSickMeetingCounter.get(userId);
                 res.put(publicAlertAttribute, recentSickMeetingCounter.get(userId));
-                callback.onCallback(res);
+                return CompletableFuture.completedFuture(res);
             }else{
-                callback.onCallback(Collections.emptyMap());
+                return CompletableFuture.completedFuture(Collections.emptyMap());
             }
         }
     };
@@ -161,17 +160,19 @@ public class ConcreteAnalysisTest {
             return null;
         }
         @Override
-        public void sendAlert(String userId, float previousIllnessProbability){
+        public CompletableFuture<Void> sendAlert(String userId, float previousIllnessProbability){
             recentSickMeetingCounter.computeIfPresent(userId, (k,v) -> v+ 1 - previousIllnessProbability);
             recentSickMeetingCounter.computeIfAbsent(userId, k->1-previousIllnessProbability);
+            return null;
         }
         @Override
         public void sendAlert(String userId){
             sendAlert(userId,0);
         }
         @Override
-        public void resetSickAlerts(String userId){
+        public CompletableFuture<Void> resetSickAlerts(String userId){
             recentSickMeetingCounter.remove(userId);
+            return null;
         }
 
         @Override
@@ -188,7 +189,7 @@ public class ConcreteAnalysisTest {
         assertThat(me.setIllnessProbability(.5f), equalTo(false));
 
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
-        analyst.updateInfectionPredictions(testLocation, new Date(1585223373980L), n -> {});
+        analyst.updateInfectionPredictions(testLocation, new Date(1585223373980L));
         assertThat(me.getInfectionStatus(), equalTo(INFECTED));
 
     }
@@ -199,19 +200,19 @@ public class ConcreteAnalysisTest {
         Carrier me = new Layman(HEALTHY);
 
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
-        analyst.updateInfectionPredictions(testLocation, new Date(1585220363913L), n -> {});
+        analyst.updateInfectionPredictions(testLocation, new Date(1585220363913L));
         assertThat(me.getInfectionStatus(), equalTo(HEALTHY));
         assertThat(me.getIllnessProbability(),greaterThan(0.f));
     }
 
     class CityDataReceiver implements DataReceiver {
         @Override
-        public void getUserNearby(Location l, Date date, Callback<Set<? extends Carrier>> callback) {
+        public CompletableFuture<Set<Carrier>> getUserNearby(Location l, Date date) {
             GeoPoint location = new GeoPoint(l.getLatitude(), l.getLongitude());
             if (city.containsKey(location) && city.get(location).containsKey(date)) {
-                callback.onCallback(city.get(location).get(date));
+                return CompletableFuture.completedFuture(city.get(location).get(date));
             } else {
-                callback.onCallback(Collections.emptySet());
+                return CompletableFuture.completedFuture(Collections.emptySet());
             }
         }
 
@@ -236,21 +237,19 @@ public class ConcreteAnalysisTest {
                     }
                 }
             }
-
             return res;
         }
 
         @Override
-        public void getUserNearbyDuring(Location l, Date startDate, Date endDate, Callback<Map<? extends Carrier, Integer>> callback) {
+        public CompletableFuture<Map<Carrier, Integer>> getUserNearbyDuring(Location l, Date startDate, Date endDate) {
             GeoPoint location = new GeoPoint(l.getLatitude(), l.getLongitude());
 
             if (city.containsKey(location)) {
-                callback.onCallback(filterByTime(location, startDate, endDate));
+                return CompletableFuture.completedFuture(filterByTime(location, startDate, endDate));
             } else {
-                callback.onCallback(Collections.emptyMap());
+                return CompletableFuture.completedFuture(Collections.emptyMap());
             }
-
-    }
+        }
 
         Location myCurrentLocation;
 
@@ -259,13 +258,14 @@ public class ConcreteAnalysisTest {
         }
 
         @Override
-        public void getMyLastLocation(Account account, Callback<Location> callback) {
-            callback.onCallback(myCurrentLocation);
+        public CompletableFuture<Location> getMyLastLocation(Account account) {
+            return CompletableFuture.completedFuture(myCurrentLocation);
         }
 
         @Override
-        public void getNumberOfSickNeighbors(String userId, Callback callback) {
-            }
+        public CompletableFuture<Map<String, Object>> getNumberOfSickNeighbors(String userId) {
+            return null;
+        }
     }
 
     @Test
@@ -372,10 +372,14 @@ public class ConcreteAnalysisTest {
         Carrier me = new Layman(HEALTHY);
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
         analyst.updateStatus(INFECTED);
-        mockReceiver.getNumberOfSickNeighbors("Man1", res -> assertTrue(((Map)(res)).isEmpty()));
-        mockReceiver.getNumberOfSickNeighbors("Man2", res -> assertEquals(1f,getMapValue(res),0.0001));
-        mockReceiver.getNumberOfSickNeighbors("Man3", res -> assertEquals(1f,getMapValue(res),0.0001));
-        mockReceiver.getNumberOfSickNeighbors("Man4", res -> assertEquals(1f,getMapValue(res),0.0001));
+        mockReceiver.getNumberOfSickNeighbors("Man1").thenAccept(res ->
+                assertTrue(res.isEmpty()));
+        mockReceiver.getNumberOfSickNeighbors("Man2").thenAccept(res ->
+                assertEquals(1f,getMapValue(res),0.0001));
+        mockReceiver.getNumberOfSickNeighbors("Man3").thenAccept(res ->
+                assertEquals(1f,getMapValue(res),0.0001));
+        mockReceiver.getNumberOfSickNeighbors("Man4").thenAccept(res ->
+                assertEquals(1f,getMapValue(res),0.0001));
     }
     @Test
     public void adaptYourProbabilityOfInfectionAccordingToSickMeetingsAndThenResetItsCounter(){
@@ -383,8 +387,8 @@ public class ConcreteAnalysisTest {
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
         sender.sendAlert(me.getUniqueId());
         sender.sendAlert(me.getUniqueId(),0.4f);
-        analyst.updateInfectionPredictions(null,null,res->{});
+        analyst.updateInfectionPredictions(null,null);
         assertEquals(TRANSMISSION_FACTOR* (1+ (1-0.4)),me.getIllnessProbability(),0.00001f);
-        mockReceiver.getNumberOfSickNeighbors(me.getUniqueId(), res -> assertTrue(((Map)(res)).isEmpty()));
+        mockReceiver.getNumberOfSickNeighbors(me.getUniqueId()).thenAccept(res -> assertTrue((res).isEmpty()));
     }
 }

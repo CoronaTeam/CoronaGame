@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.util.concurrent.CompletableFuture;
+
 import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.location.LocationService;
@@ -30,15 +32,21 @@ public class DataExchangeActivity extends AppCompatActivity {
     private LocationService service;
 
 
-    private TextView exchangeStatus;
+    TextView exchangeStatus;
 
     OnSuccessListener successListener = o -> {
         exchangeStatus.setText("EXCHANGE Succeeded");
     };
 
+    CompletableFuture<Void> successFuture =
+            CompletableFuture.runAsync(()-> exchangeStatus.setText("EXCHANGE Succeeded"));
+
     OnFailureListener failureListener = e -> {
         exchangeStatus.setText("EXCHANGE Failed");
     };
+
+    CompletableFuture<Void> failureFuture =
+            CompletableFuture.runAsync(()-> exchangeStatus.setText("EXCHANGE Failed"));
 
 
 

@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.R;
@@ -41,46 +42,33 @@ public class GridSenderTest {
 
     @Rule
     public final ActivityTestRule<DataExchangeActivity> mActivityRule = new ActivityTestRule<>(DataExchangeActivity.class);
-
-    @Mock
-    private QuerySnapshot querySnapshot;
-
-    @Mock
-    private QueryDocumentSnapshot queryDocumentSnapshot;
-
-    @Mock
-    private QuerySnapshot firstPeriodSnapshot;
-
-    @Mock
-    private QuerySnapshot secondPeriodSnapshot;
-
-    @Mock
-    private QueryDocumentSnapshot firstPeriodDocumentSnapshot;
-
-    @Mock
-    private QueryDocumentSnapshot secondPeriodDocumentSnapshot;
-
-    @Mock
-    private QuerySnapshot timesListSnapshot;
-
-    @Mock
-    private QueryDocumentSnapshot range1DocumentSnapshot;
-
-    @Mock
-    private QueryDocumentSnapshot range2DocumentSnapshot;
-
-    @Mock
-    private QueryDocumentSnapshot afterRangeDocumentSnapshot;
-
-    @Rule
-    public MockitoRule mockitoRule = MockitoJUnit.rule();
-
     final long rangeStart = 1585223373883L;
     final long rangeEnd = 1585223373963L;
     final long outsideRange = 1585223373983L;
-
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
     OnSuccessListener exchangeSucceeded;
     OnFailureListener exchangeFailed;
+    @Mock
+    private QuerySnapshot querySnapshot;
+    @Mock
+    private QueryDocumentSnapshot queryDocumentSnapshot;
+    @Mock
+    private QuerySnapshot firstPeriodSnapshot;
+    @Mock
+    private QuerySnapshot secondPeriodSnapshot;
+    @Mock
+    private QueryDocumentSnapshot firstPeriodDocumentSnapshot;
+    @Mock
+    private QueryDocumentSnapshot secondPeriodDocumentSnapshot;
+    @Mock
+    private QuerySnapshot timesListSnapshot;
+    @Mock
+    private QueryDocumentSnapshot range1DocumentSnapshot;
+    @Mock
+    private QueryDocumentSnapshot range2DocumentSnapshot;
+    @Mock
+    private QueryDocumentSnapshot afterRangeDocumentSnapshot;
 
     @Before
     public void setupMockito() {
@@ -113,14 +101,6 @@ public class GridSenderTest {
         mActivityRule.getActivity().getService().setSender(new ConcreteCachingDataSender(gridInteractor));
     }
 
-    class MockGridInteractor extends GridFirestoreInteractor {
-
-        // TODO: GridFirestoreInteractor should become an interface too
-        MockGridInteractor() {
-            super();
-        }
-    }
-
     private void programSenderAction(GridFirestoreInteractor mockInteractor) {
         resetRealSenderAndReceiver();
 
@@ -129,39 +109,38 @@ public class GridSenderTest {
 
     @Test
     public void dataSenderUploadsInformation() {
-        programSenderAction(new MockGridInteractor(){
+        programSenderAction(new MockGridInteractor() {
             @Override
-            public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
-                success.onSuccess(null);
+            public CompletableFuture<Void> gridWrite(Location location, String time, Carrier carrier) {
+                return CompletableFuture.completedFuture(null);
             }
         });
 
         mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().getService().getSender().registerLocation(
                 new Layman(Carrier.InfectionStatus.HEALTHY),
                 buildLocation(10, 20),
-                new Date(System.currentTimeMillis()),
-                exchangeSucceeded,
-                exchangeFailed));
-
+                new Date(System.currentTimeMillis()))
+                .thenCompose(s -> mActivityRule.getActivity().successFuture)
+                .exceptionally(s -> mActivityRule.getActivity().successFuture.join()));
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
     }
+
 
     @Test
     public void dataSenderFailsWithError() {
         programSenderAction(new MockGridInteractor() {
             @Override
-            public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
-                failure.onFailure(null);
+            public CompletableFuture<Void> gridWrite(Location location, String time, Carrier carrier) {
+                return CompletableFuture.completedFuture(null);
             }
         });
 
         mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().getService().getSender().registerLocation(
                 new Layman(Carrier.InfectionStatus.HEALTHY),
                 buildLocation(10, 20),
-                new Date(System.currentTimeMillis()),
-                exchangeSucceeded,
-                exchangeFailed));
-
+                new Date(System.currentTimeMillis()))
+                .thenCompose(s -> mActivityRule.getActivity().successFuture)
+                .exceptionally(s -> mActivityRule.getActivity().successFuture.join()));
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Failed")));
     }
 
@@ -169,7 +148,8 @@ public class GridSenderTest {
     public void dataReceiverFindsContacts() {
         resetRealSenderAndReceiver();
 
-        ((ConcreteDataReceiver) mActivityRule.getActivity().getService().getReceiver()).setInteractor(new MockGridInteractor() {
+        ((ConcreteDataReceiver) mActivityRule.getActivity().getService().getReceiver())
+                .setInteractor(new MockGridInteractor() {
             @Override
             public void read(Location location, long time, QueryHandler handler) {
                 handler.onSuccess(querySnapshot);
@@ -184,8 +164,12 @@ public class GridSenderTest {
 
         mActivityRule.getActivity().getService().getReceiver().getUserNearby(
                 buildLocation(10, 20),
-                new Date(1585223373883L),
-                successCallback);
+                new Date(1585223373883L))
+                .thenAccept(value -> {
+                    assertThat(value.size(), is(1));
+                    assertThat(value.iterator().hasNext(), is(true));
+                    assertThat(value.iterator().next().getIllnessProbability(), greaterThan(0.0f));
+                });
     }
 
     private void setFakeReceiver(Location testLocation) {
@@ -221,17 +205,14 @@ public class GridSenderTest {
     public void dataReceiverFindsContactsDuring() {
         final Location testLocation = buildLocation(70.5, 71.25);
         setFakeReceiver(testLocation);
-        Callback<Map<? extends Carrier, Integer>> callback = value -> {
-            assertThat(value.size(), is(2));
-            assertThat(value.containsKey(new Layman(Carrier.InfectionStatus.IMMUNE, 0f)), is(true));
-            assertThat(value.containsKey(new Layman(Carrier.InfectionStatus.UNKNOWN)), is(false));
-            assertThat(value.get(new Layman(Carrier.InfectionStatus.UNKNOWN, 0.75f)), is(1));
-        };
         mActivityRule.getActivity().getService().getReceiver().getUserNearbyDuring(
-                testLocation,
-                new Date(rangeStart),
-                new Date(rangeEnd),
-                callback);
+                testLocation, new Date(rangeStart), new Date(rangeEnd))
+                .thenAccept(value -> {
+                    assertThat(value.size(), is(2));
+                    assertThat(value.containsKey(new Layman(Carrier.InfectionStatus.IMMUNE, 0f)), is(true));
+                    assertThat(value.containsKey(new Layman(Carrier.InfectionStatus.UNKNOWN)), is(false));
+                    assertThat(value.get(new Layman(Carrier.InfectionStatus.UNKNOWN, 0.75f)), is(1));
+                });
     }
 
     @Test
@@ -246,4 +227,12 @@ public class GridSenderTest {
 
         assertThat(aMap.containsKey(c2), is(true));
     }
+
+class MockGridInteractor extends GridFirestoreInteractor {
+
+    // TODO: GridFirestoreInteractor should become an interface too
+    MockGridInteractor() {
+        super();
+    }
+}
 }

@@ -34,16 +34,15 @@ public class DataForDemo {
     private CachingDataSender dataSender = new CachingDataSender() {
         @Override
         public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
-            gridFirestoreInteractor.write(location, String.valueOf(time.getTime()), carrier,
-                    o -> System.out.println("location successfully added to firestore"),
-                    e -> System.out.println("location could not be uploaded to firestore")
-            );
-            return null;
-        }
-
-        @Override
-        public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time, OnSuccessListener successListener, OnFailureListener failureListener) {
-            throw new UnsupportedOperationException();
+            return gridFirestoreInteractor.gridWrite(location, String.valueOf(time.getTime()),
+                    carrier)
+                    .whenComplete((res, thr) ->{
+                        if (thr == null){
+                            System.out.println("location successfully added to firestore");
+                        }else{
+                            System.out.println("location could not be uploaded to firestore");
+                        }
+                    });
         }
 
         @Override
@@ -52,13 +51,15 @@ public class DataForDemo {
         }
 
         @Override
-        public void sendAlert(String userId, float previousIllnessProbability) {
+        public CompletableFuture<Void> sendAlert(String userId, float previousIllnessProbability) {
 
+            return null;
         }
 
         @Override
-        public void resetSickAlerts(String userId) {
+        public CompletableFuture<Void> resetSickAlerts(String userId) {
 
+            return null;
         }
 
         @Override

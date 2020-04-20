@@ -28,7 +28,6 @@ import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 public class HeatMapHandler {
     private static final int OTHER_USERS_UPDATE_INTERVAL_MILLISECS = 2500;
     private Timer updateOtherPosTimer;
-    private QueryHandler fireBaseHandler;
     private MapFragment parentClass;
     private ArrayList<Circle> otherUsersPositionMarkers;
     private CircleManager positionMarkerManager;
@@ -40,7 +39,6 @@ public class HeatMapHandler {
         this.db = db;
         this.positionMarkerManager = positionMarkerManager;
         otherUsersPositionMarkers = new ArrayList<>();
-        initFireBaseQueryHandler();
     }
 
     private void updatePositionMarkersList(Iterator<Map.Entry<String, Map<String, Object>>> entrySetIterator, @NotNull Iterator<Circle> pmIterator) {
@@ -87,45 +85,11 @@ public class HeatMapHandler {
         }
     }
 
-    private void initFireBaseQueryHandler() {
-
-        fireBaseHandler = new QueryHandler<QuerySnapshot>() {
-
-            @Override
-            public void onSuccess(QuerySnapshot snapshot) {
-
-                /* The idea here is to reuse the Circle objects to not recreate the datastructure from
-                scratch on each update. It's now overkill but will be usefull for the heatmaps
-                It's also necessary to keep the Circle objects around because recreating them each time
-                there is new data make the map blink like a christmas tree
-                 */
-
-                Iterator<QueryDocumentSnapshot> qsIterator = snapshot.iterator(); // data from firebase
-                Iterator<Circle> pmIterator = otherUsersPositionMarkers.iterator(); // local list of position marker
-
-                // update the Arraylist contents first
-                //TODO:updatePositionMarkersList(qsIterator, pmIterator);
-                // Run if there is more elements than in the last run
-                ////TODO:addMarkersToMarkerList(qsIterator);
-
-                //refresh map data
-                positionMarkerManager.update(otherUsersPositionMarkers);
-            }
-
-            @Override
-            public void onFailure() {
-                Toast.makeText(parentClass.getActivity(), "Cannot retrieve positions from database", Toast.LENGTH_LONG).show();
-            }
-        };
-
-        startTimer();
-    }
-
     private void startTimer() {
         class UpdatePosTask extends TimerTask {
 
             public void run() {
-                if (db != null && fireBaseHandler != null) {
+                if (db != null) {
                     //db.read(fireBaseHandler);
                     db.readCollection(collectionReference("LastPositions"))
                             .whenComplete((result, throwable) -> {

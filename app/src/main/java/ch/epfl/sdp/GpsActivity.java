@@ -59,7 +59,7 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
     private boolean connectedToService = false;
 
     @VisibleForTesting
-    void setFirestoreInteractor(HistoryFirestoreInteractor interactor) {
+    void setHistoryFirestoreInteractor(HistoryFirestoreInteractor interactor) {
         db = interactor;
     }
 

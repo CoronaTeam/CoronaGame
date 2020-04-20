@@ -5,7 +5,9 @@ import android.net.Uri;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
-public interface Account {
+import java.io.Serializable;
+
+public interface Account extends Serializable {
     String getDisplayName();
     String getFamilyName();
     String getEmail();

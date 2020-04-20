@@ -3,7 +3,7 @@
     <string name="app_id">807375232223</string>
     <string name="app_name">CoronaGame</string>
 
-    <string name="can_t_Download_Offline">Can\'t download while offline</string>
+    <string name="can_t_Download_Offline" translatable="false">Can\'t download while offline</string>
     <string name="can_t_Upload_Offline">Can\'t upload while offline</string>
 
     <string name="connection_error">CONNECTION ERROR</string>
@@ -87,4 +87,6 @@
     <string name="user_id">#%1$s</string>
     <string name="accountDetails">Account details</string>
     <string name="email">E-mail</string>
+    <string name="aggregator_status_on">You are online now</string>
+    <string name="aggregator_status_off">Noo! You are offline</string>
 </resources>

@@ -19,31 +19,11 @@ import ch.epfl.sdp.fragment.AccountFragment;
 
 public class InfectionFragment extends Fragment {
 
-    private static GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor();
-    private static InfectionAnalyst analyst = new ConcreteAnalysis(new Layman(Carrier.InfectionStatus.HEALTHY), new ConcreteDataReceiver(gridInteractor));
-    private static DataReceiver receiver = new ConcreteDataReceiver(gridInteractor);
     private TextView infectionStatus;
     private ProgressBar infectionProbability;
     private long lastUpdateTime;
 
-    // TODO: The following 2 static methods must be deleted when GpsActivity is turned into a background service
-    public static DataReceiver getReceiver() {
-        return receiver;
-    }
-
-    @VisibleForTesting
-    void setReceiver(DataReceiver receiver) {
-        InfectionFragment.receiver = receiver;
-    }
-
-    public static InfectionAnalyst getAnalyst() {
-        return analyst;
-    }
-
-    @VisibleForTesting
-    void setAnalyst(InfectionAnalyst analyst) {
-        InfectionFragment.analyst = analyst;
-    }
+    private LocationService service;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,18 +38,26 @@ public class InfectionFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_infection, container, false);
 
-        infectionStatus = view.findViewById(R.id.my_infection_status);
-        infectionProbability = view.findViewById(R.id.my_infection_probability);
-
-        /*
-        GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor(new ConcreteFirestoreWrapper(FirebaseFirestore.getInstance()));
-        analyst = new ConcreteAnalysis(new Layman(Carrier.InfectionStatus.HEALTHY), new ConcreteDataReceiver(gridInteractor));
-        receiver = new ConcreteDataReceiver(gridInteractor);
-         */
+        infectionStatus = findViewById(R.id.my_infection_status);
+        infectionProbability = findViewById(R.id.my_infection_probability);
 
         lastUpdateTime = System.currentTimeMillis();
 
         infectionStatus.setText("Refresh to see your status");
+
+        ServiceConnection conn = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                InfectionActivity.this.service = ((LocationService.LocationBinder)service).getService();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                service = null;
+            }
+        };
+
+        bindService(new Intent(this, LocationService.class), conn, BIND_AUTO_CREATE);
 
         return view;
     }
@@ -81,9 +69,10 @@ public class InfectionFragment extends Fragment {
 
 
         // TODO: Which location?
-        receiver.getMyLastLocation(AccountFragment.getAccount(getActivity()), location -> {
-            analyst.updateInfectionPredictions(location, refreshTime, n -> {
-                getActivity().runOnUiThread(() -> {
+        service.getReceiver().getMyLastLocation(AccountFragment.getAccount(this), location -> {
+            service.getAnalyst().updateInfectionPredictions(location, refreshTime, n -> {
+                InfectionActivity.this.runOnUiThread(() -> {
+                    InfectionAnalyst analyst = service.getAnalyst();
                     infectionStatus.setText(analyst.getCarrier().getInfectionStatus().toString());
                     infectionProbability.setProgress(Math.round(analyst.getCarrier().getIllnessProbability() * 100));
                     Log.e("PROB:", analyst.getCarrier().getIllnessProbability() + "");
@@ -91,4 +80,10 @@ public class InfectionFragment extends Fragment {
             });
         });
     }
+
+    @VisibleForTesting
+    LocationService getLocationService() {
+        return service;
+    }
+
 }

@@ -1,17 +1,21 @@
 package ch.epfl.sdp;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import ch.epfl.sdp.contamination.InfectionActivity;
 import ch.epfl.sdp.firestore.FirebaseActivity;
+import ch.epfl.sdp.location.LocationService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,6 +37,30 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // LocationService will be started here
+        // It's responsibility of this activity to check that it has
+        // permissions to retrieve GPS location
+        // TODO: Write code to stop the service somewhere
+        Intent serviceIntent = new Intent(this, LocationService.class);
+        startService(serviceIntent);
+
+        ServiceConnection conn = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                LocationService.LocationBinder binder = (LocationService.LocationBinder) service;
+
+                if (!binder.hasGpsPermissions()) {
+                    // Request permissions and try to start the aggregator
+                    binder.requestGpsPermissions(MainActivity.this);
+                    binder.startAggregator();
+                }
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) { }
+        };
+        bindService(serviceIntent, conn, BIND_AUTO_CREATE);
     }
 
     /**

@@ -33,8 +33,6 @@ public class HeatMapHandler {
     private ArrayList<Circle> otherUsersPositionMarkers;
     private CircleManager positionMarkerManager;
     private ConcreteFirestoreInteractor db;
-    private CompletableFuture<DocumentReference> fireBaseHandlerSuccess;
-    private CompletableFuture<DocumentReference> fireBaseFailure;
 
     HeatMapHandler(MapFragment parentClass, ConcreteFirestoreInteractor db,
                    CircleManager positionMarkerManager) {
@@ -45,10 +43,10 @@ public class HeatMapHandler {
         initFireBaseQueryHandler();
     }
 
-    private void updatePositionMarkersList(Iterator<Map.Entry<String, Map<String, Object>>> qsIterator, @NotNull Iterator<Circle> pmIterator) {
+    private void updatePositionMarkersList(Iterator<Map.Entry<String, Map<String, Object>>> entrySetIterator, @NotNull Iterator<Circle> pmIterator) {
         while (pmIterator.hasNext()) {
-            if (qsIterator.hasNext()) {
-                Map<String, Object> qs = qsIterator.next().getValue();
+            if (entrySetIterator.hasNext()) {
+                Map<String, Object> qs = entrySetIterator.next().getValue();
                 Circle pm = pmIterator.next();
                 System.out.println(qs);
 
@@ -69,30 +67,27 @@ public class HeatMapHandler {
         }
     }
 
-    private void addMarkersToMarkerList(@NotNull Iterator<QueryDocumentSnapshot> qsIterator) {
-        while (qsIterator.hasNext()) {
-            QueryDocumentSnapshot qs = qsIterator.next();
+    private void addMarkersToMarkerList(@NotNull Iterator<Map.Entry<String, Map<String, Object>>> entryIterator) {
+        while (entryIterator.hasNext()) {
+            Map.Entry<String, Map<String, Object>> mapEntry = entryIterator.next();
             try {
-                LatLng otherUserPos = new LatLng(((GeoPoint) (qs.get("geoPoint"))).getLatitude(),
-                        ((GeoPoint) (qs.get("geoPoint"))).getLongitude());
+                LatLng otherUserPos = new LatLng(((GeoPoint) (mapEntry.getValue().get("geoPoint"))).getLatitude(),
+                        ((GeoPoint) (mapEntry.getValue().get("geoPoint"))).getLongitude());
                 if (!otherUserPos.equals(parentClass.getPreviousLocation())) {
                     Circle pm = positionMarkerManager.create(new CircleOptions()
                             .withLatLng(new LatLng(
-                                    ((GeoPoint) (qs.get("geoPoint"))).getLatitude(),
-                                    ((GeoPoint) (qs.get("geoPoint"))).getLongitude()))
+                                    ((GeoPoint) (mapEntry.getValue().get("geoPoint"))).getLatitude(),
+                                    ((GeoPoint) (mapEntry.getValue().get("geoPoint"))).getLongitude()))
                             .withCircleColor("#ff6219")
                     );
                     otherUsersPositionMarkers.add(pm);
                 }
             } catch (NullPointerException ignored) {
             }
-
         }
     }
 
     private void initFireBaseQueryHandler() {
-
-        fireBaseHandlerSuccess = new CompletableFuture<DocumentReference>();
 
         fireBaseHandler = new QueryHandler<QuerySnapshot>() {
 
@@ -109,9 +104,9 @@ public class HeatMapHandler {
                 Iterator<Circle> pmIterator = otherUsersPositionMarkers.iterator(); // local list of position marker
 
                 // update the Arraylist contents first
-                updatePositionMarkersList(qsIterator, pmIterator);
+                //TODO:updatePositionMarkersList(qsIterator, pmIterator);
                 // Run if there is more elements than in the last run
-                addMarkersToMarkerList(qsIterator);
+                ////TODO:addMarkersToMarkerList(qsIterator);
 
                 //refresh map data
                 positionMarkerManager.update(otherUsersPositionMarkers);

@@ -1,5 +1,6 @@
 package ch.epfl.sdp.firestore;
 
+import androidx.annotation.VisibleForTesting;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.google.android.gms.tasks.OnFailureListener;

@@ -70,15 +70,12 @@ public class InfectionActivity extends AppCompatActivity {
         Date refreshTime = new Date(lastUpdateTime);
         lastUpdateTime = System.currentTimeMillis();
 
-
         // TODO: Which location?
-        receiver.getMyLastLocation(AccountFragment.getAccount(this), location -> {
-            analyst.updateInfectionPredictions(location, refreshTime, n -> {
-                InfectionActivity.this.runOnUiThread(() -> {
-                    infectionStatus.setText(analyst.getCarrier().getInfectionStatus().toString());
-                    infectionProbability.setProgress(Math.round(analyst.getCarrier().getIllnessProbability() * 100));
-                    Log.e("PROB:", analyst.getCarrier().getIllnessProbability() + "");
-                });
+        receiver.getMyLastLocation(AccountFragment.getAccount(this)).thenApplyAsync(location -> {
+            return analyst.updateInfectionPredictions(location, refreshTime).thenAccept(n ->{
+                infectionStatus.setText(analyst.getCarrier().getInfectionStatus().toString());
+                infectionProbability.setProgress(Math.round(analyst.getCarrier().getIllnessProbability() * 100));
+                Log.e("PROB:", analyst.getCarrier().getIllnessProbability() + "");
             });
         });
     }

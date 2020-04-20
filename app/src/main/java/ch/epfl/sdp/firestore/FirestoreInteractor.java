@@ -1,5 +1,7 @@
 package ch.epfl.sdp.firestore;
 
+import androidx.annotation.VisibleForTesting;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;

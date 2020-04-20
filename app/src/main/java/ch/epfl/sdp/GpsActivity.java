@@ -64,8 +64,8 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
     }
 
     @VisibleForTesting
-    void setFirestoreInteractor(FirestoreInteractor interactor) {
-        db.setFirestoreInteractor(interactor);
+    void setFirestoreInteractor(HistoryFirestoreInteractor interactor) {
+        db = interactor;
     }
 
     private void displayNewLocation(Location newLocation) {

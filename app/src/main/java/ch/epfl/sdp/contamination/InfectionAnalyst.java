@@ -3,6 +3,7 @@ package ch.epfl.sdp.contamination;
 import android.location.Location;
 
 import java.util.Date;
+import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.Callback;
 
@@ -23,7 +24,7 @@ public interface InfectionAnalyst {
      * Updates the infection probability after staying at 'location' starting from startTime
      * @param startTime
      */
-    void updateInfectionPredictions(Location location, Date startTime, Callback<Void> callback);
+    CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime);
 
     /**
      * Returns the instance of the Carrier whose status is modified by the Infection Analyst

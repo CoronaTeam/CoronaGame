@@ -5,6 +5,7 @@ import android.location.Location;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.Callback;
 
@@ -96,12 +97,10 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     }
 
     @Override
-    public void updateInfectionPredictions(Location location, Date startTime, Callback<Void> callback) {
-
+    public CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime) {
         Date now = new Date(System.currentTimeMillis());
-        receiver.getUserNearbyDuring(location, startTime, now, aroundMe -> {
+        return receiver.getUserNearbyDuring(location, startTime, now).thenAccept(aroundMe ->{
             modelInfectionEvolution(identifySuspectContacts(aroundMe));
-            callback.onCallback(null);
         });
     }
 
@@ -109,6 +108,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     public Carrier getCarrier() {
         return me;
     }
+
     public Carrier getCurrentCarrier(){
         return new Layman(me.getInfectionStatus(),me.getIllnessProbability());
     }

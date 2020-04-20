@@ -17,13 +17,13 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.contamination.CachingDataSender;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.ConcreteAnalysis;
+import ch.epfl.sdp.contamination.ConcreteCachingDataSender;
 import ch.epfl.sdp.contamination.ConcreteDataReceiver;
-import ch.epfl.sdp.contamination.ConcreteDataSender;
 import ch.epfl.sdp.contamination.ConcretePositionAggregator;
 import ch.epfl.sdp.contamination.DataReceiver;
-import ch.epfl.sdp.contamination.DataSender;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
 import ch.epfl.sdp.contamination.Layman;
@@ -41,7 +41,7 @@ public class LocationService extends Service implements LocationListener {
     private ConcretePositionAggregator aggregator;
 
     private DataReceiver receiver;
-    private DataSender sender;
+    private CachingDataSender sender;
 
     private Carrier me;
 
@@ -52,7 +52,7 @@ public class LocationService extends Service implements LocationListener {
     @Override
     public void onCreate() {
         GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor();
-        sender = new ConcreteDataSender(gridInteractor);
+        sender = new ConcreteCachingDataSender(gridInteractor);
         receiver = new ConcreteDataReceiver(gridInteractor);
 
         broker = new ConcreteLocationBroker((LocationManager) this.getSystemService(Context.LOCATION_SERVICE), this);
@@ -60,7 +60,7 @@ public class LocationService extends Service implements LocationListener {
         // TODO: Carrier here must be loaded from the database
         me = new Layman(Carrier.InfectionStatus.HEALTHY);
 
-        analyst = new ConcreteAnalysis(me, receiver);
+        analyst = new ConcreteAnalysis(me, receiver,sender);
         aggregator = new ConcretePositionAggregator(sender, analyst);
 
         refreshPermissions();
@@ -162,7 +162,7 @@ public class LocationService extends Service implements LocationListener {
         return analyst;
     }
 
-    public DataSender getSender() {
+    public CachingDataSender getSender() {
         return sender;
     }
 
@@ -176,7 +176,7 @@ public class LocationService extends Service implements LocationListener {
     }
 
     @VisibleForTesting
-    public void setSender(DataSender sender) {
+    public void setSender(CachingDataSender sender) {
         this.sender = sender;
     }
 

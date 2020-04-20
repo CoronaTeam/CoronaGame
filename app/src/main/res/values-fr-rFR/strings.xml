@@ -22,6 +22,7 @@
     <string name="past_positions">Dernières positions</string>
     <string name="tab_account">Compte</string>
     <string name="tab_history">Historique</string>
+    <string name="tab_status">Statut</string>
     <string name="tab_map">Carte</string>
     <string name="signout">Se déconnecter</string>
     <string name="refresh">Rafraîchir</string>

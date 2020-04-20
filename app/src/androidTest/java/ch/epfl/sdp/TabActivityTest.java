@@ -90,9 +90,9 @@ public class TabActivityTest {
 
     @Test
     public void testTabsMoveCorrectly() {
-        onView(withId(R.id.history_tracker)).check(matches(not(hasFocus())));
-        onView(withText(mActivityRule.getActivity().getString(R.string.tab_history))).perform(click());
-        onView(withId(R.id.history_tracker)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+        onView(withId(R.id.infectionStatusView)).check(matches(not(hasFocus())));
+        onView(withText(mActivityRule.getActivity().getString(R.string.tab_status))).perform(click());
+        onView(withId(R.id.infectionStatusView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
 }

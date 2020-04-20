@@ -17,10 +17,17 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.location.LocationService;
 
+
 public class DataExchangeActivity extends AppCompatActivity {
 
     // TODO: This activity will be converted into a Service
+
+
+    private CachingDataSender sender;
+    private DataReceiver receiver;
+
     private LocationService service;
+
 
     private TextView exchangeStatus;
 
@@ -32,6 +39,13 @@ public class DataExchangeActivity extends AppCompatActivity {
         exchangeStatus.setText("EXCHANGE Failed");
     };
 
+
+
+    @VisibleForTesting
+    CachingDataSender getSender() {
+        return sender;
+    }
+
     @VisibleForTesting
     public LocationService getService() {
         return service;
@@ -41,6 +55,9 @@ public class DataExchangeActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+//        sender =                new ConcreteCachingDataSender(new GridFirestoreInteractor())
+//                .setOnSuccessListener(successListener).setOnFailureListener(failureListener);
+
         setContentView(R.layout.activity_dataexchange);
         exchangeStatus = findViewById(R.id.exchange_status);
 
@@ -49,11 +66,13 @@ public class DataExchangeActivity extends AppCompatActivity {
             public void onServiceConnected(ComponentName name, IBinder service) {
                 LocationService.LocationBinder binder = (LocationService.LocationBinder) service;
                 DataExchangeActivity.this.service = binder.getService();
+                DataExchangeActivity.this.sender = DataExchangeActivity.this.service.getSender();
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
                 DataExchangeActivity.this.service = null;
+                DataExchangeActivity.this.sender = null;
             }
         };
         bindService(new Intent(this, LocationService.class), conn, BIND_AUTO_CREATE);

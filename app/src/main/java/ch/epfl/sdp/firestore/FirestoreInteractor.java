@@ -18,7 +18,7 @@ import java.util.Optional;
 import ch.epfl.sdp.Callback;
 
 public abstract class FirestoreInteractor {
-    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    static FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
     /**
      * Add a new document to Firestore at the desired location. DocumentID will be automatically
@@ -71,11 +71,11 @@ public abstract class FirestoreInteractor {
 
     //////////////////////////////////////////////////////////////
 
-    public CollectionReference collectionReference(String path) {
+    public static CollectionReference collectionReference(String path) {
         return firestore.collection(path);
     }
 
-    public DocumentReference documentReference(String path, String documentID) {
+    public static DocumentReference documentReference(String path, String documentID) {
         return collectionReference(path).document(documentID);
     }
 

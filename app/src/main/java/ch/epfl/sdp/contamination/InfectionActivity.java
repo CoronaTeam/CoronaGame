@@ -28,3 +28,4 @@ public class InfectionActivity extends SingleFragmentActivity {
         return new InfectionFragment();
     }
 }
+

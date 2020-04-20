@@ -110,7 +110,7 @@ public class GridSenderTest {
     private void resetRealSenderAndReceiver() {
         GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor();
         mActivityRule.getActivity().getService().setReceiver(new ConcreteDataReceiver(gridInteractor));
-        mActivityRule.getActivity().getService().setSender(new ConcreteDataSender(gridInteractor));
+        mActivityRule.getActivity().getService().setSender(new ConcreteCachingDataSender(gridInteractor));
     }
 
     class MockGridInteractor extends GridFirestoreInteractor {
@@ -124,7 +124,7 @@ public class GridSenderTest {
     private void programSenderAction(GridFirestoreInteractor mockInteractor) {
         resetRealSenderAndReceiver();
 
-        ((ConcreteDataSender) mActivityRule.getActivity().getService().getSender()).setInteractor(mockInteractor);
+        ((ConcreteCachingDataSender) mActivityRule.getActivity().getService().getSender()).setInteractor(mockInteractor);
     }
 
     @Test
@@ -219,18 +219,14 @@ public class GridSenderTest {
 
     @Test
     public void dataReceiverFindsContactsDuring() {
-
         final Location testLocation = buildLocation(70.5, 71.25);
-
         setFakeReceiver(testLocation);
-
         Callback<Map<? extends Carrier, Integer>> callback = value -> {
             assertThat(value.size(), is(2));
             assertThat(value.containsKey(new Layman(Carrier.InfectionStatus.IMMUNE, 0f)), is(true));
             assertThat(value.containsKey(new Layman(Carrier.InfectionStatus.UNKNOWN)), is(false));
             assertThat(value.get(new Layman(Carrier.InfectionStatus.UNKNOWN, 0.75f)), is(1));
         };
-
         mActivityRule.getActivity().getService().getReceiver().getUserNearbyDuring(
                 testLocation,
                 new Date(rangeStart),

@@ -29,7 +29,16 @@ public interface DataReceiver {
 
     /**
      *
-     * @return : location of the user using the app, at a given time
+     * @return : last location of the user using the app
      */
     void getMyLastLocation(Account account, Callback<Location> callback);
+
+
+//    int getAndResetSickNeighbors(String userId);//,Callback<Map<String,Object>> callback);
+
+    /**
+     * @param userId
+     * @return # of sick neighbors met yesterday
+     */
+    void getNumberOfSickNeighbors(String userId, Callback<Map<String, Float>> callback);
 }

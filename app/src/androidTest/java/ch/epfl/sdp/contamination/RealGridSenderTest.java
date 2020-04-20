@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -74,13 +75,15 @@ public class RealGridSenderTest {
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
 
-        Map<Carrier, Integer> result = getBackRangeData(somewhereInTheWorld, rightNow, aLittleLater);
+        getBackRangeData(somewhereInTheWorld, rightNow, aLittleLater).thenAccept(result -> {
+            assertThat(result.size(), is(2));
+            assertThat(result.containsKey(aFakeCarrier), is(true));
+            assertThat(result.containsKey(trulyHealthy), is(true));
+            assertThat(result.get(aFakeCarrier), is(1));
+            assertThat(result.get(trulyHealthy), is(1));
+        });
 
-        assertThat(result.size(), is(2));
-        assertThat(result.containsKey(aFakeCarrier), is(true));
-        assertThat(result.containsKey(trulyHealthy), is(true));
-        assertThat(result.get(aFakeCarrier), is(1));
-        assertThat(result.get(trulyHealthy), is(1));
+
 
     }
 
@@ -114,31 +117,22 @@ public class RealGridSenderTest {
         mActivityRule.getActivity().getService().getSender().registerLocation(
                 aFakeCarrier, buildLocation(12, 73), rightNow)
                 .thenCompose(s -> mActivityRule.getActivity().successFuture)
-                .exceptionally(s -> mActivityRule.getActivity().successFuture.join());
-        Thread.sleep(2000);
-
-        Map<Carrier, Boolean> result = getBackSliceData(buildLocation(12, 73), rightNow);
-
-        assertThat(result.size(), is(1));
-        assertThat(result.containsKey(aFakeCarrier), is(true));
+                .exceptionally(s -> mActivityRule.getActivity().failureFuture.join())
+                .thenRun(() -> {
+                    Map<Carrier, Boolean> result = null;
+                    try {
+                        result = getBackSliceData(buildLocation(12, 73), rightNow);
+                    } catch (Throwable throwable) {
+                        throwable.printStackTrace();
+                    }
+                    assertThat(result.size(), is(1));
+                    assertThat(result.containsKey(aFakeCarrier), is(true));
+                });
     }
 
-    private Map<Carrier, Integer> getBackRangeData(Location somewhere, Date rangeStart, Date rangeEnd) throws Throwable {
-        AtomicBoolean done = new AtomicBoolean(false);
-
-        Map<Carrier, Integer> result = new ConcurrentHashMap<>();
-
-        // Get data back
-        mActivityRule.runOnUiThread(() -> mActivityRule.getActivity().getService().getReceiver()
-                .getUserNearbyDuring(somewhere, rangeStart, rangeEnd).thenAccept(contactFrequency -> {
-                    result.putAll(contactFrequency);
-                    done.set(true);
-                }));
-
-        while (!done.get()) {
-        } // Busy wait
-
-        return result;
+    private CompletableFuture<Map<Carrier, Integer>> getBackRangeData(Location somewhere, Date rangeStart, Date rangeEnd) throws Throwable {
+        return mActivityRule.getActivity().getService().getReceiver()
+                .getUserNearbyDuring(somewhere, rangeStart, rangeEnd);
     }
 
     @Test
@@ -169,11 +163,10 @@ public class RealGridSenderTest {
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
 
-        Map<Carrier, Integer> result = getBackRangeData(somewhereInTheWorld, rightNow, aLittleLater);
-
-        assertThat(result.size(), is(1));
-        assertThat(result.containsKey(aFakeCarrier), is(true));
-        assertThat(result.get(aFakeCarrier), is(2));
-
+        getBackRangeData(somewhereInTheWorld, rightNow, aLittleLater).thenAccept(result -> {
+            assertThat(result.size(), is(1));
+            assertThat(result.containsKey(aFakeCarrier), is(true));
+            assertThat(result.get(aFakeCarrier), is(2));
+        });
     }
 }

@@ -35,6 +35,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.TestUtils.buildLocation;
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 import static ch.epfl.sdp.location.LocationBroker.Provider.NETWORK;
@@ -143,6 +144,7 @@ public class GpsActivityTest {
 
         mockBroker.setProviderStatus(true);
         mockBroker.setFakeLocation(buildLocation(12, 19));
+        sleep();
         onView(withId(R.id.gpsLatitude)).check(matches(withText(startsWith(Double.toString(12)))));
         onView(withId(R.id.gpsLongitude)).check(matches(withText(startsWith(Double.toString(19)))));
     }

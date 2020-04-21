@@ -11,11 +11,7 @@ import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.MultiPoint;
 import com.mapbox.geojson.Point;
-import com.mapbox.mapboxsdk.geometry.LatLng;
-import com.mapbox.mapboxsdk.maps.Style;
-import com.mapbox.mapboxsdk.plugins.annotation.Circle;
-import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
-import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions;
+import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.style.layers.HeatmapLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
@@ -25,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Timer;
 
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.firestore.QueryHandler;
@@ -50,7 +45,7 @@ class HeatMapHandler {
     private MapFragment parentClass;
 
     private ConcreteFirestoreInteractor db;
-    private Style mapStyle;
+    private MapboxMap map;
 
     private static final String EARTHQUAKE_SOURCE_ID = "earthquakes";
     private static final String HEATMAP_LAYER_ID = "earthquakes-heat";
@@ -58,10 +53,10 @@ class HeatMapHandler {
 
 
     HeatMapHandler(@NonNull MapFragment parentClass, @NonNull ConcreteFirestoreInteractor db,
-                   @NonNull Style mapStyle) {
+                   @NonNull MapboxMap map) {
         this.parentClass = parentClass;
         this.db = db;
-        this.mapStyle = mapStyle;
+        this.map = map;
         initFireBaseQueryHandler();
     }
 
@@ -77,7 +72,6 @@ class HeatMapHandler {
                 ));
             } catch (NullPointerException ignored) {
             }
-
         }
 
         GeoJsonSource a = new GeoJsonSource(EARTHQUAKE_SOURCE_ID,
@@ -87,7 +81,11 @@ class HeatMapHandler {
         // Do not delete the "a" variable. If the GeoJsonSource is created inside the addSource call
         // it takes a long time and make some tests crash. The compiler should have optimised this
         // variable out but it works. No crash occurs when not testing
-        mapStyle.addSource(a); //
+
+        map.getStyle(style -> {
+            style.addSource(a);
+            addHeatmapLayer();
+        });
     }
 
     private void addHeatmapLayer() {
@@ -146,7 +144,7 @@ class HeatMapHandler {
 
         );
 
-        mapStyle.addLayerAbove(layer, "waterway-label");
+        map.getStyle(style -> style.addLayerAbove(layer, "waterway-label"));
     }
 
 
@@ -167,7 +165,6 @@ class HeatMapHandler {
 
                 // Run if there is more elements than in the last run
                 createGeoJson(qsIterator);
-                addHeatmapLayer();
 
             }
 

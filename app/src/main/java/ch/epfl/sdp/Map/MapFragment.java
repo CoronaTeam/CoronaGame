@@ -116,12 +116,12 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
                                 .withLatLng(prevLocation));
 
                         updateUserMarkerPosition(prevLocation);
-                        heatMapHandler = new HeatMapHandler(classPointer, db, style);
+                        heatMapHandler = new HeatMapHandler(classPointer, db, map);
                     }
-
                 });
             }
         });
+
 
         view.findViewById(R.id.history_button).setOnClickListener(this);
 
@@ -154,13 +154,6 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
-
-    // Add the mapView lifecycle to the activity's lifecycle methods
-    @Override
-    public void onResume() {
-        super.onResume();
-        mapView.onResume();
     }
 
 
@@ -205,30 +198,44 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     @Override
     public void onStop() {
         super.onStop();
+        System.err.println("stop");
         mapView.onStop();
+    }
+
+    // Add the mapView lifecycle to the activity's lifecycle methods
+    @Override
+    public void onResume() {
+        super.onResume();
+        System.err.println("resume");
+        mapView.onResume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        System.err.println("pause");
         mapView.onPause();
     }
 
     @Override
     public void onLowMemory() {
-        super.onLowMemory();
         mapView.onLowMemory();
+        super.onLowMemory();
+        System.err.println("lowmem");
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        System.err.println("destroy");
         mapView.onDestroy();
+        super.onDestroy();
+
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+        System.err.println("sis");
         mapView.onSaveInstanceState(outState);
     }
 

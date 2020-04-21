@@ -123,6 +123,7 @@ public class PathsFragment extends Fragment {
     private void modifyCameraPosition(double latitude, double longitude) {
         CameraPosition position = new CameraPosition.Builder()
                 .target(new LatLng(latitude, longitude))
+                .zoom(11)
                 .build();
         if (map != null) {
             map.animateCamera(CameraUpdateFactory.newCameraPosition(position));

@@ -21,8 +21,9 @@ public class PathsActivityTest {
     @Test
     public void cameraTargetsOnCurrentPath() {
         CameraPosition currentCameraPosition = mActivityRule.getActivity().pathsFragment.map.getCameraPosition();
-        LatLng expectedLatLng = new LatLng(33.397676454651766, -118.39439114221236);
+        LatLng expectedLatLng = new LatLng(33.39767645465177, -118.39439114221236); // seems like rounding is done at 14 digits after decimal point /!\
         LatLng actualLatLng = currentCameraPosition.target;
+        System.out.println("TARGET" + actualLatLng.toString());
         assertEquals(expectedLatLng, actualLatLng);
     }
 

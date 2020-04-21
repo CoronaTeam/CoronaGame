@@ -39,7 +39,7 @@ import ch.epfl.sdp.R;
  */
 public class PathsFragment extends Fragment {
     private MapView mapView;
-    public MapboxMap map;
+    public MapboxMap map; // made public for testing
     private List<Point> pathCoordinates;
 
     @Nullable
@@ -53,27 +53,7 @@ public class PathsFragment extends Fragment {
         mapView = view.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
 
-        mapView.getMapAsync(mapboxMap -> {
-                map = mapboxMap;
-                mapboxMap.setStyle(Style.OUTDOORS, style -> {
-
-            initPathCoordinates();
-
-            // Create the LineString from the list of coordinates and then make a GeoJSON
-            // FeatureCollection so we can add the line to our map as a layer.
-            style.addSource(new GeoJsonSource("line-source",
-                    FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(
-                            LineString.fromLngLats(pathCoordinates)
-                    )})));
-
-            // The layer properties for our line. This is where we make the line dotted, set the
-            // color, etc.
-            style.addLayer(new LineLayer("linelayer", "line-source").withProperties(
-                    PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
-                    PropertyFactory.lineWidth(5f),
-                    PropertyFactory.lineColor(Color.parseColor("maroon"))
-            ));
-        });});
+        mapView.getMapAsync(this::onMapReady);
 
         modifyCameraPosition(33.397676454651766, -118.39439114221236);
 
@@ -146,7 +126,31 @@ public class PathsFragment extends Fragment {
         CameraPosition position = new CameraPosition.Builder()
                 .target(new LatLng(latitude, longitude))
                 .build();
-        map.animateCamera(CameraUpdateFactory.newCameraPosition(position));
+        if (map != null && map.getStyle() != null) {
+            map.animateCamera(CameraUpdateFactory.newCameraPosition(position));
+        }
     }
 
+    private void onMapReady(MapboxMap mapboxMap) {
+        map = mapboxMap;
+        mapboxMap.setStyle(Style.OUTDOORS, style -> {
+
+    initPathCoordinates();
+
+    // Create the LineString from the list of coordinates and then make a GeoJSON
+    // FeatureCollection so we can add the line to our map as a layer.
+    style.addSource(new GeoJsonSource("line-source",
+            FeatureCollection.fromFeatures(new Feature[]{Feature.fromGeometry(
+                    LineString.fromLngLats(pathCoordinates)
+            )})));
+
+    // The layer properties for our line. This is where we make the line dotted, set the
+    // color, etc.
+    style.addLayer(new LineLayer("linelayer", "line-source").withProperties(
+            PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
+            PropertyFactory.lineWidth(5f),
+            PropertyFactory.lineColor(Color.parseColor("maroon"))
+    ));
+});
+    }
 }

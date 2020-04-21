@@ -6,7 +6,7 @@ import ch.epfl.sdp.SingleFragmentActivity;
 import ch.epfl.sdp.fragment.PathsFragment;
 
 public class PathsActivity extends SingleFragmentActivity {
-    public PathsFragment pathsFragment;
+    public PathsFragment pathsFragment; // for testing
 
     @Override
     protected Fragment createFragment() {

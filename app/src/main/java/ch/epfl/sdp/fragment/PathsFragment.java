@@ -16,7 +16,6 @@ import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.LineString;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
-import com.mapbox.mapboxsdk.camera.CameraUpdate;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -120,13 +119,13 @@ public class PathsFragment extends Fragment {
         pathCoordinates.add(Point.fromLngLat(-118.37091717142867, 33.39114243958559));
     }
 
-    private void modifyCameraPosition(double latitude, double longitude) {
+    private void setCameraPosition(double latitude, double longitude) {
         CameraPosition position = new CameraPosition.Builder()
                 .target(new LatLng(latitude, longitude))
                 .zoom(11)
                 .build();
         if (map != null) {
-            map.animateCamera(CameraUpdateFactory.newCameraPosition(position));
+            map.setCameraPosition(position);
         }
     }
 
@@ -151,6 +150,8 @@ public class PathsFragment extends Fragment {
                     PropertyFactory.lineColor(Color.parseColor("maroon"))
             ));
         });
-        modifyCameraPosition(33.397676454651766, -118.39439114221236);
+        setCameraPosition(33.397676454651766, -118.39439114221236);
+        CameraPosition currentCameraPosition = map.getCameraPosition();
+        LatLng actualLatLng = currentCameraPosition.target;
     }
 }

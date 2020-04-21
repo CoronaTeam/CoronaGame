@@ -20,13 +20,10 @@ public class PathsActivityTest {
 
     @Test
     public void cameraTargetsOnCurrentPath() {
-        // load path at lat, long = (33.397676454651766, -118.39439114221236)
-        // check equal
         CameraPosition currentCameraPosition = mActivityRule.getActivity().pathsFragment.map.getCameraPosition();
-        CameraPosition expectedPosition = new CameraPosition.Builder()
-                .target(new LatLng(33.397676454651766, -118.39439114221236))
-                .build();
-        assertEquals(expectedPosition, currentCameraPosition);
+        LatLng expectedLatLng = new LatLng(33.397676454651766, -118.39439114221236);
+        LatLng actualLatLng = currentCameraPosition.target;
+        assertEquals(expectedLatLng, actualLatLng);
     }
 
 }

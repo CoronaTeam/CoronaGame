@@ -55,8 +55,6 @@ public class PathsFragment extends Fragment {
 
         mapView.getMapAsync(this::onMapReady);
 
-        modifyCameraPosition(33.397676454651766, -118.39439114221236);
-
         return view;
     }
 
@@ -135,22 +133,23 @@ public class PathsFragment extends Fragment {
         map = mapboxMap;
         mapboxMap.setStyle(Style.OUTDOORS, style -> {
 
-    initPathCoordinates();
+            initPathCoordinates();
 
-    // Create the LineString from the list of coordinates and then make a GeoJSON
-    // FeatureCollection so we can add the line to our map as a layer.
-    style.addSource(new GeoJsonSource("line-source",
-            FeatureCollection.fromFeatures(new Feature[]{Feature.fromGeometry(
-                    LineString.fromLngLats(pathCoordinates)
-            )})));
+            // Create the LineString from the list of coordinates and then make a GeoJSON
+            // FeatureCollection so we can add the line to our map as a layer.
+            style.addSource(new GeoJsonSource("line-source",
+                    FeatureCollection.fromFeatures(new Feature[]{Feature.fromGeometry(
+                            LineString.fromLngLats(pathCoordinates)
+                    )})));
 
-    // The layer properties for our line. This is where we make the line dotted, set the
-    // color, etc.
-    style.addLayer(new LineLayer("linelayer", "line-source").withProperties(
-            PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
-            PropertyFactory.lineWidth(5f),
-            PropertyFactory.lineColor(Color.parseColor("maroon"))
-    ));
-});
+            // The layer properties for our line. This is where we make the line dotted, set the
+            // color, etc.
+            style.addLayer(new LineLayer("linelayer", "line-source").withProperties(
+                    PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
+                    PropertyFactory.lineWidth(5f),
+                    PropertyFactory.lineColor(Color.parseColor("maroon"))
+            ));
+        });
+        modifyCameraPosition(33.397676454651766, -118.39439114221236);
     }
 }

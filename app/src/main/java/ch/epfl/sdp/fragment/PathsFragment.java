@@ -124,7 +124,7 @@ public class PathsFragment extends Fragment {
         CameraPosition position = new CameraPosition.Builder()
                 .target(new LatLng(latitude, longitude))
                 .build();
-        if (map != null && map.getStyle() != null) {
+        if (map != null) {
             map.animateCamera(CameraUpdateFactory.newCameraPosition(position));
         }
     }

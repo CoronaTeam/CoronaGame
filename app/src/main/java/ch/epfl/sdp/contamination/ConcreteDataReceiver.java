@@ -5,17 +5,19 @@ import android.location.LocationManager;
 
 import androidx.annotation.VisibleForTesting;
 
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.GeoPoint;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import ch.epfl.sdp.Account;
 
@@ -66,49 +68,36 @@ public class ConcreteDataReceiver implements DataReceiver {
     @Override
     public CompletableFuture<Map<Carrier, Integer>> getUserNearbyDuring(Location location,
                                                                        Date startDate, Date endDate) {
-        return interactor.getTimes(location).thenApply(stringMapMap -> {
-            Set<Long> validTimes = filterValidTimes(startDate.getTime(), endDate.getTime(), stringMapMap);
-            Map<Carrier, Integer> metDuringInterval = new ConcurrentHashMap<>();
-            AtomicInteger done = new AtomicInteger();
+        return interactor.getTimes(location)
+                .thenApply(stringMapMap -> filterValidTimes(startDate.getTime(), endDate.getTime(), stringMapMap))
+                .thenCompose(validTimes -> {
+                    List<CompletableFuture<Map<String, Map<String, Object>>>> metDuringSlices = new ArrayList<>();
 
-            for (long t : validTimes) {
-                interactor.gridRead(location, t).thenApply(result -> {
-                    for (Map.Entry<String, Map<String, Object>> doc : result.entrySet()) {
-                        Carrier c = new Layman(
-                                Enum.valueOf(Carrier.InfectionStatus.class,
-                                        (String) doc.getValue().get("infectionStatus")),
-                                ((float) ((double) doc.getValue().get("illnessProbability"))));
+                    return CompletableFuture.allOf(metDuringSlices.toArray(new CompletableFuture[metDuringSlices.size()]))
+                            .thenApply(ignoredVoid -> {
+                                Stream<Map<String, Map<String, Object>>> results = metDuringSlices.stream().map(ft -> ft.join());
 
-                        int numberOfMeetings = 1;
-                        if (metDuringInterval.containsKey(c)) {
-                            numberOfMeetings += metDuringInterval.get(c);
-                        }
-                        metDuringInterval.put(c, numberOfMeetings);
-                    }
+                                Map<Carrier, Integer> metDuringInterval = new HashMap<>();
 
-                    int size = validTimes.size();
-                    boolean elected = true;
+                                results.forEach(res -> {
+                                    for (Map.Entry<String, Map<String, Object>> doc : res.entrySet()) {
+                                        Carrier c = new Layman(
+                                                Enum.valueOf(Carrier.InfectionStatus.class,
+                                                        (String) doc.getValue().get("infectionStatus")),
+                                                ((float) ((double) doc.getValue().get("illnessProbability"))));
 
-                    done.incrementAndGet();
-                    if (done.get() == size) {
-                        while (!done.compareAndSet(size, 0)) {
-                            elected = (done.get() != 0);
-                        }
-                        if (elected) {
-                            return metDuringInterval;
-                        }
-                    }
-                    return null;
-                });
-            }
+                                        int numberOfMeetings = 1;
+                                        if (metDuringInterval.containsKey(c)) {
+                                            numberOfMeetings += metDuringInterval.get(c);
+                                        }
+                                        metDuringInterval.put(c, numberOfMeetings);
+                                    }
+                                });
 
-            // If there are not valid times, just start the callback with an empty map
-            if (validTimes.isEmpty()) {
-                return metDuringInterval;
-            }else {
-                return new HashMap<Carrier, Integer>();
-            }
-        }).exceptionally(exception -> Collections.emptyMap());
+                                return metDuringInterval;
+                            });
+                })
+            .exceptionally(exception -> Collections.emptyMap());
     }
 
     @Override
@@ -128,6 +117,7 @@ public class ConcreteDataReceiver implements DataReceiver {
 
     @Override
     public CompletableFuture<Map<String, Object>> getNumberOfSickNeighbors(String userId){
-        return interactor.readDocument(documentReference(publicUserFolder, userId));
+        DocumentReference ref = documentReference(publicUserFolder, userId);
+        return interactor.readDocument(ref);
     }
 }

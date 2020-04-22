@@ -1,11 +1,10 @@
 package ch.epfl.sdp.contamination;
 
 import android.location.Location;
+import android.os.Handler;
+import android.widget.TextView;
 
 import androidx.test.rule.ActivityTestRule;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -16,6 +15,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import ch.epfl.sdp.R;
 
@@ -33,8 +34,8 @@ public class RealGridSenderTest {
     @Rule
     public final ActivityTestRule<DataExchangeActivity> mActivityRule = new ActivityTestRule<>(DataExchangeActivity.class);
 
-    OnSuccessListener exchangeSucceeded;
-    OnFailureListener exchangeFailed;
+    Consumer<Void> writeSuccessToUi;
+    Function<Throwable, Void> writeFailureToUi;
 
     private void resetRealSenderAndReceiver() {
         GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor();
@@ -44,9 +45,16 @@ public class RealGridSenderTest {
 
     @Before
     public void setupTests() {
-        exchangeSucceeded = mActivityRule.getActivity().successListener;
-        exchangeFailed = mActivityRule.getActivity().failureListener;
-        resetRealSenderAndReceiver();
+        TextView exchangeStatus = mActivityRule.getActivity().exchangeStatus;
+
+        // Get reference to UI handler
+        Handler uiHandler = mActivityRule.getActivity().uiHandler;
+
+        writeSuccessToUi = (a) -> uiHandler.post(() -> exchangeStatus.setText("EXCHANGE Succeeded"));
+        writeFailureToUi = (a) -> {
+            uiHandler.post(() -> exchangeStatus.setText("EXCHANGE Failed"));
+            return null;
+        };
     }
 
 
@@ -64,8 +72,8 @@ public class RealGridSenderTest {
 
         mActivityRule.getActivity().getService().getSender().registerLocation(
                 aFakeCarrier, somewhereInTheWorld, rightNow)
-                .thenCompose(s -> mActivityRule.getActivity().successFuture)
-                .exceptionally(s -> mActivityRule.getActivity().successFuture.join());
+                .thenAccept(writeSuccessToUi)
+                .exceptionally(writeFailureToUi);
         mActivityRule.getActivity().getService().getSender().registerLocation(
                 trulyHealthy,
                 somewhereInTheWorld,
@@ -116,8 +124,8 @@ public class RealGridSenderTest {
 
         mActivityRule.getActivity().getService().getSender().registerLocation(
                 aFakeCarrier, buildLocation(12, 73), rightNow)
-                .thenCompose(s -> mActivityRule.getActivity().successFuture)
-                .exceptionally(s -> mActivityRule.getActivity().failureFuture.join())
+                .thenAccept(writeSuccessToUi)
+                .exceptionally(writeFailureToUi)
                 .thenRun(() -> {
                     Map<Carrier, Boolean> result = null;
                     try {
@@ -151,8 +159,8 @@ public class RealGridSenderTest {
                     aFakeCarrier,
                     somewhereInTheWorld,
                     rightNow)
-                    .thenCompose(s -> mActivityRule.getActivity().successFuture)
-                    .exceptionally(s -> mActivityRule.getActivity().successFuture.join());
+                    .thenAccept(writeSuccessToUi)
+                    .exceptionally(writeFailureToUi);
             mActivityRule.getActivity().getService().getSender().registerLocation(
                     aFakeCarrier,
                     somewhereInTheWorld,

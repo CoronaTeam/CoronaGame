@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,12 +13,13 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.util.Date;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
+
+import java.util.Date;
+
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.fragment.AccountFragment;
 import ch.epfl.sdp.location.LocationService;
@@ -31,6 +33,12 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
     private long lastUpdateTime;
 
     private LocationService service;
+
+    private Handler uiHandler;
+
+    InfectionFragment(Handler uiHandler) {
+        this.uiHandler = uiHandler;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -84,15 +92,18 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
         Date refreshTime = new Date(lastUpdateTime);
         lastUpdateTime = System.currentTimeMillis();
 
-
         // TODO: Which location?
-        service.getReceiver().getMyLastLocation(AccountFragment.getAccount(getActivity())).thenApplyAsync(location -> {
-            return service.getAnalyst().updateInfectionPredictions(location, refreshTime).thenAccept(n -> {
-                infectionStatus.setText(service.getAnalyst().getCarrier().getInfectionStatus().toString());
-                infectionProbability.setProgress(Math.round(service.getAnalyst().getCarrier().getIllnessProbability() * 100));
-                Log.e("PROB:", service.getAnalyst().getCarrier().getIllnessProbability() + "");
-            });
-        });
+        service.getReceiver().getMyLastLocation(AccountFragment.getAccount(getActivity()))
+                .thenApply(location ->
+                        service.getAnalyst().updateInfectionPredictions(location, refreshTime)
+                                .thenAccept(n -> {
+                                    infectionStatus.setText("Posted!!");
+                                        uiHandler.post(() -> {
+                                            infectionStatus.setText(service.getAnalyst().getCarrier().getInfectionStatus().toString());
+                                            infectionProbability.setProgress(Math.round(service.getAnalyst().getCarrier().getIllnessProbability() * 100));
+                                            Log.e("PROB:", service.getAnalyst().getCarrier().getIllnessProbability() + "");
+                                        }); })
+        ).join();
     }
 
     @VisibleForTesting

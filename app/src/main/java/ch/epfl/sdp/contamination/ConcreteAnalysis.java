@@ -103,8 +103,8 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     @Override
     public CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime) {
         Date now = new Date(System.currentTimeMillis());
-        CompletableFuture future1 =
-                receiver.getUserNearbyDuring(location, startTime, now).thenAccept(aroundMe -> {
+        CompletableFuture future1 = receiver.getUserNearbyDuring(location, startTime, now)
+                .thenAccept(aroundMe -> {
                     modelInfectionEvolution(identifySuspectContacts(aroundMe));
                 });
 
@@ -113,8 +113,8 @@ public class ConcreteAnalysis implements InfectionAnalyst {
 //        updateCarrierInfectionProbability(me.getIllnessProbability() + badMeetings*TRANSMISSION_FACTOR);
 
         //method 2 : (asynchrone)
-        CompletableFuture future2 =
-                receiver.getNumberOfSickNeighbors(me.getUniqueId()).thenAccept(res -> {
+        CompletableFuture future2 = receiver.getNumberOfSickNeighbors(me.getUniqueId())
+                .thenAccept(res -> {
                     float badMeetings = 0;
                     if (!res.isEmpty()) {
                         badMeetings = (float) (res.get(publicAlertAttribute));

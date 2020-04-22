@@ -1,10 +1,7 @@
 package ch.epfl.sdp.firestore;
 
-import androidx.annotation.VisibleForTesting;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -27,23 +24,31 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
     }
 
     public CompletableFuture<Map<String, Object>> readDocument(@NotNull DocumentReference documentReference) {
+        CompletableFuture<Map<String, Object>> result = null;
         try {
             serverIdlingResource.increment();
             Task<DocumentSnapshot> task = documentReference.get();
-            CompletableFuture<DocumentSnapshot> completableFuture = taskToFuture(task);
-            return completableFuture.thenApply(
+            result = taskToFuture(task)
+                    .thenApply(
                     doc -> {
                         if (doc.exists()) {
                             return doc.getData();
                         } else {
-                            throw new RuntimeException("Document does not exist ");
+                            // Document does not exist
+                            return Collections.emptyMap();
                         }
-                    }).handle(((stringObjectMap, throwable) -> stringObjectMap != null ?
-                    stringObjectMap : Collections.emptyMap()));
+                    });
+        } catch (Exception e) {
+            result = new CompletableFuture<>();
+            result.completeExceptionally(e);
         } finally {
             serverIdlingResource.decrement();
+            if (result == null) {
+                result = new CompletableFuture<>();
+                result.completeExceptionally(new Exception());
+            }
+            return result;
         }
-
     }
 
     public CompletableFuture<Map<String, Map<String, Object>>> readCollection(@NotNull CollectionReference collectionReference) {

@@ -12,11 +12,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-
-import java.util.concurrent.CompletableFuture;
-
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.location.LocationService;
 
@@ -36,21 +31,6 @@ public class DataExchangeActivity extends AppCompatActivity {
 
     @VisibleForTesting
     Handler uiHandler;
-
-    OnSuccessListener successListener = o -> {
-        exchangeStatus.setText("EXCHANGE Succeeded");
-    };
-
-    CompletableFuture<Void> successFuture =
-            CompletableFuture.runAsync(()-> exchangeStatus.setText("EXCHANGE Succeeded"));
-
-    OnFailureListener failureListener = e -> {
-        exchangeStatus.setText("EXCHANGE Failed");
-    };
-
-    CompletableFuture<Void> failureFuture =
-            CompletableFuture.runAsync(()-> exchangeStatus.setText("EXCHANGE Failed"));
-
 
     @VisibleForTesting
     CachingDataSender getSender() {

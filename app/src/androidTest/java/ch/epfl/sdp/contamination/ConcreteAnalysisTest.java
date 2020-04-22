@@ -23,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.location.LocationService;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -265,7 +266,8 @@ public class ConcreteAnalysisTest {
 
         @Override
         public CompletableFuture<Map<String, Object>> getNumberOfSickNeighbors(String userId) {
-            return null;
+            //return null;
+            return CompletableFuture.completedFuture(Collections.emptyMap());
         }
     }
 
@@ -291,7 +293,10 @@ public class ConcreteAnalysisTest {
 
         cityReceiver.setMyCurrentLocation(buildLocation(0, 0));
 
+        //fragment.onModelRefresh(null);
         mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
+
+        TestTools.sleep();
 
         onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
 

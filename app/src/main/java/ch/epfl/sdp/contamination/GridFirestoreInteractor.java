@@ -46,9 +46,8 @@ public class GridFirestoreInteractor extends ConcreteFirestoreInteractor{
         Map<String, Object> timeMap = new HashMap<>();
         timeMap.put("Time", time);
 
-        return writeDocumentWithID(documentReference("LiveGrid/" + getGridId(location) +
-                        "/Times",
-                time), timeMap)
+        return writeDocumentWithID(
+                    documentReference("LiveGrid/" + getGridId(location) + "/Times", time), timeMap)
                 .thenRun(() -> writeDocument(collectionReference(
                         "LiveGrid/" + getGridId(location) + "/" + time), carrier));
     }

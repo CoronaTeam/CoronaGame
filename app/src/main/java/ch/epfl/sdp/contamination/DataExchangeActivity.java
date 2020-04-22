@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.widget.TextView;
 
@@ -16,7 +17,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.concurrent.CompletableFuture;
 
-import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.location.LocationService;
 
@@ -31,8 +31,11 @@ public class DataExchangeActivity extends AppCompatActivity {
 
     private LocationService service;
 
-
+    @VisibleForTesting
     TextView exchangeStatus;
+
+    @VisibleForTesting
+    Handler uiHandler;
 
     OnSuccessListener successListener = o -> {
         exchangeStatus.setText("EXCHANGE Succeeded");
@@ -47,7 +50,6 @@ public class DataExchangeActivity extends AppCompatActivity {
 
     CompletableFuture<Void> failureFuture =
             CompletableFuture.runAsync(()-> exchangeStatus.setText("EXCHANGE Failed"));
-
 
 
     @VisibleForTesting
@@ -84,6 +86,9 @@ public class DataExchangeActivity extends AppCompatActivity {
                 DataExchangeActivity.this.sender = null;
             }
         };
+
         bindService(new Intent(this, LocationService.class), conn, BIND_AUTO_CREATE);
+
+        uiHandler = new Handler();
     }
 }

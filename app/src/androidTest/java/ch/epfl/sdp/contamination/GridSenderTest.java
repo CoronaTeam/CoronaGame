@@ -1,11 +1,11 @@
 package ch.epfl.sdp.contamination;
 
 import android.location.Location;
+import android.os.Handler;
+import android.widget.TextView;
 
 import androidx.test.rule.ActivityTestRule;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -21,12 +21,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
-import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.firestore.QueryHandler;
+import ch.epfl.sdp.TestTools;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -47,8 +47,10 @@ public class GridSenderTest {
     final long outsideRange = 1585223373983L;
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
-    OnSuccessListener exchangeSucceeded;
-    OnFailureListener exchangeFailed;
+
+    Consumer<Void> writeSuccessToUi;
+    Function<Throwable, Void> writeFailureToUi;
+
     @Mock
     private QuerySnapshot querySnapshot;
     @Mock
@@ -91,8 +93,17 @@ public class GridSenderTest {
 
     @Before
     public void setupListeners() {
-        exchangeSucceeded = mActivityRule.getActivity().successListener;
-        exchangeFailed = mActivityRule.getActivity().failureListener;
+
+        TextView exchangeStatus = mActivityRule.getActivity().exchangeStatus;
+
+        // Get reference to UI handler
+        Handler uiHandler = mActivityRule.getActivity().uiHandler;
+
+        writeSuccessToUi = (a) -> uiHandler.post(() -> exchangeStatus.setText("EXCHANGE Succeeded"));
+        writeFailureToUi = (a) -> {
+            uiHandler.post(() -> exchangeStatus.setText("EXCHANGE Failed"));
+            return null;
+        };
     }
 
     private void resetRealSenderAndReceiver() {
@@ -120,18 +131,22 @@ public class GridSenderTest {
                 new Layman(Carrier.InfectionStatus.HEALTHY),
                 buildLocation(10, 20),
                 new Date(System.currentTimeMillis()))
-                .thenCompose(s -> mActivityRule.getActivity().successFuture)
-                .exceptionally(s -> mActivityRule.getActivity().successFuture.join()));
+                .thenAccept(writeSuccessToUi)
+                .exceptionally(writeFailureToUi));
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
     }
 
 
     @Test
     public void dataSenderFailsWithError() {
+        Handler uiHandler = mActivityRule.getActivity().uiHandler;
+
         programSenderAction(new MockGridInteractor() {
             @Override
             public CompletableFuture<Void> gridWrite(Location location, String time, Carrier carrier) {
-                return CompletableFuture.completedFuture(null);
+                CompletableFuture<Void> failedFuture = new CompletableFuture<>();
+                failedFuture.completeExceptionally(new IllegalArgumentException());
+                return failedFuture;
             }
         });
 
@@ -139,8 +154,11 @@ public class GridSenderTest {
                 new Layman(Carrier.InfectionStatus.HEALTHY),
                 buildLocation(10, 20),
                 new Date(System.currentTimeMillis()))
-                .thenCompose(s -> mActivityRule.getActivity().successFuture)
-                .exceptionally(s -> mActivityRule.getActivity().failureFuture.join()));
+                .thenAccept(writeSuccessToUi)
+                .exceptionally(writeFailureToUi));
+
+        TestTools.sleep(1000);
+
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Failed")));
     }
 

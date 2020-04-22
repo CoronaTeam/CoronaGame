@@ -46,7 +46,7 @@ public class PathsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         // Mapbox access token is configured here.
-        Mapbox.getInstance(getContext(), BuildConfig.mapboxAPIKey);
+        Mapbox.getInstance(getContext(), BuildConfig.mapboxAPIKey); // CANNOT USE THE SAME INSTANCE AS MAP : try pulling this statement in main?
 
         View view = inflater.inflate(R.layout.fragment_paths, container, false);
         mapView = view.findViewById(R.id.mapView);
@@ -55,6 +55,12 @@ public class PathsFragment extends Fragment {
         mapView.getMapAsync(this::onMapReady);
 
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mapView.onDestroy();
     }
 
     private void initPathCoordinates() {
@@ -151,7 +157,5 @@ public class PathsFragment extends Fragment {
             ));
         });
         setCameraPosition(33.397676454651766, -118.39439114221236);
-        CameraPosition currentCameraPosition = map.getCameraPosition();
-        LatLng actualLatLng = currentCameraPosition.target;
     }
 }

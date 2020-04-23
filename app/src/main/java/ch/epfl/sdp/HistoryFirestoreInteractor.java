@@ -5,7 +5,6 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
@@ -33,12 +32,7 @@ public class HistoryFirestoreInteractor {
         String path = "History/" + user.getId() + "/Positions";
         PositionRecord posRec = (PositionRecord) content.values().toArray()[0];
 
-        Map<String, Object> lastPos = new HashMap<>();
-        lastPos.put("geoPoint", posRec.getGeoPoint());
-        lastPos.put("timeStamp", posRec.getTimestamp());
-
         fsi.writeDocumentWithID(path, posRec.calculateID(), content, success, failure);
-        fsi.writeDocumentWithID("LastPositions", user.getId(), lastPos, success, failure);
     }
 
     @VisibleForTesting

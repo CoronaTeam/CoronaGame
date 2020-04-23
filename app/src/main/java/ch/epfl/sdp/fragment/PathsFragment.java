@@ -46,7 +46,7 @@ public class PathsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         // Mapbox access token is configured here.
-        Mapbox.getInstance(getContext(), BuildConfig.mapboxAPIKey); // CANNOT USE THE SAME INSTANCE AS MAP : try pulling this statement in main?
+        Mapbox.getInstance(getContext(), BuildConfig.mapboxAPIKey);
 
         View view = inflater.inflate(R.layout.fragment_paths, container, false);
         mapView = view.findViewById(R.id.mapView);

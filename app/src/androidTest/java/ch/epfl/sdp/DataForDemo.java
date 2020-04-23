@@ -1,14 +1,22 @@
 package ch.epfl.sdp;
 
+import android.app.Activity;
 import android.location.Location;
+import android.net.Uri;
+import android.util.Log;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.GeoPoint;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.SortedMap;
 
 import ch.epfl.sdp.contamination.CachingDataSender;
@@ -25,6 +33,10 @@ import static ch.epfl.sdp.contamination.GridFirestoreInteractor.COORDINATE_PRECI
  * DEMO FOR USERS LOCATED ON MAP:
  * Create a grid with lots of users at some place and less at some other place.
  * These places are located around EPFL.
+ *
+ * DEMO FOR USER PATH ON MAP:
+ * Create 2 different paths on 2 different days of the same user.
+ * Create infected people met on these paths.
  */
 @Ignore("This is not a proper test, it is used for testing and demos, but it does not test anything, only generates data.")
 public class DataForDemo {
@@ -147,4 +159,67 @@ public class DataForDemo {
                 SPARSE_INITIAL_EPFL_LONGITUDE+longiOffset/COORDINATE_PRECISION);
         dataSender.registerLocation(carrier, location, rightNow);
     }
+
+    // write in History Collection on Firestore, user with ID USER_PATH_DEMO
+    @Test
+    public void uploadUserPaths() {
+        Account account = userPathAccount();
+        HistoryFirestoreInteractor cfi = new HistoryFirestoreInteractor(account);
+        double lat = 33.39767645465177;
+        double longi = -118.39439114221236;
+        for (double i=0; i<50; i=i+0.001) {
+            Location location = TestUtils.buildLocation(lat + i, longi + i);
+            Map<String, Object> position = new HashMap();
+            position.put("Position", new PositionRecord(Timestamp.now(),
+                    new GeoPoint(location.getLatitude(), location.getLongitude())));
+            cfi.write(position,
+                    s -> Log.println(0, "PATH", "paths successfully loaded"),
+                    f -> Log.println(0, "PATH", "error loading path"));
+        }
+    }
+
+    private Account userPathAccount() {
+        return new Account() {
+            @Override
+            public String getDisplayName() {
+                return "USER_PATH_DEMO";
+            }
+
+            @Override
+            public String getFamilyName() {
+                return "USER_PATH_DEMO";
+            }
+
+            @Override
+            public String getEmail() {
+                return "USER_PATH_DEMO";
+            }
+
+            @Override
+            public Uri getPhotoUrl() {
+                return null;
+            }
+
+            @Override
+            public Boolean isGoogle() {
+                return null;
+            }
+
+            @Override
+            public String getPlayerId(Activity activity) {
+                return "USER_PATH_DEMO";
+            }
+
+            @Override
+            public GoogleSignInAccount getAccount() {
+                return null;
+            }
+
+            @Override
+            public String getId() {
+                return "USER_PATH_DEMO";
+            }
+        };
+    }
+
 }

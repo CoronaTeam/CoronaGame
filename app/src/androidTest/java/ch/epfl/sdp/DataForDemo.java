@@ -74,9 +74,9 @@ public class DataForDemo {
             for (int j = 0; j < 6; ++j) {
                 Carrier carrier;
                 if (i < 4 && j < 4) {
-                    carrier = new Layman(Carrier.InfectionStatus.INFECTED, 1);
+                    carrier = new Layman(Carrier.InfectionStatus.INFECTED);
                 } else {
-                    carrier = new Layman(Carrier.InfectionStatus.HEALTHY, 0);
+                    carrier = new Layman(Carrier.InfectionStatus.HEALTHY);
 
                 }
                 Location userLocation = newLoc(DENSE_INITIAL_EPFL_LATITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
@@ -125,7 +125,7 @@ public class DataForDemo {
             for (int j = 0; j < 150; ++j) {
                 Carrier carrier;
                 if (i < 50 && j < 50) {
-                    carrier = new Layman(Carrier.InfectionStatus.INFECTED, 1);
+                    carrier = new Layman(Carrier.InfectionStatus.INFECTED);
                 } else if (i < 70 && j < 70) {
                     carrier = new Layman(Carrier.InfectionStatus.UNKNOWN, 0.5f);
                 } else if (i < 90 && j < 90) {
@@ -133,7 +133,7 @@ public class DataForDemo {
                 } else if (i < 110 && j < 110) {
                     carrier = new Layman(Carrier.InfectionStatus.HEALTHY_CARRIER, 1);
                 } else {
-                    carrier = new Layman(Carrier.InfectionStatus.HEALTHY, 0);
+                    carrier = new Layman(Carrier.InfectionStatus.HEALTHY);
                 }
                 Location userLocation = newLoc(DENSE_INITIAL_EPFL_LATITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
                         DENSE_INITIAL_EPFL_LONGITUDE + getRandomNumberBetweenBounds(-0.02, 0.02));

@@ -14,22 +14,25 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 import ch.epfl.sdp.Map.MapFragment;
 import ch.epfl.sdp.fragment.AccountFragment;
+import ch.epfl.sdp.fragment.UserInfectionFragment;
 
 public class TabActivity extends AppCompatActivity {
 
     private static class Tab {
         final Class fragment;
         final int titleRes;
-        Tab(Class fragment, int titleRes) {
+        final int iconRes;
+        Tab(Class fragment, int titleRes, int iconRes) {
             this.fragment = fragment;
             this.titleRes = titleRes;
+            this.iconRes = iconRes;
         }
     }
 
     private static final Tab[] tabs = new Tab[]{
-            new Tab(MapFragment.class, R.string.tab_map),
-            new Tab(HistoryFragment.class, R.string.tab_history),
-            new Tab(AccountFragment.class, R.string.tab_account)
+            new Tab(MapFragment.class, R.string.tab_map, R.drawable.tab_map),
+            new Tab(UserInfectionFragment.class, R.string.tab_status, R.drawable.tab_status),
+            new Tab(AccountFragment.class, R.string.tab_account, R.drawable.tab_account)
     };
 
     public class TabPagerAdapter extends FragmentPagerAdapter {
@@ -74,8 +77,11 @@ public class TabActivity extends AppCompatActivity {
                 FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT,
                 tabs);
         viewPager.setAdapter(tabPagerAdapter);
-        TabLayout tabs = findViewById(R.id.tabs);
-        tabs.setupWithViewPager(viewPager);
+        TabLayout tabLayout = findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
+        for (int i = 0; i < tabs.length; ++i) {
+            tabLayout.getTabAt(i).setIcon(tabs[i].iconRes);
+        }
         viewPager.setSwipeEnabled(false); // disable swipe behaviour
     }
 

@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -19,6 +21,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.AccountFactory;
@@ -26,11 +29,10 @@ import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.User;
 
-public class AccountFragment extends Fragment implements View.OnClickListener {
+public class AccountFragment extends Fragment implements View.OnClickListener, MenuItem.OnMenuItemClickListener {
 
     private TextView name;
     private TextView email;
-    private TextView lastName;
     private TextView userIdView;
     //    TextView playerIdView;
     private ImageView img;
@@ -45,12 +47,12 @@ public class AccountFragment extends Fragment implements View.OnClickListener {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true); //fixes a bug on travis about inflating ImageView
         name = view.findViewById(R.id.name);
         email = view.findViewById(R.id.email);
-        lastName = view.findViewById(R.id.lastName);
         userIdView = view.findViewById(R.id.userIdView);
         img = view.findViewById(R.id.profileImage);
-        Button signOutButton = view.findViewById(R.id.button_sign_out);
-        signOutButton.setOnClickListener(this);
+        img.setImageResource(R.drawable.ic_person);
         getAndShowAccountInfo(AuthenticationManager.getAccount(getActivity()));
+
+        view.findViewById(R.id.moreButton).setOnClickListener(this);
 
         return view;
     }
@@ -79,11 +81,18 @@ public class AccountFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.button_sign_out:
-                signOut(v);
+            case R.id.moreButton:
+                showMoreMenu(v);
                 break;
             // other buttons...
         }
+    }
+
+    private void showMoreMenu(View anchor) {
+        PopupMenu popup = new PopupMenu(getActivity(), anchor);
+        popup.getMenuInflater().inflate(R.menu.more_menu, popup.getMenu());
+        popup.show();
+        popup.getMenu().findItem(R.id.button_sign_out).setOnMenuItemClickListener(this);
     }
 
     @Override
@@ -104,17 +113,25 @@ public class AccountFragment extends Fragment implements View.OnClickListener {
             //String playerId = acct.getPlayerId(this);
 
             name.setText(personName);
-            lastName.setText(personFamilyName);
             email.setText(personEmail);
-            userIdView.setText(personId);
+            userIdView.setText(getString(R.string.user_id, personId));
 //            playerIdView.setText(playerId);
-            Glide.with(this).load(String.valueOf(personPhoto)).into(img);
+
+            if (personPhoto != null) {
+                Glide.with(this).load(String.valueOf(personPhoto)).into(img);
+            }
 
         }
     }
 
-    public void signOut(View v) {
-        AuthenticationManager.signOut(getActivity());
+    @Override
+    public boolean onMenuItemClick(MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.button_sign_out: {
+                AuthenticationManager.signOut(getActivity());
+                return true;
+            }
+        }
+        return false;
     }
-
 }

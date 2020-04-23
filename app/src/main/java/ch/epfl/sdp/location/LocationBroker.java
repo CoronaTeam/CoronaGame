@@ -1,5 +1,6 @@
-package ch.epfl.sdp;
+package ch.epfl.sdp.location;
 
+import android.app.Activity;
 import android.location.Location;
 import android.location.LocationListener;
 
@@ -36,5 +37,5 @@ public interface LocationBroker {
 
     boolean hasPermissions(Provider provider);
 
-    void requestPermissions(int requestCode);
+    void requestPermissions(Activity activity, int requestCode);
 }

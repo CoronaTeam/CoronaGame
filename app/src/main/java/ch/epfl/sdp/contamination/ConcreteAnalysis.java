@@ -4,20 +4,26 @@ import android.location.Location;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
 
 import ch.epfl.sdp.Callback;
 
+import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
 
 public class ConcreteAnalysis implements InfectionAnalyst {
 
-    private Carrier me;
-    private DataReceiver receiver;
+    private final Carrier me;
+    private final DataReceiver receiver;
+    private final CachingDataSender cachedSender;
 
-    ConcreteAnalysis(Carrier me, DataReceiver receiver) {
+    public ConcreteAnalysis(Carrier me, DataReceiver receiver, CachingDataSender dataSender) {
         this.me = me;
         this.receiver = receiver;
+        this.cachedSender = dataSender;
     }
 
     private float calculateCarrierInfectionProbability(Map<Carrier, Integer> suspectedContacts, float cumulativeSocialTime) {
@@ -103,13 +109,56 @@ public class ConcreteAnalysis implements InfectionAnalyst {
             modelInfectionEvolution(identifySuspectContacts(aroundMe));
             callback.onCallback(null);
         });
+
+        //Method 1 : (synchrone)
+//        int badMeetings = receiver.getAndResetSickNeighbors(me.getUniqueId());
+//        updateCarrierInfectionProbability(me.getIllnessProbability() + badMeetings*TRANSMISSION_FACTOR);
+
+        //method 2 : (asynchrone)
+        receiver.getNumberOfSickNeighbors(me.getUniqueId(), res -> {
+            float badMeetings = 0;
+            if(!((Map)(res)).isEmpty()){
+                badMeetings =  ((float) (((HashMap) (res)).get(publicAlertAttribute)));
+            }
+            updateCarrierInfectionProbability(Math.min(me.getIllnessProbability() + badMeetings * TRANSMISSION_FACTOR,1f));
+            cachedSender.resetSickAlerts(me.getUniqueId());
+        });
     }
 
     @Override
     public Carrier getCarrier() {
         return me;
     }
-    public Carrier getCurrentCarrier(){
-        return new Layman(me.getInfectionStatus(),me.getIllnessProbability());
+
+    @Override
+    public boolean updateStatus(InfectionStatus stat) {
+        if(stat != me.getInfectionStatus()){
+            float previousIllnessProbability = me.getIllnessProbability();
+            me.evolveInfection(stat);
+            if(stat == InfectionStatus.INFECTED) {
+                //Now, retrieve all user that have been nearby the last UNINTENTIONAL_CONTAGION_TIME milliseconds
+
+                //1: retrieve your own last positions
+                SortedMap<Date,Location> lastPositions = cachedSender.getLastPositions();
+
+                //2: Ask firebase who was there
+
+                Set<String> userIds = new HashSet<>();
+                lastPositions.forEach((date,location) -> receiver.getUserNearby(location,date,around->{
+                    around.forEach(neighbor -> {
+                        if(neighbor.getInfectionStatus()!= InfectionStatus.INFECTED){ // only non-infected users need to be informed
+                            userIds.add(neighbor.getUniqueId()); //won't add someone already in the set
+                        }
+                    });
+                }));
+                //Tell those user that they have been close to you
+                //TODO: discuss whether considering only the previous Illness probability is good
+                userIds.forEach(u -> cachedSender.sendAlert(u,previousIllnessProbability));
+            }
+            return true;
+        }else{
+            return false;
+        }
     }
 }
+   

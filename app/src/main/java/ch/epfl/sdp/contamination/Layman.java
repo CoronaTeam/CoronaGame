@@ -2,6 +2,7 @@ package ch.epfl.sdp.contamination;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 
 import java.util.Objects;
 
@@ -25,6 +26,10 @@ public class Layman implements Carrier{
         this(initialStatus, infectedWithProbability, "__NOT_UNIQUE_NOW");
     }
 
+    public Layman(InfectionStatus initialStatus, String uniqueID){
+        this(initialStatus, initialStatus == InfectionStatus.INFECTED ? 1 : 0,uniqueID);
+    }
+
     public Layman(InfectionStatus initialStatus, float infectedWithProbability, String uniqueID) {
         this.myStatus = initialStatus;
         this.infectedWithProbability = infectedWithProbability;
@@ -37,11 +42,18 @@ public class Layman implements Carrier{
         return myStatus;
     }
 
+    /**
+     * This method should only be called by someone 100% sure about the actual status.
+     * @param newStatus
+     * @return
+     */
     @Override
     public boolean evolveInfection(InfectionStatus newStatus) {
         myStatus = newStatus;
         if (newStatus == InfectionStatus.INFECTED) {
             infectedWithProbability = 1;
+        }else if(newStatus == InfectionStatus.HEALTHY){
+            infectedWithProbability = 0;
         }
         return true;
     }

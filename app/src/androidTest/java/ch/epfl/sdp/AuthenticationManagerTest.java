@@ -2,18 +2,24 @@ package ch.epfl.sdp;
 
 import android.widget.ImageView;
 
+import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.matcher.RootMatchers;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
 import ch.epfl.sdp.fragment.AccountFragment;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static junit.framework.TestCase.assertNotNull;
@@ -30,7 +36,9 @@ public class AuthenticationManagerTest {
     public void nameIsDisplayed(){
         onView(withId(R.id.name)).check(matches(withText(User.DEFAULT_DISPLAY_NAME)));
     }
+
     @Test
+    @Ignore("Last name is in the same view in new UI")
     public void lastNameIsDisplayed(){
         onView(withId(R.id.lastName)).check(matches(withText(User.DEFAULT_FAMILY_NAME)));
     }
@@ -40,7 +48,7 @@ public class AuthenticationManagerTest {
     }
     @Test
     public void userIdViewIsDisplayed() {
-        onView(withId(R.id.userIdView)).check(matches(withText(User.DEFAULT_USERID)));
+        onView(withId(R.id.userIdView)).check(matches(withText(getActivity().getString(R.string.user_id, User.DEFAULT_USERID))));
     }
 
     @Test
@@ -57,8 +65,9 @@ public class AuthenticationManagerTest {
     }
 
     @Test
-    public void signOutButtonWorks(){
-        clickAndCheck(R.id.button_sign_out,R.id.sign_in_button);
+    public void signOutMenuWorks(){
+        onView(withId(R.id.moreButton)).perform(click());
+        onView(withText(R.string.signout)).inRoot(RootMatchers.isPlatformPopup()).check(matches(isDisplayed()));
     }
     @After
     public void tearDown() throws Exception{

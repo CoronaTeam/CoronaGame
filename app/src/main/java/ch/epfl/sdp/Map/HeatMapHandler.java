@@ -48,7 +48,7 @@ class HeatMapHandler {
     private MapboxMap map;
 
     private static final String LASTPOSITIONS_SOURCE_ID = "lastPositions";
-    private static final String HEATMAP_LAYER_ID = "lastPositions-heat";
+    static final String HEATMAP_LAYER_ID = "lastPositions-heat";
     private static final String HEATMAP_LAYER_SOURCE = "lastPositions";
 
 

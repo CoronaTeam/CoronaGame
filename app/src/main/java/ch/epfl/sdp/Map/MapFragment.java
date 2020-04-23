@@ -32,6 +32,7 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.plugins.annotation.Circle;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions;
+import com.mapbox.mapboxsdk.style.layers.Layer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,6 +47,9 @@ import ch.epfl.sdp.location.LocationBroker;
 import ch.epfl.sdp.location.LocationService;
 
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
+import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
+import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
 public class MapFragment extends Fragment implements LocationListener, View.OnClickListener {
 
@@ -124,6 +128,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
 
         view.findViewById(R.id.history_button).setOnClickListener(this);
+        view.findViewById(R.id.heatMapToggle).setOnClickListener(this);
 
         return view;
     }
@@ -239,24 +244,33 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         mapView.onSaveInstanceState(outState);
     }
 
-    void OnDidFinishLoadingMapListener(MapView.OnDidFinishLoadingMapListener listener) {
-        mapView.addOnDidFinishLoadingMapListener(listener);
-    }
-
-    protected LatLng getPreviousLocation() {
-        return prevLocation;
-    }
-
     private void onClickHistory() {
         HistoryDialogFragment dialog = HistoryDialogFragment.newInstance();
         dialog.show(getActivity().getSupportFragmentManager(), "history_dialog_fragment");
     }
 
+    private void toggleHeatMap() {
+        map.getStyle(style -> {
+            Layer layer = style.getLayer(HeatMapHandler.HEATMAP_LAYER_ID);
+            if (layer != null) {
+                if (VISIBLE.equals(layer.getVisibility().getValue())) {
+                    layer.setProperties(visibility(NONE));
+                } else {
+                    layer.setProperties(visibility(VISIBLE));
+                }
+            }
+        });
+    }
+
     @Override
     public void onClick(View view) {
+        System.out.println(view.getId());
         switch (view.getId()) {
             case R.id.history_button: {
                 onClickHistory();
+            } break;
+            case R.id.heatMapToggle: {
+                toggleHeatMap();
             } break;
             default: break;
         }

@@ -165,8 +165,6 @@ public class DataForDemo {
         element.put("timeStamp", Timestamp.now());
         // db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
 
-        gridFirestoreInteractor.writeDocument("LastPositions/", element, o -> {
-        }, e -> {
-        });
+        gridFirestoreInteractor.writeDocument("LastPositions/", element, o -> { }, e -> { });
     }
 }

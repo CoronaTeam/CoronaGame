@@ -47,9 +47,9 @@ class HeatMapHandler {
     private ConcreteFirestoreInteractor db;
     private MapboxMap map;
 
-    private static final String EARTHQUAKE_SOURCE_ID = "earthquakes";
-    private static final String HEATMAP_LAYER_ID = "earthquakes-heat";
-    private static final String HEATMAP_LAYER_SOURCE = "earthquakes";
+    private static final String LASTPOSITIONS_SOURCE_ID = "lastPositions";
+    private static final String HEATMAP_LAYER_ID = "lastPositions-heat";
+    private static final String HEATMAP_LAYER_SOURCE = "lastPositions";
 
 
     HeatMapHandler(@NonNull MapFragment parentClass, @NonNull ConcreteFirestoreInteractor db,
@@ -74,22 +74,19 @@ class HeatMapHandler {
             }
         }
 
-        GeoJsonSource a = new GeoJsonSource(EARTHQUAKE_SOURCE_ID,
+        GeoJsonSource lastPos = new GeoJsonSource(LASTPOSITIONS_SOURCE_ID,
                 FeatureCollection.fromFeatures(new Feature[]{Feature.fromGeometry(
                         MultiPoint.fromLngLats(infectionHeatMapPoints)
                 )}));
-        // Do not delete the "a" variable. If the GeoJsonSource is created inside the addSource call
-        // it takes a long time and make some tests crash. The compiler should have optimised this
-        // variable out but it works. No crash occurs when not testing
 
         map.getStyle(style -> {
-            style.addSource(a);
+            style.addSource(lastPos);
             addHeatmapLayer();
         });
     }
 
     private void addHeatmapLayer() {
-        HeatmapLayer layer = new HeatmapLayer(HEATMAP_LAYER_ID, EARTHQUAKE_SOURCE_ID);
+        HeatmapLayer layer = new HeatmapLayer(HEATMAP_LAYER_ID, LASTPOSITIONS_SOURCE_ID);
         //layer.setMinZoom(13);
         layer.setMaxZoom(17);
         layer.setMinZoom(8);
@@ -155,17 +152,9 @@ class HeatMapHandler {
             @Override
             public void onSuccess(QuerySnapshot snapshot) {
 
-                /* The idea here is to reuse the Circle objects to not recreate the datastructure from
-                scratch on each update. It's now overkill but will be usefull for the heatmaps
-                It's also necessary to keep the Circle objects around because recreating them each time
-                there is new data make the map blink like a christmas tree
-                 */
-
                 Iterator<QueryDocumentSnapshot> qsIterator = snapshot.iterator(); // data from firebase
 
-                // Run if there is more elements than in the last run
                 createGeoJson(qsIterator);
-
             }
 
             @Override

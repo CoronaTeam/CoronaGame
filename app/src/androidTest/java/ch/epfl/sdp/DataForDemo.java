@@ -142,6 +142,7 @@ public class DataForDemo {
                 Map<String, Object> element = new HashMap<>();
                 element.put("geoPoint", new GeoPoint(userLocation.getLatitude(), userLocation.getLongitude()));
                 element.put("timeStamp", Timestamp.now());
+                element.put("infectionStatus", carrier.getInfectionStatus());
                 // db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
 
                 gridFirestoreInteractor.writeDocument("LastPositions/", element, o -> {

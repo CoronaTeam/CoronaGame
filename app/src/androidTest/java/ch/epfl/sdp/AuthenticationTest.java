@@ -4,6 +4,7 @@ import androidx.test.espresso.intent.Intents;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.uiautomator.UiDevice;
+import ch.epfl.sdp.fragment.AuthenticationFragment;
 
 import org.junit.After;
 import org.junit.Before;
@@ -39,12 +40,12 @@ public class AuthenticationTest {
 
     @Test(expected = IllegalStateException.class)
     public void onActivityResultThrowsExceptionOnWrongRequestCode() {
-        ((Authentication) getActivity()).onActivityResult(Authentication.RC_SIGN_IN - 1, 0, null);
+        ((Authentication) getActivity()).getFragment().onActivityResult(AuthenticationFragment.RC_SIGN_IN - 1, 0, null);
     }
 
     @Test(expected = Test.None.class)
     public void onActivityResultThrowsNoExceptionOnRightRequestCode() {
-        ((Authentication) getActivity()).onActivityResult(Authentication.RC_SIGN_IN, 0, null);
+        ((Authentication) getActivity()).getFragment().onActivityResult(AuthenticationFragment.RC_SIGN_IN, 0, null);
     }
 
     @Test @Ignore

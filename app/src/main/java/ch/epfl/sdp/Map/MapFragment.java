@@ -19,9 +19,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.GeoPoint;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -33,9 +30,6 @@ import com.mapbox.mapboxsdk.plugins.annotation.Circle;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions;
 import com.mapbox.mapboxsdk.style.layers.Layer;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.BuildConfig;
@@ -104,7 +98,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         // This contains the MapView in XML and needs to be called after the access token is configured.
         View view = inflater.inflate(R.layout.fragment_map, container, false);
 
-        mapView = view.findViewById(R.id.mapView);
+        mapView = view.findViewById(R.id.mapFragment);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(new OnMapReadyCallback() {
             @Override

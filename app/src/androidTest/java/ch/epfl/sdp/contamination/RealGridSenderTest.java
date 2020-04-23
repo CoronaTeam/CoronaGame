@@ -19,6 +19,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.TestTools;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -36,12 +37,6 @@ public class RealGridSenderTest {
 
     Consumer<Void> writeSuccessToUi;
     Function<Throwable, Void> writeFailureToUi;
-
-    private void resetRealSenderAndReceiver() {
-        GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor();
-        mActivityRule.getActivity().getService().setReceiver(new ConcreteDataReceiver(gridInteractor));
-        mActivityRule.getActivity().getService().setSender(new ConcreteCachingDataSender(gridInteractor));
-    }
 
     @Before
     public void setupTests() {
@@ -61,6 +56,8 @@ public class RealGridSenderTest {
     @Test
     public void complexQueriesComeAndGoFromServer() throws Throwable {
         // The following test uses the actual Firestore
+
+        TestTools.resetLocationServiceStatus(mActivityRule.getActivity().getService());
 
         Carrier aFakeCarrier = new Layman(Carrier.InfectionStatus.UNKNOWN, 0.2734f);
         Carrier trulyHealthy = new Layman(Carrier.InfectionStatus.IMMUNE, 0f);
@@ -118,10 +115,10 @@ public class RealGridSenderTest {
     @Test
     public void dataReallyComeAndGoFromServer() throws Throwable {
         // The following test uses the actual Firestore
+        TestTools.resetLocationServiceStatus(mActivityRule.getActivity().getService());
 
         Carrier aFakeCarrier = new Layman(Carrier.InfectionStatus.UNKNOWN, 0.2734f);
         Date rightNow = new Date(System.currentTimeMillis());
-
         mActivityRule.getActivity().getService().getSender().registerLocation(
                 aFakeCarrier, buildLocation(12, 73), rightNow)
                 .thenAccept(writeSuccessToUi)

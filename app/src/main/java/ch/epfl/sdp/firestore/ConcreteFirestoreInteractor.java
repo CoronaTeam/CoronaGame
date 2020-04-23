@@ -56,8 +56,8 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
             serverIdlingResource.increment();
             Task<QuerySnapshot> collectionTask = collectionReference.get();
             CompletableFuture<QuerySnapshot> completableFuture = taskToFuture(collectionTask);
-            return completableFuture.thenApply(
-                    collection -> {
+            return completableFuture
+                    .thenApply(collection -> {
                         if (collection.isEmpty()){
                             throw new RuntimeException("Collection doesn't contain any document");
                         } else{
@@ -67,10 +67,8 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
                                 result.put(doc.getId(), doc.getData());
                             }
                             return result;
-                        }
-                    }
-            ).handle((stringMapMap, throwable) -> stringMapMap != null ? stringMapMap :
-                    Collections.emptyMap());
+                        }})
+                    .exceptionally(e -> Collections.emptyMap());
         } finally {
             serverIdlingResource.decrement();
         }

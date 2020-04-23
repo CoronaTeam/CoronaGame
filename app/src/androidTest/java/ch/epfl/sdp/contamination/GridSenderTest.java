@@ -106,15 +106,8 @@ public class GridSenderTest {
         };
     }
 
-    private void resetRealSenderAndReceiver() {
-        GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor();
-        mActivityRule.getActivity().getService().setReceiver(new ConcreteDataReceiver(gridInteractor));
-        mActivityRule.getActivity().getService().setSender(new ConcreteCachingDataSender(gridInteractor));
-    }
-
     private void programSenderAction(GridFirestoreInteractor mockInteractor) {
-        resetRealSenderAndReceiver();
-
+        TestTools.resetLocationServiceStatus(mActivityRule.getActivity().getService());
         ((ConcreteCachingDataSender) mActivityRule.getActivity().getService().getSender()).setInteractor(mockInteractor);
     }
 
@@ -164,7 +157,7 @@ public class GridSenderTest {
 
     @Test
     public void dataReceiverFindsContacts() {
-        resetRealSenderAndReceiver();
+        TestTools.resetLocationServiceStatus(mActivityRule.getActivity().getService());
 
         //TODO: restore
         /*((ConcreteDataReceiver) mActivityRule.getActivity().getService().getReceiver())

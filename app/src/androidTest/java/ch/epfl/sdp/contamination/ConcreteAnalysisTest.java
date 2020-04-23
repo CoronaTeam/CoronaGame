@@ -286,8 +286,12 @@ public class ConcreteAnalysisTest {
 
         LocationService service = fragment.getLocationService();
 
+        DataReceiver originalReceiver = service.getReceiver();
         service.setReceiver(cityReceiver);
+
         InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver,sender);
+        InfectionAnalyst originalAnalyst = service.getAnalyst();
+
         service.setAnalyst(analysis);
 
 
@@ -353,6 +357,10 @@ public class ConcreteAnalysisTest {
         onView(withId(R.id.my_infection_refresh)).perform(click());
         sleep();
         onView(withId(R.id.my_infection_status)).check(matches(withText("UNKNOWN")));
+
+        // TODO: Restore original components
+        service.setReceiver(originalReceiver);
+        service.setAnalyst(originalAnalyst);
 
     }
 

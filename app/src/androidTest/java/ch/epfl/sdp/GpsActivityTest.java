@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import ch.epfl.sdp.contamination.ConcreteAnalysis;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.location.ConcreteLocationBroker;
 import ch.epfl.sdp.location.LocationBroker;
@@ -35,6 +36,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static ch.epfl.sdp.TestTools.resetLocationServiceStatus;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.TestUtils.buildLocation;
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
@@ -60,7 +62,14 @@ public class GpsActivityTest {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 done.set(true);
-                ((LocationService.LocationBinder)service).getService().setBroker(br);
+                LocationService locationService = ((LocationService.LocationBinder)service).getService();
+                resetLocationServiceStatus(locationService);
+                // TODO: Refactor this to use only 1 reset function
+                locationService.setAnalyst(new ConcreteAnalysis(
+                        locationService.getAnalyst().getCarrier(),
+                        locationService.getReceiver(),
+                        locationService.getSender()));
+                locationService.setBroker(br);
             }
 
             @Override

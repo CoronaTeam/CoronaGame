@@ -26,11 +26,13 @@ import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
 import ch.epfl.sdp.BuildConfig;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 
 /**
  * This fragment is used to display the user's last positions as a line on the map,
@@ -64,6 +66,10 @@ public class PathsFragment extends Fragment {
     }
 
     private void initPathCoordinates() {
+        // TODO: RETRIEVE FROM CACHE IF AVAILABLE
+        // CREATE FAKE FIRESTORE TO RETRIEVE FOR DEMO IF NEEDED
+        // NEED TO RETRIEVE POSITIONS ON SPECIFIC DAY TIME
+
         // Create a list to store our line coordinates.
         pathCoordinates = new ArrayList<>();
         pathCoordinates.add(Point.fromLngLat(-118.39439114221236, 33.397676454651766));
@@ -157,5 +163,11 @@ public class PathsFragment extends Fragment {
             ));
         });
         setCameraPosition(33.397676454651766, -118.39439114221236);
+    }
+    // TODO: get path for given day
+    // TODO: how to iterate over positions (=collection of documents)?
+    private void getPath() {
+        ConcreteFirestoreInteractor cfi = new ConcreteFirestoreInteractor();
+       // cfi.readCollection("History/USER_PATH_DEMO/Positions/", handler);
     }
 }

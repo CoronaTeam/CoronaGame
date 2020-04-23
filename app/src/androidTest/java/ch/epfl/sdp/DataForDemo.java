@@ -41,7 +41,7 @@ import static ch.epfl.sdp.contamination.GridFirestoreInteractor.COORDINATE_PRECI
 @Ignore("This is not a proper test, it is used for testing and demos, but it does not test anything, only generates data.")
 public class DataForDemo {
 
-    private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
+   /* private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
     private CachingDataSender dataSender = new CachingDataSender() {
         @Override
         public void registerLocation(Carrier carrier, Location location, Date time) {
@@ -87,7 +87,7 @@ public class DataForDemo {
      * Generate 30 users around 46.51700,6.56600 and 5 users around 46.51800, 6.56700.
      * These latitude, longitude correspond to areas at EPFL.
      */
-     @Test
+   /*  @Test
      public void upload2GroupsFakeUsersLocations() {
          // dense location forms a square of side 6
          // dense location infected forms a square of side 4 (16 infected people and 20 healthy)
@@ -128,7 +128,7 @@ public class DataForDemo {
     /**
      * Generate 1000 HEALTHY,HEALTHY_CARRIER,INFECTED,IMMUNE,UNKNOWN users starting from location 4600000, 600000
      */
-    @Test
+ /*   @Test
     public void uploadBunchOfUsersAtEPFL() {
         Date rightNow = new Date(System.currentTimeMillis());
         for (double i = 0; i < 100; ++i) {
@@ -158,7 +158,7 @@ public class DataForDemo {
         Location location = newLoc(SPARSE_INITIAL_EPFL_LATITUDE+latiOffset/COORDINATE_PRECISION,
                 SPARSE_INITIAL_EPFL_LONGITUDE+longiOffset/COORDINATE_PRECISION);
         dataSender.registerLocation(carrier, location, rightNow);
-    }
+    }*/
 
     // write in History Collection on Firestore, user with ID USER_PATH_DEMO
     @Test
@@ -173,8 +173,8 @@ public class DataForDemo {
             position.put("Position", new PositionRecord(Timestamp.now(),
                     new GeoPoint(location.getLatitude(), location.getLongitude())));
             cfi.write(position,
-                    s -> Log.println(0, "PATH", "paths successfully loaded"),
-                    f -> Log.println(0, "PATH", "error loading path"));
+                    s -> Log.println(Log.DEBUG, "PATH", "paths successfully loaded"),
+                    f -> Log.println(Log.DEBUG, "PATH", "error loading path"));
         }
     }
 

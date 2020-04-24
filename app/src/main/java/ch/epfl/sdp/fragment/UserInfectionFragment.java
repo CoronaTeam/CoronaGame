@@ -1,7 +1,10 @@
 package ch.epfl.sdp.fragment;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,9 +42,11 @@ import ch.epfl.sdp.ConcreteBiometricPromptWrapper;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.User;
 import ch.epfl.sdp.UserInfectionActivity;
+import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.InfectionFragment;
 import ch.epfl.sdp.location.LocationService;
 
+import static android.content.Context.BIND_AUTO_CREATE;
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
 
@@ -56,6 +61,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     private static final String TAG = "User Infection Activity";
     private String userName;
     private View view;
+    private LocationService service;
 
     private Executor executor;
     private BiometricPromptWrapper biometricPrompt;
@@ -91,6 +97,20 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
             }
             this.promptInfo = promptInfoBuilder();
         }
+        ServiceConnection conn = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                UserInfectionFragment.this.service = ((LocationService.LocationBinder)service).getService();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                service = null;
+            }
+        };
+
+        getActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
+
 
         return view;
     }
@@ -150,6 +170,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         boolean infected = buttonText.equals(getResources().getString(R.string.i_am_infected));
         if (infected) {
             //Tell the analyst we are now sick !
+            service.getAnalyst().updateStatus(Carrier.InfectionStatus.INFECTED);
             setInfectionColorAndMessage(true);
             modifyUserInfectionStatus(userName, true,
                     value -> {
@@ -157,6 +178,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
                     });
         } else {
             //Tell firebase we have been cured once more !
+            service.getAnalyst().updateStatus(Carrier.InfectionStatus.HEALTHY);
             setInfectionColorAndMessage(false);
             modifyUserInfectionStatus(userName, false,
                     value -> {

@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
@@ -44,11 +45,14 @@ import ch.epfl.sdp.User;
 import ch.epfl.sdp.UserInfectionActivity;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.InfectionFragment;
+import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.location.LocationService;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
+import static ch.epfl.sdp.contamination.CachingDataSender.privateSickCounter;
+import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
 
 public class UserInfectionFragment extends Fragment implements View.OnClickListener {
 
@@ -177,14 +181,20 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
                         //infectionUploadView.setText(String.format("%s at %s", value, Calendar.getInstance().getTime()));
                     });
         } else {
-            //Tell firebase we have been cured once more !
+            //Tell anylst we are now healthy !
             service.getAnalyst().updateStatus(Carrier.InfectionStatus.HEALTHY);
+            letFirebaseEnjoyMyRecovery();
             setInfectionColorAndMessage(false);
             modifyUserInfectionStatus(userName, false,
                     value -> {
                         //infectionUploadView.setText(String.format("%s at %s", value, Calendar.getInstance().getTime()))
                     });
         }
+    }
+
+    private void letFirebaseEnjoyMyRecovery() {
+        DocumentReference ref = FirestoreInteractor.documentReference(privateUserFolder,account.getId());
+        ref.update(privateSickCounter, FieldValue.increment(1));
     }
 
     public void modifyUserInfectionStatus(String userPath, Boolean infected, Callback<String> callback) {

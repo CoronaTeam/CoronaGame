@@ -11,6 +11,7 @@ import java.util.SortedMap;
 
 import ch.epfl.sdp.Callback;
 
+import static ch.epfl.sdp.contamination.CachingDataSender.privateSickCounter;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
 
@@ -115,14 +116,24 @@ public class ConcreteAnalysis implements InfectionAnalyst {
 //        updateCarrierInfectionProbability(me.getIllnessProbability() + badMeetings*TRANSMISSION_FACTOR);
 
         //method 2 : (asynchrone)
-        receiver.getNumberOfSickNeighbors(me.getUniqueId(), res -> {
-            float badMeetings = 0;
-            if(!((Map)(res)).isEmpty()){
-                badMeetings =  ((float) (((HashMap) (res)).get(publicAlertAttribute)));
-            }
-            updateCarrierInfectionProbability(Math.min(me.getIllnessProbability() + badMeetings * TRANSMISSION_FACTOR,1f));
-            cachedSender.resetSickAlerts(me.getUniqueId());
+        receiver.getSicknessCounter(me.getUniqueId(),sickCount->{
+            receiver.getNumberOfSickNeighbors(me.getUniqueId(), res -> {
+                int sickCounter = 0;
+                if(!((Map)(sickCount)).isEmpty()){
+                    sickCounter =  ((int) (((HashMap) (sickCount)).get(privateSickCounter)));
+                }
+                float badMeetings = 0;
+                if(!((Map)(res)).isEmpty()){
+                    badMeetings =  ((float) (((HashMap) (res)).get(publicAlertAttribute)));
+                }
+                updateCarrierInfectionProbability(applyInfectionFormula(badMeetings,sickCounter));
+                cachedSender.resetSickAlerts(me.getUniqueId());
+            });
         });
+    }
+    private float applyInfectionFormula(float badMeetings, int sickCounter){
+        float tmp = (float)(Math.pow(InfectionAnalyst.IMMUNITY_FACTOR,sickCounter) * badMeetings * TRANSMISSION_FACTOR);
+        return Math.min(me.getIllnessProbability() + tmp,1f);
     }
 
     @Override

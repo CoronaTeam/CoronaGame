@@ -28,6 +28,8 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.BiometricPromptWrapper;
@@ -37,6 +39,8 @@ import ch.epfl.sdp.ConcreteBiometricPromptWrapper;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.User;
 import ch.epfl.sdp.UserInfectionActivity;
+import ch.epfl.sdp.contamination.InfectionFragment;
+import ch.epfl.sdp.location.LocationService;
 
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
@@ -145,12 +149,14 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         CharSequence buttonText = infectionStatusButton.getText();
         boolean infected = buttonText.equals(getResources().getString(R.string.i_am_infected));
         if (infected) {
+            //Tell the analyst we are now sick !
             setInfectionColorAndMessage(true);
             modifyUserInfectionStatus(userName, true,
                     value -> {
                         //infectionUploadView.setText(String.format("%s at %s", value, Calendar.getInstance().getTime()));
                     });
         } else {
+            //Tell firebase we have been cured once more !
             setInfectionColorAndMessage(false);
             modifyUserInfectionStatus(userName, false,
                     value -> {

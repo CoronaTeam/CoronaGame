@@ -144,6 +144,11 @@ public class ConcreteAnalysisTest {
         }
 
         @Override
+        public void getSicknessCounter(String userId, Callback<Map<String, Integer>> callback) {
+
+        }
+
+        @Override
         public void getNumberOfSickNeighbors(String userId, Callback callback) {
             if(recentSickMeetingCounter.containsKey(userId)) {
                 HashMap<String,Float> res = new HashMap<>();
@@ -260,6 +265,11 @@ public class ConcreteAnalysisTest {
         @Override
         public void getMyLastLocation(Account account, Callback<Location> callback) {
             callback.onCallback(myCurrentLocation);
+        }
+
+        @Override
+        public void getSicknessCounter(String userId, Callback<Map<String, Integer>> callback) {
+
         }
 
         @Override

@@ -297,5 +297,8 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
                 "Authentication succeeded!", Toast.LENGTH_SHORT).show();
         executeHealthStatusChange();
     }
+    public LocationService getLocationService(){
+        return service;
+    }
 
 }

@@ -17,7 +17,9 @@ import java.lang.reflect.Field;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static org.junit.Assert.assertEquals;
@@ -34,11 +36,11 @@ public class IntroActivityTest {
     }
 
     @Test
-    public void testCanNavigateToDone() {
+    public void testCanNavigateToSignIn() {
 
-        for (int i = 0; i < N_SLIDES - 1; ++i)
+        for (int i = 0; i < N_SLIDES; ++i)
             onView(withId(R.id.next)).perform(click());
-        onView(withId(R.id.done)).perform(click());
+        onView(withId(R.id.sign_in_button)).check(matches(isDisplayed()));
 
     }
 

@@ -19,9 +19,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.GeoPoint;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -32,9 +29,7 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.plugins.annotation.Circle;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.mapbox.mapboxsdk.style.layers.Layer;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.BuildConfig;
@@ -46,6 +41,9 @@ import ch.epfl.sdp.location.LocationBroker;
 import ch.epfl.sdp.location.LocationService;
 
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
+import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
+import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
 public class MapFragment extends Fragment implements LocationListener, View.OnClickListener {
 
@@ -100,7 +98,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         // This contains the MapView in XML and needs to be called after the access token is configured.
         View view = inflater.inflate(R.layout.fragment_map, container, false);
 
-        mapView = view.findViewById(R.id.mapView);
+        mapView = view.findViewById(R.id.mapFragment);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(new OnMapReadyCallback() {
             @Override
@@ -116,14 +114,15 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
                                 .withLatLng(prevLocation));
 
                         updateUserMarkerPosition(prevLocation);
-                        heatMapHandler = new HeatMapHandler(classPointer, db, positionMarkerManager);
+                        heatMapHandler = new HeatMapHandler(classPointer, db, map);
                     }
-
                 });
             }
         });
 
+
         view.findViewById(R.id.history_button).setOnClickListener(this);
+        view.findViewById(R.id.heatMapToggle).setOnClickListener(this);
 
         return view;
     }
@@ -134,16 +133,6 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             prevLocation = new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
             updateUserMarkerPosition(prevLocation);
 
-            Map<String, Object> element = new HashMap<>();
-            element.put("geoPoint", new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude()));
-            element.put("timeStamp", Timestamp.now());
-            db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> {
-            }, e -> {
-            });
-
-            //wrapper.collection("LastPositions").document(user.getId()).set(lastPos);
-            db.writeDocumentWithID("LastPositions", userAccount.getId(), element, e -> {
-            });
         } else {
             Toast.makeText(getActivity(), "Missing permission", Toast.LENGTH_LONG).show();
         }
@@ -164,13 +153,6 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
-
-    // Add the mapView lifecycle to the activity's lifecycle methods
-    @Override
-    public void onResume() {
-        super.onResume();
-        mapView.onResume();
     }
 
 
@@ -215,39 +197,45 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     @Override
     public void onStop() {
         super.onStop();
+        System.err.println("stop");
         mapView.onStop();
+    }
+
+    // Add the mapView lifecycle to the activity's lifecycle methods
+    @Override
+    public void onResume() {
+        super.onResume();
+        System.err.println("resume");
+        mapView.onResume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        System.err.println("pause");
         mapView.onPause();
     }
 
     @Override
     public void onLowMemory() {
-        super.onLowMemory();
         mapView.onLowMemory();
+        super.onLowMemory();
+        System.err.println("lowmem");
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        System.err.println("destroy");
         mapView.onDestroy();
+        super.onDestroy();
+
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+        System.err.println("sis");
         mapView.onSaveInstanceState(outState);
-    }
-
-    void OnDidFinishLoadingMapListener(MapView.OnDidFinishLoadingMapListener listener) {
-        mapView.addOnDidFinishLoadingMapListener(listener);
-    }
-
-    protected LatLng getPreviousLocation() {
-        return prevLocation;
     }
 
     private void onClickHistory() {
@@ -255,11 +243,28 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         dialog.show(getActivity().getSupportFragmentManager(), "history_dialog_fragment");
     }
 
+    private void toggleHeatMap() {
+        map.getStyle(style -> {
+            Layer layer = style.getLayer(HeatMapHandler.HEATMAP_LAYER_ID);
+            if (layer != null) {
+                if (VISIBLE.equals(layer.getVisibility().getValue())) {
+                    layer.setProperties(visibility(NONE));
+                } else {
+                    layer.setProperties(visibility(VISIBLE));
+                }
+            }
+        });
+    }
+
     @Override
     public void onClick(View view) {
+        System.out.println(view.getId());
         switch (view.getId()) {
             case R.id.history_button: {
                 onClickHistory();
+            } break;
+            case R.id.heatMapToggle: {
+                toggleHeatMap();
             } break;
             default: break;
         }

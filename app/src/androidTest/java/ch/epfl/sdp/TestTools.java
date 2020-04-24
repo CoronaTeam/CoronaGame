@@ -8,14 +8,21 @@ import android.location.Location;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.rule.ActivityTestRule;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+
 import java.lang.reflect.Field;
 import java.util.Map;
+
+import ch.epfl.sdp.firestore.FirestoreInteractor;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static ch.epfl.sdp.contamination.CachingDataSender.privateSickCounter;
+import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
 
 public interface TestTools {
@@ -108,5 +115,9 @@ public interface TestTools {
      */
     static float getMapValue(Object res){
         return  ((float) (((Map) (res)).get(publicAlertAttribute)));
+    }
+    static void resetSickCounter(){
+        DocumentReference ref = FirestoreInteractor.documentReference(privateUserFolder,User.DEFAULT_USERID);
+        ref.update(privateSickCounter, FieldValue.delete());
     }
 }

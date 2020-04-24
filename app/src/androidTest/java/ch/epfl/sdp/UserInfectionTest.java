@@ -37,6 +37,7 @@ import static ch.epfl.sdp.MainActivity.IS_NETWORK_DEBUG;
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.initSafeTest;
+import static ch.epfl.sdp.TestTools.resetSickCounter;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateSickCounter;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
@@ -130,8 +131,5 @@ public class UserInfectionTest {
         sleep(50);
         assertSame(Carrier.InfectionStatus.INFECTED,analyst.getCarrier().getInfectionStatus());
     }
-    private void resetSickCounter(){
-        DocumentReference ref = FirestoreInteractor.documentReference(privateUserFolder,User.DEFAULT_USERID);
-        ref.update(privateSickCounter, FieldValue.delete());
-    }
+
 }

@@ -145,7 +145,7 @@ public class ConcreteAnalysisTest {
 
         @Override
         public void getSicknessCounter(String userId, Callback<Map<String, Integer>> callback) {
-
+            callback.onCallback(Collections.emptyMap());
         }
 
         @Override
@@ -269,7 +269,7 @@ public class ConcreteAnalysisTest {
 
         @Override
         public void getSicknessCounter(String userId, Callback<Map<String, Integer>> callback) {
-
+            callback.onCallback(Collections.emptyMap());
         }
 
         @Override

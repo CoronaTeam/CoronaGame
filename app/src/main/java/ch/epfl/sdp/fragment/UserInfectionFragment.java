@@ -18,21 +18,15 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.AuthenticationManager;
@@ -41,10 +35,7 @@ import ch.epfl.sdp.BiometricUtils;
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.ConcreteBiometricPromptWrapper;
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.User;
-import ch.epfl.sdp.UserInfectionActivity;
 import ch.epfl.sdp.contamination.Carrier;
-import ch.epfl.sdp.contamination.InfectionFragment;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.location.LocationService;
 

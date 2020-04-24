@@ -109,16 +109,16 @@ public class UserInfectionTest {
         resetSickCounter();
         sleep(3000);
         onView(withId(R.id.infectionStatusButton)).perform(click());
-        sleep();
+        sleep(5000);
         onView(withId(R.id.infectionStatusButton)).perform(click());
-        sleep();
+        sleep(5000);
 
         receiver.getSicknessCounter(User.DEFAULT_USERID,res -> {
             assertFalse(((Map)(res)).isEmpty());
             assertEquals(1l,((Map)(res)).get(privateSickCounter));
 
         });
-        sleep();
+        sleep(5000);
         assertSame(HEALTHY,analyst.getCarrier().getInfectionStatus());
     }
 
@@ -128,7 +128,7 @@ public class UserInfectionTest {
         IS_NETWORK_DEBUG = true;
         IS_ONLINE = true;
         onView(withId(R.id.infectionStatusButton)).perform(click());
-        sleep(50);
+        sleep();
         assertSame(Carrier.InfectionStatus.INFECTED,analyst.getCarrier().getInfectionStatus());
     }
 

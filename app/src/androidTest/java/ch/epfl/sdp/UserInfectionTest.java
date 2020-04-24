@@ -118,7 +118,7 @@ public class UserInfectionTest {
             assertEquals(1l,((Map)(res)).get(privateSickCounter));
 
         });
-        sleep(5000);
+        sleep(10000);
         assertSame(HEALTHY,analyst.getCarrier().getInfectionStatus());
     }
 
@@ -128,7 +128,7 @@ public class UserInfectionTest {
         IS_NETWORK_DEBUG = true;
         IS_ONLINE = true;
         onView(withId(R.id.infectionStatusButton)).perform(click());
-        sleep();
+        sleep(10000);
         assertSame(Carrier.InfectionStatus.INFECTED,analyst.getCarrier().getInfectionStatus());
     }
 

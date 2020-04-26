@@ -6,27 +6,17 @@ import androidx.annotation.VisibleForTesting;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.GeoPoint;
 
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
-import ch.epfl.sdp.firestore.FirestoreInteractor;
-import ch.epfl.sdp.fragment.AccountFragment;
-
-import static ch.epfl.sdp.AuthenticationManager.getActivity;
-
 public class ConcreteCachingDataSender implements CachingDataSender {
     SortedMap<Date, Location> lastPositions;
     private GridFirestoreInteractor gridInteractor;
+
     public ConcreteCachingDataSender(GridFirestoreInteractor interactor) {
         this.gridInteractor = interactor;
         this.lastPositions = new TreeMap<>();
@@ -41,25 +31,6 @@ public class ConcreteCachingDataSender implements CachingDataSender {
     public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
         refreshLastPositions(time, location);
         return gridInteractor.gridWrite(location, String.valueOf(time.getTime()), carrier);
-    }
-
-    //TODO
-    public void registerLocation(Carrier carrier,
-                                 Location location,
-                                 Date time,
-                                 OnSuccessListener successListener,
-                                 OnFailureListener failureListener) {
-        refreshLastPositions(time, location);
-
-        Map<String, Object> element = new HashMap<>();
-        element.put("geoPoint", new GeoPoint(location.getLatitude(), location.getLongitude()));
-        element.put("timeStamp", time.getTime());
-        element.put("infectionStatus", carrier.getInfectionStatus());
-        gridInteractor.writeDocumentWithID("LastPositions", AccountFragment.getAccount(getActivity()).getId(),
-                element, s -> {
-                    gridInteractor.write(location, String.valueOf(time.getTime()), carrier, successListener, failureListener);
-                },
-                failureListener);
     }
 
     /**

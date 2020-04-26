@@ -58,13 +58,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
     }
 
     public static Account getAccount(Activity activity) {
-        GoogleSignInAccount acct;
-        try{
-            acct = GoogleSignIn.getLastSignedInAccount(activity);
-        }catch (NullPointerException e){
-            acct = null;
-        }
-
+        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(activity);
         return getNonNullAccount(acct);
     }
 

@@ -3,6 +3,11 @@ package ch.epfl.sdp;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
 
+import com.azimolabs.conditionwatcher.ConditionWatcher;
+import com.azimolabs.conditionwatcher.Instruction;
+import com.mapbox.mapboxsdk.maps.MapView;
+
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -80,7 +85,7 @@ public class TabActivityTest {
 
     @Test
     public void testTabsDisplayCorrectly() {
-        onView(withId(R.id.mapFragment)).check(matches(isDisplayed()));
+        onView(withId(R.id.mapView)).check(matches(isDisplayed()));
     }
 
     @Test

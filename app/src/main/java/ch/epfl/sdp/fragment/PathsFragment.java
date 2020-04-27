@@ -70,8 +70,10 @@ public class PathsFragment extends Fragment {
 
     private void initPathCoordinates(Iterator<QueryDocumentSnapshot> qsIterator) {
         // TODO: RETRIEVE FROM CACHE IF AVAILABLE
+        // TODO: get path for given day
         // CREATE FAKE FIRESTORE TO RETRIEVE FOR DEMO IF NEEDED
         // NEED TO RETRIEVE POSITIONS ON SPECIFIC DAY TIME
+        pathCoordinates = new ArrayList<>();
 
         for (; qsIterator.hasNext(); ) {
             QueryDocumentSnapshot qs = qsIterator.next();
@@ -83,9 +85,11 @@ public class PathsFragment extends Fragment {
             }
         }
 
+        setCameraPosition(pathCoordinates.get(0).latitude(), pathCoordinates.get(0).longitude());
+        //setCameraPosition(33.397676454651766, -118.39439114221236);
+
         // Create a list to store our line coordinates.
-        pathCoordinates = new ArrayList<>();
-        pathCoordinates.add(Point.fromLngLat(-118.39439114221236, 33.397676454651766));
+        /*pathCoordinates.add(Point.fromLngLat(-118.39439114221236, 33.397676454651766));
         pathCoordinates.add(Point.fromLngLat(-118.39421054012902, 33.39769799454838));
         pathCoordinates.add(Point.fromLngLat(-118.39408583869053, 33.39761901490136));
         pathCoordinates.add(Point.fromLngLat(-118.39388373635917, 33.397328225582285));
@@ -141,7 +145,7 @@ public class PathsFragment extends Fragment {
         pathCoordinates.add(Point.fromLngLat(-118.37935386875012, 33.38816247841951));
         pathCoordinates.add(Point.fromLngLat(-118.37794345248027, 33.387810620840135));
         pathCoordinates.add(Point.fromLngLat(-118.37546662390886, 33.38847843095069));
-        pathCoordinates.add(Point.fromLngLat(-118.37091717142867, 33.39114243958559));
+        pathCoordinates.add(Point.fromLngLat(-118.37091717142867, 33.39114243958559));*/
     }
 
     private void setCameraPosition(double latitude, double longitude) {
@@ -158,7 +162,7 @@ public class PathsFragment extends Fragment {
         map = mapboxMap;
         mapboxMap.setStyle(Style.OUTDOORS, style -> {
 
-            getPath();
+            initFirestoreRetrieval();
 
             // Create the LineString from the list of coordinates and then make a GeoJSON
             // FeatureCollection so we can add the line to our map as a layer.
@@ -175,25 +179,25 @@ public class PathsFragment extends Fragment {
                     PropertyFactory.lineColor(Color.parseColor("maroon"))
             ));
         });
-        setCameraPosition(33.397676454651766, -118.39439114221236);
     }
-    // TODO: get path for given day
-    // TODO: how to iterate over positions (=collection of documents)?
-    private void getPath() {
+
+    private void initFirestoreRetrieval() {
         ConcreteFirestoreInteractor cfi = new ConcreteFirestoreInteractor();
-        QueryHandler firestoreQueryHandler = new QueryHandler<QuerySnapshot>() {
+        QueryHandler firestoreQueryHandler = getQueryHandler();
+        cfi.readCollection("History/USER_PATH_DEMO/Positions/", firestoreQueryHandler);
+    }
+
+    private QueryHandler getQueryHandler() {
+        return new QueryHandler<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot snapshot) {
-                Iterator<QueryDocumentSnapshot> qsIterator = snapshot.iterator(); // data from firebase
-
+                Iterator<QueryDocumentSnapshot> qsIterator = snapshot.iterator();
                 initPathCoordinates(qsIterator);
             }
-
             @Override
             public void onFailure() {
-
+                //Toast.makeText(parentClass.getActivity(), "Cannot retrieve positions from database", Toast.LENGTH_LONG).show();
             }
         };
-        cfi.readCollection("History/USER_PATH_DEMO/Positions/", firestoreQueryHandler);
     }
 }

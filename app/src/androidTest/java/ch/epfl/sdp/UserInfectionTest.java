@@ -3,6 +3,7 @@ package ch.epfl.sdp;
 import android.Manifest;
 import android.location.Location;
 
+import androidx.fragment.app.FragmentTransaction;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
@@ -53,6 +54,7 @@ import static org.junit.Assert.assertFalse;
 public class UserInfectionTest {
     private InfectionAnalyst analyst;
     private DataReceiver receiver;
+    private UserInfectionFragment fragment;
     @Rule
     public final ActivityTestRule<UserInfectionActivity> activityRule =
             new ActivityTestRule<>(UserInfectionActivity.class);
@@ -65,32 +67,35 @@ public class UserInfectionTest {
     @Before
     public void setUp() {
         initSafeTest(activityRule, true);
-        UserInfectionFragment fragment = ((UserInfectionFragment)((UserInfectionActivity)(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
-        Carrier me = new Layman(HEALTHY);
-        analyst =  new InfectionAnalyst() {
-            Carrier ca = me;
-            @Override
-            public void updateInfectionPredictions(Location location, Date startTime, Callback<Void> callback) {
-                }
-
-            @Override
-            public Carrier getCarrier() {
-                return me;
-            }
-
-            @Override
-            public boolean updateStatus(Carrier.InfectionStatus stat) {
-                me.evolveInfection(stat);
-                return true;
-            }
-        };
-        fragment.getLocationService().setAnalyst(analyst);
+        fragment = ((UserInfectionFragment)((UserInfectionActivity)(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
+//        Carrier me = new Layman(HEALTHY);
+//        InfectionAnalyst m_analyst =  new InfectionAnalyst() {
+//            Carrier ca = me;
+//            @Override
+//            public void updateInfectionPredictions(Location location, Date startTime, Callback<Void> callback) {
+//                }
+//
+//            @Override
+//            public Carrier getCarrier() {
+//                return me;
+//            }
+//
+//            @Override
+//            public boolean updateStatus(Carrier.InfectionStatus stat) {
+//                me.evolveInfection(stat);
+//                return true;
+//            }
+//        };
+        analyst = fragment.getLocationService().getAnalyst();
         receiver = fragment.getLocationService().getReceiver();
 
     }
     @After
     public void release(){
+        ((UserInfectionActivity)(getActivity())).getSupportFragmentManager().beginTransaction().remove(fragment).commitAllowingStateLoss();
         Intents.release();
+        analyst = null;
+        receiver = null;
     }
 
     @Test
@@ -139,7 +144,7 @@ public class UserInfectionTest {
             assertEquals(1l,((Map)(res)).get(privateSickCounter));
 
         });
-        sleep(5000);
+        sleep(15000);
         assertSame(HEALTHY,analyst.getCarrier().getInfectionStatus());
     }
 
@@ -149,7 +154,7 @@ public class UserInfectionTest {
         IS_NETWORK_DEBUG = false;
         IS_ONLINE = true;
         onView(withId(R.id.infectionStatusButton)).perform(click());
-        sleep(5000);
+        sleep(15000);
         assertSame(Carrier.InfectionStatus.INFECTED,analyst.getCarrier().getInfectionStatus());
     }
 }

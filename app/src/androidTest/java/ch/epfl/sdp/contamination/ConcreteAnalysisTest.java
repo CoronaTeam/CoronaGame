@@ -352,7 +352,7 @@ public class ConcreteAnalysisTest {
 
         // Now there should be some risk that I was infected
         onView(withId(R.id.my_infection_refresh)).perform(click());
-        sleep();
+        sleep(5000);
         onView(withId(R.id.my_infection_status)).check(matches(withText("UNKNOWN")));
 
     }

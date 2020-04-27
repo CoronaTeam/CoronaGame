@@ -10,13 +10,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.LineString;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
-import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
@@ -26,13 +28,14 @@ import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import ch.epfl.sdp.BuildConfig;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
+import ch.epfl.sdp.firestore.QueryHandler;
 
 /**
  * This fragment is used to display the user's last positions as a line on the map,
@@ -65,10 +68,20 @@ public class PathsFragment extends Fragment {
         mapView.onDestroy();
     }
 
-    private void initPathCoordinates() {
+    private void initPathCoordinates(Iterator<QueryDocumentSnapshot> qsIterator) {
         // TODO: RETRIEVE FROM CACHE IF AVAILABLE
         // CREATE FAKE FIRESTORE TO RETRIEVE FOR DEMO IF NEEDED
         // NEED TO RETRIEVE POSITIONS ON SPECIFIC DAY TIME
+
+        for (; qsIterator.hasNext(); ) {
+            QueryDocumentSnapshot qs = qsIterator.next();
+            try {
+                pathCoordinates.add(Point.fromLngLat(((GeoPoint) (qs.get("geoPoint"))).getLongitude(),
+                        ((GeoPoint) (qs.get("geoPoint"))).getLatitude()
+                ));
+            } catch (NullPointerException ignored) {
+            }
+        }
 
         // Create a list to store our line coordinates.
         pathCoordinates = new ArrayList<>();
@@ -145,7 +158,7 @@ public class PathsFragment extends Fragment {
         map = mapboxMap;
         mapboxMap.setStyle(Style.OUTDOORS, style -> {
 
-            initPathCoordinates();
+            getPath();
 
             // Create the LineString from the list of coordinates and then make a GeoJSON
             // FeatureCollection so we can add the line to our map as a layer.
@@ -168,6 +181,19 @@ public class PathsFragment extends Fragment {
     // TODO: how to iterate over positions (=collection of documents)?
     private void getPath() {
         ConcreteFirestoreInteractor cfi = new ConcreteFirestoreInteractor();
-       // cfi.readCollection("History/USER_PATH_DEMO/Positions/", handler);
+        QueryHandler firestoreQueryHandler = new QueryHandler<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot snapshot) {
+                Iterator<QueryDocumentSnapshot> qsIterator = snapshot.iterator(); // data from firebase
+
+                initPathCoordinates(qsIterator);
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+        };
+        cfi.readCollection("History/USER_PATH_DEMO/Positions/", firestoreQueryHandler);
     }
 }

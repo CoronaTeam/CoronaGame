@@ -104,7 +104,7 @@ public class UserInfectionTest {
     @Test
     public void sendsNotificationToFirebaseAndAnalystOnRecovery(){
         analyst.updateStatus(HEALTHY);
-        IS_NETWORK_DEBUG = true;
+        IS_NETWORK_DEBUG = false;
         IS_ONLINE = true;
         resetSickCounter();
         sleep(3000);
@@ -118,17 +118,17 @@ public class UserInfectionTest {
             assertEquals(1l,((Map)(res)).get(privateSickCounter));
 
         });
-        sleep(10000);
+        sleep(5000);
         assertSame(HEALTHY,analyst.getCarrier().getInfectionStatus());
     }
 
     @Test
     public void sendsNotificationToAnalystOnInfection(){
         analyst.updateStatus(HEALTHY);
-        IS_NETWORK_DEBUG = true;
+        IS_NETWORK_DEBUG = false;
         IS_ONLINE = true;
         onView(withId(R.id.infectionStatusButton)).perform(click());
-        sleep(10000);
+        sleep(5000);
         assertSame(Carrier.InfectionStatus.INFECTED,analyst.getCarrier().getInfectionStatus());
     }
 

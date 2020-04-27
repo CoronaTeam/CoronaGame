@@ -1,6 +1,7 @@
 package ch.epfl.sdp;
 
 import android.Manifest;
+import android.location.Location;
 
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
@@ -16,6 +17,7 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +27,7 @@ import ch.epfl.sdp.contamination.DataReceiver;
 import ch.epfl.sdp.contamination.InfectionActivity;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
 import ch.epfl.sdp.contamination.InfectionFragment;
+import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.fragment.UserInfectionFragment;
 
@@ -63,7 +66,25 @@ public class UserInfectionTest {
     public void setUp() {
         initSafeTest(activityRule, true);
         UserInfectionFragment fragment = ((UserInfectionFragment)((UserInfectionActivity)(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
-        analyst =  fragment.getLocationService().getAnalyst();
+        Carrier me = new Layman(HEALTHY);
+        analyst =  new InfectionAnalyst() {
+            Carrier ca = me;
+            @Override
+            public void updateInfectionPredictions(Location location, Date startTime, Callback<Void> callback) {
+                }
+
+            @Override
+            public Carrier getCarrier() {
+                return me;
+            }
+
+            @Override
+            public boolean updateStatus(Carrier.InfectionStatus stat) {
+                me.evolveInfection(stat);
+                return true;
+            }
+        };
+        fragment.getLocationService().setAnalyst(analyst);
         receiver = fragment.getLocationService().getReceiver();
 
     }
@@ -131,5 +152,4 @@ public class UserInfectionTest {
         sleep(5000);
         assertSame(Carrier.InfectionStatus.INFECTED,analyst.getCarrier().getInfectionStatus());
     }
-
 }

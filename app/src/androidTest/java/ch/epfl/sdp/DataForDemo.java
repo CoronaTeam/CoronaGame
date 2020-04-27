@@ -23,9 +23,11 @@ import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.ConcreteCachingDataSender;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.contamination.Layman;
+import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.contamination.GridFirestoreInteractor.COORDINATE_PRECISION;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Random;
 import java.util.UUID;
@@ -179,63 +181,20 @@ public class DataForDemo {
     // write in History Collection on Firestore, user with ID USER_PATH_DEMO
     @Test
     public void uploadUserPaths() {
-        Account account = userPathAccount();
-        HistoryFirestoreInteractor cfi = new HistoryFirestoreInteractor(account);
+        ConcreteFirestoreInteractor cfi = new ConcreteFirestoreInteractor();
+        final boolean[] pathLoaded = new boolean[1];
         double lat = 33.39767645465177;
         double longi = -118.39439114221236;
-        for (double i=0; i<50; i=i+0.001) {
+        for (double i=0; i<50*0.001; i=i+0.001) {
             Location location = TestUtils.buildLocation(lat + i, longi + i);
             Map<String, Object> position = new HashMap();
             position.put("Position", new PositionRecord(Timestamp.now(),
                     new GeoPoint(location.getLatitude(), location.getLongitude())));
-            cfi.write(position,
-                    s -> Log.println(Log.DEBUG, "PATH", "paths successfully loaded"),
-                    f -> Log.println(Log.DEBUG, "PATH", "error loading path"));
+            cfi.writeDocument("History/USER_PATH_DEMO/Positions/", position,
+                    s -> pathLoaded[0] = true,
+                    f -> pathLoaded[0] = false);
         }
-    }
-
-    private Account userPathAccount() {
-        return new Account() {
-            @Override
-            public String getDisplayName() {
-                return "USER_PATH_DEMO";
-            }
-
-            @Override
-            public String getFamilyName() {
-                return "USER_PATH_DEMO";
-            }
-
-            @Override
-            public String getEmail() {
-                return "USER_PATH_DEMO";
-            }
-
-            @Override
-            public Uri getPhotoUrl() {
-                return null;
-            }
-
-            @Override
-            public Boolean isGoogle() {
-                return null;
-            }
-
-            @Override
-            public String getPlayerId(Activity activity) {
-                return "USER_PATH_DEMO";
-            }
-
-            @Override
-            public GoogleSignInAccount getAccount() {
-                return null;
-            }
-
-            @Override
-            public String getId() {
-                return "USER_PATH_DEMO";
-            }
-        };
+        assertTrue(pathLoaded[0]);
     }
 
 }

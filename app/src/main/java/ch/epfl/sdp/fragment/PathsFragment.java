@@ -68,7 +68,7 @@ public class PathsFragment extends Fragment {
         mapView.onDestroy();
     }
 
-    private void initPathCoordinates(Iterator<QueryDocumentSnapshot> qsIterator) {
+    private void getPathCoordinates(Iterator<QueryDocumentSnapshot> qsIterator) {
         // TODO: RETRIEVE FROM CACHE IF AVAILABLE
         // TODO: get path for given day
         // CREATE FAKE FIRESTORE TO RETRIEVE FOR DEMO IF NEEDED
@@ -192,7 +192,7 @@ public class PathsFragment extends Fragment {
             @Override
             public void onSuccess(QuerySnapshot snapshot) {
                 Iterator<QueryDocumentSnapshot> qsIterator = snapshot.iterator();
-                initPathCoordinates(qsIterator);
+                getPathCoordinates(qsIterator);
             }
             @Override
             public void onFailure() {

@@ -68,25 +68,25 @@ public class UserInfectionTest {
     public void setUp() {
         initSafeTest(activityRule, true);
         fragment = ((UserInfectionFragment)((UserInfectionActivity)(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
-//        Carrier me = new Layman(HEALTHY);
-//        InfectionAnalyst m_analyst =  new InfectionAnalyst() {
-//            Carrier ca = me;
-//            @Override
-//            public void updateInfectionPredictions(Location location, Date startTime, Callback<Void> callback) {
-//                }
-//
-//            @Override
-//            public Carrier getCarrier() {
-//                return me;
-//            }
-//
-//            @Override
-//            public boolean updateStatus(Carrier.InfectionStatus stat) {
-//                me.evolveInfection(stat);
-//                return true;
-//            }
-//        };
-        analyst = fragment.getLocationService().getAnalyst();
+        Carrier me = new Layman(HEALTHY);
+        analyst =  new InfectionAnalyst() {
+            Carrier ca = me;
+            @Override
+            public void updateInfectionPredictions(Location location, Date startTime, Callback<Void> callback) {
+                }
+
+            @Override
+            public Carrier getCarrier() {
+                return me;
+            }
+
+            @Override
+            public boolean updateStatus(Carrier.InfectionStatus stat) {
+                me.evolveInfection(stat);
+                return true;
+            }
+        };
+        fragment.getLocationService().setAnalyst(analyst);
         receiver = fragment.getLocationService().getReceiver();
 
     }
@@ -144,7 +144,7 @@ public class UserInfectionTest {
             assertEquals(1l,((Map)(res)).get(privateSickCounter));
 
         });
-        sleep(15000);
+        sleep(5000);
         assertSame(HEALTHY,analyst.getCarrier().getInfectionStatus());
     }
 
@@ -154,7 +154,7 @@ public class UserInfectionTest {
         IS_NETWORK_DEBUG = false;
         IS_ONLINE = true;
         onView(withId(R.id.infectionStatusButton)).perform(click());
-        sleep(15000);
+        sleep(5000);
         assertSame(Carrier.InfectionStatus.INFECTED,analyst.getCarrier().getInfectionStatus());
     }
 }

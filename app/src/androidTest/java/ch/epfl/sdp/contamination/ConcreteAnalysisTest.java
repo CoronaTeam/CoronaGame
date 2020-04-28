@@ -4,6 +4,8 @@ import android.location.Location;
 
 import androidx.test.rule.ActivityTestRule;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.GeoPoint;
 
 import org.junit.BeforeClass;
@@ -24,6 +26,10 @@ import ch.epfl.sdp.Account;
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.TestTools;
+import ch.epfl.sdp.User;
+import ch.epfl.sdp.UserInfectionActivity;
+import ch.epfl.sdp.firestore.FirestoreInteractor;
+import ch.epfl.sdp.fragment.UserInfectionFragment;
 import ch.epfl.sdp.location.LocationService;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -31,10 +37,14 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.getMapValue;
+import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.TestUtils.buildLocation;
+import static ch.epfl.sdp.contamination.CachingDataSender.privateSickCounter;
+import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
@@ -65,11 +75,15 @@ public class ConcreteAnalysisTest {
 
     static Map<GeoPoint, Map<Long, Set<Carrier>>> city = new HashMap<>();
 
+    static int sickCounter;
+
     @Rule
     public final ActivityTestRule<InfectionActivity> mActivityRule = new ActivityTestRule<>(InfectionActivity.class);
 
     @BeforeClass
     public static void initiateData() {
+        sickCounter = 0 ;
+
         lastPositions = new TreeMap<>();
         lastPositions.put(PositionAggregator.getWindowForDate(Calendar.getInstance().getTime()),newLoc(20,20));
         lastPositions.put(PositionAggregator.getWindowForDate(new Date(System.currentTimeMillis()-PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION)),newLoc(10,10));
@@ -92,9 +106,6 @@ public class ConcreteAnalysisTest {
         rangePeople.put(1585223373883L, man2);
         rangePeople.put(1585223373893L, man3);
         rangePeople.put(1585223373903L, man4);
-
-
-
     }
 
     DataReceiver mockReceiver = new DataReceiver() {
@@ -145,7 +156,13 @@ public class ConcreteAnalysisTest {
 
         @Override
         public void getSicknessCounter(String userId, Callback<Map<String, Integer>> callback) {
-            callback.onCallback(Collections.emptyMap());
+            Map<String,Integer> map = new HashMap<>();
+            if(sickCounter!=0){
+                map.put(privateSickCounter,sickCounter);
+            }else{
+                map = Collections.emptyMap();
+            }
+            callback.onCallback(map);
         }
 
         @Override
@@ -397,5 +414,46 @@ public class ConcreteAnalysisTest {
         analyst.updateInfectionPredictions(null,null,res->{});
         assertEquals(TRANSMISSION_FACTOR* (1+ (1-0.4)),me.getIllnessProbability(),0.00001f);
         mockReceiver.getNumberOfSickNeighbors(me.getUniqueId(), res -> assertTrue(((Map)(res)).isEmpty()));
+    }
+
+    @Test
+    public void doesUpdateCorrectlySicknessState(){
+        InfectionFragment fragment = ((InfectionFragment)mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
+        LocationService service = fragment.getLocationService();
+        Carrier me = new Layman(HEALTHY);
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
+        analyst.updateStatus(INFECTED);
+        assertSame(INFECTED,analyst.getCarrier().getInfectionStatus());
+    }
+
+    @Test
+    public void decreasesSickProbabilityWhenRecovered(){
+        sickCounter = 3;
+        Carrier me = new Layman(HEALTHY);
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
+        analyst.updateStatus(INFECTED);
+        analyst.updateInfectionPredictions(newLoc(1,1),new Date(),res ->{
+
+        });
+
+        //met : 1 x 1 + 1 x 0.3
+
+//
+//        UserInfectionFragment newFrag = new UserInfectionFragment(){
+//          @Override
+//          private void execute
+//        };
+//        ActivityTestRule<UserInfectionActivity> activityRule =
+//                new ActivityTestRule<>(UserInfectionActivity.class);
+//        initSafeTest(activityRule,true);
+//        UserInfectionFragment fragment = ((UserInfectionFragment)((UserInfectionActivity)(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
+//        LocationService service = fragment.getLocationService();
+//        fragment.setLocationService(new LocationService(){
+//            @Override
+//
+
+
+//        });
+
     }
 }

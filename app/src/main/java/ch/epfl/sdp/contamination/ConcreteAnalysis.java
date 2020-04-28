@@ -27,7 +27,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         this.cachedSender = dataSender;
     }
 
-    private float calculateCarrierInfectionProbability(Map<Carrier, Integer> suspectedContacts, float cumulativeSocialTime) {
+    private float calculateCarrierInfectionProbability(Map<Carrier, Integer> suspectedContacts, float cumulativeSocialTime, int sickCounter) {
         float updatedProbability = me.getIllnessProbability();
 
         for (Map.Entry<Carrier, Integer> c : suspectedContacts.entrySet()) {
@@ -38,7 +38,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
             } else {
 
                 // Calculate new weights for probabilities
-                float newWeight = c.getValue() / cumulativeSocialTime;
+                float newWeight = c.getValue() / (float)(cumulativeSocialTime * Math.pow(InfectionAnalyst.IMMUNITY_FACTOR,sickCounter));
                 float oldWeight = 1 - newWeight;
 
                 // Updates the probability given the new contribution by Carrier c.getKey()
@@ -63,7 +63,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         me.setIllnessProbability(updatedProbability);
     }
 
-    private void modelInfectionEvolution(Map<Carrier, Integer> suspectedContacts) {
+    private void modelInfectionEvolution(Map<Carrier, Integer> suspectedContacts,int sickCounter) {
 
         switch (me.getInfectionStatus()) {
             case INFECTED:
@@ -78,7 +78,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
                     cumulativeSocialTime += cTime;
                 }
 
-                float updatedProbability = calculateCarrierInfectionProbability(suspectedContacts, cumulativeSocialTime);
+                float updatedProbability = calculateCarrierInfectionProbability(suspectedContacts, cumulativeSocialTime,sickCounter);
                 updateCarrierInfectionProbability(updatedProbability);
         }
     }
@@ -106,27 +106,33 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     public void updateInfectionPredictions(Location location, Date startTime, Callback<Void> callback) {
 
         Date now = new Date(System.currentTimeMillis());
-        receiver.getUserNearbyDuring(location, startTime, now, aroundMe -> {
-            modelInfectionEvolution(identifySuspectContacts(aroundMe));
-            callback.onCallback(null);
-        });
+        receiver.getSicknessCounter(me.getUniqueId(),sickCount->{
+            int sickCounter1 = 0;
+            if(!((Map)(sickCount)).isEmpty()){
+                sickCounter1 =  ((int) (((HashMap) (sickCount)).get(privateSickCounter)));
+            }
+            final int counter = sickCounter1;
+            receiver.getUserNearbyDuring(location, startTime, now, aroundMe -> {
+                modelInfectionEvolution(identifySuspectContacts(aroundMe),counter);
+                callback.onCallback(null);
+            });
 
         //Method 1 : (synchrone)
 //        int badMeetings = receiver.getAndResetSickNeighbors(me.getUniqueId());
 //        updateCarrierInfectionProbability(me.getIllnessProbability() + badMeetings*TRANSMISSION_FACTOR);
 
         //method 2 : (asynchrone)
-        receiver.getSicknessCounter(me.getUniqueId(),sickCount->{
+
             receiver.getNumberOfSickNeighbors(me.getUniqueId(), res -> {
-                int sickCounter = 0;
+                int sickCounter2 = 0;
                 if(!((Map)(sickCount)).isEmpty()){
-                    sickCounter =  ((int) (((HashMap) (sickCount)).get(privateSickCounter)));
+                    sickCounter2 =  ((int) (((HashMap) (sickCount)).get(privateSickCounter)));
                 }
                 float badMeetings = 0;
                 if(!((Map)(res)).isEmpty()){
                     badMeetings =  ((float) (((HashMap) (res)).get(publicAlertAttribute)));
                 }
-                updateCarrierInfectionProbability(applyInfectionFormula(badMeetings,sickCounter));
+                updateCarrierInfectionProbability(applyInfectionFormula(badMeetings,sickCounter2));
                 cachedSender.resetSickAlerts(me.getUniqueId());
             });
         });

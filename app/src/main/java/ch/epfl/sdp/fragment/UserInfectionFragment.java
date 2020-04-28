@@ -24,6 +24,7 @@ import java.util.concurrent.Executor;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -291,5 +292,6 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     public LocationService getLocationService(){
         return service;
     }
+
 
 }

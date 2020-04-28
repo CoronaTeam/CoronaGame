@@ -8,6 +8,9 @@ import androidx.fragment.app.FragmentManager;
 
 public abstract class SingleFragmentActivity extends FragmentActivity {
     protected abstract Fragment createFragment();
+    public Fragment getFragment() {
+        return getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
+    }
 
     protected int getLayoutResId() {
         return R.layout.activity_fragment;
@@ -18,12 +21,10 @@ public abstract class SingleFragmentActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutResId());
         FragmentManager manager = getSupportFragmentManager();
-        Fragment fragment = manager.findFragmentById(R.id.fragmentContainer);
 
-        if (fragment == null) {
-            fragment = createFragment();
+        if (getFragment() == null) {
             manager.beginTransaction()
-                    .add(R.id.fragmentContainer, fragment)
+                    .add(R.id.fragmentContainer, createFragment())
                     .commit();
         }
     }

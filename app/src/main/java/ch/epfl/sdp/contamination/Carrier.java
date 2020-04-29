@@ -1,5 +1,8 @@
 package ch.epfl.sdp.contamination;
 
+import java.util.Date;
+import java.util.Map;
+
 public interface Carrier {
 
     /**
@@ -52,5 +55,13 @@ public interface Carrier {
      *  - status is != UNKNOWN
      */
     boolean setIllnessProbability(float probability);
+
+    /**
+     * Retrieves the evolution of infection probability for the carrier,
+     * starting from the date 'since'
+     * @param since
+     * @return a Map containing, for each date, the probability of being infected
+     */
+    Map<Date, Float> getIllnessProbabilityHistory(Date since);
 
 }

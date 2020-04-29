@@ -5,14 +5,12 @@ public interface Carrier {
     /**
      * Represents the possible stages of infection:
      * HEALTHY:         Healthy carrier, not infected, not suspected to be ill, not immune
-     * HEALTHY_CARRIER: Know to have been infected, not yet ill but contagious
      * INFECTED:        Definitely ill and contagious
      * IMMUNE:          Healthy carrier, either healed or already immune for other reasons
      * UNKNOWN:         Ill/healthy with some probability (no clues, bad luck :( )
      */
     enum InfectionStatus {
         HEALTHY,
-        HEALTHY_CARRIER,
         INFECTED,
         IMMUNE,
         UNKNOWN

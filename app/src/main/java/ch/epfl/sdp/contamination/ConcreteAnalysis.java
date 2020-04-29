@@ -91,7 +91,6 @@ public class ConcreteAnalysis implements InfectionAnalyst {
             switch (person.getKey().getInfectionStatus()) {
                 case INFECTED:
                 case UNKNOWN:
-                case HEALTHY_CARRIER:
                     int timeCloseBy = person.getValue() * PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION; // Add discretized time slice
                     contactDuration.put(person.getKey(), timeCloseBy);
                     break;

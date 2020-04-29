@@ -148,13 +148,7 @@ public class ConcreteAnalysisTest {
 
         @Override
         public void getSicknessCounter(String userId, Callback<Map<String, Integer>> callback) {
-            Map<String,Integer> map = new HashMap<>();
-            if(recoveryCounter !=0){
-                map.put(privateRecoveryCounter, recoveryCounter);
-            }else{
-                map = Collections.emptyMap();
-            }
-            callback.onCallback(map);
+            callback.onCallback(getSickCount());
         }
 
         @Override
@@ -217,6 +211,16 @@ public class ConcreteAnalysisTest {
         assertThat(me.getIllnessProbability(),greaterThan(0.f));
     }
 
+    private static Map<String,Integer> getSickCount(){
+    Map<String,Integer> map = new HashMap<>();
+    if(recoveryCounter !=0){
+        map.put(privateRecoveryCounter, recoveryCounter);
+    }else{
+        map = Collections.emptyMap();
+    }
+    return map;
+
+}
     class CityDataReceiver implements DataReceiver {
         @Override
         public void getUserNearby(Location l, Date date, Callback<Set<? extends Carrier>> callback) {
@@ -278,13 +282,7 @@ public class ConcreteAnalysisTest {
 
         @Override
         public void getSicknessCounter(String userId, Callback<Map<String, Integer>> callback) {
-            Map<String,Integer> map = new HashMap<>();
-            if(recoveryCounter !=0){
-                map.put(privateRecoveryCounter, recoveryCounter);
-            }else{
-                map = Collections.emptyMap();
-            }
-            callback.onCallback(map);
+            callback.onCallback(getSickCount());
         }
 
         @Override

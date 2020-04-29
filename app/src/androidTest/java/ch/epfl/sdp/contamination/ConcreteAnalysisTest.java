@@ -293,7 +293,6 @@ public class ConcreteAnalysisTest {
 
     @Test
     public void infectionProbabilityIsUpdated() throws Throwable {
-        sleep(100);
         CityDataReceiver cityReceiver = new CityDataReceiver();
         Carrier me = new Layman(HEALTHY);
 
@@ -454,6 +453,7 @@ public class ConcreteAnalysisTest {
 
         mActivityRule.getActivity().runOnUiThread(( ) -> fragment.onModelRefresh(null));
         sleep(11);
+        assertEquals(0.3f,me.getIllnessProbability(),0.001f);
         float threshold = 0.05f;
         //In case the TRANSMISSION_FACTOR changes in the future, the test still works by doing:
         if(TRANSMISSION_FACTOR>=0.9){

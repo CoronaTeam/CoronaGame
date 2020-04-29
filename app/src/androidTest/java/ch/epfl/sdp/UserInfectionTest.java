@@ -81,7 +81,6 @@ public class UserInfectionTest {
     }
     @After
     public void release(){
-        ((UserInfectionActivity)(getActivity())).getSupportFragmentManager().beginTransaction().remove(fragment).commitAllowingStateLoss();
         Intents.release();
         analyst = null;
         receiver = null;
@@ -133,7 +132,7 @@ public class UserInfectionTest {
             assertEquals(1l,((Map)(res)).get(privateRecoveryCounter));
 
         });
-        sleep(5000);
+        sleep(10000);
         assertSame(HEALTHY,analyst.getCarrier().getInfectionStatus());
     }
 
@@ -143,7 +142,7 @@ public class UserInfectionTest {
         IS_NETWORK_DEBUG = false;
         IS_ONLINE = true;
         onView(withId(R.id.infectionStatusButton)).perform(click());
-        sleep(5000);
+        sleep(10000);
         assertSame(Carrier.InfectionStatus.INFECTED,analyst.getCarrier().getInfectionStatus());
     }
 }

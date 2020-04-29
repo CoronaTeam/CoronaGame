@@ -3,14 +3,10 @@ package ch.epfl.sdp;
 import android.Manifest;
 import android.location.Location;
 
-import androidx.fragment.app.FragmentTransaction;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
-
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
 
 import org.junit.After;
 import org.junit.Before;
@@ -19,17 +15,12 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import ch.epfl.sdp.contamination.Carrier;
-import ch.epfl.sdp.contamination.ConcreteAnalysis;
 import ch.epfl.sdp.contamination.DataReceiver;
-import ch.epfl.sdp.contamination.InfectionActivity;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
-import ch.epfl.sdp.contamination.InfectionFragment;
 import ch.epfl.sdp.contamination.Layman;
-import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.fragment.UserInfectionFragment;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -43,10 +34,8 @@ import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.resetSickCounter;
 import static ch.epfl.sdp.TestTools.sleep;
-import static ch.epfl.sdp.contamination.CachingDataSender.privateSickCounter;
-import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
+import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
-import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static junit.framework.TestCase.assertSame;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -141,7 +130,7 @@ public class UserInfectionTest {
 
         receiver.getSicknessCounter(User.DEFAULT_USERID,res -> {
             assertFalse(((Map)(res)).isEmpty());
-            assertEquals(1l,((Map)(res)).get(privateSickCounter));
+            assertEquals(1l,((Map)(res)).get(privateRecoveryCounter));
 
         });
         sleep(5000);

@@ -24,7 +24,6 @@ import java.util.concurrent.Executor;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -43,7 +42,7 @@ import ch.epfl.sdp.location.LocationService;
 import static android.content.Context.BIND_AUTO_CREATE;
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
-import static ch.epfl.sdp.contamination.CachingDataSender.privateSickCounter;
+import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
 
 public class UserInfectionFragment extends Fragment implements View.OnClickListener {
@@ -186,7 +185,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
 
     private void letFirebaseEnjoyMyRecovery() {
         DocumentReference ref = FirestoreInteractor.documentReference(privateUserFolder,account.getId());
-        ref.update(privateSickCounter, FieldValue.increment(1));
+        ref.update(privateRecoveryCounter, FieldValue.increment(1));
     }
 
     public void modifyUserInfectionStatus(String userPath, Boolean infected, Callback<String> callback) {

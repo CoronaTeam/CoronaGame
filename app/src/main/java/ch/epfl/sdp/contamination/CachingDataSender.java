@@ -17,7 +17,7 @@ public interface CachingDataSender {
     String publicUserFolder = "publicUser/";
     String publicAlertAttribute = "recentlySickMeetingCounter";
     String privateUserFolder = "privateUser";
-    String privateSickCounter = "sicknessCounter";
+    String privateRecoveryCounter = "recoveryCounter";
 
     static Location RoundAndExpandLocation(Location l){
         int a = (int)(0.5 + l.getLatitude()*EXPAND_FACTOR);

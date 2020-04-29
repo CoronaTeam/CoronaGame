@@ -11,7 +11,7 @@ import java.util.SortedMap;
 
 import ch.epfl.sdp.Callback;
 
-import static ch.epfl.sdp.contamination.CachingDataSender.privateSickCounter;
+import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
 
@@ -112,12 +112,12 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     public void updateInfectionPredictions(Location location, Date startTime, Callback<Void> callback) {
 
         Date now = new Date(System.currentTimeMillis());
-        receiver.getSicknessCounter(me.getUniqueId(),sickCount->{
-            int sickCounter1 = 0;
-            if(!((Map)(sickCount)).isEmpty()){
-                sickCounter1 =  ((int) (((HashMap) (sickCount)).get(privateSickCounter)));
+        receiver.getSicknessCounter(me.getUniqueId(),recoveryCounter->{
+            int recoveryCounter1 = 0;
+            if(!((Map)(recoveryCounter)).isEmpty()){
+                recoveryCounter1 =  ((int) (((HashMap) (recoveryCounter)).get(privateRecoveryCounter)));
             }
-            final int counter = sickCounter1;
+            final int counter = recoveryCounter1;
             receiver.getUserNearbyDuring(location, startTime, now, aroundMe -> {
                 modelInfectionEvolution(identifySuspectContacts(aroundMe),counter);
                 receiver.getNumberOfSickNeighbors(me.getUniqueId(), res -> {

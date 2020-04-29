@@ -77,6 +77,7 @@ public class UserInfectionTest {
         };
         fragment.getLocationService().setAnalyst(analyst);
         receiver = fragment.getLocationService().getReceiver();
+        sleep(1000);
 
     }
     @After

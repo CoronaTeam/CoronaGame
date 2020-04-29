@@ -293,6 +293,7 @@ public class ConcreteAnalysisTest {
 
     @Test
     public void infectionProbabilityIsUpdated() throws Throwable {
+        sleep(100);
         CityDataReceiver cityReceiver = new CityDataReceiver();
         Carrier me = new Layman(HEALTHY);
 

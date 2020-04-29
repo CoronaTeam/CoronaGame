@@ -75,7 +75,7 @@ public class Layman implements Carrier{
             return false;
         }
 
-        if (myStatus == InfectionStatus.IMMUNE || myStatus == InfectionStatus.INFECTED) {
+        if (myStatus == InfectionStatus.INFECTED) {
             return false;
         }
 

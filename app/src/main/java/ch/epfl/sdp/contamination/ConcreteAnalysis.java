@@ -70,9 +70,6 @@ public class ConcreteAnalysis implements InfectionAnalyst {
             case INFECTED:
                 // MODEL: infected people should update their status when they become healthy again
                 break;
-            case IMMUNE:
-                // No matter what, I will remain so
-                break;
             default:
                 float cumulativeSocialTime = 0;
                 for (int cTime : suspectedContacts.values()) {

@@ -23,7 +23,7 @@ public interface InfectionAnalyst {
     int UNINTENTIONAL_CONTAGION_TIME = 86400000; //[ms] actual : 24 hours
 
     //MODEL: This parameter models the immunity gain by a person who has been cured against the disease
-    float IMMUNITY_FACTOR = 0.1f;
+    float IMMUNITY_FACTOR = 0.2f;
 
     /**
      * Updates the infection probability after staying at 'location' starting from startTime

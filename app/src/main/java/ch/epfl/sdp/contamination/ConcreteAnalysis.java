@@ -27,23 +27,24 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         this.cachedSender = dataSender;
     }
 
-    private float calculateCarrierInfectionProbability(Map<Carrier, Integer> suspectedContacts, float cumulativeSocialTime, int sickCounter) {
+    private float calculateCarrierInfectionProbability(Map<Carrier, Integer> suspectedContacts, float cumulativeSocialTime, int recoveryCounter) {
         float updatedProbability = me.getIllnessProbability();
 
         for (Map.Entry<Carrier, Integer> c : suspectedContacts.entrySet()) {
             // MODEL: Being close to a person for more than WINDOW_FOR_INFECTION_DETECTION implies becoming infected
             if (c.getValue() > WINDOW_FOR_INFECTION_DETECTION) {
                 me.evolveInfection(InfectionStatus.INFECTED);
+                updatedProbability = 1;
                 break;
             } else {
 
                 // Calculate new weights for probabilities
-                float newWeight = c.getValue() / (float)(cumulativeSocialTime * Math.pow(InfectionAnalyst.IMMUNITY_FACTOR,sickCounter));
+                float newWeight = c.getValue() / cumulativeSocialTime ;
                 float oldWeight = 1 - newWeight;
 
                 // Updates the probability given the new contribution by Carrier c.getKey()
                 updatedProbability = oldWeight * updatedProbability +
-                        newWeight * c.getKey().getIllnessProbability() * TRANSMISSION_FACTOR;
+                        newWeight * c.getKey().getIllnessProbability() * getFactor(recoveryCounter);
             }
         }
 
@@ -63,7 +64,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         me.setIllnessProbability(updatedProbability);
     }
 
-    private void modelInfectionEvolution(Map<Carrier, Integer> suspectedContacts,int sickCounter) {
+    private void modelInfectionEvolution(Map<Carrier, Integer> suspectedContacts,int recoveryCounter) {
 
         switch (me.getInfectionStatus()) {
             case INFECTED:
@@ -78,7 +79,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
                     cumulativeSocialTime += cTime;
                 }
 
-                float updatedProbability = calculateCarrierInfectionProbability(suspectedContacts, cumulativeSocialTime,sickCounter);
+                float updatedProbability = calculateCarrierInfectionProbability(suspectedContacts, cumulativeSocialTime,recoveryCounter);
                 updateCarrierInfectionProbability(updatedProbability);
         }
     }
@@ -102,6 +103,11 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         return contactDuration;
     }
 
+    private float getFactor(int recoveryCounter){
+        return (float)(Math.pow(InfectionAnalyst.IMMUNITY_FACTOR,recoveryCounter) * TRANSMISSION_FACTOR) ;
+    }
+
+
     @Override
     public void updateInfectionPredictions(Location location, Date startTime, Callback<Void> callback) {
 
@@ -114,32 +120,18 @@ public class ConcreteAnalysis implements InfectionAnalyst {
             final int counter = sickCounter1;
             receiver.getUserNearbyDuring(location, startTime, now, aroundMe -> {
                 modelInfectionEvolution(identifySuspectContacts(aroundMe),counter);
-                callback.onCallback(null);
-            });
-
-        //Method 1 : (synchrone)
-//        int badMeetings = receiver.getAndResetSickNeighbors(me.getUniqueId());
-//        updateCarrierInfectionProbability(me.getIllnessProbability() + badMeetings*TRANSMISSION_FACTOR);
-
-        //method 2 : (asynchrone)
-
-            receiver.getNumberOfSickNeighbors(me.getUniqueId(), res -> {
-                int sickCounter2 = 0;
-                if(!((Map)(sickCount)).isEmpty()){
-                    sickCounter2 =  ((int) (((HashMap) (sickCount)).get(privateSickCounter)));
-                }
-                float badMeetings = 0;
-                if(!((Map)(res)).isEmpty()){
-                    badMeetings =  ((float) (((HashMap) (res)).get(publicAlertAttribute)));
-                }
-                updateCarrierInfectionProbability(applyInfectionFormula(badMeetings,sickCounter2));
-                cachedSender.resetSickAlerts(me.getUniqueId());
+                receiver.getNumberOfSickNeighbors(me.getUniqueId(), res -> {
+                    float badMeetings = 0;
+                    if (!((Map) (res)).isEmpty()) {
+                        badMeetings = ((float) (((HashMap) (res)).get(publicAlertAttribute)));
+                    }
+                    updateCarrierInfectionProbability(Math.min(me.getIllnessProbability() + badMeetings * getFactor(counter), 1f));
+                    cachedSender.resetSickAlerts(me.getUniqueId());
+                    callback.onCallback(null);
+                });
             });
         });
-    }
-    private float applyInfectionFormula(float badMeetings, int sickCounter){
-        float tmp = (float)(Math.pow(InfectionAnalyst.IMMUNITY_FACTOR,sickCounter) * badMeetings * TRANSMISSION_FACTOR);
-        return Math.min(me.getIllnessProbability() + tmp,1f);
+
     }
 
     @Override

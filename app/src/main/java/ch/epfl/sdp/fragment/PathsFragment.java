@@ -10,9 +10,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
@@ -28,16 +28,17 @@ import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import ch.epfl.sdp.BuildConfig;
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
+import ch.epfl.sdp.contamination.ConcreteDataReceiver;
+import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.firestore.QueryHandler;
+
+import static com.google.firebase.firestore.Source.CACHE;
 
 /**
  * This fragment is used to display the user's last positions as a line on the map,
@@ -48,7 +49,7 @@ public class PathsFragment extends Fragment {
     public MapboxMap map; // made public for testing
     public List<Point> pathCoordinates; // made public for testing
     public Iterator<QueryDocumentSnapshot> qsIterator;
-    public ConcreteFirestoreInteractor cfi = new ConcreteFirestoreInteractor();
+    private FirebaseFirestore db = FirebaseFirestore.getInstance(); // we don't use FirestoreInteractor because we want to do more specific op
     public QueryHandler firestoreQueryHandler;
     public List<String> test;
 
@@ -108,7 +109,7 @@ public class PathsFragment extends Fragment {
     private void onMapReady(MapboxMap mapboxMap) {
         map = mapboxMap;
         //getPathCoordinates();
-        initFirestoreRetrieval();
+        initFirestorePathRetrieval();
     }
 
     private void setMapStyle(MapboxMap mapboxMap) {
@@ -131,24 +132,41 @@ public class PathsFragment extends Fragment {
         });
     }
 
-    private void initFirestoreRetrieval() {
+    private void initFirestorePathRetrieval() {
 
-        firestoreQueryHandler = new QueryHandler<QuerySnapshot>() {
+        //firestoreQueryHandler = getQueryHandler();
+        //cfi.readCollection("History/USER_PATH_DEMO/Positions", firestoreQueryHandler).limit(); // read all positions for this user
+        db.collection("History/USER_PATH_DEMO/Positions")
+                //.orderBy("timestamp")
+                //.limit(50)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        qsIterator = task.getResult().iterator(); // never get here... ??? task is never completed
+                        getPathCoordinates(qsIterator);
+                    } else {
+                        /*qsIterator = new Iterator<QueryDocumentSnapshot>() {
+                            @Override
+                            public boolean hasNext() {
+                                return false;
+                            }
 
-            @Override
-            public void onSuccess(QuerySnapshot snapshot) {
-                qsIterator = snapshot.iterator();
-                getPathCoordinates(qsIterator);
-            }
+                            @Override
+                            public QueryDocumentSnapshot next() {
+                                return null;
+                            }
+                        };// for testing only*/
+                        //Toast.makeText(parentClass.getActivity(), "Cannot retrieve positions from database", Toast.LENGTH_LONG).show();
+                    }
 
-            @Override
-            public void onFailure() {
-
-            }
-        };
-        cfi.readCollection("History/USER_PATH_DEMO/Positions", firestoreQueryHandler);
+                });
     }
 
+    private void getInfectedMet() {
+        ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
+        //concreteDataReceiver.getUserNearbyDuring();
+    }
+/*
     private QueryHandler getQueryHandler() {
         return new QueryHandler<QuerySnapshot>() {
             @Override
@@ -161,5 +179,55 @@ public class PathsFragment extends Fragment {
                 //Toast.makeText(parentClass.getActivity(), "Cannot retrieve positions from database", Toast.LENGTH_LONG).show();
             }
         };
+    }*/
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mapView.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        System.err.println("stop");
+        mapView.onStop();
+    }
+
+    // Add the mapView lifecycle to the activity's lifecycle methods
+    @Override
+    public void onResume() {
+        super.onResume();
+        System.err.println("resume");
+        mapView.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        System.err.println("pause");
+        mapView.onPause();
+    }
+
+    @Override
+    public void onLowMemory() {
+        mapView.onLowMemory();
+        super.onLowMemory();
+        System.err.println("lowmem");
+    }
+
+    @Override
+    public void onDestroy() {
+        System.err.println("destroy");
+        mapView.onDestroy();
+        super.onDestroy();
+
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        System.err.println("sis");
+        mapView.onSaveInstanceState(outState);
     }
 }

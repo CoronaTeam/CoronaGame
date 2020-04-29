@@ -126,6 +126,7 @@ public class DataForDemo {
     /**
      * Generate 1000 HEALTHY,HEALTHY_CARRIER,INFECTED,IMMUNE,UNKNOWN users starting from location 4600000, 600000
      */
+
     @Test
     public void uploadBunchOfUsersAtEPFL() {
         Date rightNow = new Date(System.currentTimeMillis());
@@ -192,9 +193,11 @@ public class DataForDemo {
                     new GeoPoint(location.getLatitude(), location.getLongitude())));
             cfi.writeDocument("History/USER_PATH_DEMO/Positions/", position,
                     s -> pathLoaded[0] = true,
-                    f -> pathLoaded[0] = false);
+                    f -> {
+                        pathLoaded[0] = false;
+                        Log.w("PATH UPLOAD", "Error uploading positions Firestore.", f);
+                    });
         }
-        assertTrue(pathLoaded[0]);
     }
 
 }

@@ -7,6 +7,7 @@ import android.widget.TextView;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -140,7 +141,7 @@ public class RealGridSenderTest {
                 .getUserNearbyDuring(somewhere, rangeStart, rangeEnd);
     }
 
-    @Test
+    @Test @Ignore
     public void repetitionsOfSameCarrierAreDetected() throws Throwable {
         // The following test uses the actual Firestore
 

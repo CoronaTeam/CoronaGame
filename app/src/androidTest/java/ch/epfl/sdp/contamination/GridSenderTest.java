@@ -144,13 +144,13 @@ public class GridSenderTest {
     public void dataReceiverFindsContacts() {
         TestTools.resetLocationServiceStatus(mActivityRule.getActivity().getService());
 
-        ((ConcreteDataReceiver) mActivityRule.getActivity().getService().getReceiver())
+        /*((ConcreteDataReceiver) mActivityRule.getActivity().getService().getReceiver())
                 .setInteractor(new MockGridInteractor() {
                     @Override
                     public CompletableFuture<Map<String, Map<String, Object>>> gridRead(Location location, long time) {
                         return CompletableFuture.completedFuture(stringMapMap);
                     }
-                });
+                });*/
 
         mActivityRule.getActivity().getService().getReceiver().getUserNearby(
                 buildLocation(10, 20),

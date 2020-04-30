@@ -276,15 +276,13 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         System.out.println(view.getId());
         switch (view.getId()) {
             case R.id.history_button: {
-                onClickHistory();
+                //onClickHistory();
+                togglePath();
+                pathsHandler.setCameraPosition();
+                // change map style using Layer (path line) and change camera position
             } break;
             case R.id.heatMapToggle: {
                 toggleHeatMap();
-            } break;
-            case R.id.pathButton: {
-                togglePath();
-                pathsHandler.seePath();
-                // change map style using Layer (path line) and change camera position
             } break;
             default: break;
         }

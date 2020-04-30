@@ -1,6 +1,7 @@
 package ch.epfl.sdp.Map;
 
 import android.graphics.Color;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -24,6 +25,7 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.contamination.ConcreteDataReceiver;
@@ -38,6 +40,8 @@ public class PathsHandler extends Fragment {
     private List<Point> pathCoordinates;
     private FirebaseFirestore db = FirebaseFirestore.getInstance(); // we don't use ConcreteFirestoreInteractor because we want to do more specific op
     private MapFragment parentClass;
+    private double latitude;
+    private double longitude;
 
     static final String PATH_LAYER_ID = "linelayer";
     static final String PATH_SOURCE_ID = "line-source";
@@ -45,7 +49,7 @@ public class PathsHandler extends Fragment {
     PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
         this.parentClass = parentClass;
         this.map = map;
-        onMapReady(map);
+        initFirestorePathRetrieval(this::getPathCoordinates);
     }
 
     private void getPathCoordinates(@NonNull Iterator<QueryDocumentSnapshot> qsIterator) {
@@ -57,21 +61,23 @@ public class PathsHandler extends Fragment {
         for (; qsIterator.hasNext(); ) {
             QueryDocumentSnapshot qs = qsIterator.next();
             try {
-                pathCoordinates.add(Point.fromLngLat(((GeoPoint) (qs.get("geoPoint"))).getLongitude(),
-                        ((GeoPoint) (qs.get("geoPoint"))).getLatitude()
-                ));
+                GeoPoint geoPoint = (GeoPoint)((Map)qs.get("Position")).get("geoPoint");
+                double lat = geoPoint.getLatitude();
+                double lon = geoPoint.getLongitude();
+                pathCoordinates.add(Point.fromLngLat(lon, lat));
             } catch (NullPointerException ignored) {
+                Log.d("ERROR ADDING POINT", String.valueOf(ignored));
             }
         }
 
+        Log.d("PATH COORD LENGTH: ", String.valueOf(pathCoordinates.size())); // is 0
+        Log.d("IS PATH COORD NULL? ", (pathCoordinates == null) ? "YES" : "NO"); // is not null
+        //latitude = pathCoordinates.get(0).latitude(); // pathCoordinate has no index 0 here
+        //longitude = pathCoordinates.get(0).longitude();
         setPathLayer();
     }
 
-    public void seePath() {
-        setCameraPosition(pathCoordinates.get(0).latitude(), pathCoordinates.get(0).longitude());
-    }
-
-    private void setCameraPosition(double latitude, double longitude) {
+    public void setCameraPosition() {
         CameraPosition position = new CameraPosition.Builder()
                 .target(new LatLng(latitude, longitude))
                 .zoom(11)
@@ -79,11 +85,6 @@ public class PathsHandler extends Fragment {
         if (map != null) {
             map.setCameraPosition(position);
         }
-    }
-
-    private void onMapReady(MapboxMap mapboxMap) {
-        map = mapboxMap;
-        initFirestorePathRetrieval(this::getPathCoordinates);
     }
 
     private void setPathLayer() {

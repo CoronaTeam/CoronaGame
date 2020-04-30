@@ -88,7 +88,6 @@
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
-        <activity android:name=".Map.PathsActivity" />
 
         <service android:name=".location.LocationService">
             

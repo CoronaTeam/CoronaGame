@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
@@ -33,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import ch.epfl.sdp.BuildConfig;
+import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
@@ -48,10 +50,8 @@ public class PathsFragment extends Fragment {
     private MapView mapView;
     public MapboxMap map; // made public for testing
     public List<Point> pathCoordinates; // made public for testing
-    public Iterator<QueryDocumentSnapshot> qsIterator;
     private FirebaseFirestore db = FirebaseFirestore.getInstance(); // we don't use FirestoreInteractor because we want to do more specific op
-    public QueryHandler firestoreQueryHandler;
-    public List<String> test;
+    //public QueryHandler firestoreQueryHandler;
 
     @Nullable
     @Override
@@ -64,7 +64,7 @@ public class PathsFragment extends Fragment {
         mapView = view.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
 
-        mapView.getMapAsync(this::onMapReady);
+        mapView.getMapAsync(this:: onMapReady);
 
         return view;
     }
@@ -78,7 +78,6 @@ public class PathsFragment extends Fragment {
     private void getPathCoordinates(@NonNull Iterator<QueryDocumentSnapshot> qsIterator) {
         // TODO: RETRIEVE FROM CACHE IF AVAILABLE
         // TODO: get path for given day
-        // CREATE FAKE FIRESTORE TO RETRIEVE FOR DEMO IF NEEDED
         // NEED TO RETRIEVE POSITIONS ON SPECIFIC DAY TIME
         pathCoordinates = new ArrayList<>();
 
@@ -108,8 +107,7 @@ public class PathsFragment extends Fragment {
 
     private void onMapReady(MapboxMap mapboxMap) {
         map = mapboxMap;
-        //getPathCoordinates();
-        initFirestorePathRetrieval();
+        initFirestorePathRetrieval(value -> getPathCoordinates(value));
     }
 
     private void setMapStyle(MapboxMap mapboxMap) {
@@ -132,7 +130,7 @@ public class PathsFragment extends Fragment {
         });
     }
 
-    private void initFirestorePathRetrieval() {
+    private void initFirestorePathRetrieval(Callback<Iterator<QueryDocumentSnapshot>> callback) {
 
         //firestoreQueryHandler = getQueryHandler();
         //cfi.readCollection("History/USER_PATH_DEMO/Positions", firestoreQueryHandler).limit(); // read all positions for this user
@@ -142,20 +140,8 @@ public class PathsFragment extends Fragment {
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        qsIterator = task.getResult().iterator(); // never get here... ??? task is never completed
-                        getPathCoordinates(qsIterator);
+                        callback.onCallback(task.getResult().iterator());
                     } else {
-                        /*qsIterator = new Iterator<QueryDocumentSnapshot>() {
-                            @Override
-                            public boolean hasNext() {
-                                return false;
-                            }
-
-                            @Override
-                            public QueryDocumentSnapshot next() {
-                                return null;
-                            }
-                        };// for testing only*/
                         //Toast.makeText(parentClass.getActivity(), "Cannot retrieve positions from database", Toast.LENGTH_LONG).show();
                     }
 

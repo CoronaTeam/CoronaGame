@@ -52,13 +52,6 @@ public class PathsActivityTest {
         //assertNull(path);
     }
 
-    @Test
-    public void qsIteratorGetsInstantiated() {
-        Iterator<QueryDocumentSnapshot> qsIterator = mActivityRule.getActivity().pathsFragment.qsIterator;
-        assertNotNull(qsIterator);
-        //assertNull(qsIterator);
-    }
-
    /* @Test
     public void sendDataToHitory() {
         Location location = TestUtils.buildLocation(33.39767645465177, -118.39439114221236);

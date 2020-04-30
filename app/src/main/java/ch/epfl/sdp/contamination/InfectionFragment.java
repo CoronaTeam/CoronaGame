@@ -99,7 +99,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
     }
 
     @VisibleForTesting
-    LocationService getLocationService() {
+    public LocationService getLocationService() {
         return service;
     }
 

@@ -3,6 +3,7 @@ package ch.epfl.sdp;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -14,6 +15,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static ch.epfl.sdp.TestTools.initSafeTest;
 import static org.hamcrest.Matchers.not;
 
 
@@ -24,7 +26,10 @@ public class TabActivityTest {
     @Rule
     public final ActivityTestRule<TabActivity> mActivityRule =
             new ActivityTestRule<>(TabActivity.class);
-
+    @Before
+    public void init(){
+        initSafeTest(mActivityRule,true);
+    }
     /*
     @Test
     @Ignore

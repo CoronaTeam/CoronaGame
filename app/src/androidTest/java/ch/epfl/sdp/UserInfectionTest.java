@@ -34,7 +34,6 @@ import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.resetSickCounter;
 import static ch.epfl.sdp.TestTools.sleep;
-import static ch.epfl.sdp.TestTools.startTestFragment;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static junit.framework.TestCase.assertSame;

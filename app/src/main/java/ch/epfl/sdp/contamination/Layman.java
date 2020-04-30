@@ -61,7 +61,6 @@ public class Layman implements Carrier{
     @Override
     public float getIllnessProbability() {
         switch (myStatus) {
-            case HEALTHY_CARRIER:
             case INFECTED:
                 return 1;
             default:
@@ -76,7 +75,7 @@ public class Layman implements Carrier{
             return false;
         }
 
-        if (myStatus == InfectionStatus.IMMUNE || myStatus == InfectionStatus.INFECTED) {
+        if (myStatus == InfectionStatus.INFECTED) {
             return false;
         }
 

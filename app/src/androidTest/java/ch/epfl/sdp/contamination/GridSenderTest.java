@@ -91,7 +91,7 @@ public class GridSenderTest {
 
         when(firstPeriodSnapshot.iterator()).thenReturn(Collections.singletonList(firstPeriodDocumentSnapshot).iterator());
         when(secondPeriodSnapshot.iterator()).thenReturn(Collections.singletonList(secondPeriodDocumentSnapshot).iterator());
-        when(firstPeriodDocumentSnapshot.get("infectionStatus")).thenReturn(Carrier.InfectionStatus.IMMUNE.toString());
+        when(firstPeriodDocumentSnapshot.get("infectionStatus")).thenReturn(Carrier.InfectionStatus.HEALTHY.toString());
         when(firstPeriodDocumentSnapshot.get("illnessProbability")).thenReturn(0.0d);
         when(secondPeriodDocumentSnapshot.get("infectionStatus")).thenReturn(Carrier.InfectionStatus.UNKNOWN.toString());
         when(secondPeriodDocumentSnapshot.get("illnessProbability")).thenReturn(0.75d);
@@ -236,7 +236,7 @@ public class GridSenderTest {
         setFakeReceiver(testLocation);
         Callback<Map<? extends Carrier, Integer>> callback = value -> {
             assertThat(value.size(), is(2));
-            assertThat(value.containsKey(new Layman(Carrier.InfectionStatus.IMMUNE, 0f)), is(true));
+            assertThat(value.containsKey(new Layman(Carrier.InfectionStatus.HEALTHY, 0f)), is(true));
             assertThat(value.containsKey(new Layman(Carrier.InfectionStatus.UNKNOWN)), is(false));
             assertThat(value.get(new Layman(Carrier.InfectionStatus.UNKNOWN, 0.75f)), is(1));
         };

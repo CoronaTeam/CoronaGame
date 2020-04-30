@@ -8,20 +8,15 @@ import androidx.test.rule.ActivityTestRule;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import ch.epfl.sdp.Callback;
-import ch.epfl.sdp.R;
 import ch.epfl.sdp.User;
 
-import static ch.epfl.sdp.TestTools.getActivity;
-import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
@@ -30,19 +25,11 @@ import static org.junit.Assert.assertEquals;
 public class DataReceiverTest {
     DataReceiver receiver;
     ConcreteCachingDataSender sender;
-    @Rule
-    public final ActivityTestRule<InfectionActivity> mActivityRule = new ActivityTestRule<>(InfectionActivity.class);
-
     @Before
     public void init(){
-        InfectionFragment fragment = ((InfectionFragment)((InfectionActivity)(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
-        initSafeTest(mActivityRule,true);
-        receiver = fragment.getLocationService().getReceiver();
-        sender = (ConcreteCachingDataSender)fragment.getLocationService().getSender();
-    }
-    @After
-    public void release(){
-        Intents.release();
+        sender = new ConcreteCachingDataSender(new GridFirestoreInteractor());
+        receiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
+
     }
     class FakeGridInteractor extends GridFirestoreInteractor {
         private Map<Location,String> locationData;

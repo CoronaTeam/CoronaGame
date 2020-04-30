@@ -67,8 +67,9 @@ public class ProbabilityStorageTest {
     }
 
     @Test
-    public void fileCanBeReadAndWritten() {
+    public void fileCanBeSuccessfullyDeleted() {
         StorageManager<Integer, Double> manager = getIntDoubleManager();
+        manager.write(Collections.singletonMap(1, 60.3));
         manager.delete();
     }
 

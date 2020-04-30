@@ -59,7 +59,7 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
             }
         }
         if (!file.canWrite() || !file.canRead()) {
-            throw new IllegalArgumentException("Cannot read&write on the specified file");
+            throw new IllegalArgumentException("Cannot read or write on the specified file");
         }
 
         cache = new TreeMap<>();

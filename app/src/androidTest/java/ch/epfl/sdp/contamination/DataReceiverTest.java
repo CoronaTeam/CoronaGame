@@ -32,9 +32,7 @@ public class DataReceiverTest {
         InfectionFragment fragment = ((InfectionFragment)((InfectionActivity)(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
 
         receiver = fragment.getLocationService().getReceiver();
-//                getReceiver();
         sender = (ConcreteCachingDataSender)fragment.getLocationService().getSender();
-//                (ConcreteCachingDataSender) getSender();
     }
     class FakeGridInteractor extends GridFirestoreInteractor {
         private Map<Location,String> locationData;
@@ -67,6 +65,7 @@ public class DataReceiverTest {
             return meetings.get(documentID);
         }
     }
+
     @Test
     public void getSickNeighborDoesGetIt(){
         sender.resetSickAlerts(User.DEFAULT_USERID);
@@ -76,5 +75,7 @@ public class DataReceiverTest {
                                 0.00001)));
         sleep();
     }
+
+
 
 }

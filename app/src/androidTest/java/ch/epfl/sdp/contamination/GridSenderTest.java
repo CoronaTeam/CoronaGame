@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -52,9 +53,9 @@ public class GridSenderTest {
     Function<Throwable, Void> writeFailureToUi;
 
     @Mock
-    private QuerySnapshot querySnapshot;
+    private Map<String, Map<String, Object>> stringMapMap;
     @Mock
-    private QueryDocumentSnapshot queryDocumentSnapshot;
+    Map.Entry<String, Map<String, Object>> stringMapEntry;
     @Mock
     private QuerySnapshot firstPeriodSnapshot;
     @Mock
@@ -74,9 +75,9 @@ public class GridSenderTest {
 
     @Before
     public void setupMockito() {
-        when(querySnapshot.iterator()).thenReturn(Collections.singletonList(queryDocumentSnapshot).iterator());
-        when(queryDocumentSnapshot.get("infectionStatus")).thenReturn(Carrier.InfectionStatus.HEALTHY.toString());
-        when(queryDocumentSnapshot.get("illnessProbability")).thenReturn(0.5d);
+        when(stringMapMap.entrySet()).thenReturn(Collections.singleton(stringMapEntry));
+        when(stringMapEntry.getValue().get("infectionStatus")).thenReturn(Carrier.InfectionStatus.HEALTHY.toString());
+        when(stringMapEntry.getValue().get("illnessProbability")).thenReturn(0.5d);
 
         when(firstPeriodSnapshot.iterator()).thenReturn(Collections.singletonList(firstPeriodDocumentSnapshot).iterator());
         when(secondPeriodSnapshot.iterator()).thenReturn(Collections.singletonList(secondPeriodDocumentSnapshot).iterator());
@@ -143,14 +144,13 @@ public class GridSenderTest {
     public void dataReceiverFindsContacts() {
         TestTools.resetLocationServiceStatus(mActivityRule.getActivity().getService());
 
-        //TODO: restore
-        /*((ConcreteDataReceiver) mActivityRule.getActivity().getService().getReceiver())
+        ((ConcreteDataReceiver) mActivityRule.getActivity().getService().getReceiver())
                 .setInteractor(new MockGridInteractor() {
-            @Override
-            public void read(Location location, long time, QueryHandler handler) {
-                handler.onSuccess(querySnapshot);
-            }
-        });*/
+                    @Override
+                    public CompletableFuture<Map<String, Map<String, Object>>> gridRead(Location location, long time) {
+                        return CompletableFuture.completedFuture(stringMapMap);
+                    }
+                });
 
         mActivityRule.getActivity().getService().getReceiver().getUserNearby(
                 buildLocation(10, 20),
@@ -233,11 +233,11 @@ public class GridSenderTest {
         TestTools.sleep(1000);
     }
 
-class MockGridInteractor extends GridFirestoreInteractor {
+    class MockGridInteractor extends GridFirestoreInteractor {
 
-    // TODO: GridFirestoreInteractor should become an interface too
-    MockGridInteractor() {
-        super();
+        // TODO: GridFirestoreInteractor should become an interface too
+        MockGridInteractor() {
+            super();
+        }
     }
-}
 }

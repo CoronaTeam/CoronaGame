@@ -23,6 +23,7 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
         this.serverIdlingResource = new CountingIdlingResource("firestoreCountingResource");
     }
 
+    @Override
     public CompletableFuture<Map<String, Object>> readDocument(@NotNull DocumentReference documentReference) {
         CompletableFuture<Map<String, Object>> result = null;
         try {
@@ -51,6 +52,7 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
         }
     }
 
+    @Override
     public CompletableFuture<Map<String, Map<String, Object>>> readCollection(@NotNull CollectionReference collectionReference) {
         try {
             serverIdlingResource.increment();
@@ -74,6 +76,7 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
         }
     }
 
+    @Override
     public CompletableFuture<DocumentReference> writeDocument(@NotNull CollectionReference collectionReference, Object document) {
         try {
             serverIdlingResource.increment();
@@ -84,6 +87,7 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
         }
     }
 
+    @Override
     public CompletableFuture<Void> writeDocumentWithID(@NotNull DocumentReference documentReference, Object document) {
         try {
             serverIdlingResource.increment();

@@ -49,9 +49,11 @@ import static com.google.firebase.firestore.Source.CACHE;
 public class PathsFragment extends Fragment {
     private MapView mapView;
     public MapboxMap map; // made public for testing
-    public List<Point> pathCoordinates; // made public for testing
+    private List<Point> pathCoordinates; // made public for testing
     private FirebaseFirestore db = FirebaseFirestore.getInstance(); // we don't use FirestoreInteractor because we want to do more specific op
-    //public QueryHandler firestoreQueryHandler;
+
+    public double latitude; // testing
+    public double longitude; // testing
 
     @Nullable
     @Override
@@ -69,14 +71,7 @@ public class PathsFragment extends Fragment {
         return view;
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        mapView.onDestroy();
-    }
-
-    // public for testing
-    public void getPathCoordinates(@NonNull Iterator<QueryDocumentSnapshot> qsIterator) {
+    private void getPathCoordinates(@NonNull Iterator<QueryDocumentSnapshot> qsIterator) {
         // TODO: RETRIEVE FROM CACHE IF AVAILABLE
         // TODO: get path for given day
         // NEED TO RETRIEVE POSITIONS ON SPECIFIC DAY TIME
@@ -104,11 +99,15 @@ public class PathsFragment extends Fragment {
         if (map != null) {
             map.setCameraPosition(position);
         }
+        // begin for testing //
+        this.latitude = latitude;
+        this.longitude = longitude;
+        // end for testing //
     }
 
     private void onMapReady(MapboxMap mapboxMap) {
         map = mapboxMap;
-        initFirestorePathRetrieval(value -> getPathCoordinates(value));
+        initFirestorePathRetrieval(this::getPathCoordinates);
     }
 
     private void setMapStyle(MapboxMap mapboxMap) {
@@ -153,6 +152,12 @@ public class PathsFragment extends Fragment {
     private void getInfectedMet() {
         ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
         //concreteDataReceiver.getUserNearbyDuring();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mapView.onDestroy();
     }
 
     @Override

@@ -133,7 +133,7 @@ public class ConcreteDataReceiver implements DataReceiver {
     }
 
     @Override
-        public void getUserNearbyDuring(Location location, Date startDate, Date endDate, Callback<Map<? extends Carrier, Integer>> callback) {
+    public void getUserNearbyDuring(Location location, Date startDate, Date endDate, Callback<Map<? extends Carrier, Integer>> callback) {
 
 
         interactor.getTimes(location, new QueryHandler<QuerySnapshot>() {

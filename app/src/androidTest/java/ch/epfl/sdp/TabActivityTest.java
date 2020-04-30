@@ -89,7 +89,7 @@ public class TabActivityTest {
     @Test
     public void testTabsDisplayCorrectly() {
         onView(withId(R.id.heapMapLoadingSpinner)).check(matches(isDisplayed()));
-        sleep(5000); // wait for map to fully load before declaring success
+        sleep(10000); // wait for map to fully load before declaring success
         onView(withId(R.id.mapFragment)).check(matches(isDisplayed()));
     }
 

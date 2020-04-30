@@ -1,29 +1,21 @@
 package ch.epfl.sdp.Map;
 
 import android.graphics.Color;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.LineString;
-import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.geometry.LatLng;
-import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
-import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.style.layers.Layer;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
@@ -33,16 +25,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import ch.epfl.sdp.BuildConfig;
 import ch.epfl.sdp.Callback;
-import ch.epfl.sdp.Map.MapFragment;
-import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
-import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
-import ch.epfl.sdp.firestore.QueryHandler;
-
-import static com.google.firebase.firestore.Source.CACHE;
 
 /**
  * This class is used to display the user's last positions as a line on the map,
@@ -53,6 +38,9 @@ public class PathsHandler extends Fragment {
     private List<Point> pathCoordinates;
     private FirebaseFirestore db = FirebaseFirestore.getInstance(); // we don't use ConcreteFirestoreInteractor because we want to do more specific op
     private MapFragment parentClass;
+
+    static final String PATH_LAYER_ID = "linelayer";
+    static final String PATH_SOURCE_ID = "line-source";
 
     PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
         this.parentClass = parentClass;
@@ -75,11 +63,12 @@ public class PathsHandler extends Fragment {
             } catch (NullPointerException ignored) {
             }
         }
+
+        setPathLayer();
     }
 
     public void seePath() {
         setCameraPosition(pathCoordinates.get(0).latitude(), pathCoordinates.get(0).longitude());
-        setMapStyle(map);
     }
 
     private void setCameraPosition(double latitude, double longitude) {
@@ -97,23 +86,22 @@ public class PathsHandler extends Fragment {
         initFirestorePathRetrieval(this::getPathCoordinates);
     }
 
-    private void setMapStyle(MapboxMap mapboxMap) {
-        mapboxMap.setStyle(Style.OUTDOORS, style -> {
+    private void setPathLayer() {
+        Layer layer = new LineLayer(PATH_LAYER_ID, PATH_SOURCE_ID).withProperties(
+                PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
+                PropertyFactory.lineWidth(5f),
+                PropertyFactory.lineColor(Color.parseColor("maroon"))
+        );
+        map.getStyle(style -> {
 
             // Create the LineString from the list of coordinates and then make a GeoJSON
             // FeatureCollection so we can add the line to our map as a layer.
-            style.addSource(new GeoJsonSource("line-source",
+            style.addSource(new GeoJsonSource(PATH_SOURCE_ID,
                     FeatureCollection.fromFeatures(new Feature[]{Feature.fromGeometry(
                             LineString.fromLngLats(pathCoordinates)
                     )})));
 
-            // The layer properties for our line. This is where we make the line dotted, set the
-            // color, etc.
-            style.addLayer(new LineLayer("linelayer", "line-source").withProperties(
-                    PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
-                    PropertyFactory.lineWidth(5f),
-                    PropertyFactory.lineColor(Color.parseColor("maroon"))
-            ));
+            style.addLayer(layer);
         });
     }
 

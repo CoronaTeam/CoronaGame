@@ -34,7 +34,6 @@ public class TabActivity extends AppCompatActivity {
             new Tab(MapFragment.class, R.string.tab_map, R.drawable.tab_map),
             new Tab(UserInfectionFragment.class, R.string.tab_status, R.drawable.tab_status),
             new Tab(AccountFragment.class, R.string.tab_account, R.drawable.tab_account),
-            new Tab(PathsHandler.class, R.string.tab_paths, R.drawable.tab_map)
     };
 
     public class TabPagerAdapter extends FragmentPagerAdapter {

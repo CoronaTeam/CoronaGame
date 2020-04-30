@@ -44,4 +44,5 @@
     <string name="accountDetails">Détails du compte</string>
     <string name="email">E-mail</string>
     <string name="tab_paths">Parcours</string>
+    <string name="see_my_last_path">Voire mon dernier trajet</string>
 </resources>

@@ -3,15 +3,13 @@ package ch.epfl.sdp;
 import androidx.test.rule.ActivityTestRule;
 
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.mapbox.mapboxsdk.camera.CameraPosition;
-import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
 import ch.epfl.sdp.Map.PathsActivity;
-import ch.epfl.sdp.fragment.PathsFragment;
+import ch.epfl.sdp.Map.PathsHandler;
 
 import static org.junit.Assert.assertEquals;
 
@@ -35,8 +33,8 @@ public class PathsActivityTest {
 
     @Test
     public void pathSuccessfullyRetrieved() {
-        PathsFragment pathsFragment = mActivityRule.getActivity().pathsFragment;
-        pathsFragment.initFirestorePathRetrieval(Assert::assertNotNull);
+        PathsHandler pathsHandler = mActivityRule.getActivity().pathsHandler;
+        pathsHandler.initFirestorePathRetrieval(Assert::assertNotNull);
     }
 
 }

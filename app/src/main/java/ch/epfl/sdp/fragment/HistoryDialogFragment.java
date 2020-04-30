@@ -19,7 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import ch.epfl.sdp.R;
 
-public class HistoryDialogFragment extends BottomSheetDialogFragment {
+public class HistoryDialogFragment extends BottomSheetDialogFragment implements View.OnClickListener {
 
     public static HistoryDialogFragment newInstance() {
         return new HistoryDialogFragment();
@@ -66,5 +66,16 @@ public class HistoryDialogFragment extends BottomSheetDialogFragment {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         ((Activity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         return displayMetrics.heightPixels;
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.pathButton: {
+                //togglePath();
+                // go back to map, change map style using Layer (path line) and change camera position
+            } break;
+            default: break;
+        }
     }
 }

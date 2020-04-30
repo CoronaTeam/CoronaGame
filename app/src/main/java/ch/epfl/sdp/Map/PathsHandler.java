@@ -1,4 +1,4 @@
-package ch.epfl.sdp.fragment;
+package ch.epfl.sdp.Map;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -35,40 +35,29 @@ import java.util.List;
 
 import ch.epfl.sdp.BuildConfig;
 import ch.epfl.sdp.Callback;
+import ch.epfl.sdp.Map.MapFragment;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
+import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.firestore.QueryHandler;
 
 import static com.google.firebase.firestore.Source.CACHE;
 
 /**
- * This fragment is used to display the user's last positions as a line on the map,
+ * This class is used to display the user's last positions as a line on the map,
  * as well as points of met infected users.
  */
-public class PathsFragment extends Fragment {
-    private MapView mapView;
-    public MapboxMap map; // made public for testing
-    private List<Point> pathCoordinates; // made public for testing
-    private FirebaseFirestore db = FirebaseFirestore.getInstance(); // we don't use FirestoreInteractor because we want to do more specific op
+public class PathsHandler extends Fragment {
+    private MapboxMap map;
+    private List<Point> pathCoordinates;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance(); // we don't use ConcreteFirestoreInteractor because we want to do more specific op
+    private MapFragment parentClass;
 
-    public double latitude; // testing
-    public double longitude; // testing
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-        // Mapbox access token is configured here.
-        Mapbox.getInstance(getContext(), BuildConfig.mapboxAPIKey);
-
-        View view = inflater.inflate(R.layout.fragment_paths, container, false);
-        mapView = view.findViewById(R.id.mapView);
-        mapView.onCreate(savedInstanceState);
-
-        mapView.getMapAsync(this:: onMapReady);
-
-        return view;
+    PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
+        this.parentClass = parentClass;
+        this.map = map;
+        onMapReady(map);
     }
 
     private void getPathCoordinates(@NonNull Iterator<QueryDocumentSnapshot> qsIterator) {
@@ -86,7 +75,9 @@ public class PathsFragment extends Fragment {
             } catch (NullPointerException ignored) {
             }
         }
+    }
 
+    public void seePath() {
         setCameraPosition(pathCoordinates.get(0).latitude(), pathCoordinates.get(0).longitude());
         setMapStyle(map);
     }
@@ -99,10 +90,6 @@ public class PathsFragment extends Fragment {
         if (map != null) {
             map.setCameraPosition(position);
         }
-        // begin for testing //
-        this.latitude = latitude;
-        this.longitude = longitude;
-        // end for testing //
     }
 
     private void onMapReady(MapboxMap mapboxMap) {
@@ -145,7 +132,6 @@ public class PathsFragment extends Fragment {
                     } else {
                         //Toast.makeText(parentClass.getActivity(), "Cannot retrieve positions from database", Toast.LENGTH_LONG).show();
                     }
-
                 });
     }
 
@@ -154,59 +140,4 @@ public class PathsFragment extends Fragment {
         //concreteDataReceiver.getUserNearbyDuring();
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        mapView.onDestroy();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mapView.onStart();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        System.err.println("stop");
-        mapView.onStop();
-    }
-
-    // Add the mapView lifecycle to the activity's lifecycle methods
-    @Override
-    public void onResume() {
-        super.onResume();
-        System.err.println("resume");
-        mapView.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        System.err.println("pause");
-        mapView.onPause();
-    }
-
-    @Override
-    public void onLowMemory() {
-        mapView.onLowMemory();
-        super.onLowMemory();
-        System.err.println("lowmem");
-    }
-
-    @Override
-    public void onDestroy() {
-        System.err.println("destroy");
-        mapView.onDestroy();
-        super.onDestroy();
-
-    }
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        System.err.println("sis");
-        mapView.onSaveInstanceState(outState);
-    }
 }

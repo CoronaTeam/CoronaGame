@@ -62,6 +62,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private Circle userLocation;
 
     private HeatMapHandler heatMapHandler;
+    private PathsHandler pathsHandler;
 
     private Account userAccount;
     private MapFragment classPointer;
@@ -115,6 +116,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
                         updateUserMarkerPosition(prevLocation);
                         heatMapHandler = new HeatMapHandler(classPointer, db, map);
+                        pathsHandler = new PathsHandler(classPointer, map);
                     }
                 });
             }
@@ -254,6 +256,10 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
                 }
             }
         });
+    }
+
+    private void togglePath() {
+        // layer for paths
     }
 
     @Override

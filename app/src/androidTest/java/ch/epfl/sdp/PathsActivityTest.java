@@ -24,6 +24,7 @@ import java.util.Map;
 import ch.epfl.sdp.Map.PathsActivity;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.firestore.QueryHandler;
+import ch.epfl.sdp.fragment.PathsFragment;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -35,7 +36,7 @@ public class PathsActivityTest {
 
     @Rule
     public final ActivityTestRule<PathsActivity> mActivityRule = new ActivityTestRule<>(PathsActivity.class);
-/*
+
     @Test
     public void cameraTargetsOnCurrentPath() {
         CameraPosition currentCameraPosition = mActivityRule.getActivity().pathsFragment.map.getCameraPosition();
@@ -43,46 +44,14 @@ public class PathsActivityTest {
         LatLng actualLatLng = currentCameraPosition.target;
         System.out.println("TARGET" + actualLatLng.toString());
         assertEquals(expectedLatLng, actualLatLng);
-    }*/
-
-    @Test
-    public void pathGetsInstantiated() {
-        List<Point> path = mActivityRule.getActivity().pathsFragment.pathCoordinates;
-        assertNotNull(path);
-        //assertNull(path);
-    }
-
-   /* @Test
-    public void sendDataToHitory() {
-        Location location = TestUtils.buildLocation(33.39767645465177, -118.39439114221236);
-        Map<String, Object> position = new HashMap();
-        position.put("Position", new PositionRecord(Timestamp.now(),
-                new GeoPoint(location.getLatitude(), location.getLongitude())));
-        db.collection("History/Test_upload/Positions").add(position)
-                .addOnSuccessListener(l -> Log.d("UPLOAD DATA", "UPLOAD SUCCESS!"))
-                .addOnFailureListener(f -> Log.d("UPLOAD DATA", "ERROR UPLOADING"));
     }
 
     @Test
-    public void getDataFromHistory() {
-        Log.d("GET DATA", "Testing to see logcat");
-        db.collection("Tests").get()//.document("Test_upload").collection("Positions").get()
-                .addOnSuccessListener(l ->
-                        Log.d("GET DATA", "DOWNLOAD SUCCESS!"))
-                .addOnFailureListener(f ->
-                        Log.d("GET DATA", "ERROR DOWNLOADING"));
+    public void pathSuccessfullyRetrieved() {
+        List<Point> path;
+        PathsFragment pathsFragment = mActivityRule.getActivity().pathsFragment;
+        pathsFragment.initFirestorePathRetrieval(value ->
+                assertNotNull(value));
     }
-
-    /*@Test
-    public void cfiNotNull() {
-        ConcreteFirestoreInteractor cfi = mActivityRule.getActivity().pathsFragment.cfi;
-        assertNotNull(cfi);
-    }
-
-    @Test
-    public void queryHandlerGetsInstantiated() {
-        QueryHandler fireBaseHandler = mActivityRule.getActivity().pathsFragment.firestoreQueryHandler;
-        assertNotNull(fireBaseHandler);
-    }*/
 
 }

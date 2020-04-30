@@ -75,7 +75,8 @@ public class PathsFragment extends Fragment {
         mapView.onDestroy();
     }
 
-    private void getPathCoordinates(@NonNull Iterator<QueryDocumentSnapshot> qsIterator) {
+    // public for testing
+    public void getPathCoordinates(@NonNull Iterator<QueryDocumentSnapshot> qsIterator) {
         // TODO: RETRIEVE FROM CACHE IF AVAILABLE
         // TODO: get path for given day
         // NEED TO RETRIEVE POSITIONS ON SPECIFIC DAY TIME
@@ -130,7 +131,8 @@ public class PathsFragment extends Fragment {
         });
     }
 
-    private void initFirestorePathRetrieval(Callback<Iterator<QueryDocumentSnapshot>> callback) {
+    // public for testing
+    public void initFirestorePathRetrieval(Callback<Iterator<QueryDocumentSnapshot>> callback) {
 
         //firestoreQueryHandler = getQueryHandler();
         //cfi.readCollection("History/USER_PATH_DEMO/Positions", firestoreQueryHandler).limit(); // read all positions for this user
@@ -152,20 +154,6 @@ public class PathsFragment extends Fragment {
         ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
         //concreteDataReceiver.getUserNearbyDuring();
     }
-/*
-    private QueryHandler getQueryHandler() {
-        return new QueryHandler<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot snapshot) {
-                qsIterator = snapshot.iterator();
-                getPathCoordinates(qsIterator);
-            }
-            @Override
-            public void onFailure() {
-                //Toast.makeText(parentClass.getActivity(), "Cannot retrieve positions from database", Toast.LENGTH_LONG).show();
-            }
-        };
-    }*/
 
     @Override
     public void onStart() {

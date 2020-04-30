@@ -80,7 +80,7 @@ public class PathsHandler extends Fragment {
     public void setCameraPosition() {
         CameraPosition position = new CameraPosition.Builder()
                 .target(new LatLng(latitude, longitude))
-                .zoom(11)
+                .zoom(20)
                 .build();
         if (map != null) {
             map.setCameraPosition(position);
@@ -90,7 +90,7 @@ public class PathsHandler extends Fragment {
     private void setPathLayer() {
         Layer layer = new LineLayer(PATH_LAYER_ID, PATH_SOURCE_ID).withProperties(
                 PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
-                PropertyFactory.lineWidth(5f),
+                PropertyFactory.lineWidth(10f),
                 PropertyFactory.lineColor(Color.parseColor("maroon"))
         );
         map.getStyle(style -> {

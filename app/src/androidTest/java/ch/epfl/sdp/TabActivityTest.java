@@ -1,8 +1,10 @@
 package ch.epfl.sdp;
 
+import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -93,6 +95,11 @@ public class TabActivityTest {
         onView(withId(R.id.infectionStatusView)).check(matches(not(hasFocus())));
         onView(withText(mActivityRule.getActivity().getString(R.string.tab_status))).perform(click());
         onView(withId(R.id.infectionStatusView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        Intents.release();
     }
 
 }

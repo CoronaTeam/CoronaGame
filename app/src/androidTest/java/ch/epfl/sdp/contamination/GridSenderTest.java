@@ -75,9 +75,9 @@ public class GridSenderTest {
 
     @Before
     public void setupMockito() {
-        when(stringMapMap.entrySet()).thenReturn(Collections.singleton(stringMapEntry));
+        /*when(stringMapMap.entrySet()).thenReturn(Collections.singleton(stringMapEntry));
         when(stringMapEntry.getValue().get("infectionStatus")).thenReturn(Carrier.InfectionStatus.HEALTHY.toString());
-        when(stringMapEntry.getValue().get("illnessProbability")).thenReturn(0.5d);
+        when(stringMapEntry.getValue().get("illnessProbability")).thenReturn(0.5d);*/
 
         when(firstPeriodSnapshot.iterator()).thenReturn(Collections.singletonList(firstPeriodDocumentSnapshot).iterator());
         when(secondPeriodSnapshot.iterator()).thenReturn(Collections.singletonList(secondPeriodDocumentSnapshot).iterator());

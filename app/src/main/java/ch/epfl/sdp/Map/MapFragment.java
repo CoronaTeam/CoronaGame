@@ -35,15 +35,11 @@ import ch.epfl.sdp.Account;
 import ch.epfl.sdp.BuildConfig;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
-import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.fragment.AccountFragment;
 import ch.epfl.sdp.fragment.HistoryDialogFragment;
 import ch.epfl.sdp.location.LocationBroker;
 import ch.epfl.sdp.location.LocationService;
 
-import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
-import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
-import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
@@ -137,14 +133,6 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             prevLocation = new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
             updateUserMarkerPosition(prevLocation);
 
-            Map<String, Object> element = new HashMap<>();
-            element.put("geoPoint", new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude()));
-            element.put("timeStamp", Timestamp.now());
-            db.writeDocument(collectionReference("History/" + userAccount.getId() + "/Positions")
-                    , element);
-
-            //wrapper.collection("LastPositions").document(user.getId()).set(lastPos);
-            db.writeDocumentWithID(documentReference("LastPositions", userAccount.getId()), element);
         } else {
             Toast.makeText(getActivity(), "Missing permission", Toast.LENGTH_LONG).show();
         }

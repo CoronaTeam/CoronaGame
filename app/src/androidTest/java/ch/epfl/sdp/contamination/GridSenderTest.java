@@ -118,12 +118,6 @@ public class GridSenderTest {
             public CompletableFuture<Void> gridWrite(Location location, String time, Carrier carrier) {
                 return CompletableFuture.completedFuture(null);
             }
-
-            @Override
-            public void writeDocumentWithID(DocumentReference documentReference, Object document,
-                                            OnSuccessListener successListener, OnFailureListener failureListener){
-                successListener.onSuccess(null);
-            }
         });
 
         mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().getService().getSender().registerLocation(
@@ -146,12 +140,6 @@ public class GridSenderTest {
                 CompletableFuture<Void> failedFuture = new CompletableFuture<>();
                 failedFuture.completeExceptionally(new IllegalArgumentException());
                 return failedFuture;
-            }
-
-            @Override
-            public void writeDocumentWithID(DocumentReference documentReference, Object document,
-                                            OnSuccessListener successListener, OnFailureListener failureListener){
-                failureListener.onFailure(new IllegalAccessException());
             }
         });
 

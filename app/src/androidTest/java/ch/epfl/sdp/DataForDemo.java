@@ -22,6 +22,7 @@ import ch.epfl.sdp.contamination.Layman;
 
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.contamination.GridFirestoreInteractor.COORDINATE_PRECISION;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 
 import java.util.Random;
 import java.util.UUID;
@@ -111,9 +112,7 @@ public class DataForDemo {
                 element.put("timeStamp", Timestamp.now());
                 // db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
 
-                gridFirestoreInteractor.writeDocument("LastPositions/", element, o -> {
-                }, e -> {
-                });
+                gridFirestoreInteractor.writeDocument(collectionReference("LastPositions"), element);
             }
         }
 
@@ -168,9 +167,7 @@ public class DataForDemo {
                 element.put("infectionStatus", carrier.getInfectionStatus());
                 // db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
 
-                gridFirestoreInteractor.writeDocument("LastPositions/", element, o -> {
-                }, e -> {
-                });
+                gridFirestoreInteractor.writeDocument(collectionReference("LastPositions"), element);
             }
         }
     }
@@ -188,6 +185,6 @@ public class DataForDemo {
         element.put("timeStamp", Timestamp.now());
         // db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
 
-        gridFirestoreInteractor.writeDocument("LastPositions/", element, o -> { }, e -> { });
+        gridFirestoreInteractor.writeDocument(collectionReference("LastPositions"), element);
     }
 }

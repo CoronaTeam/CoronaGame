@@ -23,6 +23,7 @@ import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.fragment.AccountFragment;
 
 import static ch.epfl.sdp.AuthenticationManager.getActivity;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 
 public class ConcreteCachingDataSender implements CachingDataSender {
     SortedMap<Date, Location> lastPositions;
@@ -40,26 +41,15 @@ public class ConcreteCachingDataSender implements CachingDataSender {
     @Override
     public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
         refreshLastPositions(time, location);
-        return gridInteractor.gridWrite(location, String.valueOf(time.getTime()), carrier);
-    }
-
-    //TODO
-    public void registerLocation(Carrier carrier,
-                                 Location location,
-                                 Date time,
-                                 OnSuccessListener successListener,
-                                 OnFailureListener failureListener) {
-        refreshLastPositions(time, location);
-
         Map<String, Object> element = new HashMap<>();
         element.put("geoPoint", new GeoPoint(location.getLatitude(), location.getLongitude()));
         element.put("timeStamp", time.getTime());
         element.put("infectionStatus", carrier.getInfectionStatus());
-        gridInteractor.writeDocumentWithID("LastPositions", AccountFragment.getAccount(getActivity()).getId(),
-                element, s -> {
-                    gridInteractor.write(location, String.valueOf(time.getTime()), carrier, successListener, failureListener);
-                },
-                failureListener);
+        CompletableFuture<Void> future1 = gridInteractor.writeDocumentWithID(
+                documentReference("LastPositions", AccountFragment.getAccount(getActivity()).getId()),
+                element);
+        CompletableFuture<Void> future2 = gridInteractor.gridWrite(location, String.valueOf(time.getTime()), carrier);
+        return CompletableFuture.allOf(future1, future2);
     }
 
     /**

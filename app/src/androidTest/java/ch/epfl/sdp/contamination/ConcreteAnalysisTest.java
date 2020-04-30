@@ -353,7 +353,7 @@ public class ConcreteAnalysisTest {
         Thread.sleep(2000);
 
         nowMillis = System.currentTimeMillis();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 20; i++) {
             city.get(badLocation).put(nowMillis+i*1000, Collections.singleton(new Layman(UNKNOWN, .99f + i)));
         }
         Thread.sleep(5000);

@@ -70,13 +70,13 @@ public class DataReceiverTest {
     @Test
     public void getSickNeighborDoesGetIt(){
         sender.resetSickAlerts(User.DEFAULT_USERID);
-        sleep(100);
+        sleep(2000);
         sender.sendAlert(User.DEFAULT_USERID);
-        sleep(4000);
+        sleep(2000);
         receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID, res ->assertEquals(1f, ((float)(double) (((Map) (res)).get(publicAlertAttribute))),0.00001));
-        sleep(1000);
+        sleep(4000);
         sender.resetSickAlerts(User.DEFAULT_USERID);
-        sleep();
+        sleep(1000);
     }
 
 }

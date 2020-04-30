@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture;
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 
-public class GridFirestoreInteractor extends ConcreteFirestoreInteractor{
+public class GridFirestoreInteractor extends ConcreteFirestoreInteractor {
 
     // MODEL: Round the location to the 5th decimal digit
     public static final int COORDINATE_PRECISION = 100000;

@@ -191,7 +191,7 @@ public class ConcreteAnalysisTest {
         assertThat(me.setIllnessProbability(.5f), equalTo(false));
 
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
-        analyst.updateInfectionPredictions(testLocation, new Date(1585223373980L));
+        analyst.updateInfectionPredictions(testLocation, new Date(1585223373980L), new Date());
         assertThat(me.getInfectionStatus(), equalTo(INFECTED));
 
     }
@@ -202,7 +202,7 @@ public class ConcreteAnalysisTest {
         Carrier me = new Layman(HEALTHY);
 
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
-        analyst.updateInfectionPredictions(testLocation, new Date(1585220363913L));
+        analyst.updateInfectionPredictions(testLocation, new Date(1585220363913L), new Date());
         assertThat(me.getInfectionStatus(), equalTo(HEALTHY));
         assertThat(me.getIllnessProbability(),greaterThan(0.f));
     }
@@ -405,7 +405,7 @@ public class ConcreteAnalysisTest {
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
         sender.sendAlert(me.getUniqueId());
         sender.sendAlert(me.getUniqueId(),0.4f);
-        analyst.updateInfectionPredictions(null,null);
+        analyst.updateInfectionPredictions(null,null, null);
         assertEquals(TRANSMISSION_FACTOR* (1+ (1-0.4)),me.getIllnessProbability(),0.00001f);
         mockReceiver.getNumberOfSickNeighbors(me.getUniqueId()).thenAccept(res -> assertTrue((res).isEmpty()));
     }

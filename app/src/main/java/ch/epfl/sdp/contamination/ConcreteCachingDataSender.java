@@ -4,11 +4,6 @@ import android.location.Location;
 
 import androidx.annotation.VisibleForTesting;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.util.Collections;
@@ -19,7 +14,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
-import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.fragment.AccountFragment;
 
 import static ch.epfl.sdp.AuthenticationManager.getActivity;
@@ -56,7 +50,7 @@ public class ConcreteCachingDataSender implements CachingDataSender {
      * removes every locations older than UNINTENTIONAL_CONTAGION_TIME ms and adds a new position
      */
     private void refreshLastPositions(Date time, Location location) {
-        Date oldestDate = new Date(time.getTime() - InfectionAnalyst.UNINTENTIONAL_CONTAGION_TIME);
+        Date oldestDate = new Date(time.getTime() - MAX_CACHE_ENTRY_AGE);
         lastPositions.headMap(oldestDate).clear();
         if (location != null) {
             lastPositions.put(time, location);

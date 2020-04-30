@@ -15,7 +15,7 @@ public class FakeAnalyst implements InfectionAnalyst {
     }
 
     @Override
-    public CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime) {
+    public CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
         return null;
     }
 

@@ -1,5 +1,6 @@
 package ch.epfl.sdp.location;
 
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -11,13 +12,26 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
 
+import java.util.Date;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
+import ch.epfl.sdp.TestUtils;
+import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.DataExchangeActivity;
+import ch.epfl.sdp.contamination.FakeCachingDataSender;
+import ch.epfl.sdp.contamination.InfectionAnalyst;
+import ch.epfl.sdp.contamination.Layman;
 
+import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.when;
 
 public class LocationServiceTest {
 
@@ -27,7 +41,20 @@ public class LocationServiceTest {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
+    @Mock
+    public InfectionAnalyst uncallableAnalyst;
+
     private AtomicBoolean registered;
+
+    private Carrier iAmBob = new Layman(HEALTHY);
+    private Location beenThere = TestUtils.buildLocation(13, 78);
+    private Date now = new Date();
+
+    @Before
+    public void setupMockito() {
+        when(uncallableAnalyst.updateInfectionPredictions(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+                .thenThrow(IllegalArgumentException.class);
+    }
 
     @Before
     public void setupTestIndicator() {
@@ -119,5 +146,47 @@ public class LocationServiceTest {
     public void canStopAggregator() {
         mActivityRule.getActivity().getService().onProviderDisabled(LocationManager.GPS_PROVIDER);
         // TODO: This test should check the effects of the operation
+    }
+
+    @Test
+    public void serviceStartsWithoutAlarm() {
+        uncallableAnalyst.updateInfectionPredictions(null, null, null);
+    }
+
+    @Test
+    public void canRetrieveInfectionProbability() {
+        LocationService service = mActivityRule.getActivity().getService();
+
+        service.setSender(new FakeCachingDataSender());
+        service.getSender().registerLocation(iAmBob, beenThere, now);
+
+        AtomicInteger locationNum = new AtomicInteger(0);
+        AtomicReference<Location> locationRef = new AtomicReference<>();
+
+        InfectionAnalyst fakeAnalyst = new InfectionAnalyst() {
+            @Override
+            public CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
+                locationNum.incrementAndGet();
+                locationRef.set(location);
+                return CompletableFuture.completedFuture(null);
+            }
+
+            @Override
+            public Carrier getCarrier() {
+                return null;
+            }
+
+            @Override
+            public boolean updateStatus(Carrier.InfectionStatus stat) {
+                return false;
+            }
+        };
+
+        service.setAnalyst(fakeAnalyst);
+
+        Intent updateAlarm = new Intent(mActivityRule.getActivity(), LocationService.class);
+        updateAlarm.putExtra(LocationService.ALARM_GOES_OFF, true);
+
+        mActivityRule.getActivity().startService(updateAlarm);
     }
 }

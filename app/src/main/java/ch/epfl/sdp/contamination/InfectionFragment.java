@@ -94,7 +94,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
 
         // TODO: Which location?
         service.getReceiver().getMyLastLocation(AccountFragment.getAccount(getActivity()))
-                .thenApply(location -> service.getAnalyst().updateInfectionPredictions(location, refreshTime)
+                .thenApply(location -> service.getAnalyst().updateInfectionPredictions(location, refreshTime, new Date())
                         .thenAccept(n -> {
                             infectionStatus.setText("Posted!!");
                                 uiHandler.post(() -> {

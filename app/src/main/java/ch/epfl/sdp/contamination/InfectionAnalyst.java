@@ -5,8 +5,6 @@ import android.location.Location;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 
-import ch.epfl.sdp.Callback;
-
 public interface InfectionAnalyst {
     int RADIUS = 3;//maximum radius up to which infection may happen
     int WINDOW_FOR_INFECTION_DETECTION = 1200000; //[ms] Window of time during which a user should not meet a person to much to stay fit. actual : 20
@@ -24,10 +22,11 @@ public interface InfectionAnalyst {
     int UNINTENTIONAL_CONTAGION_TIME = 86400000; //[ms] actual : 24 hours
 
     /**
-     * Updates the infection probability after staying at 'location' starting from startTime
+     * Updates the infection probability after staying at 'location' starting from startTime until 'endTime'
      * @param startTime
+     * @param endTime
      */
-    CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime);
+    CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime, Date endTime);
 
     /**
      * Returns the instance of the Carrier whose status is modified by the Infection Analyst

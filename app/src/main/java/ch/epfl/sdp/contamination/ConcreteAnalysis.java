@@ -101,9 +101,8 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     }
 
     @Override
-    public CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime) {
-        Date now = new Date(System.currentTimeMillis());
-        CompletableFuture future1 = receiver.getUserNearbyDuring(location, startTime, now)
+    public CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
+        CompletableFuture future1 = receiver.getUserNearbyDuring(location, startTime, endTime)
                 .thenAccept(aroundMe -> {
                     modelInfectionEvolution(identifySuspectContacts(aroundMe));
                 });

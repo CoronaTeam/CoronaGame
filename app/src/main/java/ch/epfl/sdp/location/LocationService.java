@@ -1,6 +1,8 @@
 package ch.epfl.sdp.location;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -16,6 +18,11 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
+import java.util.Date;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.concurrent.CompletableFuture;
+
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.CachingDataSender;
 import ch.epfl.sdp.contamination.Carrier;
@@ -27,6 +34,8 @@ import ch.epfl.sdp.contamination.DataReceiver;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
 import ch.epfl.sdp.contamination.Layman;
+import ch.epfl.sdp.contamination.PositionAggregator;
+import ch.epfl.sdp.firestore.FirestoreInteractor;
 
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 
@@ -36,32 +45,69 @@ public class LocationService extends Service implements LocationListener {
     private static final int MIN_UP_INTERVAL_MILLISECS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
 
+    public static final String ALARM_GOES_OFF = "beeep!";
+
+    private static final String INFECTION_PROBABILITY_TAG = "infectionProbability";
+    private static final String INFECTION_STATUS_TAG = "infectionStatus";
+    private static final String LAST_UPDATED_TAG = "lastUpdated";
+
     private LocationBroker broker;
-    // TODO: Why am I forced to use concrete type
-    private ConcretePositionAggregator aggregator;
+    private PositionAggregator aggregator;
+
+    private GridFirestoreInteractor gridInteractor;
 
     private DataReceiver receiver;
     private CachingDataSender sender;
 
     private Carrier me;
 
+    // TODO: This value should be set to several hours. It's now 2 minutes to allow for demo
+    private long alarmDelayMillis = 120_000;
+
+    private Date lastUpdated;
     private InfectionAnalyst analyst;
 
     private boolean hasGpsPermissions = false;
 
+    private void loadCarrierStatus() {
+        // TODO: Fix this: should not require activity to get Account ID
+        CompletableFuture<Map<String, Object>> crr = gridInteractor.readDocument(FirestoreInteractor.documentReference("privateUser", "USER_ID_X42"));
+
+        crr.thenAccept(map -> {
+            float infectionProbability = (float) ((double) map.getOrDefault(INFECTION_PROBABILITY_TAG, 0.d));
+            String infectionStatus = (String) map.getOrDefault(INFECTION_STATUS_TAG, Carrier.InfectionStatus.HEALTHY);
+
+            me = new Layman(Carrier.InfectionStatus.valueOf(infectionStatus), infectionProbability);
+
+            lastUpdated = new Date((long) map.getOrDefault(LAST_UPDATED_TAG, System.currentTimeMillis()));
+        }).exceptionally(e -> {
+            me = new Layman(Carrier.InfectionStatus.HEALTHY);
+            lastUpdated = new Date();
+            return null;
+        }).join();
+    }
+
+    private void setModelUpdateAlarm() {
+        Intent alarm = new Intent(this, LocationService.class);
+        alarm.putExtra(ALARM_GOES_OFF, true);
+
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0, alarm, 0);
+        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        manager.set(AlarmManager.RTC, System.currentTimeMillis() + alarmDelayMillis, pendingIntent);
+    }
+
     @Override
     public void onCreate() {
-        GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor();
+        gridInteractor = new GridFirestoreInteractor();
         sender = new ConcreteCachingDataSender(gridInteractor);
         receiver = new ConcreteDataReceiver(gridInteractor);
 
         broker = new ConcreteLocationBroker((LocationManager) this.getSystemService(Context.LOCATION_SERVICE), this);
 
-        // TODO: Carrier here must be loaded from the database
-        me = new Layman(Carrier.InfectionStatus.HEALTHY);
+        loadCarrierStatus();
 
         analyst = new ConcreteAnalysis(me, receiver,sender);
-        aggregator = new ConcretePositionAggregator(sender, analyst);
+        aggregator = new ConcretePositionAggregator(sender, me);
 
         refreshPermissions();
         if (hasGpsPermissions) {
@@ -69,8 +115,28 @@ public class LocationService extends Service implements LocationListener {
         }
     }
 
+    /** Updates the infection probability by running the model
+     * WARNING: Cannot be called after a period longer than MAX_CACHE_ENTRY_AGE
+     * Since DataSender cache would have been partially emptied already
+     */
+    private void runInfectionModel() {
+        SortedMap<Date, Location> locations = sender.getLastPositions().tailMap(lastUpdated);
+
+        for (Map.Entry<Date, Location> l : locations.entrySet()) {
+            analyst.updateInfectionPredictions(l.getValue(), lastUpdated, l.getKey());
+            lastUpdated = l.getKey();
+        }
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent.hasExtra(ALARM_GOES_OFF)) {
+            // It's time to run the model, starting from time 'lastUpdated';
+            runInfectionModel();
+        }
+
+        // Create next alarm
+        setModelUpdateAlarm();
         return START_STICKY;
     }
 
@@ -168,6 +234,10 @@ public class LocationService extends Service implements LocationListener {
 
     public DataReceiver getReceiver() {
         return receiver;
+    }
+
+    public void setAlarmDelay(int millisDelay) {
+        alarmDelayMillis = millisDelay;
     }
 
     @VisibleForTesting

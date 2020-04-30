@@ -123,7 +123,6 @@ public class GridSenderTest {
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
     }
 
-
     @Test
     public void dataSenderFailsWithError() {
 
@@ -137,7 +136,6 @@ public class GridSenderTest {
         });
 
         syntheticDataUpload();
-        TestTools.sleep(1000);
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Failed")));
     }
 
@@ -232,6 +230,7 @@ public class GridSenderTest {
                 new Date(System.currentTimeMillis()))
                 .thenAccept(writeSuccessToUi)
                 .exceptionally(writeFailureToUi));
+        TestTools.sleep(1000);
     }
 
 class MockGridInteractor extends GridFirestoreInteractor {

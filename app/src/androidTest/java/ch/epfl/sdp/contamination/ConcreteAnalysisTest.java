@@ -147,7 +147,7 @@ public class ConcreteAnalysisTest {
         }
 
         @Override
-        public void getSicknessCounter(String userId, Callback<Map<String, Integer>> callback) {
+        public void getRecoveryCounter(String userId, Callback<Map<String, Integer>> callback) {
             callback.onCallback(getSickCount());
         }
 
@@ -281,7 +281,7 @@ public class ConcreteAnalysisTest {
         }
 
         @Override
-        public void getSicknessCounter(String userId, Callback<Map<String, Integer>> callback) {
+        public void getRecoveryCounter(String userId, Callback<Map<String, Integer>> callback) {
             callback.onCallback(getSickCount());
         }
 
@@ -293,8 +293,14 @@ public class ConcreteAnalysisTest {
 
     @Test
     public void infectionProbabilityIsUpdated() throws Throwable {
+
         CityDataReceiver cityReceiver = new CityDataReceiver();
         Carrier me = new Layman(HEALTHY);
+
+
+//        mActivityRule.getActivity().setReceiver(cityReceiver);
+//        InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver,sender);
+//        mActivityRule.getActivity().setAnalyst(analysis);
 
         InfectionFragment fragment = ((InfectionFragment)mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
 
@@ -453,7 +459,6 @@ public class ConcreteAnalysisTest {
 
         mActivityRule.getActivity().runOnUiThread(( ) -> fragment.onModelRefresh(null));
         sleep(11);
-        assertEquals(0.3f,me.getIllnessProbability(),0.001f);
         float threshold = 0.05f;
         //In case the TRANSMISSION_FACTOR changes in the future, the test still works by doing:
         if(TRANSMISSION_FACTOR>=0.9){

@@ -184,7 +184,7 @@ public class ConcreteDataReceiver implements DataReceiver {
     public void getNumberOfSickNeighbors(String userId, Callback<Map<String, Float>>  callback){
         interactor.readDocument(publicUserFolder, userId, callback);
     }
-    public void getSicknessCounter(String userId, Callback<Map<String,Integer>>callback){
+    public void getRecoveryCounter(String userId, Callback<Map<String,Integer>>callback){
         interactor.readDocument(privateUserFolder, userId, callback);
     }
 }

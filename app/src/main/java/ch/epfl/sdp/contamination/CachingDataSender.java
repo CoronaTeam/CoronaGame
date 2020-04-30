@@ -16,7 +16,7 @@ public interface CachingDataSender {
     int EXPAND_FACTOR = 100000; //determines the GPS coordinates precision
     String publicUserFolder = "publicUser/";
     String publicAlertAttribute = "recentlySickMeetingCounter";
-    String privateUserFolder = "privateUser";
+    String privateUserFolder = "privateUser/";
     String privateRecoveryCounter = "recoveryCounter";
 
     static Location RoundAndExpandLocation(Location l){

@@ -108,7 +108,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     public void updateInfectionPredictions(Location location, Date startTime, Callback<Void> callback) {
 
         Date now = new Date(System.currentTimeMillis());
-        receiver.getSicknessCounter(me.getUniqueId(),recoveryCounter->{
+        receiver.getRecoveryCounter(me.getUniqueId(), recoveryCounter->{
             int recoveryCounter1 = 0;
             if(!((Map)(recoveryCounter)).isEmpty()){
                 recoveryCounter1 =  ((int) (((HashMap) (recoveryCounter)).get(privateRecoveryCounter)));

@@ -44,6 +44,7 @@ public class UserInfectionTest {
     private InfectionAnalyst analyst;
     private DataReceiver receiver;
     private UserInfectionFragment fragment;
+    private static Carrier me;
     @Rule
     public final ActivityTestRule<UserInfectionActivity> activityRule =
             new ActivityTestRule<>(UserInfectionActivity.class);
@@ -57,9 +58,9 @@ public class UserInfectionTest {
     public void setUp() {
         initSafeTest(activityRule, true);
         fragment = ((UserInfectionFragment)((UserInfectionActivity)(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
-        Carrier me = new Layman(HEALTHY);
+        me = new Layman(HEALTHY);
         analyst =  new InfectionAnalyst() {
-            Carrier ca = me;
+
             @Override
             public void updateInfectionPredictions(Location location, Date startTime, Callback<Void> callback) {
                 }
@@ -119,8 +120,8 @@ public class UserInfectionTest {
     @Test
     public void sendsNotificationToFirebaseAndAnalystOnRecovery(){
         analyst.updateStatus(HEALTHY);
-        IS_NETWORK_DEBUG = false;
-        IS_ONLINE = true;
+//        IS_NETWORK_DEBUG = false;
+//        IS_ONLINE = true;
         resetSickCounter();
         sleep(3000);
         onView(withId(R.id.infectionStatusButton)).perform(click());
@@ -128,22 +129,19 @@ public class UserInfectionTest {
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(5000);
 
-        receiver.getSicknessCounter(User.DEFAULT_USERID,res -> {
+        receiver.getRecoveryCounter(User.DEFAULT_USERID, res -> {
             assertFalse(((Map)(res)).isEmpty());
             assertEquals(1l,((Map)(res)).get(privateRecoveryCounter));
-
+            assertSame(HEALTHY,analyst.getCarrier().getInfectionStatus());
         });
-        sleep(10000);
-        assertSame(HEALTHY,analyst.getCarrier().getInfectionStatus());
+        sleep(2000);
+
     }
 
     @Test
     public void sendsNotificationToAnalystOnInfection(){
         analyst.updateStatus(HEALTHY);
-        IS_NETWORK_DEBUG = false;
-        IS_ONLINE = true;
         onView(withId(R.id.infectionStatusButton)).perform(click());
-        sleep(10000);
         assertSame(Carrier.InfectionStatus.INFECTED,analyst.getCarrier().getInfectionStatus());
     }
 }

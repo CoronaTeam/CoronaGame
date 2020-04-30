@@ -115,10 +115,12 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         switch (view.getId()) {
             case R.id.infectionStatusButton: {
                 onClickChangeStatus(view);
-            } break;
+                break;
+            }
             case R.id.refreshButton: {
                 onClickRefresh(view);
-            } break;
+                break;
+            }
         }
     }
 
@@ -172,7 +174,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
                         //infectionUploadView.setText(String.format("%s at %s", value, Calendar.getInstance().getTime()));
                     });
         } else {
-            //Tell anylst we are now healthy !
+            //Tell analyst we are now healthy !
             service.getAnalyst().updateStatus(Carrier.InfectionStatus.HEALTHY);
             letFirebaseEnjoyMyRecovery();
             setInfectionColorAndMessage(false);

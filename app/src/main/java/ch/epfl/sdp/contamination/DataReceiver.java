@@ -47,6 +47,6 @@ public interface DataReceiver {
      * @param userId
      * @param # of times the given user has recovered from his sickness
      */
-    void getSicknessCounter(String userId, Callback<Map<String,Integer>>callback);
+    void getRecoveryCounter(String userId, Callback<Map<String,Integer>>callback);
 
     }

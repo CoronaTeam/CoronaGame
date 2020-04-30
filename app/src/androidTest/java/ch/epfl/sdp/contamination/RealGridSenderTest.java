@@ -77,7 +77,7 @@ public class RealGridSenderTest {
                 somewhereInTheWorld,
                 aLittleLater);
 
-        sleep();
+        TestTools.sleep();
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
 
@@ -141,7 +141,7 @@ public class RealGridSenderTest {
                 .getUserNearbyDuring(somewhere, rangeStart, rangeEnd);
     }
 
-    @Test @Ignore
+    @Test
     public void repetitionsOfSameCarrierAreDetected() throws Throwable {
         // The following test uses the actual Firestore
 
@@ -165,7 +165,7 @@ public class RealGridSenderTest {
                     aLittleLater);
         });
 
-        Thread.sleep(1000);
+        TestTools.sleep();
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
 

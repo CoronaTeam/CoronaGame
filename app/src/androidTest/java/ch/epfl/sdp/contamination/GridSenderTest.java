@@ -6,6 +6,7 @@ import androidx.test.rule.ActivityTestRule;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -134,6 +135,12 @@ public class GridSenderTest {
             public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
                 success.onSuccess(null);
             }
+
+            @Override
+            public void writeDocumentWithID(DocumentReference documentReference, Object document,
+                                            OnSuccessListener successListener, OnFailureListener failureListener){
+                successListener.onSuccess(null);
+            }
         });
 
         mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().getService().getSender().registerLocation(
@@ -152,6 +159,12 @@ public class GridSenderTest {
             @Override
             public void write(Location location, String time, Carrier carrier, OnSuccessListener success, OnFailureListener failure) {
                 failure.onFailure(null);
+            }
+
+            @Override
+            public void writeDocumentWithID(DocumentReference documentReference, Object document,
+                                            OnSuccessListener successListener, OnFailureListener failureListener){
+                failureListener.onFailure(new IllegalAccessException());
             }
         });
 

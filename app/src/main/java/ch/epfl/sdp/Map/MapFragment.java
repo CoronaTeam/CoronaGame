@@ -139,7 +139,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             updateUserMarkerPosition(prevLocation);
             view.findViewById(R.id.mapFragment).setVisibility(View.VISIBLE);
             view.findViewById(R.id.heatMapToggle).setVisibility(View.VISIBLE);
-            view.findViewById(R.id.indeterminateBar).setVisibility(View.GONE);
+            view.findViewById(R.id.heapMapLoadingSpinner).setVisibility(View.GONE);
 
         } else {
             Toast.makeText(getActivity(), "Missing permission", Toast.LENGTH_LONG).show();

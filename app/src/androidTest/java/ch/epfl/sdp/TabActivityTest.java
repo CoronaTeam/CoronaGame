@@ -80,7 +80,7 @@ public class TabActivityTest {
 
     @Test
     public void testTabsDisplayCorrectly() {
-        onView(withId(R.id.mapFragment)).check(matches(isDisplayed()));
+        onView(withId(R.id.heapMapLoadingSpinner)).check(matches(isDisplayed()));
     }
 
     @Test

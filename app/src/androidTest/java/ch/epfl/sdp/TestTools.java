@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
 
+import androidx.fragment.app.Fragment;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.rule.ActivityTestRule;
 
@@ -14,6 +15,7 @@ import com.google.firebase.firestore.FieldValue;
 import java.util.Map;
 
 import ch.epfl.sdp.firestore.FirestoreInteractor;
+import ch.epfl.sdp.fragment.UserInfectionFragment;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -41,6 +43,17 @@ public interface TestTools {
             if (launchActivity) {
                 activityTestRule.launchActivity(new Intent());
             }
+        }
+    }
+    static <E extends SingleFragmentActivity> Fragment startTestFragment(Fragment fragment, Class<E> act){
+        if(act != null){
+            if(fragment != null){
+                (act.cast(getActivity())).getSupportFragmentManager().beginTransaction().remove(fragment).commitAllowingStateLoss();
+            }
+            fragment = ((act.cast(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
+            return fragment;
+        }else{
+            throw new IllegalArgumentException();
         }
     }
 

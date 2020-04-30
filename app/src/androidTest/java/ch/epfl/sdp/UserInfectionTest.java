@@ -34,6 +34,7 @@ import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.resetSickCounter;
 import static ch.epfl.sdp.TestTools.sleep;
+import static ch.epfl.sdp.TestTools.startTestFragment;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static junit.framework.TestCase.assertSame;
@@ -43,21 +44,21 @@ import static org.junit.Assert.assertFalse;
 public class UserInfectionTest {
     private InfectionAnalyst analyst;
     private DataReceiver receiver;
-    private UserInfectionFragment fragment;
+    private UserInfectionFragment fragment = null;
     private static Carrier me;
     @Rule
     public final ActivityTestRule<UserInfectionActivity> activityRule =
             new ActivityTestRule<>(UserInfectionActivity.class);
-    @Rule
-    public GrantPermissionRule fingerprintPermissionRule =
-            GrantPermissionRule.grant(Manifest.permission.USE_FINGERPRINT);
-    @Rule
-    public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
+//    @Rule
+//    public GrantPermissionRule fingerprintPermissionRule =
+//            GrantPermissionRule.grant(Manifest.permission.USE_FINGERPRINT);
+//    @Rule
+//    public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
 
     @Before
     public void setUp() {
         initSafeTest(activityRule, true);
-        fragment = ((UserInfectionFragment)((UserInfectionActivity)(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
+        fragment = (UserInfectionFragment)(startTestFragment(fragment, UserInfectionActivity.class));
         me = new Layman(HEALTHY);
         analyst =  new InfectionAnalyst() {
 
@@ -83,6 +84,7 @@ public class UserInfectionTest {
     }
     @After
     public void release(){
+        fragment = ((UserInfectionFragment)((UserInfectionActivity)(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
         Intents.release();
         analyst = null;
         receiver = null;

@@ -19,6 +19,7 @@ import ch.epfl.sdp.R;
 import ch.epfl.sdp.User;
 
 import static ch.epfl.sdp.TestTools.getActivity;
+import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
@@ -33,7 +34,7 @@ public class DataReceiverTest {
     @Before
     public void init(){
         InfectionFragment fragment = ((InfectionFragment)((InfectionActivity)(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
-
+        initSafeTest(mActivityRule,true);
         receiver = fragment.getLocationService().getReceiver();
         sender = (ConcreteCachingDataSender)fragment.getLocationService().getSender();
     }

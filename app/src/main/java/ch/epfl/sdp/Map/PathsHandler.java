@@ -31,6 +31,9 @@ import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.contamination.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 
+import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
+
 /**
  * This class is used to display the user's last positions as a line on the map,
  * as well as points of met infected users.
@@ -70,17 +73,17 @@ public class PathsHandler extends Fragment {
             }
         }
 
-        Log.d("PATH COORD LENGTH: ", String.valueOf(pathCoordinates.size())); // is 0
-        Log.d("IS PATH COORD NULL? ", (pathCoordinates == null) ? "YES" : "NO"); // is not null
-        //latitude = pathCoordinates.get(0).latitude(); // pathCoordinate has no index 0 here
-        //longitude = pathCoordinates.get(0).longitude();
+        Log.d("PATH COORD LENGTH: ", String.valueOf(pathCoordinates.size()));
+        Log.d("IS PATH COORD NULL? ", (pathCoordinates == null) ? "YES" : "NO");
+        latitude = pathCoordinates.get(0).latitude();
+        longitude = pathCoordinates.get(0).longitude();
         setPathLayer();
     }
 
     public void setCameraPosition() {
         CameraPosition position = new CameraPosition.Builder()
                 .target(new LatLng(latitude, longitude))
-                .zoom(20)
+                .zoom(7)
                 .build();
         if (map != null) {
             map.setCameraPosition(position);
@@ -90,7 +93,7 @@ public class PathsHandler extends Fragment {
     private void setPathLayer() {
         Layer layer = new LineLayer(PATH_LAYER_ID, PATH_SOURCE_ID).withProperties(
                 PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
-                PropertyFactory.lineWidth(10f),
+                PropertyFactory.lineWidth(6f),
                 PropertyFactory.lineColor(Color.parseColor("maroon"))
         );
         map.getStyle(style -> {
@@ -104,6 +107,7 @@ public class PathsHandler extends Fragment {
 
             style.addLayer(layer);
         });
+        layer.setProperties(visibility(NONE));
     }
 
     // public for testing

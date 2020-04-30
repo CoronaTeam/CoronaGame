@@ -57,7 +57,7 @@ public class UserInfectionTest {
     @Before
     public void setUp() {
         initSafeTest(activityRule, true);
-        sleep(1000);
+        sleep(1001);
         fragment = ((UserInfectionFragment)((UserInfectionActivity)(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
         sleep(1000);
         me = new Layman(HEALTHY);

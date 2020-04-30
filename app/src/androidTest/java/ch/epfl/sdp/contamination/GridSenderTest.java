@@ -126,6 +126,8 @@ public class GridSenderTest {
                 new Date(System.currentTimeMillis()))
                 .thenAccept(writeSuccessToUi)
                 .exceptionally(writeFailureToUi));
+
+        TestTools.sleep();
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
     }
 

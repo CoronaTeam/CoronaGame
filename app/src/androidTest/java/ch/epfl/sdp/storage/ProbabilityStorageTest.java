@@ -40,7 +40,7 @@ public class ProbabilityStorageTest {
                 Double::valueOf);
     }
 
-    private DateFormat format = new SimpleDateFormat("E MMM dd hh:mm:ss zzz yyyy");
+    private DateFormat format = new SimpleDateFormat("E MMM dd HH:mm:ss zzz yyyy");
 
     private StorageManager<Date, Double> getDateDoubleManager() {
         return new ConcreteManager<>(

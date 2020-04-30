@@ -44,21 +44,23 @@ import static org.junit.Assert.assertFalse;
 public class UserInfectionTest {
     private InfectionAnalyst analyst;
     private DataReceiver receiver;
-    private UserInfectionFragment fragment = null;
+    private UserInfectionFragment fragment;
     private static Carrier me;
     @Rule
     public final ActivityTestRule<UserInfectionActivity> activityRule =
             new ActivityTestRule<>(UserInfectionActivity.class);
-//    @Rule
-//    public GrantPermissionRule fingerprintPermissionRule =
-//            GrantPermissionRule.grant(Manifest.permission.USE_FINGERPRINT);
-//    @Rule
-//    public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
+    @Rule
+    public GrantPermissionRule fingerprintPermissionRule =
+            GrantPermissionRule.grant(Manifest.permission.USE_FINGERPRINT);
+    @Rule
+    public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
 
     @Before
     public void setUp() {
         initSafeTest(activityRule, true);
-        fragment = (UserInfectionFragment)(startTestFragment(fragment, UserInfectionActivity.class));
+        sleep(1000);
+        fragment = ((UserInfectionFragment)((UserInfectionActivity)(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
+        sleep(1000);
         me = new Layman(HEALTHY);
         analyst =  new InfectionAnalyst() {
 
@@ -120,6 +122,7 @@ public class UserInfectionTest {
     }
     @Test
     public void sendsNotificationToFirebaseAndAnalystOnRecovery(){
+        setIllnessToHealthy();
         analyst.updateStatus(HEALTHY);
 //        IS_NETWORK_DEBUG = false;
 //        IS_ONLINE = true;
@@ -129,7 +132,6 @@ public class UserInfectionTest {
         sleep(5000);
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(5000);
-
         receiver.getRecoveryCounter(User.DEFAULT_USERID, res -> {
             assertFalse(((Map)(res)).isEmpty());
             assertEquals(1l,((Map)(res)).get(privateRecoveryCounter));
@@ -138,9 +140,15 @@ public class UserInfectionTest {
         sleep(2000);
 
     }
-
+    private void setIllnessToHealthy(){
+        sleep(5000);
+        if(fragment.isImmediatelyNowIll()){
+            onView(withId(R.id.infectionStatusButton)).perform(click());
+        }
+    }
     @Test
     public void sendsNotificationToAnalystOnInfection(){
+        setIllnessToHealthy();
         analyst.updateStatus(HEALTHY);
         onView(withId(R.id.infectionStatusButton)).perform(click());
         assertSame(Carrier.InfectionStatus.INFECTED,analyst.getCarrier().getInfectionStatus());

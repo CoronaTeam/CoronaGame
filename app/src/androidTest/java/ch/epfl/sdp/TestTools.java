@@ -46,24 +46,7 @@ public interface TestTools {
         }
     }
 
-    /**
-     * This method ensures that a given fragment is launched without any "memory" to past fragments. It does a
-     * @param fragment
-     * @param act
-     * @param <E>
-     * @return
-     */
-    static <E extends SingleFragmentActivity> Fragment startTestFragment(Fragment fragment, Class<E> act){
-        if(act != null){
-            if(fragment != null){
-                (act.cast(getActivity())).getSupportFragmentManager().beginTransaction().remove(fragment).commitAllowingStateLoss();
-            }
-            fragment = ((act.cast(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
-            return fragment;
-        }else{
-            throw new IllegalArgumentException();
-        }
-    }
+
 
     /*
         This method was found on the internet for getting the current activity

@@ -24,6 +24,7 @@ import java.util.concurrent.Executor;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -176,7 +177,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         } else {
             //Tell analyst we are now healthy !
             service.getAnalyst().updateStatus(Carrier.InfectionStatus.HEALTHY);
-            letFirebaseEnjoyMyRecovery();
+            sendRecoveryToFirebase();
             setInfectionColorAndMessage(false);
             modifyUserInfectionStatus(userName, false,
                     value -> {
@@ -185,7 +186,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         }
     }
 
-    private void letFirebaseEnjoyMyRecovery() {
+    private void sendRecoveryToFirebase() {
         DocumentReference ref = FirestoreInteractor.documentReference(privateUserFolder,account.getId());
         ref.update(privateRecoveryCounter, FieldValue.increment(1));
     }
@@ -293,6 +294,11 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     public LocationService getLocationService(){
         return service;
     }
-
+    @VisibleForTesting
+    public boolean isImmediatelyNowIll(){
+        CharSequence buttonText = infectionStatusButton.getText();
+        boolean healthy = buttonText.equals(getResources().getString(R.string.i_am_infected));
+        return !healthy;
+    }
 
 }

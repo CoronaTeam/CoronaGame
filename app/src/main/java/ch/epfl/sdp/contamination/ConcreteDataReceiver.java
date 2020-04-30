@@ -23,6 +23,7 @@ import ch.epfl.sdp.Account;
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.firestore.QueryHandler;
 
+import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicUserFolder;
 
 public class ConcreteDataReceiver implements DataReceiver {
@@ -182,5 +183,8 @@ public class ConcreteDataReceiver implements DataReceiver {
 
     public void getNumberOfSickNeighbors(String userId, Callback<Map<String, Float>>  callback){
         interactor.readDocument(publicUserFolder, userId, callback);
+    }
+    public void getRecoveryCounter(String userId, Callback<Map<String,Integer>>callback){
+        interactor.readDocument(privateUserFolder, userId, callback);
     }
 }

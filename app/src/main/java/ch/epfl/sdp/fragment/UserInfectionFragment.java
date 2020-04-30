@@ -1,7 +1,10 @@
 package ch.epfl.sdp.fragment;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,23 +14,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
+import androidx.annotation.VisibleForTesting;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.BiometricPromptWrapper;
@@ -35,11 +36,15 @@ import ch.epfl.sdp.BiometricUtils;
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.ConcreteBiometricPromptWrapper;
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.User;
-import ch.epfl.sdp.UserInfectionActivity;
+import ch.epfl.sdp.contamination.Carrier;
+import ch.epfl.sdp.firestore.FirestoreInteractor;
+import ch.epfl.sdp.location.LocationService;
 
+import static android.content.Context.BIND_AUTO_CREATE;
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
+import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
+import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
 
 public class UserInfectionFragment extends Fragment implements View.OnClickListener {
 
@@ -52,6 +57,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     private static final String TAG = "User Infection Activity";
     private String userName;
     private View view;
+    private LocationService service;
 
     private Executor executor;
     private BiometricPromptWrapper biometricPrompt;
@@ -87,6 +93,20 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
             }
             this.promptInfo = promptInfoBuilder();
         }
+        ServiceConnection conn = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                UserInfectionFragment.this.service = ((LocationService.LocationBinder)service).getService();
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                service = null;
+            }
+        };
+
+        getActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
+
 
         return view;
     }
@@ -96,10 +116,12 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         switch (view.getId()) {
             case R.id.infectionStatusButton: {
                 onClickChangeStatus(view);
-            } break;
+                break;
+            }
             case R.id.refreshButton: {
                 onClickRefresh(view);
-            } break;
+                break;
+            }
         }
     }
 
@@ -145,18 +167,28 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         CharSequence buttonText = infectionStatusButton.getText();
         boolean infected = buttonText.equals(getResources().getString(R.string.i_am_infected));
         if (infected) {
+            //Tell the analyst we are now sick !
+            service.getAnalyst().updateStatus(Carrier.InfectionStatus.INFECTED);
             setInfectionColorAndMessage(true);
             modifyUserInfectionStatus(userName, true,
                     value -> {
                         //infectionUploadView.setText(String.format("%s at %s", value, Calendar.getInstance().getTime()));
                     });
         } else {
+            //Tell analyst we are now healthy !
+            service.getAnalyst().updateStatus(Carrier.InfectionStatus.HEALTHY);
+            sendRecoveryToFirebase();
             setInfectionColorAndMessage(false);
             modifyUserInfectionStatus(userName, false,
                     value -> {
                         //infectionUploadView.setText(String.format("%s at %s", value, Calendar.getInstance().getTime()))
                     });
         }
+    }
+
+    private void sendRecoveryToFirebase() {
+        DocumentReference ref = FirestoreInteractor.documentReference(privateUserFolder,account.getId());
+        ref.update(privateRecoveryCounter, FieldValue.increment(1));
     }
 
     public void modifyUserInfectionStatus(String userPath, Boolean infected, Callback<String> callback) {
@@ -258,6 +290,15 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         Toast.makeText(getActivity().getApplicationContext(),
                 "Authentication succeeded!", Toast.LENGTH_SHORT).show();
         executeHealthStatusChange();
+    }
+    public LocationService getLocationService(){
+        return service;
+    }
+    @VisibleForTesting
+    public boolean isImmediatelyNowIll(){
+        CharSequence buttonText = infectionStatusButton.getText();
+        boolean healthy = buttonText.equals(getResources().getString(R.string.i_am_infected));
+        return !healthy;
     }
 
 }

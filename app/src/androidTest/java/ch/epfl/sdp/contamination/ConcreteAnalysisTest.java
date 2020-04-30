@@ -303,10 +303,6 @@ public class ConcreteAnalysisTest {
         Carrier me = new Layman(HEALTHY);
 
 
-//        mActivityRule.getActivity().setReceiver(cityReceiver);
-//        InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver,sender);
-//        mActivityRule.getActivity().setAnalyst(analysis);
-
         InfectionFragment fragment = ((InfectionFragment)mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
 
         LocationService service = fragment.getLocationService();

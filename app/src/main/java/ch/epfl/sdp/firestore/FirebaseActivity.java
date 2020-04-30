@@ -8,18 +8,23 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.mapbox.mapboxsdk.style.expressions.Expression;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+import java.util.function.BiConsumer;
 
-import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.R;
 
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 
 public class FirebaseActivity extends AppCompatActivity {
     private FirestoreInteractor fs;
@@ -40,15 +45,9 @@ public class FirebaseActivity extends AppCompatActivity {
         TextView outputView = findViewById(R.id.FirebaseUploadConfirmation);
         checkNetworkStatus(this);
         if (IS_ONLINE) {
-            CollectionReference collectionReference = fs.collectionReference("Players");
+            CollectionReference collectionReference = collectionReference("Players");
             fs.writeDocument(collectionReference, user)
-                    .whenComplete((result, throwable) -> {
-                        if (throwable != null) {
-                            outputView.setText("Unexpected error" + throwable);
-                        } else {
-                            outputView.setText(R.string.docSnap_success_upload);
-                        }
-                    });
+                    .whenComplete(getObjectThrowableBiConsumer(outputView));
         } else {
             outputView.setText(R.string.can_t_Upload_Offline);
         }
@@ -63,57 +62,49 @@ public class FirebaseActivity extends AppCompatActivity {
         TextView outputView = findViewById(R.id.FirebaseUploadConfirmation);
         checkNetworkStatus(this);
         if (IS_ONLINE) {
-            DocumentReference documentReference = fs.documentReference("Players",
+            DocumentReference documentReference = documentReference("Players",
                     String.valueOf(new Random().nextInt()));
             fs.writeDocumentWithID(documentReference, user)
-                    .whenComplete((result, throwable) -> {
-                        if (throwable != null) {
-                            outputView.setText("Unexpected error" + throwable);
-                        } else {
-                            outputView.setText(R.string.docSnap_success_upload);
-                        }
-                    });
+                    .whenComplete(getObjectThrowableBiConsumer(outputView));
         } else {
             outputView.setText(R.string.can_t_Upload_Offline);
-        }
-
-    }
-
-    public void readData2(View view) throws ExecutionException, InterruptedException, TimeoutException {
-        DocumentReference documentReference = fs.documentReference("Tests/FirebaseActivity" +
-                "/Download", "DownloadTest");
-        TextView outputView = findViewById(R.id.FirebaseDownloadResult);
-        checkNetworkStatus(this);
-        if (IS_ONLINE) {
-            outputView.setText(R.string.downloading);
-            fs.readDocument(documentReference).thenAccept(s -> outputView.setText(s.toString()));
-        } else {
-            outputView.setText(R.string.can_t_Download_Offline);
         }
     }
 
     public void readData1(View view) {
-        CollectionReference collectionReference = fs.collectionReference("Tests/FirebaseActivity" +
+        CollectionReference collectionReference = collectionReference("Tests/FirebaseActivity" +
                 "/Download");
         TextView outputView = findViewById(R.id.FirebaseDownloadResult);
         checkNetworkStatus(this);
         if (IS_ONLINE) {
             outputView.setText(R.string.downloading);
-            fs.readCollection(collectionReference).thenAccept(s -> outputView.setText(s.toString()));
+            fs.readCollection(collectionReference).thenAccept(result -> outputView.setText(result.toString()));
         } else {
             outputView.setText(R.string.can_t_Download_Offline);
         }
     }
 
-    private void databaseOperation(int outputViewID, int duringOperation,
-                                   int offlineMessage, Callback<TextView> callback) {
-        final TextView outputView = findViewById(outputViewID);
+    public void readData2(View view)  {
+        DocumentReference documentReference = documentReference("Tests/FirebaseActivity" +
+                "/Download", "DownloadTest");
+        TextView outputView = findViewById(R.id.FirebaseDownloadResult);
         checkNetworkStatus(this);
         if (IS_ONLINE) {
-            outputView.setText(duringOperation);
-            callback.onCallback(outputView);
+            outputView.setText(R.string.downloading);
+            fs.readDocument(documentReference).thenAccept(result -> outputView.setText(result.toString()));
         } else {
-            outputView.setText(offlineMessage);
+            outputView.setText(R.string.can_t_Download_Offline);
         }
+    }
+
+    @NotNull
+    private BiConsumer<Object, Throwable> getObjectThrowableBiConsumer(TextView outputView) {
+        return (result, throwable) -> {
+            if (throwable != null) {
+                outputView.setText("Unexpected error" + throwable);
+            } else {
+                outputView.setText(R.string.docSnap_success_upload);
+            }
+        };
     }
 }

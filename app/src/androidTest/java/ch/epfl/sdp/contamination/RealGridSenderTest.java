@@ -30,7 +30,7 @@ import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.TestUtils.buildLocation;
 import static org.hamcrest.CoreMatchers.is;
 
-public class RealGridSenderTest {
+public class RealGridSenderTest extends GridSenderTest {
 
     @Rule
     public final ActivityTestRule<DataExchangeActivity> mActivityRule = new ActivityTestRule<>(DataExchangeActivity.class);
@@ -40,18 +40,10 @@ public class RealGridSenderTest {
 
     @Before
     public void setupTests() {
-        TextView exchangeStatus = mActivityRule.getActivity().exchangeStatus;
-
-        // Get reference to UI handler
-        Handler uiHandler = mActivityRule.getActivity().uiHandler;
-
-        writeSuccessToUi = (a) -> uiHandler.post(() -> exchangeStatus.setText("EXCHANGE Succeeded"));
-        writeFailureToUi = (a) -> {
-            uiHandler.post(() -> exchangeStatus.setText("EXCHANGE Failed"));
-            return null;
-        };
+        super.setupTests();
+        this.writeSuccessToUi = super.writeSuccessToUi;
+        this.writeFailureToUi = super.writeFailureToUi;
     }
-
 
     @Test
     public void complexQueriesComeAndGoFromServer() throws Throwable {

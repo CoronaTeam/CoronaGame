@@ -92,8 +92,7 @@ public class GridSenderTest {
     }
 
     @Before
-    public void setupListeners() {
-
+    public void setupTests() {
         TextView exchangeStatus = mActivityRule.getActivity().exchangeStatus;
 
         // Get reference to UI handler
@@ -120,19 +119,13 @@ public class GridSenderTest {
             }
         });
 
-        mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().getService().getSender().registerLocation(
-                new Layman(Carrier.InfectionStatus.HEALTHY),
-                buildLocation(10, 20),
-                new Date(System.currentTimeMillis()))
-                .thenAccept(writeSuccessToUi)
-                .exceptionally(writeFailureToUi));
+        syntheticDataUpload();
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
     }
 
 
     @Test
     public void dataSenderFailsWithError() {
-        Handler uiHandler = mActivityRule.getActivity().uiHandler;
 
         programSenderAction(new MockGridInteractor() {
             @Override
@@ -143,15 +136,8 @@ public class GridSenderTest {
             }
         });
 
-        mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().getService().getSender().registerLocation(
-                new Layman(Carrier.InfectionStatus.HEALTHY),
-                buildLocation(10, 20),
-                new Date(System.currentTimeMillis()))
-                .thenAccept(writeSuccessToUi)
-                .exceptionally(writeFailureToUi));
-
+        syntheticDataUpload();
         TestTools.sleep(1000);
-
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Failed")));
     }
 
@@ -237,6 +223,15 @@ public class GridSenderTest {
         aMap.put(c1, 2);
 
         assertThat(aMap.containsKey(c2), is(true));
+    }
+
+    private void syntheticDataUpload() {
+        mActivityRule.getActivity().runOnUiThread(() -> mActivityRule.getActivity().getService().getSender().registerLocation(
+                new Layman(Carrier.InfectionStatus.HEALTHY),
+                buildLocation(10, 20),
+                new Date(System.currentTimeMillis()))
+                .thenAccept(writeSuccessToUi)
+                .exceptionally(writeFailureToUi));
     }
 
 class MockGridInteractor extends GridFirestoreInteractor {

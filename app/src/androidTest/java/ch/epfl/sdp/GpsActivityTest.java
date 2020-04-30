@@ -289,12 +289,11 @@ public class GpsActivityTest {
 
     }
 
-    private FirestoreInteractor createWriteFirestoreInteractor(Boolean success, Object onSuccess) {
+    private FirestoreInteractor createWriteFirestoreInteractor(Boolean success) {
         return new FirestoreInteractor() {
 
             @Override
             public CompletableFuture<Map<String, Object>> readDocument(DocumentReference documentReference) {
-
                 return null;
             }
 

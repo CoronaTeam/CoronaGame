@@ -100,7 +100,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         // This contains the MapView in XML and needs to be called after the access token is configured.
         view = inflater.inflate(R.layout.fragment_map, container, false);
 
-        view.findViewById(R.id.mapFragment).setVisibility(View.GONE);
+        view.findViewById(R.id.mapFragment).setVisibility(View.INVISIBLE);
         view.findViewById(R.id.heatMapToggle).setVisibility(View.GONE);
 
         mapView = view.findViewById(R.id.mapFragment);

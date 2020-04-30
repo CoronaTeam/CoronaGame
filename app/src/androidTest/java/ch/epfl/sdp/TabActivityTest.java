@@ -18,6 +18,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibilit
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static ch.epfl.sdp.TestTools.initSafeTest;
+import static ch.epfl.sdp.TestTools.sleep;
 import static org.hamcrest.Matchers.not;
 
 
@@ -88,6 +89,8 @@ public class TabActivityTest {
     @Test
     public void testTabsDisplayCorrectly() {
         onView(withId(R.id.heapMapLoadingSpinner)).check(matches(isDisplayed()));
+        sleep(5000); // wait for map to fully load before declaring success
+        onView(withId(R.id.mapFragment)).check(matches(isDisplayed()));
     }
 
     @Test

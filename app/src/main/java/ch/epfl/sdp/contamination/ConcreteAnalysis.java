@@ -121,8 +121,10 @@ public class ConcreteAnalysis implements InfectionAnalyst {
                     if (!((Map) (res)).isEmpty()) {
                         badMeetings = ((float) (((HashMap) (res)).get(publicAlertAttribute)));
                     }
-                    updateCarrierInfectionProbability(Math.min(me.getIllnessProbability() + badMeetings * getFactor(counter), 1f));
-                    cachedSender.resetSickAlerts(me.getUniqueId());
+                    if(badMeetings!=0){
+                        updateCarrierInfectionProbability(Math.min(me.getIllnessProbability() + badMeetings * getFactor(counter), 1f));
+                        cachedSender.resetSickAlerts(me.getUniqueId());
+                    }
                     callback.onCallback(null);
                 });
             });

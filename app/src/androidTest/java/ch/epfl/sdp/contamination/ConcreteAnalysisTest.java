@@ -6,6 +6,7 @@ import androidx.test.rule.ActivityTestRule;
 
 import com.google.firebase.firestore.GeoPoint;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,6 +32,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static ch.epfl.sdp.TestTools.getMapValue;
+import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.TestUtils.buildLocation;
@@ -71,7 +73,10 @@ public class ConcreteAnalysisTest {
     @Rule
     public final ActivityTestRule<InfectionActivity> mActivityRule = new ActivityTestRule<>(InfectionActivity.class);
 
-
+    @Before
+    public void init(){
+        initSafeTest(mActivityRule,true);
+    }
     @BeforeClass
     public static void initiateData() {
         recoveryCounter = 0 ;
@@ -293,7 +298,7 @@ public class ConcreteAnalysisTest {
 
     @Test
     public void infectionProbabilityIsUpdated() throws Throwable {
-
+        recoveryCounter = 0;
         CityDataReceiver cityReceiver = new CityDataReceiver();
         Carrier me = new Layman(HEALTHY);
 
@@ -307,6 +312,7 @@ public class ConcreteAnalysisTest {
         LocationService service = fragment.getLocationService();
 
         service.setReceiver(cityReceiver);
+        service.setSender(sender);
         InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver,sender);
         service.setAnalyst(analysis);
 
@@ -340,22 +346,22 @@ public class ConcreteAnalysisTest {
         GeoPoint badLocation = new GeoPoint(40, 113.4);
         city.put(badLocation, new HashMap<>());
         long nowMillis = System.currentTimeMillis();
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 30; i++) {
             city.get(badLocation).put(nowMillis+i, Collections.singleton(new Layman(INFECTED)));
         }
         Thread.sleep(30);
-
         mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
 
         // I was still on healthyLocation
         onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
 
-        Thread.sleep(2000);
+        Thread.sleep(1500);
 
         nowMillis = System.currentTimeMillis();
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 5; i++) {
             city.get(badLocation).put(nowMillis+i*1000, Collections.singleton(new Layman(UNKNOWN, .99f + i)));
         }
+
         Thread.sleep(5000);
 
         // I go to the bad location

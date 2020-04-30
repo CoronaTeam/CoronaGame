@@ -2,11 +2,13 @@ package ch.epfl.sdp.contamination;
 
 import android.location.Location;
 
+import androidx.test.espresso.intent.Intents;
 import androidx.test.rule.ActivityTestRule;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,6 +39,10 @@ public class DataReceiverTest {
         initSafeTest(mActivityRule,true);
         receiver = fragment.getLocationService().getReceiver();
         sender = (ConcreteCachingDataSender)fragment.getLocationService().getSender();
+    }
+    @After
+    public void release(){
+        Intents.release();
     }
     class FakeGridInteractor extends GridFirestoreInteractor {
         private Map<Location,String> locationData;

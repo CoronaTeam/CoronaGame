@@ -2,10 +2,12 @@ package ch.epfl.sdp.contamination;
 
 import android.location.Location;
 
+import androidx.test.espresso.intent.Intents;
 import androidx.test.rule.ActivityTestRule;
 
 import com.google.firebase.firestore.GeoPoint;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -76,6 +78,10 @@ public class ConcreteAnalysisTest {
     @Before
     public void init(){
         initSafeTest(mActivityRule,true);
+    }
+    @After
+    public void release(){
+        Intents.release();
     }
     @BeforeClass
     public static void initiateData() {

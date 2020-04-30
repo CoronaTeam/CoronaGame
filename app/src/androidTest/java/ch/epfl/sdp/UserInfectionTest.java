@@ -145,11 +145,14 @@ public class UserInfectionTest {
             onView(withId(R.id.infectionStatusButton)).perform(click());
         }
     }
+
     @Test
     public void sendsNotificationToAnalystOnInfection(){
         setIllnessToHealthy();
         analyst.updateStatus(HEALTHY);
+        sleep(2000);
         onView(withId(R.id.infectionStatusButton)).perform(click());
+        sleep(2000);
         assertSame(Carrier.InfectionStatus.INFECTED,analyst.getCarrier().getInfectionStatus());
     }
 }

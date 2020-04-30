@@ -84,7 +84,6 @@ public class UserInfectionTest {
     }
     @After
     public void release(){
-        fragment = ((UserInfectionFragment)((UserInfectionActivity)(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
         Intents.release();
         analyst = null;
         receiver = null;

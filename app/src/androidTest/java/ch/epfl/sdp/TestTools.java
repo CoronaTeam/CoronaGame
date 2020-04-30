@@ -45,6 +45,14 @@ public interface TestTools {
             }
         }
     }
+
+    /**
+     * This method ensures that a given fragment is launched without any "memory" to past fragments. It does a
+     * @param fragment
+     * @param act
+     * @param <E>
+     * @return
+     */
     static <E extends SingleFragmentActivity> Fragment startTestFragment(Fragment fragment, Class<E> act){
         if(act != null){
             if(fragment != null){

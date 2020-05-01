@@ -26,6 +26,7 @@ import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.location.LocationService;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -157,8 +158,8 @@ public class ConcreteAnalysisTest {
         }
 
         @Override
-        public void getRecoveryCounter(String userId, Callback<Map<String, Integer>> callback) {
-            callback.onCallback(getSickCount());
+        public CompletableFuture<Map<String, Object>> getRecoveryCounter(String userId) {
+            return CompletableFuture.completedFuture(getSickCount());
         }
 
         @Override
@@ -227,8 +228,8 @@ public class ConcreteAnalysisTest {
         assertThat(me.getIllnessProbability(),greaterThan(0.f));
     }
 
-    private static Map<String,Integer> getSickCount(){
-    Map<String,Integer> map = new HashMap<>();
+    private static Map<String,Object> getSickCount(){
+    Map<String,Object> map = new HashMap<>();
     if(recoveryCounter !=0){
         map.put(privateRecoveryCounter, recoveryCounter);
     }else{
@@ -299,8 +300,8 @@ public class ConcreteAnalysisTest {
             //return null;
             return CompletableFuture.completedFuture(Collections.emptyMap());
         }
-        public void getRecoveryCounter(String userId, Callback<Map<String, Integer>> callback) {
-            callback.onCallback(getSickCount());
+        public CompletableFuture<Map<String, Object>> getRecoveryCounter(String userId) {
+            return CompletableFuture.completedFuture(getSickCount());
         }
     }
 
@@ -458,7 +459,7 @@ public class ConcreteAnalysisTest {
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
         sender.sendAlert(me.getUniqueId());
         sender.sendAlert(me.getUniqueId(),0.4f);
-        analyst.updateInfectionPredictions(null,null,res->{
+        analyst.updateInfectionPredictions(null,null).thenAccept(res->{
             assertEquals(1.6 * Math.pow(IMMUNITY_FACTOR,recoveryCounter)*TRANSMISSION_FACTOR ,me.getIllnessProbability(),0.00001f);
         });
     }

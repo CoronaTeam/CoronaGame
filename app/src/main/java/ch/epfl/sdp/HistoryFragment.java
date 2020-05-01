@@ -74,6 +74,7 @@ public class HistoryFragment extends Fragment {
             for (Map.Entry<String, Map<String, Object>> mapEntry : res.entrySet()) {
                 try {
                     Map<String, Object> positionRecord = mapEntry.getValue();
+                    //TODO resource strings with interpolation
                     historyAdapter.insert(String.format("Found @ %s:%s on %s",
                             ((GeoPoint)(positionRecord.get("geoPoint"))).getLatitude(),
                             ((GeoPoint)(positionRecord.get("geoPoint"))).getLongitude(),

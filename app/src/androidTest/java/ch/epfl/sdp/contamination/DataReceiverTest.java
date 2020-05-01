@@ -28,8 +28,8 @@ public class DataReceiverTest {
         sender = new ConcreteCachingDataSender(new GridFirestoreInteractor());
         receiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
 
-        receiver = fragment.getLocationService().getReceiver();
-        sender = (ConcreteCachingDataSender)fragment.getLocationService().getSender();
+        /*receiver = fragment.getLocationService().getReceiver();
+        sender = (ConcreteCachingDataSender)fragment.getLocationService().getSender();*/
     }
     class FakeGridInteractor extends GridFirestoreInteractor {
         private Map<Location,String> locationData;

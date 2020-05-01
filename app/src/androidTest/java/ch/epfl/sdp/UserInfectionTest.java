@@ -16,6 +16,7 @@ import org.junit.Test;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.DataReceiver;
@@ -63,8 +64,9 @@ public class UserInfectionTest {
         analyst =  new InfectionAnalyst() {
 
             @Override
-            public void updateInfectionPredictions(Location location, Date startTime, Callback<Void> callback) {
-                }
+            public CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime) {
+                return null;
+            }
 
             @Override
             public Carrier getCarrier() {
@@ -130,9 +132,9 @@ public class UserInfectionTest {
         sleep(5000);
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(5000);
-        receiver.getRecoveryCounter(User.DEFAULT_USERID, res -> {
-            assertFalse(((Map)(res)).isEmpty());
-            assertEquals(1l,((Map)(res)).get(privateRecoveryCounter));
+        receiver.getRecoveryCounter(User.DEFAULT_USERID).thenAccept(res -> {
+            assertFalse(res.isEmpty());
+            assertEquals(1l,res.get(privateRecoveryCounter));
             assertSame(HEALTHY,analyst.getCarrier().getInfectionStatus());
         });
         sleep(2000);

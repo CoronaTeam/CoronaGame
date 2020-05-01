@@ -31,6 +31,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 
 public interface TestTools {
     /**
@@ -135,6 +136,8 @@ public interface TestTools {
         GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor();
         service.setReceiver(new ConcreteDataReceiver(gridInteractor));
         service.setSender(new ConcreteCachingDataSender(gridInteractor));
+    }
+
     static void resetSickCounter(){
         DocumentReference ref = documentReference(privateUserFolder,User.DEFAULT_USERID);
         ref.update(privateRecoveryCounter, FieldValue.delete());

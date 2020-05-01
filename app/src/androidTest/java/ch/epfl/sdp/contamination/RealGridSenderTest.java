@@ -165,7 +165,7 @@ public class RealGridSenderTest {
                     aLittleLater);
         });
 
-        TestTools.sleep();
+        TestTools.sleep(5000);
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
 

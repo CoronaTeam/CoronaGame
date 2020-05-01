@@ -121,7 +121,7 @@ public class ConcreteDataReceiver implements DataReceiver {
         DocumentReference ref = documentReference(publicUserFolder, userId);
         return interactor.readDocument(ref);
     }
-    public void getRecoveryCounter(String userId, Callback<Map<String,Integer>>callback){
-        interactor.readDocument(privateUserFolder, userId, callback);
+    public CompletableFuture<Map<String, Object>> getRecoveryCounter(String userId){
+        return interactor.readDocument(documentReference(privateUserFolder, userId));
     }
 }

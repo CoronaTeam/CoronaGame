@@ -139,11 +139,12 @@ public class DataForDemo {
                 element.put("geoPoint", new GeoPoint(userLocation.getLatitude(), userLocation.getLongitude()));
                 element.put("timeStamp", Timestamp.now());
                 element.put("infectionStatus", carrier.getInfectionStatus());
-                // db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
+                //db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
 
-                gridFirestoreInteractor.writeDocument("LastPositions/", element, o -> {
-                }, e -> {
-                });
+                gridFirestoreInteractor.writeDocument("LastPositions/", element,
+                        o -> { }, e -> { });
+
+
             }
         }
     }

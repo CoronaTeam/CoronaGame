@@ -61,7 +61,7 @@ public class RealGridSenderTest {
         TestTools.resetLocationServiceStatus(mActivityRule.getActivity().getService());
 
         Carrier aFakeCarrier = new Layman(Carrier.InfectionStatus.UNKNOWN, 0.2734f);
-        Carrier trulyHealthy = new Layman(Carrier.InfectionStatus.IMMUNE, 0f);
+        Carrier trulyHealthy = new Layman(Carrier.InfectionStatus.HEALTHY, 0f);
 
         Location somewhereInTheWorld = buildLocation(12, 73);
 

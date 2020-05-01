@@ -2,6 +2,7 @@ package ch.epfl.sdp;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -10,11 +11,17 @@ import androidx.annotation.Nullable;
 public class CoronaGame extends Application implements Application.ActivityLifecycleCallbacks {
 
     private Activity currentActivity;
+    private static Context context;
 
     @Override
     public void onCreate() {
         super.onCreate();
         registerActivityLifecycleCallbacks(this);
+        CoronaGame.context = getApplicationContext();
+    }
+
+    public static Context getContext() {
+        return CoronaGame.context;
     }
 
     @Override

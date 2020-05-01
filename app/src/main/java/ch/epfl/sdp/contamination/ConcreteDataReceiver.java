@@ -21,6 +21,7 @@ import java.util.stream.Stream;
 
 import ch.epfl.sdp.Account;
 
+import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicUserFolder;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 
@@ -119,5 +120,8 @@ public class ConcreteDataReceiver implements DataReceiver {
     public CompletableFuture<Map<String, Object>> getNumberOfSickNeighbors(String userId){
         DocumentReference ref = documentReference(publicUserFolder, userId);
         return interactor.readDocument(ref);
+    }
+    public void getRecoveryCounter(String userId, Callback<Map<String,Integer>>callback){
+        interactor.readDocument(privateUserFolder, userId, callback);
     }
 }

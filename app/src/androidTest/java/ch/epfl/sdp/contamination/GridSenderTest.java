@@ -81,7 +81,7 @@ public class GridSenderTest {
 
         when(firstPeriodSnapshot.iterator()).thenReturn(Collections.singletonList(firstPeriodDocumentSnapshot).iterator());
         when(secondPeriodSnapshot.iterator()).thenReturn(Collections.singletonList(secondPeriodDocumentSnapshot).iterator());
-        when(firstPeriodDocumentSnapshot.get("infectionStatus")).thenReturn(Carrier.InfectionStatus.IMMUNE.toString());
+        when(firstPeriodDocumentSnapshot.get("infectionStatus")).thenReturn(Carrier.InfectionStatus.HEALTHY.toString());
         when(firstPeriodDocumentSnapshot.get("illnessProbability")).thenReturn(0.0d);
         when(secondPeriodDocumentSnapshot.get("infectionStatus")).thenReturn(Carrier.InfectionStatus.UNKNOWN.toString());
         when(secondPeriodDocumentSnapshot.get("illnessProbability")).thenReturn(0.75d);

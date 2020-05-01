@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
 
+import androidx.fragment.app.Fragment;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.rule.ActivityTestRule;
 
@@ -14,12 +15,21 @@ import ch.epfl.sdp.contamination.ConcreteCachingDataSender;
 import ch.epfl.sdp.contamination.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.location.LocationService;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+
+import java.util.Map;
+
+import ch.epfl.sdp.firestore.FirestoreInteractor;
+import ch.epfl.sdp.fragment.UserInfectionFragment;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
+import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
 
 public interface TestTools {
@@ -41,6 +51,8 @@ public interface TestTools {
             }
         }
     }
+
+
 
     /*
         This method was found on the internet for getting the current activity
@@ -123,5 +135,8 @@ public interface TestTools {
         GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor();
         service.setReceiver(new ConcreteDataReceiver(gridInteractor));
         service.setSender(new ConcreteCachingDataSender(gridInteractor));
+    static void resetSickCounter(){
+        DocumentReference ref = documentReference(privateUserFolder,User.DEFAULT_USERID);
+        ref.update(privateRecoveryCounter, FieldValue.delete());
     }
 }

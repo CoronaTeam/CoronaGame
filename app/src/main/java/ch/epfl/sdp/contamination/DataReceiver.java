@@ -39,4 +39,12 @@ public interface DataReceiver {
      * @return # of sick neighbors met yesterday
      */
     CompletableFuture<Map<String, Object>> getNumberOfSickNeighbors(String userId);
+
+    /**
+     *
+     * @param userId
+     * @param # of times the given user has recovered from his sickness
+     */
+    void getRecoveryCounter(String userId, Callback<Map<String,Integer>>callback);
+
 }

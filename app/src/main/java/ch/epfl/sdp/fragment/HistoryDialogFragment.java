@@ -31,7 +31,6 @@ public class HistoryDialogFragment extends BottomSheetDialogFragment implements 
         View view = inflater.inflate(R.layout.fragment_history, container, false);
 
         return view;
-
     }
 
     @NonNull @Override public Dialog onCreateDialog(Bundle savedInstanceState) {

@@ -67,6 +67,8 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private Account userAccount;
     private MapFragment classPointer;
 
+    private View view;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -97,7 +99,10 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         Mapbox.getInstance(getContext(), BuildConfig.mapboxAPIKey);
 
         // This contains the MapView in XML and needs to be called after the access token is configured.
-        View view = inflater.inflate(R.layout.fragment_map, container, false);
+        view = inflater.inflate(R.layout.fragment_map, container, false);
+
+        view.findViewById(R.id.mapFragment).setVisibility(View.INVISIBLE);
+        view.findViewById(R.id.heatMapToggle).setVisibility(View.GONE);
 
         mapView = view.findViewById(R.id.mapFragment);
         mapView.onCreate(savedInstanceState);
@@ -134,6 +139,9 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         if (locationBroker.hasPermissions(GPS)) {
             prevLocation = new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
             updateUserMarkerPosition(prevLocation);
+            view.findViewById(R.id.mapFragment).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.heatMapToggle).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.heapMapLoadingSpinner).setVisibility(View.GONE);
 
         } else {
             Toast.makeText(getActivity(), "Missing permission", Toast.LENGTH_LONG).show();

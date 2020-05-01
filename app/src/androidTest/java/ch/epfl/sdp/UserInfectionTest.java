@@ -30,7 +30,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibilit
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static ch.epfl.sdp.MainActivity.IS_NETWORK_DEBUG;
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
-import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.resetSickCounter;
 import static ch.epfl.sdp.TestTools.sleep;
@@ -58,7 +57,7 @@ public class UserInfectionTest {
     public void setUp() {
         initSafeTest(activityRule, true);
         sleep(1001);
-        fragment = ((UserInfectionFragment)((UserInfectionActivity)(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
+        fragment = ((UserInfectionFragment)activityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
         sleep(1000);
         me = new Layman(HEALTHY);
         analyst =  new InfectionAnalyst() {
@@ -145,11 +144,14 @@ public class UserInfectionTest {
             onView(withId(R.id.infectionStatusButton)).perform(click());
         }
     }
+
     @Test
     public void sendsNotificationToAnalystOnInfection(){
         setIllnessToHealthy();
         analyst.updateStatus(HEALTHY);
+        sleep(2000);
         onView(withId(R.id.infectionStatusButton)).perform(click());
+        sleep(2000);
         assertSame(Carrier.InfectionStatus.INFECTED,analyst.getCarrier().getInfectionStatus());
     }
 }

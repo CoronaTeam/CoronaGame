@@ -303,35 +303,6 @@ public class ConcreteAnalysisTest {
             }
     }
     @Test
-    public void infectionProbabilityIncreasesIfSickMeetingHappens(){
-        recoveryCounter = 0;
-        CityDataReceiver cityReceiver = new CityDataReceiver();
-        Carrier me = new Layman(HEALTHY);
-        InfectionFragment fragment = ((InfectionFragment)mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
-        LocationService service = fragment.getLocationService();
-        service.setReceiver(cityReceiver);
-        service.setSender(sender);
-        InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver,sender);
-        service.setAnalyst(analysis);
-        long nowMillis = System.currentTimeMillis();
-        GeoPoint badLocation = new GeoPoint(40, 113.4);
-        cityReceiver.setMyCurrentLocation(buildLocation(40, 113.4));
-        city.put(badLocation, new HashMap<>());
-        city.get(badLocation).put(nowMillis+10000,Collections.singleton((new Layman(INFECTED))));
-        city.get(badLocation).put(nowMillis+5000,Collections.singleton(man1));
-        city.get(badLocation).put(nowMillis+1000,Collections.singleton((new Layman(INFECTED,"Joseph"))));
-        city.get(badLocation).put(nowMillis+2000,Collections.singleton((new Layman(INFECTED,"Amélie Poulain"))));
-        city.get(badLocation).put(nowMillis+3000,Collections.singleton((new Layman(INFECTED,"Jean-Yves le Boudecque"))));
-        sleep(1000);
-        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
-        sleep(10);
-
-        sleep(5000);
-        clickBack();
-
-        onView(withId(R.id.my_infection_status)).check(matches(withText("UNKNOWN")));
-    }
-    @Test
     public void infectionProbabilityIsUpdated() throws Throwable {
         recoveryCounter = 0;
         CityDataReceiver cityReceiver = new CityDataReceiver();
@@ -417,7 +388,7 @@ public class ConcreteAnalysisTest {
         onView(withId(R.id.my_infection_refresh)).perform(click());
         sleep(5000);
         // TODO: @Matteo still not working
-        //clickBack();
+        clickBack();
         //sleep(10000);
         //onView(withId(R.id.my_infection_status)).check(matches(withText("UNKNOWN")));
     }

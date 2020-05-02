@@ -94,9 +94,10 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
                     infectionStatus.setText(analyst.getCarrier().getInfectionStatus().toString());
                     infectionProbability.setProgress(Math.round(analyst.getCarrier().getIllnessProbability() * 100));
                     Log.e("PROB:", analyst.getCarrier().getIllnessProbability() + "");
+                    displayAlert((int)(analyst.getCarrier().getIllnessProbability()*10000));
                 });
                 //Display the Dialog saying you were close to todayInfectionMeetings number of infected people
-                displayAlert(todayInfectionMeetings);
+
 
             });
         });
@@ -122,10 +123,10 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
                 second = getText(R.string.several_infection_dialog_message2);
 
         }
-        builder.setMessage((String)first + todayInfectionMeetings + (String) second)
+        builder.setMessage((String)first + (todayInfectionMeetings==0?"":todayInfectionMeetings) + (String) second)
                 .setTitle(title);
        AlertDialog dialog = builder.create();
-        dialog.show();
+       dialog.show();
     }
 
     @VisibleForTesting

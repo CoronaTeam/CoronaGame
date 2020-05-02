@@ -16,7 +16,7 @@ public class FakeAnalyst implements InfectionAnalyst {
     }
 
     @Override
-    public void updateInfectionPredictions(Location location, Date startTime, Callback<Void> callback) {
+    public void updateInfectionPredictions(Location location, Date startTime, Callback<Integer> callback) {
 
     }
 

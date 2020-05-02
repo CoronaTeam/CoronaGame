@@ -7,7 +7,9 @@ import android.location.Location;
 
 import androidx.fragment.app.Fragment;
 import androidx.test.espresso.intent.Intents;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
+import androidx.test.uiautomator.UiDevice;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
@@ -122,5 +124,11 @@ public interface TestTools {
     static void resetSickCounter(){
         DocumentReference ref = FirestoreInteractor.documentReference(privateUserFolder,User.DEFAULT_USERID);
         ref.update(privateRecoveryCounter, FieldValue.delete());
+    }
+    static void clickBack(){
+        UiDevice mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+        sleep(1000);
+        mDevice.pressBack();
+        sleep(1000);
     }
 }

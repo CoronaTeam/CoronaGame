@@ -33,6 +33,7 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static ch.epfl.sdp.TestTools.clickBack;
 import static ch.epfl.sdp.TestTools.getMapValue;
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.newLoc;
@@ -77,7 +78,7 @@ public class ConcreteAnalysisTest {
 
     @Before
     public void init(){
-        initSafeTest(mActivityRule,true);
+        initSafeTest(mActivityRule,false);
     }
     @After
     public void release(){
@@ -301,7 +302,34 @@ public class ConcreteAnalysisTest {
             callback.onCallback(Collections.emptyMap());
             }
     }
+    @Test
+    public void infectionProbabilityIncreasesIfSickMeetingHappens(){
+        recoveryCounter = 0;
+        CityDataReceiver cityReceiver = new CityDataReceiver();
+        Carrier me = new Layman(HEALTHY);
+        InfectionFragment fragment = ((InfectionFragment)mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
+        LocationService service = fragment.getLocationService();
+        service.setReceiver(cityReceiver);
+        service.setSender(sender);
+        InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver,sender);
+        service.setAnalyst(analysis);
+        long nowMillis = System.currentTimeMillis();
+        GeoPoint badLocation = new GeoPoint(40, 113.4);
+        cityReceiver.setMyCurrentLocation(buildLocation(40, 113.4));
+        city.put(badLocation, new HashMap<>());
+//        city.get(badLocation).put(nowMillis+13,Collections.singleton((new Layman(INFECTED))));
+//        city.get(badLocation).put(nowMillis+14,Collections.singleton(man1));
+        city.get(badLocation).put(nowMillis+12,Collections.singleton((new Layman(INFECTED,"Joseph"))));
+        city.get(badLocation).put(nowMillis+11,Collections.singleton((new Layman(INFECTED,"Amélie Poulain"))));
+        city.get(badLocation).put(nowMillis+10,Collections.singleton((new Layman(INFECTED,"Jean-Yves le Boudecque"))));
+        sleep(1000);
+        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
+        sleep(10);
+        sleep(5000);
+        clickBack();
 
+        onView(withId(R.id.my_infection_status)).check(matches(withText("UNKNOWN")));
+    }
     @Test
     public void infectionProbabilityIsUpdated() throws Throwable {
         recoveryCounter = 0;
@@ -322,7 +350,7 @@ public class ConcreteAnalysisTest {
         cityReceiver.setMyCurrentLocation(buildLocation(0, 0));
 
         mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
-
+        clickBack();
         onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
 
         // I'm going to a healthy location
@@ -341,6 +369,7 @@ public class ConcreteAnalysisTest {
 
         mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
         Thread.sleep(10);
+        clickBack();
 
         onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
         Thread.sleep(3000);
@@ -349,10 +378,15 @@ public class ConcreteAnalysisTest {
         city.put(badLocation, new HashMap<>());
         long nowMillis = System.currentTimeMillis();
         for (int i = 0; i < 30; i++) {
-            city.get(badLocation).put(nowMillis+i, Collections.singleton(new Layman(INFECTED)));
+//            city.get(badLocation).put(nowMillis+i+14, Collections.singleton(new Layman(INFECTED)));
         }
+
+        city.get(badLocation).put(nowMillis+13,Collections.singleton((new Layman(INFECTED))));
+        city.get(badLocation).put(nowMillis+14,Collections.singleton(man1));
         Thread.sleep(30);
         mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
+
+        clickBack();
 
         // I was still on healthyLocation
         onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
@@ -363,6 +397,11 @@ public class ConcreteAnalysisTest {
         for (int i = 0; i < 5; i++) {
             city.get(badLocation).put(nowMillis+i*1000, Collections.singleton(new Layman(UNKNOWN, .99f + i)));
         }
+        city.get(badLocation).put(nowMillis+13,Collections.singleton((new Layman(INFECTED))));
+        city.get(badLocation).put(nowMillis+14,Collections.singleton(man1));
+        city.get(badLocation).put(nowMillis+12,Collections.singleton((new Layman(INFECTED,"Joseph"))));
+        city.get(badLocation).put(nowMillis+11,Collections.singleton((new Layman(INFECTED,"Amélie Poulain"))));
+        city.get(badLocation).put(nowMillis+10,Collections.singleton((new Layman(INFECTED,"Jean-Yves le Boudecque"))));
 
         Thread.sleep(5000);
 
@@ -371,13 +410,16 @@ public class ConcreteAnalysisTest {
 
         mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
         Thread.sleep(10);
-
+        sleep(5000);
+        clickBack();
         // Now there should be some risk that I was infected
         onView(withId(R.id.my_infection_refresh)).perform(click());
-        //sleep(5000);
-        // TODO: @Lucas still not working
-        //onView(withId(R.id.my_infection_status)).check(matches(withText("UNKNOWN")));
-
+        sleep(5000);
+        // TODO: @Matteo still not working
+        clickBack();
+        sleep(10000);
+        onView(withId(R.id.my_infection_status)).check(matches(withText("UNKNOWN")));
+        sleep(5000);
     }
 
     @Test
@@ -459,14 +501,17 @@ public class ConcreteAnalysisTest {
         city.put(badLocations, new HashMap<>());
         long nowMillis = System.currentTimeMillis();
         for (int i = 0; i < 5; i++) {
-            city.get(badLocations).put(nowMillis+i*1000, Collections.singleton(new Layman(UNKNOWN, .98f + i)));
+            city.get(badLocations).put(nowMillis+i*100, Collections.singleton(new Layman(UNKNOWN, .98f + i)));
         }
+
         sleep(5001);
 
         cityReceiver.setMyCurrentLocation(buildLocation(42, 113.4));
         // Now there should be some risk that I was infected
 
         mActivityRule.getActivity().runOnUiThread(( ) -> fragment.onModelRefresh(null));
+        sleep(1000);
+        clickBack();
         sleep(11);
         float threshold = 0.05f;
         //In case the TRANSMISSION_FACTOR changes in the future, the test still works by doing:

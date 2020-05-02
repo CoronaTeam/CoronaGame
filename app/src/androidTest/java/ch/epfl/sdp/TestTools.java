@@ -126,9 +126,17 @@ public interface TestTools {
         ref.update(privateRecoveryCounter, FieldValue.delete());
     }
     static void clickBack(){
+        clickBack(1000);
+    }
+
+    /**
+     * Will click on the back button of the phone and wait before and after
+     * @param waitTime
+     */
+    static void clickBack(int waitTime){
         UiDevice mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-        sleep(1000);
+        sleep(waitTime);
         mDevice.pressBack();
-        sleep(1000);
+        sleep(waitTime);
     }
 }

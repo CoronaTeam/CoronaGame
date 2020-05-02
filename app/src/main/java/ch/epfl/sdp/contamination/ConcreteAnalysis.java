@@ -3,6 +3,7 @@ package ch.epfl.sdp.contamination;
 import android.location.Location;
 import android.util.Pair;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,7 +31,6 @@ public class ConcreteAnalysis implements InfectionAnalyst {
 
     private float calculateCarrierInfectionProbability(Map<Carrier, Integer> suspectedContacts, float cumulativeSocialTime, int recoveryCounter) {
         float updatedProbability = me.getIllnessProbability();
-
         for (Map.Entry<Carrier, Integer> c : suspectedContacts.entrySet()) {
             // MODEL: Being close to a person for more than WINDOW_FOR_INFECTION_DETECTION implies becoming infected
             if (c.getValue() > WINDOW_FOR_INFECTION_DETECTION) {
@@ -83,6 +83,9 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     }
 
     private Pair<Map<Carrier, Integer>,Integer> identifySuspectContacts_countInfected(Map<? extends Carrier, Integer> aroundMe) {
+        if(aroundMe == null || true){
+            return new Pair(Collections.emptyMap(),0);
+        }
         Map<Carrier, Integer> contactDuration = new HashMap<>();
         int infectionCounter = 0 ;
         for (Map.Entry<? extends Carrier, Integer> person : aroundMe.entrySet()) {

@@ -94,7 +94,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
                     infectionStatus.setText(analyst.getCarrier().getInfectionStatus().toString());
                     infectionProbability.setProgress(Math.round(analyst.getCarrier().getIllnessProbability() * 100));
                     Log.e("PROB:", analyst.getCarrier().getIllnessProbability() + "");
-                    displayAlert((int)(analyst.getCarrier().getIllnessProbability()*10000));
+                    displayAlert(todayInfectionMeetings);
                 });
                 //Display the Dialog saying you were close to todayInfectionMeetings number of infected people
 
@@ -103,7 +103,10 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
         });
     }
 
-    private void displayAlert(Integer todayInfectionMeetings) {
+    private void displayAlert(int todayInfectionMeetings) {
+        if(todayInfectionMeetings<0){
+            throw new IllegalArgumentException();
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         CharSequence first ;

@@ -1,6 +1,7 @@
 package ch.epfl.sdp.contamination;
 
 import android.location.Location;
+import android.util.Pair;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -81,12 +82,13 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         }
     }
 
-    private Map<Carrier, Integer> identifySuspectContacts(Map<? extends Carrier, Integer> aroundMe) {
+    private Pair<Map<Carrier, Integer>,Integer> identifySuspectContacts_countInfected(Map<? extends Carrier, Integer> aroundMe) {
         Map<Carrier, Integer> contactDuration = new HashMap<>();
-
+        int infectionCounter = 0 ;
         for (Map.Entry<? extends Carrier, Integer> person : aroundMe.entrySet()) {
             switch (person.getKey().getInfectionStatus()) {
                 case INFECTED:
+                    infectionCounter +=1;
                 case UNKNOWN:
                     int timeCloseBy = person.getValue() * PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION; // Add discretized time slice
                     contactDuration.put(person.getKey(), timeCloseBy);
@@ -96,16 +98,21 @@ public class ConcreteAnalysis implements InfectionAnalyst {
             }
         }
 
-        return contactDuration;
+        return new Pair<Map<Carrier, Integer>, Integer>(contactDuration,infectionCounter);
     }
 
     private float getFactor(int recoveryCounter){
         return (float)(Math.pow(InfectionAnalyst.IMMUNITY_FACTOR,recoveryCounter) * TRANSMISSION_FACTOR) ;
     }
 
-
+    /**
+     * this Method will now return the number of 100% sick person we met
+     * @param location
+     * @param startTime
+     * @param callback
+     */
     @Override
-    public void updateInfectionPredictions(Location location, Date startTime, Callback<Void> callback) {
+    public void updateInfectionPredictions(Location location, Date startTime, Callback<Integer> callback) {
 
         Date now = new Date(System.currentTimeMillis());
         receiver.getRecoveryCounter(me.getUniqueId(), recoveryCounter->{
@@ -115,7 +122,8 @@ public class ConcreteAnalysis implements InfectionAnalyst {
             }
             final int counter = recoveryCounter1;
             receiver.getUserNearbyDuring(location, startTime, now, aroundMe -> {
-                modelInfectionEvolution(identifySuspectContacts(aroundMe),counter);
+                Pair<Map<Carrier,Integer>,Integer> suspicions = identifySuspectContacts_countInfected(aroundMe);
+                modelInfectionEvolution(suspicions.first,counter);
                 receiver.getNumberOfSickNeighbors(me.getUniqueId(), res -> {
                     float badMeetings = 0;
                     if (!((Map) (res)).isEmpty()) {
@@ -125,12 +133,13 @@ public class ConcreteAnalysis implements InfectionAnalyst {
                         updateCarrierInfectionProbability(Math.min(me.getIllnessProbability() + badMeetings * getFactor(counter), 1f));
                         cachedSender.resetSickAlerts(me.getUniqueId());
                     }
-                    callback.onCallback(null);
+                    callback.onCallback(suspicions.second);
                 });
             });
         });
 
     }
+
 
     @Override
     public Carrier getCarrier() {

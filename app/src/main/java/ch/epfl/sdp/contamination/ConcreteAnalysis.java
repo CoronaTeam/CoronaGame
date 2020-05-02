@@ -83,7 +83,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     }
 
     private Pair<Map<Carrier, Integer>,Integer> identifySuspectContacts_countInfected(Map<? extends Carrier, Integer> aroundMe) {
-        if(aroundMe == null || true){
+        if(aroundMe == null ){
             return new Pair(Collections.emptyMap(),0);
         }
         Map<Carrier, Integer> contactDuration = new HashMap<>();

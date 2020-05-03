@@ -2,6 +2,7 @@ package ch.epfl.sdp.Map;
 
 import android.graphics.Color;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.epfl.sdp.Callback;
+import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 
@@ -56,7 +58,6 @@ public class PathsHandler extends Fragment {
     }
 
     private void getPathCoordinates(@NonNull Iterator<QueryDocumentSnapshot> qsIterator) {
-        // TODO: RETRIEVE FROM CACHE IF AVAILABLE
         // TODO: get path for given day
         // NEED TO RETRIEVE POSITIONS ON SPECIFIC DAY TIME
         pathCoordinates = new ArrayList<>();
@@ -112,9 +113,6 @@ public class PathsHandler extends Fragment {
 
     // public for testing
     public void initFirestorePathRetrieval(Callback<Iterator<QueryDocumentSnapshot>> callback) {
-
-        //firestoreQueryHandler = getQueryHandler();
-        //cfi.readCollection("History/USER_PATH_DEMO/Positions", firestoreQueryHandler).limit(); // read all positions for this user
         db.collection("History/USER_PATH_DEMO/Positions")
                 //.orderBy("timestamp")
                 //.limit(50)
@@ -123,12 +121,14 @@ public class PathsHandler extends Fragment {
                     if (task.isSuccessful()) {
                         callback.onCallback(task.getResult().iterator());
                     } else {
-                        //Toast.makeText(parentClass.getActivity(), "Cannot retrieve positions from database", Toast.LENGTH_LONG).show();
+                        Toast.makeText(parentClass.getActivity(),
+                                R.string.cannot_retrieve_positions,
+                                Toast.LENGTH_LONG).show();
                     }
                 });
     }
 
-    private void getInfectedMet() {
+    private void getInfectedMet() { // This function is not done yet
         ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
         //concreteDataReceiver.getUserNearbyDuring();
     }

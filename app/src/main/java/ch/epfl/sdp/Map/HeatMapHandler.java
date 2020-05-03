@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import ch.epfl.sdp.R;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.firestore.QueryHandler;
 
@@ -159,7 +160,7 @@ class HeatMapHandler {
 
             @Override
             public void onFailure() {
-                Toast.makeText(parentClass.getActivity(), "Cannot retrieve positions from database", Toast.LENGTH_LONG).show();
+                Toast.makeText(parentClass.getActivity(), R.string.cannot_retrieve_positions, Toast.LENGTH_LONG).show();
             }
         };
 

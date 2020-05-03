@@ -30,6 +30,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibilit
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static ch.epfl.sdp.MainActivity.IS_NETWORK_DEBUG;
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
+import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.resetSickCounter;
 import static ch.epfl.sdp.TestTools.sleep;
@@ -57,7 +58,7 @@ public class UserInfectionTest {
     public void setUp() {
         initSafeTest(activityRule, true);
         sleep(1001);
-        fragment = ((UserInfectionFragment)activityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
+        fragment = ((UserInfectionFragment)((UserInfectionActivity)(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));//fragment = ((UserInfectionFragment)activityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
         sleep(1000);
         me = new Layman(HEALTHY);
         analyst =  new InfectionAnalyst() {
@@ -88,7 +89,7 @@ public class UserInfectionTest {
         analyst = null;
         receiver = null;
     }
-
+/*
     @Test
     @Ignore("Confirmation isn't visible in new UI")
     public void testDataUpload() {
@@ -96,7 +97,7 @@ public class UserInfectionTest {
                 R.id.infectionStatusUploadConfirmation);
         TestTools.clickAndCheck(R.id.infectionStatusButton,
                 R.id.infectionStatusUploadConfirmation);
-    }
+    }*/
 
     @Test
     public void testDetectNoInternet() {
@@ -118,7 +119,6 @@ public class UserInfectionTest {
         onView(withId(R.id.onlineStatusView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)));
         IS_NETWORK_DEBUG = false;
     }
-
     @Test
     public void sendsNotificationToFirebaseAndAnalystOnRecovery(){
         setIllnessToHealthy();
@@ -127,15 +127,12 @@ public class UserInfectionTest {
 //        IS_ONLINE = true;
         resetSickCounter();
         sleep(3000);
-        while (!fragment.isAdded()) sleep(2000); // check whether the fragment is attached
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(5000);
-        while (!fragment.isAdded()) sleep(2000); // check whether the fragment is attached
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(5000);
-        while (!fragment.isAdded()) sleep(2000); // check whether the fragment is attached
         receiver.getRecoveryCounter(User.DEFAULT_USERID, res -> {
-            assertFalse(((Map)(res)).isEmpty());
+            assertFalse(((Map)(res)).isEmpty()); //@Lucas please fixme
             assertEquals(1l,((Map)(res)).get(privateRecoveryCounter));
             assertSame(HEALTHY,analyst.getCarrier().getInfectionStatus());
         });
@@ -154,10 +151,8 @@ public class UserInfectionTest {
         setIllnessToHealthy();
         analyst.updateStatus(HEALTHY);
         sleep(2000);
-        while (!fragment.isAdded()) sleep(2000); // check whether the fragment is attached
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(2000);
-        while (!fragment.isAdded()) sleep(2000); // check whether the fragment is attached
         assertSame(Carrier.InfectionStatus.INFECTED,analyst.getCarrier().getInfectionStatus());
     }
 }

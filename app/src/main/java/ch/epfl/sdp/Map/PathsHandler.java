@@ -112,8 +112,7 @@ public class PathsHandler extends Fragment {
         layer.setProperties(visibility(NONE));
     }
 
-    // public for testing
-    public void initFirestorePathRetrieval(Callback<Iterator<QueryDocumentSnapshot>> callback) {
+    private void initFirestorePathRetrieval(Callback<Iterator<QueryDocumentSnapshot>> callback) {
         db.collection("History/USER_PATH_DEMO/Positions")
                 //.orderBy("timestamp")
                 //.limit(50)

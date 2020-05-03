@@ -246,8 +246,12 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     }
 
     private void toggleHeatMap() {
+        toggleLayer(HeatMapHandler.HEATMAP_LAYER_ID);
+    }
+
+    private void toggleLayer(String heatmapLayerId) {
         map.getStyle(style -> {
-            Layer layer = style.getLayer(HeatMapHandler.HEATMAP_LAYER_ID);
+            Layer layer = style.getLayer(heatmapLayerId);
             if (layer != null) {
                 if (VISIBLE.equals(layer.getVisibility().getValue())) {
                     layer.setProperties(visibility(NONE));
@@ -259,16 +263,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     }
 
     public void togglePath() {
-        map.getStyle(style -> {
-            Layer layer = style.getLayer(PathsHandler.PATH_LAYER_ID);
-            if (layer != null) {
-                if (VISIBLE.equals(layer.getVisibility().getValue())) {
-                    layer.setProperties(visibility(NONE));
-                } else {
-                    layer.setProperties(visibility(VISIBLE));
-                }
-            }
-        });
+        toggleLayer(PathsHandler.PATH_LAYER_ID);
         pathsHandler.setCameraPosition();
     }
 
@@ -278,8 +273,6 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         switch (view.getId()) {
             case R.id.history_button: {
                 onClickHistory();
-                //togglePath();
-                //
             } break;
             case R.id.heatMapToggle: {
                 toggleHeatMap();

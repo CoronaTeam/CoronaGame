@@ -2,14 +2,26 @@ package ch.epfl.sdp.contamination;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
+
+import ch.epfl.sdp.CoronaGame;
+import ch.epfl.sdp.storage.ConcreteManager;
+import ch.epfl.sdp.storage.StorageManager;
 
 public class Layman implements Carrier{
 
     private InfectionStatus myStatus;
+    // Every update of infectedWithProbability must happen through setInfectionProbability()
     private float infectedWithProbability;
+
+    private StorageManager<Date, Float> infectionHistory;
 
     // TODO: Properly set the uniqueID (!!)
     private String uniqueID;
@@ -31,9 +43,23 @@ public class Layman implements Carrier{
     }
 
     public Layman(InfectionStatus initialStatus, float infectedWithProbability, String uniqueID) {
-        this.myStatus = initialStatus;
-        this.infectedWithProbability = infectedWithProbability;
+        DateFormat format = new SimpleDateFormat("E MMM dd hh:mm:ss zzz yyyy");
 
+        this.infectionHistory = new ConcreteManager<>(
+                CoronaGame.getContext(),
+                uniqueID + ".csv",
+                date -> {
+                    try {
+                        return format.parse(date);
+                    } catch (ParseException e) {
+                        throw new IllegalArgumentException("The file specified has wrong format: field 'date'");
+                    }
+                },
+                Float::valueOf
+        );
+
+        this.myStatus = initialStatus;
+        setIllnessProbability(infectedWithProbability);
         this.uniqueID = uniqueID;
     }
 
@@ -51,9 +77,9 @@ public class Layman implements Carrier{
     public boolean evolveInfection(InfectionStatus newStatus) {
         myStatus = newStatus;
         if (newStatus == InfectionStatus.INFECTED) {
-            infectedWithProbability = 1;
+            setIllnessProbability(1);
         }else if(newStatus == InfectionStatus.HEALTHY){
-            infectedWithProbability = 0;
+            setIllnessProbability(0);
         }
         return true;
     }
@@ -79,15 +105,23 @@ public class Layman implements Carrier{
             return false;
         }
 
+        // Include this update into the history
+        infectionHistory.write(Collections.singletonMap(new Date(), probability));
+
         infectedWithProbability = probability;
 
         return true;
     }
 
     @Override
+    public Map<Date, Float> getIllnessProbabilityHistory(Date since) {
+        return infectionHistory.filter((date, prob) -> date.after(since));
+    }
+
+    @Override
     public boolean equals(@Nullable Object obj) {
         return (obj instanceof Layman) &&
-                ((Layman)obj).uniqueID == this.uniqueID &&
+                ((Layman)obj).uniqueID.equals(this.uniqueID) &&
                 ((Layman)obj).myStatus == this.myStatus &&
                 ((Layman)obj).infectedWithProbability == this.infectedWithProbability;
     }
@@ -109,6 +143,11 @@ public class Layman implements Carrier{
         return uniqueID;
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        infectionHistory.close();
+    }
 
     ///Getters Needed for the conversion from Object to Map<String, Object> during the Fierbase
     // Upload

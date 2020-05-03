@@ -41,7 +41,6 @@ public class HistoryDialogFragment extends BottomSheetDialogFragment {
         button.setOnClickListener(v -> parentFragment.togglePath());
 
         return view;
-
     }
 
     @NonNull @Override public Dialog onCreateDialog(Bundle savedInstanceState) {

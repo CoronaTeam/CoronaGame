@@ -241,7 +241,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     }
 
     private void onClickHistory() {
-        HistoryDialogFragment dialog = HistoryDialogFragment.newInstance();
+        HistoryDialogFragment dialog = new HistoryDialogFragment(this);
         dialog.show(getActivity().getSupportFragmentManager(), "history_dialog_fragment");
     }
 
@@ -258,7 +258,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         });
     }
 
-    private void togglePath() {
+    public void togglePath() {
         map.getStyle(style -> {
             Layer layer = style.getLayer(PathsHandler.PATH_LAYER_ID);
             if (layer != null) {
@@ -269,6 +269,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
                 }
             }
         });
+        pathsHandler.setCameraPosition();
     }
 
     @Override
@@ -276,10 +277,9 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         System.out.println(view.getId());
         switch (view.getId()) {
             case R.id.history_button: {
-                //onClickHistory();
-                togglePath();
-                pathsHandler.setCameraPosition();
-                // change map style using Layer (path line) and change camera position
+                onClickHistory();
+                //togglePath();
+                //
             } break;
             case R.id.heatMapToggle: {
                 toggleHeatMap();

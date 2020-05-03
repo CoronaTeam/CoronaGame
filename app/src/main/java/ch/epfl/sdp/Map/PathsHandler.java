@@ -48,6 +48,7 @@ public class PathsHandler extends Fragment {
     private double latitude;
     private double longitude;
 
+    // default access restriction for now, could be package-private, depending on how we finally decide to organize files
     static final String PATH_LAYER_ID = "linelayer";
     static final String PATH_SOURCE_ID = "line-source";
 
@@ -57,9 +58,19 @@ public class PathsHandler extends Fragment {
         initFirestorePathRetrieval(this::getPathCoordinates);
     }
 
+    // public for now, could be package-private, depending on how we finally decide to organize files
+    public void setCameraPosition() {
+        CameraPosition position = new CameraPosition.Builder()
+                .target(new LatLng(latitude, longitude))
+                .zoom(7)
+                .build();
+        if (map != null) {
+            map.setCameraPosition(position);
+        }
+    }
+
     private void getPathCoordinates(@NonNull Iterator<QueryDocumentSnapshot> qsIterator) {
-        // TODO: get path for given day
-        // NEED TO RETRIEVE POSITIONS ON SPECIFIC DAY TIME
+        // TODO: get path for given day, NEED TO RETRIEVE POSITIONS ON SPECIFIC DAY TIME
         pathCoordinates = new ArrayList<>();
 
         for (; qsIterator.hasNext(); ) {
@@ -79,16 +90,6 @@ public class PathsHandler extends Fragment {
         latitude = pathCoordinates.get(0).latitude();
         longitude = pathCoordinates.get(0).longitude();
         setPathLayer();
-    }
-
-    public void setCameraPosition() {
-        CameraPosition position = new CameraPosition.Builder()
-                .target(new LatLng(latitude, longitude))
-                .zoom(7)
-                .build();
-        if (map != null) {
-            map.setCameraPosition(position);
-        }
     }
 
     private void setPathLayer() {

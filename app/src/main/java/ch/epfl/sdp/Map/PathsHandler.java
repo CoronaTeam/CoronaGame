@@ -95,7 +95,7 @@ public class PathsHandler extends Fragment {
     private void setPathLayer() {
         Layer layer = new LineLayer(PATH_LAYER_ID, PATH_SOURCE_ID).withProperties(
                 PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
-                PropertyFactory.lineWidth(6f),
+                PropertyFactory.lineWidth(5f),
                 PropertyFactory.lineColor(Color.parseColor("maroon"))
         );
         map.getStyle(style -> {

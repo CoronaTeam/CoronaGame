@@ -33,6 +33,12 @@ public class TabActivityTest {
     public void init(){
         initSafeTest(mActivityRule,true);
     }
+
+    @After
+    public void tearDown() throws Exception {
+        Intents.release();
+    }
+
     /*
     @Test
     @Ignore
@@ -98,11 +104,6 @@ public class TabActivityTest {
         onView(withId(R.id.infectionStatusView)).check(matches(not(hasFocus())));
         onView(withText(mActivityRule.getActivity().getString(R.string.tab_status))).perform(click());
         onView(withId(R.id.infectionStatusView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        Intents.release();
     }
 
 }

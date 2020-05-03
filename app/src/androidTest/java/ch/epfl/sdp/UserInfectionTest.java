@@ -118,7 +118,7 @@ public class UserInfectionTest {
         onView(withId(R.id.onlineStatusView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)));
         IS_NETWORK_DEBUG = false;
     }
-    @Ignore
+
     @Test
     public void sendsNotificationToFirebaseAndAnalystOnRecovery(){
         setIllnessToHealthy();
@@ -127,10 +127,13 @@ public class UserInfectionTest {
 //        IS_ONLINE = true;
         resetSickCounter();
         sleep(3000);
+        while (!fragment.isAdded()) sleep(2000); // check whether the fragment is attached
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(5000);
+        while (!fragment.isAdded()) sleep(2000); // check whether the fragment is attached
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(5000);
+        while (!fragment.isAdded()) sleep(2000); // check whether the fragment is attached
         receiver.getRecoveryCounter(User.DEFAULT_USERID, res -> {
             assertFalse(((Map)(res)).isEmpty());
             assertEquals(1l,((Map)(res)).get(privateRecoveryCounter));
@@ -151,8 +154,10 @@ public class UserInfectionTest {
         setIllnessToHealthy();
         analyst.updateStatus(HEALTHY);
         sleep(2000);
+        while (!fragment.isAdded()) sleep(2000); // check whether the fragment is attached
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(2000);
+        while (!fragment.isAdded()) sleep(2000); // check whether the fragment is attached
         assertSame(Carrier.InfectionStatus.INFECTED,analyst.getCarrier().getInfectionStatus());
     }
 }

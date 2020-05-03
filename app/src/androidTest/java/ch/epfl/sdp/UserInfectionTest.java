@@ -118,6 +118,7 @@ public class UserInfectionTest {
         onView(withId(R.id.onlineStatusView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)));
         IS_NETWORK_DEBUG = false;
     }
+    @Ignore
     @Test
     public void sendsNotificationToFirebaseAndAnalystOnRecovery(){
         setIllnessToHealthy();

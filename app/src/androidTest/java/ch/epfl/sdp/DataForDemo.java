@@ -128,10 +128,6 @@ public class DataForDemo {
                     carrier = new Layman(Carrier.InfectionStatus.INFECTED);
                 } else if (i < 70 && j < 70) {
                     carrier = new Layman(Carrier.InfectionStatus.UNKNOWN, 0.5f);
-                } else if (i < 90 && j < 90) {
-                    carrier = new Layman(Carrier.InfectionStatus.IMMUNE, 0);
-                } else if (i < 110 && j < 110) {
-                    carrier = new Layman(Carrier.InfectionStatus.HEALTHY_CARRIER, 1);
                 } else {
                     carrier = new Layman(Carrier.InfectionStatus.HEALTHY);
                 }
@@ -143,11 +139,12 @@ public class DataForDemo {
                 element.put("geoPoint", new GeoPoint(userLocation.getLatitude(), userLocation.getLongitude()));
                 element.put("timeStamp", Timestamp.now());
                 element.put("infectionStatus", carrier.getInfectionStatus());
-                // db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
+                //db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
 
-                gridFirestoreInteractor.writeDocument("LastPositions/", element, o -> {
-                }, e -> {
-                });
+                gridFirestoreInteractor.writeDocument("LastPositions/", element,
+                        o -> { }, e -> { });
+
+
             }
         }
     }

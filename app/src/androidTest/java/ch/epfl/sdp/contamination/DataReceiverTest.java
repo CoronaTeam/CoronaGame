@@ -2,23 +2,21 @@ package ch.epfl.sdp.contamination;
 
 import android.location.Location;
 
+import androidx.test.espresso.intent.Intents;
 import androidx.test.rule.ActivityTestRule;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import ch.epfl.sdp.Callback;
-import ch.epfl.sdp.R;
 import ch.epfl.sdp.User;
 
-import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
@@ -27,17 +25,11 @@ import static org.junit.Assert.assertEquals;
 public class DataReceiverTest {
     DataReceiver receiver;
     ConcreteCachingDataSender sender;
-    @Rule
-    public final ActivityTestRule<InfectionActivity> mActivityRule = new ActivityTestRule<>(InfectionActivity.class);
-
     @Before
     public void init(){
-        InfectionFragment fragment = ((InfectionFragment)((InfectionActivity)(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
+        sender = new ConcreteCachingDataSender(new GridFirestoreInteractor());
+        receiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
 
-        receiver = fragment.getLocationService().getReceiver();
-//                getReceiver();
-        sender = (ConcreteCachingDataSender)fragment.getLocationService().getSender();
-//                (ConcreteCachingDataSender) getSender();
     }
     class FakeGridInteractor extends GridFirestoreInteractor {
         private Map<Location,String> locationData;
@@ -70,9 +62,11 @@ public class DataReceiverTest {
     @Test
     public void getSickNeighborDoesGetIt(){
         sender.resetSickAlerts(User.DEFAULT_USERID);
+        sleep(3000);
         sender.sendAlert(User.DEFAULT_USERID);
-        receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID, res ->assertEquals(1f, ((float)(double) (((HashMap) (res)).get(publicAlertAttribute))),0.00001));
-        sleep();
+        sleep(3000);
+        receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID, res ->assertEquals(1f, ((float)(double) (((Map) (res)).get(publicAlertAttribute))),0.00001));
+        sleep(6000);
     }
 
 }

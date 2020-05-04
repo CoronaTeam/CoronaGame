@@ -47,7 +47,7 @@ public class MapActivityTest {
 
     @Test
     public void pathGetsInstantiated() {
-        PathsHandler pathsHandler = new PathsHandler(mapFragment, mapFragment.map);
+        //PathsHandler pathsHandler = new PathsHandler(mapFragment, mapFragment.map);
         sleep(15000);
         assertNotNull(mapFragment.pathsHandler.pathCoordinates);
     }

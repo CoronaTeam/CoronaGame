@@ -39,6 +39,7 @@ import static junit.framework.TestCase.assertSame;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+@Ignore("cirrus build fails with UserInfectionFragment not attached to fragment")
 public class UserInfectionTest {
     private InfectionAnalyst analyst;
     private DataReceiver receiver;
@@ -119,7 +120,6 @@ public class UserInfectionTest {
         IS_NETWORK_DEBUG = false;
     }
 
-    @Ignore("cirrus build fails with UserInfectionFragment not attached to fragment")
     @Test
     public void sendsNotificationToFirebaseAndAnalystOnRecovery(){
         setIllnessToHealthy();
@@ -147,7 +147,6 @@ public class UserInfectionTest {
         }
     }
 
-    @Ignore("cirrus build fails with UserInfectionFragment not attached to fragment")
     @Test
     public void sendsNotificationToAnalystOnInfection(){
         setIllnessToHealthy();

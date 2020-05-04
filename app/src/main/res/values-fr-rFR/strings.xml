@@ -43,7 +43,6 @@
     <string name="error_status_update">Erreur lors de la mise à jour du statut d\'infection.</string>
     <string name="accountDetails">Détails du compte</string>
     <string name="email">E-mail</string>
-    <string name="tab_paths">Parcours</string>
     <string name="see_my_last_path">Voire mon dernier trajet</string>
     <string name="cannot_retrieve_positions">Impossible de charger les positions depuis la base de donnée</string>
 </resources>

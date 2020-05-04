@@ -58,7 +58,7 @@ public class UserInfectionTest {
     public void setUp() {
         initSafeTest(activityRule, true);
         sleep(1001);
-        fragment = ((UserInfectionFragment)((UserInfectionActivity)(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));//fragment = ((UserInfectionFragment)activityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
+        fragment = ((UserInfectionFragment)activityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
         sleep(1000);
         me = new Layman(HEALTHY);
         analyst =  new InfectionAnalyst() {
@@ -89,7 +89,7 @@ public class UserInfectionTest {
         analyst = null;
         receiver = null;
     }
-/*
+
     @Test
     @Ignore("Confirmation isn't visible in new UI")
     public void testDataUpload() {
@@ -97,7 +97,7 @@ public class UserInfectionTest {
                 R.id.infectionStatusUploadConfirmation);
         TestTools.clickAndCheck(R.id.infectionStatusButton,
                 R.id.infectionStatusUploadConfirmation);
-    }*/
+    }
 
     @Test
     public void testDetectNoInternet() {
@@ -132,7 +132,7 @@ public class UserInfectionTest {
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(5000);
         receiver.getRecoveryCounter(User.DEFAULT_USERID, res -> {
-            assertFalse(((Map)(res)).isEmpty()); //@Lucas please fixme
+            assertFalse(((Map)(res)).isEmpty());
             assertEquals(1l,((Map)(res)).get(privateRecoveryCounter));
             assertSame(HEALTHY,analyst.getCarrier().getInfectionStatus());
         });

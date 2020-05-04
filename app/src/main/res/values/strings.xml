@@ -94,4 +94,9 @@
     <string name="error_status_update">Error updating user infection status.</string>
     <string name="see_my_last_path">See my last path</string>
     <string name="cannot_retrieve_positions">Cannot retrieve positions from database</string>
+    <string name="infection_dialog_message1">"Watch out! You met "</string>
+    <string name="several_infection_dialog_message2">" infected persons!"</string>
+    <string name="infection_dialog_title">Daily report</string>
+    <string name="infection_dialog_cool_message">Fortunately, you have not met anyone sick since last time.</string>
+    <string name="one_infection_dialog_message2">" infected person!"</string>
 </resources>

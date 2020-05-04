@@ -42,7 +42,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
  */
 public class PathsHandler extends Fragment {
     private MapboxMap map;
-    private List<Point> pathCoordinates;
+    public List<Point> pathCoordinates; // public for testing
     private FirebaseFirestore db = FirebaseFirestore.getInstance(); // we don't use ConcreteFirestoreInteractor because we want to do more specific op
     private MapFragment parentClass;
     public double latitude; //public fir testing
@@ -52,7 +52,7 @@ public class PathsHandler extends Fragment {
     static final String PATH_LAYER_ID = "linelayer";
     static final String PATH_SOURCE_ID = "line-source";
 
-    PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
+    public PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) { // public for testing
         this.parentClass = parentClass;
         this.map = map;
         initFirestorePathRetrieval(this::getPathCoordinates);
@@ -128,9 +128,9 @@ public class PathsHandler extends Fragment {
                 });
     }
 
-    private void getInfectedMet() { // This function is not done yet
+    /*private void getInfectedMet() { // This function is not done yet
         ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
         //concreteDataReceiver.getUserNearbyDuring();
-    }
+    }*/
 
 }

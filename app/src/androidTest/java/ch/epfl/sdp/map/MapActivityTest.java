@@ -8,8 +8,11 @@ import org.junit.Test;
 
 import ch.epfl.sdp.Map.MapActivity;
 import ch.epfl.sdp.Map.MapFragment;
+import ch.epfl.sdp.Map.PathsHandler;
 
+import static ch.epfl.sdp.TestTools.sleep;
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertNotNull;
 
 public class MapActivityTest {
 
@@ -43,13 +46,10 @@ public class MapActivityTest {
     }
 
     @Test
-    public void docIteratorGetsInstantiatedWhenPathRetrievalTaskSuccessful() {
-
-    }
-
-    @Test
-    public void toastWhenPathRetrievalTaskFails() {
-
+    public void pathGetsInstantiated() {
+        PathsHandler pathsHandler = new PathsHandler(mapFragment, mapFragment.map);
+        sleep(15000);
+        assertNotNull(mapFragment.pathsHandler.pathCoordinates);
     }
 
 }

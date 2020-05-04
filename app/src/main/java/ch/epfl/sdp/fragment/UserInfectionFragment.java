@@ -206,7 +206,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
             }
         }else {
             Toast.makeText(getActivity().getApplicationContext(),
-                    "Your health seems to be changing fast, Ignoring", Toast.LENGTH_LONG).show();
+                    R.string.error_infection_status_ratelimit, Toast.LENGTH_LONG).show();
         }
 
 

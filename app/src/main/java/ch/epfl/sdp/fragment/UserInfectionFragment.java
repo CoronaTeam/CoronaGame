@@ -105,6 +105,11 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
             }
         };
 
+        // startService() overrides the default service lifetime that is managed by
+        // bindService(Intent, ServiceConnection, int):
+        // it requires the service to remain running until stopService(Intent) is called,
+        // regardless of whether any clients are connected to it.
+        ComponentName myService = getActivity().startService(new Intent(getContext(), LocationService.class));
         getActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
 
 

@@ -88,6 +88,11 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             }
         };
 
+        // startService() overrides the default service lifetime that is managed by
+        // bindService(Intent, ServiceConnection, int):
+        // it requires the service to remain running until stopService(Intent) is called,
+        // regardless of whether any clients are connected to it.
+        ComponentName myService = getActivity().startService(new Intent(getContext(), LocationService.class));
         getActivity().bindService(new Intent(getContext(), LocationService.class), conn, Context.BIND_AUTO_CREATE);
 
         userAccount = AccountFragment.getAccount(getActivity());

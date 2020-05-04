@@ -25,7 +25,7 @@ import static org.hamcrest.Matchers.not;
 //@RunWith(AndroidJUnit4.class)
 public class TabActivityTest {
 
-
+/*
     @Rule
     public final ActivityTestRule<TabActivity> mActivityRule =
             new ActivityTestRule<>(TabActivity.class);
@@ -86,7 +86,7 @@ public class TabActivityTest {
         // onView(withId(R.id.greetingMessage)).check(matches(withText("Hello from my unit test!")));
     }
 */
-
+/*
     @Test
     public void testTabsInterfaceCorrectly() {
         onView(withId(R.id.tabs)).check(matches(isDisplayed()));
@@ -104,6 +104,6 @@ public class TabActivityTest {
         onView(withId(R.id.infectionStatusView)).check(matches(not(hasFocus())));
         onView(withText(mActivityRule.getActivity().getString(R.string.tab_status))).perform(click());
         onView(withId(R.id.infectionStatusView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
-    }
+    }*/
 
 }

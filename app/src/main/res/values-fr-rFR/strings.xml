@@ -43,4 +43,9 @@
     <string name="error_status_update">Erreur lors de la mise à jour du statut d\'infection.</string>
     <string name="accountDetails">Détails du compte</string>
     <string name="email">E-mail</string>
+    <string name="infection_dialog_message1">"Attention ! Vous avez rencontré "</string>
+    <string name="several_infection_dialog_message2">" personnes infectées !"</string>
+    <string name="infection_dialog_title">Rapport journalier</string>
+    <string name="infection_dialog_cool_message">"Vous n'avez rencontré personne d'infecté depuis la denière fois."</string>
+    <string name="one_infection_dialog_message2">" personnes infectées !"</string>
 </resources>

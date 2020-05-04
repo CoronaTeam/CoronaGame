@@ -96,7 +96,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
         service.getReceiver().getMyLastLocation(AccountFragment.getAccount(getActivity()))
                 .thenApply(location -> service.getAnalyst().updateInfectionPredictions(location, refreshTime, new Date())
                         .thenAccept(n -> {
-                            infectionStatus.setText("Posted!!");
+                            infectionStatus.setText(R.string.infection_status_posted);
                                 uiHandler.post(() -> {
                                     infectionStatus.setText(service.getAnalyst().getCarrier().getInfectionStatus().toString());
                                     infectionProbability.setProgress(Math.round(service.getAnalyst().getCarrier().getIllnessProbability() * 100));
@@ -107,7 +107,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
     }
 
     @VisibleForTesting
-    LocationService getLocationService() {
+    public LocationService getLocationService() {
         return service;
     }
 

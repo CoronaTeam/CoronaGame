@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
 
+import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
 
@@ -25,13 +26,14 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         this.cachedSender = dataSender;
     }
 
-    private float calculateCarrierInfectionProbability(Map<Carrier, Integer> suspectedContacts, float cumulativeSocialTime) {
+    private float calculateCarrierInfectionProbability(Map<Carrier, Integer> suspectedContacts, float cumulativeSocialTime, int recoveryCounter) {
         float updatedProbability = me.getIllnessProbability();
 
         for (Map.Entry<Carrier, Integer> c : suspectedContacts.entrySet()) {
             // MODEL: Being close to a person for more than WINDOW_FOR_INFECTION_DETECTION implies becoming infected
             if (c.getValue() > WINDOW_FOR_INFECTION_DETECTION) {
                 me.evolveInfection(InfectionStatus.INFECTED);
+                updatedProbability = 1;
                 break;
             } else {
 
@@ -41,7 +43,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
 
                 // Updates the probability given the new contribution by Carrier c.getKey()
                 updatedProbability = oldWeight * updatedProbability +
-                        newWeight * c.getKey().getIllnessProbability() * TRANSMISSION_FACTOR;
+                        newWeight * c.getKey().getIllnessProbability() * getFactor(recoveryCounter);
             }
         }
 
@@ -61,14 +63,12 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         me.setIllnessProbability(updatedProbability);
     }
 
-    private void modelInfectionEvolution(Map<Carrier, Integer> suspectedContacts) {
+    private void modelInfectionEvolution(Map<Carrier, Integer> suspectedContacts,
+                                         int recoveryCounter) {
 
         switch (me.getInfectionStatus()) {
             case INFECTED:
                 // MODEL: infected people should update their status when they become healthy again
-                break;
-            case IMMUNE:
-                // No matter what, I will remain so
                 break;
             default:
                 float cumulativeSocialTime = 0;
@@ -76,7 +76,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
                     cumulativeSocialTime += cTime;
                 }
 
-                float updatedProbability = calculateCarrierInfectionProbability(suspectedContacts, cumulativeSocialTime);
+                float updatedProbability = calculateCarrierInfectionProbability(suspectedContacts, cumulativeSocialTime, recoveryCounter);
                 updateCarrierInfectionProbability(updatedProbability);
         }
     }
@@ -88,7 +88,6 @@ public class ConcreteAnalysis implements InfectionAnalyst {
             switch (person.getKey().getInfectionStatus()) {
                 case INFECTED:
                 case UNKNOWN:
-                case HEALTHY_CARRIER:
                     int timeCloseBy = person.getValue() * PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION; // Add discretized time slice
                     contactDuration.put(person.getKey(), timeCloseBy);
                     break;
@@ -100,28 +99,37 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         return contactDuration;
     }
 
+    private float getFactor(int recoveryCounter) {
+        return (float) (Math.pow(InfectionAnalyst.IMMUNITY_FACTOR, recoveryCounter) * TRANSMISSION_FACTOR);
+    }
+
+
     @Override
-    public CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
-        CompletableFuture future1 = receiver.getUserNearbyDuring(location, startTime, endTime)
-                .thenAccept(aroundMe -> {
-                    modelInfectionEvolution(identifySuspectContacts(aroundMe));
+    public CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime) {
+        Date now = new Date(System.currentTimeMillis());
+        CompletableFuture<Integer> counterFuture =
+                receiver.getRecoveryCounter(me.getUniqueId()).thenApply(recoveryCounter -> {
+                    int recoveryCounter1 = 0;
+                    if (!recoveryCounter.isEmpty()) {
+                        recoveryCounter1 = (int) recoveryCounter.get(privateRecoveryCounter);
+                    }
+                    return recoveryCounter1;
                 });
-
-        //Method 1 : (synchrone)
-//        int badMeetings = receiver.getAndResetSickNeighbors(me.getUniqueId());
-//        updateCarrierInfectionProbability(me.getIllnessProbability() + badMeetings*TRANSMISSION_FACTOR);
-
-        //method 2 : (asynchrone)
-        CompletableFuture future2 = receiver.getNumberOfSickNeighbors(me.getUniqueId())
-                .thenAccept(res -> {
+        return counterFuture.thenAccept(counter -> {
+            receiver.getUserNearbyDuring(location, startTime, now).thenApply(aroundMe -> {
+                modelInfectionEvolution(identifySuspectContacts(aroundMe), counter);
+                return receiver.getNumberOfSickNeighbors(me.getUniqueId()).thenAccept(res -> {
                     float badMeetings = 0;
                     if (!res.isEmpty()) {
                         badMeetings = (float) (res.get(publicAlertAttribute));
                     }
-                    updateCarrierInfectionProbability(Math.min(me.getIllnessProbability() + badMeetings * TRANSMISSION_FACTOR, 1f));
-                    cachedSender.resetSickAlerts(me.getUniqueId());
+                    if (badMeetings != 0) {
+                        updateCarrierInfectionProbability(Math.min(me.getIllnessProbability() + badMeetings * getFactor(counter), 1f));
+                        cachedSender.resetSickAlerts(me.getUniqueId());
+                    }
                 });
-        return CompletableFuture.allOf(future1, future2);
+            });
+        });
     }
 
     @Override

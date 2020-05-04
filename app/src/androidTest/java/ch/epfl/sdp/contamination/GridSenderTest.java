@@ -75,13 +75,13 @@ public class GridSenderTest {
 
     @Before
     public void setupMockito() {
-        when(stringMapMap.entrySet()).thenReturn(Collections.singleton(stringMapEntry));
+        /*when(stringMapMap.entrySet()).thenReturn(Collections.singleton(stringMapEntry));
         when(stringMapEntry.getValue().get("infectionStatus")).thenReturn(Carrier.InfectionStatus.HEALTHY.toString());
-        when(stringMapEntry.getValue().get("illnessProbability")).thenReturn(0.5d);
+        when(stringMapEntry.getValue().get("illnessProbability")).thenReturn(0.5d);*/
 
         when(firstPeriodSnapshot.iterator()).thenReturn(Collections.singletonList(firstPeriodDocumentSnapshot).iterator());
         when(secondPeriodSnapshot.iterator()).thenReturn(Collections.singletonList(secondPeriodDocumentSnapshot).iterator());
-        when(firstPeriodDocumentSnapshot.get("infectionStatus")).thenReturn(Carrier.InfectionStatus.IMMUNE.toString());
+        when(firstPeriodDocumentSnapshot.get("infectionStatus")).thenReturn(Carrier.InfectionStatus.HEALTHY.toString());
         when(firstPeriodDocumentSnapshot.get("illnessProbability")).thenReturn(0.0d);
         when(secondPeriodDocumentSnapshot.get("infectionStatus")).thenReturn(Carrier.InfectionStatus.UNKNOWN.toString());
         when(secondPeriodDocumentSnapshot.get("illnessProbability")).thenReturn(0.75d);
@@ -144,13 +144,13 @@ public class GridSenderTest {
     public void dataReceiverFindsContacts() {
         TestTools.resetLocationServiceStatus(mActivityRule.getActivity().getService());
 
-        ((ConcreteDataReceiver) mActivityRule.getActivity().getService().getReceiver())
+        /*((ConcreteDataReceiver) mActivityRule.getActivity().getService().getReceiver())
                 .setInteractor(new MockGridInteractor() {
                     @Override
                     public CompletableFuture<Map<String, Map<String, Object>>> gridRead(Location location, long time) {
                         return CompletableFuture.completedFuture(stringMapMap);
                     }
-                });
+                });*/
 
         mActivityRule.getActivity().getService().getReceiver().getUserNearby(
                 buildLocation(10, 20),
@@ -204,7 +204,8 @@ public class GridSenderTest {
                 testLocation, new Date(rangeStart), new Date(rangeEnd))
                 .thenAccept(value -> {
                     assertThat(value.size(), is(2));
-                    assertThat(value.containsKey(new Layman(Carrier.InfectionStatus.IMMUNE, 0f)), is(true));
+                    assertThat(value.containsKey(new Layman(Carrier.InfectionStatus.HEALTHY, 0f))
+                            , is(true));
                     assertThat(value.containsKey(new Layman(Carrier.InfectionStatus.UNKNOWN)), is(false));
                     assertThat(value.get(new Layman(Carrier.InfectionStatus.UNKNOWN, 0.75f)), is(1));
                 });

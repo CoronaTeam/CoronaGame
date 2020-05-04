@@ -16,20 +16,22 @@ public class HistoryFirestoreInteractor extends ConcreteFirestoreInteractor {
     }
 
     public CompletableFuture<Map<String, Map<String, Object>>> readHistory() {
-        String path = "History/" + user.getId() + "/Positions";
-        return readCollection(collectionReference(path));
+        return readCollection(collectionReference(historyPositionsPath()));
+    }
+
+    private String historyPositionsPath(){
+        return "History/" + user.getId() + "/Positions";
     }
 
 
     public CompletableFuture<Void> write(Map<String, Object> content) {
-        String path = "History/" + user.getId() + "/Positions";
         PositionRecord posRec = (PositionRecord) content.values().toArray()[0];
 
         Map<String, Object> lastPos = new HashMap<>();
         lastPos.put("geoPoint", posRec.getGeoPoint());
         lastPos.put("timeStamp", posRec.getTimestamp());
 
-        return writeDocumentWithID(documentReference(path, posRec.calculateID()), content).thenRun(() ->
+        return writeDocumentWithID(documentReference(historyPositionsPath(), posRec.calculateID()), content).thenRun(() ->
                 writeDocumentWithID(documentReference("LastPositions", user.getId()), lastPos));
     }
 }

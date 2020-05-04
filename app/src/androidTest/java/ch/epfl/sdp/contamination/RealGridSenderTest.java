@@ -7,6 +7,7 @@ import android.widget.TextView;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -60,7 +61,7 @@ public class RealGridSenderTest {
         TestTools.resetLocationServiceStatus(mActivityRule.getActivity().getService());
 
         Carrier aFakeCarrier = new Layman(Carrier.InfectionStatus.UNKNOWN, 0.2734f);
-        Carrier trulyHealthy = new Layman(Carrier.InfectionStatus.IMMUNE, 0f);
+        Carrier trulyHealthy = new Layman(Carrier.InfectionStatus.HEALTHY, 0f);
 
         Location somewhereInTheWorld = buildLocation(12, 73);
 
@@ -76,7 +77,7 @@ public class RealGridSenderTest {
                 somewhereInTheWorld,
                 aLittleLater);
 
-        sleep();
+        TestTools.sleep();
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
 
@@ -164,7 +165,7 @@ public class RealGridSenderTest {
                     aLittleLater);
         });
 
-        Thread.sleep(1000);
+        TestTools.sleep(5000);
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
 

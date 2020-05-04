@@ -1,6 +1,8 @@
 package ch.epfl.sdp.fragment;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,7 +18,12 @@ import com.google.firebase.firestore.SetOptions;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -57,6 +64,8 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     private BiometricPromptWrapper biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
 
+    private SharedPreferences sharedPref;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,19 +97,36 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
             this.promptInfo = promptInfoBuilder();
         }
 
+        sharedPref = getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE);
+
         return view;
     }
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.infectionStatusButton: {
-                onClickChangeStatus(view);
-            } break;
-            case R.id.refreshButton: {
-                onClickRefresh(view);
-            } break;
+        Date currentTime = Calendar.getInstance().getTime();
+        /* get 1 jan 1970 by default. It's definitely wrong but works as we want t check that
+         * the status has not been updated less than a day ago.
+         */
+        Date lastStatusChange = new Date(sharedPref.getLong("lastStatusChange", 0));
+        long difference = Math.abs(currentTime.getTime() - lastStatusChange.getTime());
+        long differenceDays = difference / (24 * 60 * 60 * 1000);
+
+        if(differenceDays > 1){
+            switch (view.getId()) {
+                case R.id.infectionStatusButton: {
+                    onClickChangeStatus(view);
+                } break;
+                case R.id.refreshButton: {
+                    onClickRefresh(view);
+                } break;
+            }
+            sharedPref.edit().putLong("lastStatusChange", currentTime.getTime()).apply();
+        }else {
+            Toast.makeText(getActivity().getApplicationContext(),
+                    "Your health seems to be changing fast, Ignoring", Toast.LENGTH_LONG).show();
         }
+
     }
 
     public void onClickChangeStatus(View view) {

@@ -146,6 +146,7 @@ public class UserInfectionTest {
         sleep(2000);
 
     }
+
     private void setIllnessToHealthy(){
         sleep(5000);
         if(fragment.isImmediatelyNowIll()){
@@ -163,5 +164,16 @@ public class UserInfectionTest {
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(2000);
         assertSame(Carrier.InfectionStatus.INFECTED,analyst.getCarrier().getInfectionStatus());
+    }
+
+    @Test
+    public void checkStatusChangeRateLimit(){
+        Carrier.InfectionStatus initial = analyst.getCarrier().getInfectionStatus();
+        sleep(1000);
+        onView(withId(R.id.infectionStatusButton)).perform(click());
+        sleep(1000);
+        onView(withId(R.id.infectionStatusButton)).perform(click());
+        sleep(1000);
+        assertSame(initial,analyst.getCarrier().getInfectionStatus());
     }
 }

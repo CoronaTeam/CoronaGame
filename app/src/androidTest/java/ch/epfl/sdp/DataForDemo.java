@@ -45,7 +45,7 @@ import java.util.UUID;
  */
 @Ignore("This is not a proper test, it is used for testing and demos, but it does not test anything, only generates data.")
 public class DataForDemo {
-   /* private Random r = new Random();
+    private Random r = new Random();
     private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
     private CachingDataSender dataSender = new ConcreteCachingDataSender(gridFirestoreInteractor) {
         @Override
@@ -76,7 +76,7 @@ public class DataForDemo {
      * Generate 30 users around 46.51700,6.56600 and 5 users around 46.51800, 6.56700.
      * These latitude, longitude correspond to areas at EPFL.
      */
-   /* @Test
+    @Test
     public void upload2GroupsFakeUsersLocations() {
         // dense location forms a square of side 6
         // dense location infected forms a square of side 4 (16 infected people and 20 healthy)
@@ -127,7 +127,7 @@ public class DataForDemo {
      * Generate 1000 HEALTHY,HEALTHY_CARRIER,INFECTED,IMMUNE,UNKNOWN users starting from location 4600000, 600000
      */
 
-   /* @Test
+    @Test
     public void uploadBunchOfUsersAtEPFL() {
         Date rightNow = new Date(System.currentTimeMillis());
 
@@ -174,7 +174,7 @@ public class DataForDemo {
         // db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
 
         gridFirestoreInteractor.writeDocument("LastPositions/", element, o -> { }, e -> { });
-    }*/
+    }
 
     // write in History Collection on Firestore, user with ID USER_PATH_DEMO
     @Test

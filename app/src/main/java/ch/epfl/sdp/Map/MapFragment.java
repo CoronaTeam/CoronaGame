@@ -262,9 +262,9 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         toggleLayer(HeatMapHandler.HEATMAP_LAYER_ID);
     }
 
-    private void toggleLayer(String heatmapLayerId) {
+    private void toggleLayer(String layerId) {
         map.getStyle(style -> {
-            Layer layer = style.getLayer(heatmapLayerId);
+            Layer layer = style.getLayer(layerId);
             if (layer != null) {
                 if (VISIBLE.equals(layer.getVisibility().getValue())) {
                     layer.setProperties(visibility(NONE));

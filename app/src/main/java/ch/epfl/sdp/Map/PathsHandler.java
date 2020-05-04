@@ -49,7 +49,7 @@ public class PathsHandler extends Fragment {
     public double longitude; // public for testing
 
     // default access restriction for now, could be package-private, depending on how we finally decide to organize files
-    static final String PATH_LAYER_ID = "linelayer";
+    public static final String PATH_LAYER_ID = "linelayer"; // public for testing
     static final String PATH_SOURCE_ID = "line-source";
 
     public PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) { // public for testing

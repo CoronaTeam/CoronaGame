@@ -121,28 +121,16 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        Date currentTime = Calendar.getInstance().getTime();
-        /* get 1 jan 1970 by default. It's definitely wrong but works as we want t check that
-         * the status has not been updated less than a day ago.
-         */
-        Date lastStatusChange = new Date(sharedPref.getLong("lastStatusChange", 0));
-        long difference = Math.abs(currentTime.getTime() - lastStatusChange.getTime());
-        long differenceDays = difference / (24 * 60 * 60 * 1000);
 
-        if(differenceDays > 1){
-            switch (view.getId()) {
-                case R.id.infectionStatusButton: {
-                    onClickChangeStatus(view);
-                } break;
-                case R.id.refreshButton: {
-                    onClickRefresh(view);
-                } break;
-            }
-            sharedPref.edit().putLong("lastStatusChange", currentTime.getTime()).apply();
-        }else {
-            Toast.makeText(getActivity().getApplicationContext(),
-                    "Your health seems to be changing fast, Ignoring", Toast.LENGTH_LONG).show();
+        switch (view.getId()) {
+            case R.id.infectionStatusButton: {
+                onClickChangeStatus(view);
+            } break;
+            case R.id.refreshButton: {
+                onClickRefresh(view);
+            } break;
         }
+
 
     }
 
@@ -187,24 +175,41 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     private void executeHealthStatusChange() {
         CharSequence buttonText = infectionStatusButton.getText();
         boolean infected = buttonText.equals(getResources().getString(R.string.i_am_infected));
-        if (infected) {
-            //Tell the analyst we are now sick !
-            service.getAnalyst().updateStatus(Carrier.InfectionStatus.INFECTED);
-            setInfectionColorAndMessage(true);
-            modifyUserInfectionStatus(userName, true,
-                    value -> {
-                        //infectionUploadView.setText(String.format("%s at %s", value, Calendar.getInstance().getTime()));
-                    });
-        } else {
-            //Tell analyst we are now healthy !
-            service.getAnalyst().updateStatus(Carrier.InfectionStatus.HEALTHY);
-            sendRecoveryToFirebase();
-            setInfectionColorAndMessage(false);
-            modifyUserInfectionStatus(userName, false,
-                    value -> {
-                        //infectionUploadView.setText(String.format("%s at %s", value, Calendar.getInstance().getTime()))
-                    });
+
+        Date currentTime = Calendar.getInstance().getTime();
+        /* get 1 jan 1970 by default. It's definitely wrong but works as we want t check that
+         * the status has not been updated less than a day ago.
+         */
+        Date lastStatusChange = new Date(sharedPref.getLong("lastStatusChange", 0));
+        long difference = Math.abs(currentTime.getTime() - lastStatusChange.getTime());
+        long differenceDays = difference / (24 * 60 * 60 * 1000);
+
+        sharedPref.edit().putLong("lastStatusChange", currentTime.getTime()).apply();
+        if(differenceDays > 1){
+            if (infected) {
+                //Tell the analyst we are now sick !
+                service.getAnalyst().updateStatus(Carrier.InfectionStatus.INFECTED);
+                setInfectionColorAndMessage(true);
+                modifyUserInfectionStatus(userName, true,
+                        value -> {
+                            //infectionUploadView.setText(String.format("%s at %s", value, Calendar.getInstance().getTime()));
+                        });
+            } else {
+                //Tell analyst we are now healthy !
+                service.getAnalyst().updateStatus(Carrier.InfectionStatus.HEALTHY);
+                sendRecoveryToFirebase();
+                setInfectionColorAndMessage(false);
+                modifyUserInfectionStatus(userName, false,
+                        value -> {
+                            //infectionUploadView.setText(String.format("%s at %s", value, Calendar.getInstance().getTime()))
+                        });
+            }
+        }else {
+            Toast.makeText(getActivity().getApplicationContext(),
+                    "Your health seems to be changing fast, Ignoring", Toast.LENGTH_LONG).show();
         }
+
+
     }
 
     private void sendRecoveryToFirebase() {

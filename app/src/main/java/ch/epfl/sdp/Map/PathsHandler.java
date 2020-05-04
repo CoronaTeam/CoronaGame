@@ -45,8 +45,8 @@ public class PathsHandler extends Fragment {
     private List<Point> pathCoordinates;
     private FirebaseFirestore db = FirebaseFirestore.getInstance(); // we don't use ConcreteFirestoreInteractor because we want to do more specific op
     private MapFragment parentClass;
-    private double latitude;
-    private double longitude;
+    public double latitude; //public fir testing
+    public double longitude; // public for testing
 
     // default access restriction for now, could be package-private, depending on how we finally decide to organize files
     static final String PATH_LAYER_ID = "linelayer";

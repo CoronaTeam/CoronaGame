@@ -51,7 +51,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private static final int MIN_UP_INTERVAL_MILLISECS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
     private MapView mapView;
-    private MapboxMap map;
+    public MapboxMap map; // public for testing
     private LocationBroker locationBroker;
 
     private LatLng prevLocation = new LatLng(0, 0);
@@ -62,7 +62,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private Circle userLocation;
 
     private HeatMapHandler heatMapHandler;
-    private PathsHandler pathsHandler;
+    public PathsHandler pathsHandler; // public for testing
 
     private Account userAccount;
     private MapFragment classPointer;

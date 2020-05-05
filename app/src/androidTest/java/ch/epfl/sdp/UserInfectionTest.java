@@ -130,8 +130,9 @@ public class UserInfectionTest {
         analyst.updateStatus(HEALTHY);
 //        IS_NETWORK_DEBUG = false;
 //        IS_ONLINE = true;
+        sleep(1000);
         resetSickCounter();
-        sleep(3000);
+        sleep(3500);
         onView(withId(R.id.infectionStatusButton)).perform(click());
         fragment.getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE)
                 .edit().putLong("lastStatusChange", 0).apply(); // reset last status change date

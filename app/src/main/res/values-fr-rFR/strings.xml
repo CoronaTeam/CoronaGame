@@ -45,6 +45,7 @@
     <string name="email">E-mail</string>
     <string name="see_my_last_path">Voir mon dernier trajet</string>
     <string name="cannot_retrieve_positions">Impossible de charger les positions depuis la base de donnée</string>
+    <string name="error_infection_status_ratelimit">Vous ne pouvez pas changer votre status plus d\'une fois par jour</string>
     <string name="infection_dialog_message1">"Attention ! Vous avez rencontré "</string>
     <string name="several_infection_dialog_message2">" personnes infectées !"</string>
     <string name="infection_dialog_title">Rapport journalier</string>

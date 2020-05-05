@@ -1,8 +1,10 @@
 package ch.epfl.sdp.fragment;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -13,21 +15,23 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Executor;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Executor;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.AuthenticationManager;
@@ -62,6 +66,8 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     private Executor executor;
     private BiometricPromptWrapper biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
+
+    private SharedPreferences sharedPref;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -113,21 +119,24 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         getActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
 
 
+        sharedPref = getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE);
+
         return view;
     }
 
     @Override
     public void onClick(View view) {
+
         switch (view.getId()) {
             case R.id.infectionStatusButton: {
                 onClickChangeStatus(view);
-                break;
-            }
+            } break;
             case R.id.refreshButton: {
                 onClickRefresh(view);
-                break;
-            }
+            } break;
         }
+
+
     }
 
     public void onClickChangeStatus(View view) {
@@ -171,24 +180,41 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     private void executeHealthStatusChange() {
         CharSequence buttonText = infectionStatusButton.getText();
         boolean infected = buttonText.equals(getResources().getString(R.string.i_am_infected));
-        if (infected) {
-            //Tell the analyst we are now sick !
-            service.getAnalyst().updateStatus(Carrier.InfectionStatus.INFECTED);
-            setInfectionColorAndMessage(true);
-            modifyUserInfectionStatus(userName, true,
-                    value -> {
-                        //infectionUploadView.setText(String.format("%s at %s", value, Calendar.getInstance().getTime()));
-                    });
-        } else {
-            //Tell analyst we are now healthy !
-            service.getAnalyst().updateStatus(Carrier.InfectionStatus.HEALTHY);
-            sendRecoveryToFirebase();
-            setInfectionColorAndMessage(false);
-            modifyUserInfectionStatus(userName, false,
-                    value -> {
-                        //infectionUploadView.setText(String.format("%s at %s", value, Calendar.getInstance().getTime()))
-                    });
+
+        Date currentTime = Calendar.getInstance().getTime();
+        /* get 1 jan 1970 by default. It's definitely wrong but works as we want t check that
+         * the status has not been updated less than a day ago.
+         */
+        Date lastStatusChange = new Date(sharedPref.getLong("lastStatusChange", 0));
+        long difference = Math.abs(currentTime.getTime() - lastStatusChange.getTime());
+        long differenceDays = difference / (24 * 60 * 60 * 1000);
+
+        sharedPref.edit().putLong("lastStatusChange", currentTime.getTime()).apply();
+        if(differenceDays > 1){
+            if (infected) {
+                //Tell the analyst we are now sick !
+                service.getAnalyst().updateStatus(Carrier.InfectionStatus.INFECTED);
+                setInfectionColorAndMessage(true);
+                modifyUserInfectionStatus(userName, true,
+                        value -> {
+                            //infectionUploadView.setText(String.format("%s at %s", value, Calendar.getInstance().getTime()));
+                        });
+            } else {
+                //Tell analyst we are now healthy !
+                service.getAnalyst().updateStatus(Carrier.InfectionStatus.HEALTHY);
+                sendRecoveryToFirebase();
+                setInfectionColorAndMessage(false);
+                modifyUserInfectionStatus(userName, false,
+                        value -> {
+                            //infectionUploadView.setText(String.format("%s at %s", value, Calendar.getInstance().getTime()))
+                        });
+            }
+        }else {
+            Toast.makeText(getActivity().getApplicationContext(),
+                    R.string.error_infection_status_ratelimit, Toast.LENGTH_LONG).show();
         }
+
+
     }
 
     private void sendRecoveryToFirebase() {

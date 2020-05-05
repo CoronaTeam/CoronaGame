@@ -92,7 +92,13 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         // bindService(Intent, ServiceConnection, int):
         // it requires the service to remain running until stopService(Intent) is called,
         // regardless of whether any clients are connected to it.
-        ComponentName myService = getActivity().startService(new Intent(getContext(), LocationService.class));
+
+        //ComponentName myService = getActivity().startService(new Intent(getContext(), LocationService.class)); //TODO: Consider using startService for the reasons described in comments
+
+        // bindService used alone:
+        // The service will be considered required by the system only for as long as
+        // the calling context exists. For example, if this Context is an Activity that is stopped,
+        // the service will not be required to continue running until the Activity is resumed.
         getActivity().bindService(new Intent(getContext(), LocationService.class), conn, Context.BIND_AUTO_CREATE);
 
         userAccount = AccountFragment.getAccount(getActivity());

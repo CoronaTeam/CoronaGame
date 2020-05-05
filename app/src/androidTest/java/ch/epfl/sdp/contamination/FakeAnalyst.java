@@ -11,13 +11,14 @@ import ch.epfl.sdp.Callback;
  */
 public class FakeAnalyst implements InfectionAnalyst {
     Carrier carrier;
+    static int infectMeets = 0 ;
     public FakeAnalyst(){
         this.carrier = new Layman(Carrier.InfectionStatus.HEALTHY);
     }
 
     @Override
-    public void updateInfectionPredictions(Location location, Date startTime, Callback<Void> callback) {
-
+    public void updateInfectionPredictions(Location location, Date startTime, Callback<Integer> callback) {
+        callback.onCallback(infectMeets);
     }
 
     @Override

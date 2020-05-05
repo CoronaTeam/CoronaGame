@@ -2,6 +2,7 @@ package ch.epfl.sdp;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 
 import androidx.test.espresso.intent.Intents;
@@ -23,12 +24,14 @@ import ch.epfl.sdp.contamination.DataReceiver;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
 import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.fragment.UserInfectionFragment;
+import ch.epfl.sdp.location.LocationService;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static ch.epfl.sdp.CoronaGame.getContext;
 import static ch.epfl.sdp.MainActivity.IS_NETWORK_DEBUG;
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 import static ch.epfl.sdp.TestTools.initSafeTest;
@@ -89,6 +92,7 @@ public class UserInfectionTest {
     @After
     public void release(){
         Intents.release();
+        fragment.getActivity().stopService(new Intent(getContext(), LocationService.class));
         analyst = null;
         receiver = null;
     }

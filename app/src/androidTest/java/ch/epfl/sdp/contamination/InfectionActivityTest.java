@@ -1,5 +1,6 @@
 package ch.epfl.sdp.contamination;
 
+import android.content.Intent;
 import android.location.Location;
 
 import androidx.test.espresso.intent.Intents;
@@ -9,6 +10,7 @@ import androidx.test.rule.ActivityTestRule;
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.location.LocationService;
 
 import org.junit.After;
 import org.junit.Before;
@@ -25,12 +27,12 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static ch.epfl.sdp.CoronaGame.getContext;
 import static ch.epfl.sdp.TestTools.clickBack;
 import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.sleep;
 import static junit.framework.TestCase.assertNotNull;
-@Ignore("Lucas please fix")
 public class InfectionActivityTest {
 
     private InfectionFragment fragment;
@@ -46,6 +48,8 @@ public class InfectionActivityTest {
     @After
     public void release(){
 //        Intents.release();
+        fragment.getActivity().stopService(new Intent(getContext(), LocationService.class));
+
     }
 
     @Test

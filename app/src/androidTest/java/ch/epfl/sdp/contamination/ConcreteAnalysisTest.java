@@ -1,5 +1,6 @@
 package ch.epfl.sdp.contamination;
 
+import android.content.Intent;
 import android.location.Location;
 
 import androidx.test.espresso.intent.Intents;
@@ -34,6 +35,7 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static ch.epfl.sdp.CoronaGame.getContext;
 import static ch.epfl.sdp.TestTools.clickBack;
 import static ch.epfl.sdp.TestTools.getMapValue;
 import static ch.epfl.sdp.TestTools.initSafeTest;
@@ -84,6 +86,8 @@ public class ConcreteAnalysisTest {
     @After
     public void release(){
         Intents.release();
+        mActivityRule.getActivity().stopService(new Intent(getContext(), LocationService.class));
+
     }
     @BeforeClass
     public static void initiateData() {

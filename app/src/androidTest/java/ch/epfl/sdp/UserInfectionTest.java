@@ -31,6 +31,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibilit
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static ch.epfl.sdp.MainActivity.IS_NETWORK_DEBUG;
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
+import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.resetSickCounter;
 import static ch.epfl.sdp.TestTools.sleep;
@@ -81,7 +82,7 @@ public class UserInfectionTest {
         };
         fragment.getLocationService().setAnalyst(analyst);
         receiver = fragment.getLocationService().getReceiver();
-        fragment.getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE)
+        /*fragment.*/getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE)
                 .edit().putLong("lastStatusChange", 0).apply();
         sleep(1000);
 
@@ -134,7 +135,7 @@ public class UserInfectionTest {
         resetSickCounter();
         sleep(3500);
         onView(withId(R.id.infectionStatusButton)).perform(click());
-        fragment.getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE)
+        /*fragment.*/getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE)
                 .edit().putLong("lastStatusChange", 0).apply(); // reset last status change date
         sleep(5000);
         onView(withId(R.id.infectionStatusButton)).perform(click());
@@ -154,7 +155,7 @@ public class UserInfectionTest {
             onView(withId(R.id.infectionStatusButton)).perform(click());
 
         }
-        fragment.getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE)
+        /*fragment.*/getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE)
                 .edit().putLong("lastStatusChange", 0).apply();
     }
 

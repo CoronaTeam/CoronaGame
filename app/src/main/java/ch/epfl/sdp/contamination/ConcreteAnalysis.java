@@ -166,6 +166,53 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         });
     }
 
+    /*@Override
+    public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime) {
+        Date now = new Date(System.currentTimeMillis());
+
+        CompletableFuture<Integer> counterFuture = getCounterCompletableFuture();
+
+        CompletableFuture<Pair<Map<Carrier, Integer>, Integer>> suspicionsFuture =
+                getSuspiciousCompletableFuture(location, startTime, now);
+
+        return counterFuture.thenCombine(suspicionsFuture, (counter, suspicions) ->
+                getBadMeetingsCompletableFuture(counter, suspicions).join());
+    }
+
+    private CompletableFuture<Integer> getCounterCompletableFuture() {
+        return receiver.getRecoveryCounter(me.getUniqueId()).thenApply(recoveryCounter -> {
+            int recoveryCounter1 = 0;
+            if (!recoveryCounter.isEmpty()) {
+                recoveryCounter1 = (int) recoveryCounter.get(privateRecoveryCounter);
+            }
+            return recoveryCounter1;
+        });
+    }
+
+    private CompletableFuture<Pair<Map<Carrier, Integer>, Integer>> getSuspiciousCompletableFuture(
+            Location location, Date startTime, Date now) {
+        return receiver.getUserNearbyDuring(location, startTime, now).thenApply(aroundMe -> {
+            Pair<Map<Carrier, Integer>, Integer> suspicions;
+            suspicions = identifySuspectContacts_countInfected(aroundMe);
+            return suspicions;
+        });
+    }
+
+    private CompletableFuture<Integer> getBadMeetingsCompletableFuture(Integer counter, Pair<Map<Carrier, Integer>, Integer> suspicions) {
+        return receiver.getNumberOfSickNeighbors(me.getUniqueId()).thenApply(res -> {
+            float badMeetings = 0;
+            if (!res.isEmpty()) {
+                badMeetings = ((float) (res.get(publicAlertAttribute)));
+            }
+            if (badMeetings != 0) {
+                updateCarrierInfectionProbability(Math.min(me.getIllnessProbability() +
+                        badMeetings * getFactor(counter), 1f));
+                cachedSender.resetSickAlerts(me.getUniqueId());
+            }
+            return suspicions.second;
+        });
+    }*/
+
 
     @Override
     public Carrier getCarrier() {

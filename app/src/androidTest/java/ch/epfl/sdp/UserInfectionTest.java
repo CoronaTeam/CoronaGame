@@ -92,7 +92,7 @@ public class UserInfectionTest {
     @After
     public void release(){
         Intents.release();
-        fragment.getActivity().stopService(new Intent(getContext(), LocationService.class));
+        //fragment.getActivity().stopService(new Intent(getContext(), LocationService.class));
         analyst = null;
         receiver = null;
     }

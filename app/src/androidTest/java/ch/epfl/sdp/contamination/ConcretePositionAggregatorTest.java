@@ -1,6 +1,5 @@
 package ch.epfl.sdp.contamination;
 
-import android.content.Intent;
 import android.location.Location;
 
 import org.junit.After;
@@ -11,10 +10,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
-import ch.epfl.sdp.location.LocationService;
-
-import static ch.epfl.sdp.CoronaGame.getContext;
-import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.expandedLocEquals;
 import static ch.epfl.sdp.TestTools.sleep;
@@ -35,11 +30,6 @@ public class ConcretePositionAggregatorTest {
         aggregator.updateToOnline();
         timelap = PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION/maxNumberOfLoc;
     }
-    @After
-    public void release() {
-        getActivity().stopService(new Intent(getContext(), LocationService.class));
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void cantInstantiateOnZeroMaxLocationPerAggregation(){
         new ConcretePositionAggregator(sender,new FakeAnalyst(),0);

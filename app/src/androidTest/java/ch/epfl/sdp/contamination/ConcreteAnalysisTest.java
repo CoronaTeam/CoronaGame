@@ -86,7 +86,7 @@ public class ConcreteAnalysisTest {
     @After
     public void release(){
         Intents.release();
-        mActivityRule.getActivity().stopService(new Intent(getContext(), LocationService.class));
+        //mActivityRule.getActivity().stopService(new Intent(getContext(), LocationService.class));
 
     }
     @BeforeClass

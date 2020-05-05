@@ -1,6 +1,5 @@
 package ch.epfl.sdp.contamination;
 
-import android.content.Intent;
 import android.location.Location;
 
 import androidx.test.espresso.intent.Intents;
@@ -9,7 +8,6 @@ import androidx.test.rule.ActivityTestRule;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,10 +16,7 @@ import java.util.Map;
 
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.User;
-import ch.epfl.sdp.location.LocationService;
 
-import static ch.epfl.sdp.CoronaGame.getContext;
-import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
@@ -36,12 +31,6 @@ public class DataReceiverTest {
         receiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
 
     }
-
-    @After
-    public void release() {
-        getActivity().stopService(new Intent(getContext(), LocationService.class));
-    }
-
     class FakeGridInteractor extends GridFirestoreInteractor {
         private Map<Location,String> locationData;
         private Map<String,Integer> meetings;

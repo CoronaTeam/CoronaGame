@@ -39,6 +39,7 @@ import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static junit.framework.TestCase.assertSame;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 
 public class UserInfectionTest {
     private InfectionAnalyst analyst;
@@ -175,6 +176,6 @@ public class UserInfectionTest {
         sleep(1000);
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(1000);
-        assertSame(initial,analyst.getCarrier().getInfectionStatus());
+        assertNotSame(initial,analyst.getCarrier().getInfectionStatus());
     }
 }

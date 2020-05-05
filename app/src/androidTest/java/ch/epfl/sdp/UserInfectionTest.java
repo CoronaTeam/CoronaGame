@@ -82,8 +82,8 @@ public class UserInfectionTest {
         };
         fragment.getLocationService().setAnalyst(analyst);
         receiver = fragment.getLocationService().getReceiver();
-        /*fragment.*/getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE)
-                .edit().putLong("lastStatusChange", 0).apply();
+        resetLastChangeDate();
+
         sleep(1000);
 
     }
@@ -135,8 +135,8 @@ public class UserInfectionTest {
         resetSickCounter();
         sleep(3500);
         onView(withId(R.id.infectionStatusButton)).perform(click());
-        /*fragment.*/getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE)
-                .edit().putLong("lastStatusChange", 0).apply(); // reset last status change date
+        resetLastChangeDate();
+
         sleep(5000);
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(5000);
@@ -148,6 +148,10 @@ public class UserInfectionTest {
         sleep(2000);
 
     }
+    private void resetLastChangeDate(){
+        /*fragment.*/getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE)
+                .edit().putLong("lastStatusChange", 0).apply();
+    }
 
     private void setIllnessToHealthy(){
         sleep(5000);
@@ -155,8 +159,7 @@ public class UserInfectionTest {
             onView(withId(R.id.infectionStatusButton)).perform(click());
 
         }
-        /*fragment.*/getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE)
-                .edit().putLong("lastStatusChange", 0).apply();
+        resetLastChangeDate();
     }
 
     @Test

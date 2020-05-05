@@ -1,25 +1,12 @@
 package ch.epfl.sdp.firestore;
 
-import androidx.annotation.VisibleForTesting;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-
-import ch.epfl.sdp.Callback;
 
 public abstract class FirestoreInteractor {
     static FirebaseFirestore firestore = FirebaseFirestore.getInstance();
@@ -71,10 +58,26 @@ public abstract class FirestoreInteractor {
     //////////////////////////////////////////////////////////////
 
     public static <T> CompletableFuture<T> taskToFuture(Task<T> task) {
-        CompletableFuture<T> future = new CompletableFuture<>();
-        task.addOnSuccessListener(value -> future.complete(value));
-        task.addOnFailureListener(ex -> future.completeExceptionally(ex));
-        return future;
+        /*
+        int numCores = Runtime.getRuntime().availableProcessors();
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(numCores * 2, numCores *2,
+                60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+
+         */
+        if (task.isComplete()) {
+            if (task.isSuccessful()) {
+                return CompletableFuture.completedFuture(task.getResult());
+            } else {
+                CompletableFuture<T> exceptionFuture = new CompletableFuture<>();
+                exceptionFuture.completeExceptionally(task.getException());
+                return exceptionFuture;
+            }
+        } else {
+            CompletableFuture<T> future = new CompletableFuture<>();
+            task.addOnSuccessListener(value -> future.complete(value))
+                    .addOnFailureListener(ex -> future.completeExceptionally(ex));
+            return future;
+        }
     }
 
     public static CollectionReference collectionReference(String path) {

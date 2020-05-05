@@ -5,17 +5,19 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.test.rule.ActivityTestRule;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,15 +25,20 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import ch.epfl.sdp.TestUtils;
 import ch.epfl.sdp.contamination.Carrier;
+import ch.epfl.sdp.contamination.ConcreteAnalysis;
+import ch.epfl.sdp.contamination.ConcreteCachingDataSender;
+import ch.epfl.sdp.contamination.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.DataExchangeActivity;
 import ch.epfl.sdp.contamination.FakeCachingDataSender;
+import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
 import ch.epfl.sdp.contamination.Layman;
+import ch.epfl.sdp.firestore.FirestoreInteractor;
 
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.when;
+import static org.hamcrest.core.IsNot.not;
 
 public class LocationServiceTest {
 
@@ -52,8 +59,13 @@ public class LocationServiceTest {
 
     @Before
     public void setupMockito() {
-        when(uncallableAnalyst.updateInfectionPredictions(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-                .thenThrow(IllegalArgumentException.class);
+        GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
+        uncallableAnalyst = new ConcreteAnalysis(
+                new Layman(HEALTHY),
+                new ConcreteDataReceiver(gridFirestoreInteractor),
+                new ConcreteCachingDataSender(gridFirestoreInteractor));
+        //when(uncallableAnalyst.updateInfectionPredictions(anyObject(), anyObject(), anyObject()))
+        //        .thenThrow(IllegalArgumentException.class);
     }
 
     @Before
@@ -143,9 +155,47 @@ public class LocationServiceTest {
     }
 
     @Test
-    public void canStopAggregator() {
+    public void canStopAggregator() throws Throwable {
         mActivityRule.getActivity().getService().onProviderDisabled(LocationManager.GPS_PROVIDER);
         // TODO: This test should check the effects of the operation
+        mActivityRule.finishActivity();
+    }
+
+    @After
+    public void checkWhichThreadIsStillRunning() {
+        Log.e("THIS IS JUST TO TEST", "....");
+    }
+
+    Carrier me;
+    Date lastUpdated;
+
+    @Test
+    public void canRetrieveCarrierFromFirestore() {
+        //mActivityRule.getActivity().bindLocationService();
+
+        CompletableFuture<Map<String, Object>> crr = new GridFirestoreInteractor().readDocument(FirestoreInteractor.documentReference("privateUser", "USER_ID_X42"));
+
+        crr.thenAccept(map -> {
+            float infectionProbability = (float) ((double) map.getOrDefault(LocationService.INFECTION_PROBABILITY_TAG, 0.d));
+            String infectionStatus = (String) map.getOrDefault(LocationService.INFECTION_STATUS_TAG, Carrier.InfectionStatus.HEALTHY.toString());
+
+            me = new Layman(Carrier.InfectionStatus.valueOf(infectionStatus), infectionProbability);
+
+            lastUpdated = new Date((long) map.getOrDefault(LocationService.LAST_UPDATED_TAG, System.currentTimeMillis()));
+
+        }).exceptionally(e -> {
+            e.printStackTrace();
+            throw new IllegalStateException(e);
+            /*
+            me = new Layman(Carrier.InfectionStatus.HEALTHY);
+            lastUpdated = new Date();
+            done.set(true);
+            return null;
+            */
+        }).join();
+
+        assertThat(me, not(equalTo(null)));
+
     }
 
     @Test
@@ -188,5 +238,15 @@ public class LocationServiceTest {
         updateAlarm.putExtra(LocationService.ALARM_GOES_OFF, true);
 
         mActivityRule.getActivity().startService(updateAlarm);
+    }
+
+    @Test
+    public void canAddStageToCompletedFuture() {
+        CompletableFuture<Integer> futureAccumulator = new CompletableFuture<>();
+        CompletableFuture<Integer> incremented = futureAccumulator.thenApply(acc -> acc + 1);
+        futureAccumulator.complete(0);
+        CompletableFuture<Integer> furtherIncremented = incremented.thenApply(acc -> acc + 2);
+        assertThat(furtherIncremented.join(), equalTo(3));
+        assertThat(furtherIncremented.thenApply(acc -> acc*(-1)).join(), equalTo(-3));
     }
 }

@@ -15,7 +15,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.Date;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.contamination.Carrier;
@@ -64,7 +63,7 @@ public class UserInfectionTest {
         analyst =  new InfectionAnalyst() {
 
             @Override
-            public CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime) {
+            public CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
                 return null;
             }
 

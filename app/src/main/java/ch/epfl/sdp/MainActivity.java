@@ -37,7 +37,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        startLocationService();
+    }
 
+    private void startLocationService() {
         // LocationService will be started here
         // It's responsibility of this activity to check that it has
         // permissions to retrieve GPS location

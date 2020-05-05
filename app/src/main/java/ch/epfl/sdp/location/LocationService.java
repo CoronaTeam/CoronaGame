@@ -47,9 +47,10 @@ public class LocationService extends Service implements LocationListener {
 
     public static final String ALARM_GOES_OFF = "beeep!";
 
-    private static final String INFECTION_PROBABILITY_TAG = "infectionProbability";
-    private static final String INFECTION_STATUS_TAG = "infectionStatus";
-    private static final String LAST_UPDATED_TAG = "lastUpdated";
+    // TODO: Debug, make them private
+    public static final String INFECTION_PROBABILITY_TAG = "infectionProbability";
+    public static final String INFECTION_STATUS_TAG = "infectionStatus";
+    public static final String LAST_UPDATED_TAG = "lastUpdated";
 
     private LocationBroker broker;
     private PositionAggregator aggregator;
@@ -58,6 +59,9 @@ public class LocationService extends Service implements LocationListener {
 
     private DataReceiver receiver;
     private CachingDataSender sender;
+
+    private volatile boolean isStarted = false;
+    private CompletableFuture<Void> startOperationQueue;
 
     private Carrier me;
 
@@ -69,22 +73,32 @@ public class LocationService extends Service implements LocationListener {
 
     private boolean hasGpsPermissions = false;
 
-    private void loadCarrierStatus() {
+    private CompletableFuture<Boolean> loadCarrierStatus() {
         // TODO: Fix this: should not require activity to get Account ID
         CompletableFuture<Map<String, Object>> crr = gridInteractor.readDocument(FirestoreInteractor.documentReference("privateUser", "USER_ID_X42"));
 
-        crr.thenAccept(map -> {
-            float infectionProbability = (float) ((double) map.getOrDefault(INFECTION_PROBABILITY_TAG, 0.d));
-            String infectionStatus = (String) map.getOrDefault(INFECTION_STATUS_TAG, Carrier.InfectionStatus.HEALTHY);
+        return crr.thenApply(map -> {
+                float infectionProbability = (float) ((double) map.getOrDefault(
+                        LocationService.INFECTION_PROBABILITY_TAG,
+                        0.d));
+                String infectionStatus = (String) map.getOrDefault(
+                        LocationService.INFECTION_STATUS_TAG,
+                        Carrier.InfectionStatus.HEALTHY.toString());
 
-            me = new Layman(Carrier.InfectionStatus.valueOf(infectionStatus), infectionProbability);
+                me = new Layman(Carrier.InfectionStatus.valueOf(infectionStatus), infectionProbability);
+                lastUpdated = new Date((long) map.getOrDefault(
+                        LocationService.LAST_UPDATED_TAG,
+                        System.currentTimeMillis()));
 
-            lastUpdated = new Date((long) map.getOrDefault(LAST_UPDATED_TAG, System.currentTimeMillis()));
-        }).exceptionally(e -> {
-            me = new Layman(Carrier.InfectionStatus.HEALTHY);
-            lastUpdated = new Date();
-            return null;
-        }).join();
+                return true;
+            }).exceptionally(e -> {
+
+                e.printStackTrace();
+                me = new Layman(Carrier.InfectionStatus.HEALTHY);
+                lastUpdated = new Date();
+
+                return false;
+            });
     }
 
     private void setModelUpdateAlarm() {
@@ -104,15 +118,25 @@ public class LocationService extends Service implements LocationListener {
 
         broker = new ConcreteLocationBroker((LocationManager) this.getSystemService(Context.LOCATION_SERVICE), this);
 
-        loadCarrierStatus();
-
-        analyst = new ConcreteAnalysis(me, receiver,sender);
-        aggregator = new ConcretePositionAggregator(sender, me);
-
         refreshPermissions();
-        if (hasGpsPermissions) {
-            startAggregator();
-        }
+
+        startOperationQueue = loadCarrierStatus()
+                .thenApply(v -> {
+                    analyst = new ConcreteAnalysis(me, receiver, sender);
+                    aggregator = new ConcretePositionAggregator(sender, me);
+
+                    if (hasGpsPermissions) {
+                        startAggregator();
+                    }
+                    return true; })
+                .thenAccept(v -> {
+                    if (v) {
+                        isStarted = true;
+                    } else {
+                        // TODO: When adding support for offline mode, turn that into CompletableFuture<Boolean>
+                        throw new IllegalStateException("Could not successfully start LocationService");
+                    }
+                });
     }
 
     /** Updates the infection probability by running the model
@@ -132,12 +156,24 @@ public class LocationService extends Service implements LocationListener {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent.hasExtra(ALARM_GOES_OFF)) {
             // It's time to run the model, starting from time 'lastUpdated';
-            runInfectionModel();
+            if (isStarted) {
+                // Optimization: do not indefinitely grow the number of stages of startOperationQueue
+                runInfectionModel();
+            } else {
+                startOperationQueue.thenAccept(startResult -> runInfectionModel());
+            }
         }
 
         // Create next alarm
         setModelUpdateAlarm();
         return START_STICKY;
+    }
+
+    // TODO: When implementing offline mode, make all the functions return CompletableFuture
+    private void waitUntilServiceStarted() {
+        if (!startOperationQueue.isDone()) {
+            startOperationQueue.join();
+        }
     }
 
     public class LocationBinder extends android.os.Binder {
@@ -175,6 +211,9 @@ public class LocationService extends Service implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
+
+        waitUntilServiceStarted();
+
         refreshPermissions();
         if (hasGpsPermissions) {
             aggregator.addPosition(location);
@@ -199,12 +238,16 @@ public class LocationService extends Service implements LocationListener {
     }
 
     private void stopAggregator() {
+
         displayToast(getString(R.string.aggregator_status_off));
         aggregator.updateToOffline();
     }
 
     @Override
     public void onProviderEnabled(String provider) {
+
+        waitUntilServiceStarted();
+
         if (provider.equals(LocationManager.GPS_PROVIDER)) {
             refreshPermissions();
             if (hasGpsPermissions) {
@@ -215,48 +258,78 @@ public class LocationService extends Service implements LocationListener {
 
     @Override
     public void onProviderDisabled(String provider) {
+
+        waitUntilServiceStarted();
+
         if (provider.equals(LocationManager.GPS_PROVIDER)) {
             stopAggregator();
         }
     }
 
     public LocationBroker getBroker() {
+
+        waitUntilServiceStarted();
+
         return broker;
     }
 
     public InfectionAnalyst getAnalyst() {
+
+        waitUntilServiceStarted();
+
         return analyst;
     }
 
     public CachingDataSender getSender() {
+
+        waitUntilServiceStarted();
+
         return sender;
     }
 
     public DataReceiver getReceiver() {
+
+        waitUntilServiceStarted();
+
         return receiver;
     }
 
     public void setAlarmDelay(int millisDelay) {
+
+        waitUntilServiceStarted();
+
         alarmDelayMillis = millisDelay;
     }
 
     @VisibleForTesting
     public void setReceiver(DataReceiver receiver) {
+
+        waitUntilServiceStarted();
+
         this.receiver = receiver;
     }
 
     @VisibleForTesting
     public void setSender(CachingDataSender sender) {
+
+        waitUntilServiceStarted();
+
         this.sender = sender;
     }
 
     @VisibleForTesting
     public void setBroker(LocationBroker broker) {
+
+        waitUntilServiceStarted();
+
         this.broker = broker;
     }
 
     @VisibleForTesting
     public void setAnalyst(InfectionAnalyst analyst) {
+
+        waitUntilServiceStarted();
+
         this.analyst = analyst;
     }
 }

@@ -105,8 +105,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
 
 
     @Override
-    public CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime) {
-        Date now = new Date(System.currentTimeMillis());
+    public CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
         CompletableFuture<Integer> counterFuture =
                 receiver.getRecoveryCounter(me.getUniqueId()).thenApply(recoveryCounter -> {
                     int recoveryCounter1 = 0;
@@ -116,7 +115,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
                     return recoveryCounter1;
                 });
         return counterFuture.thenAccept(counter -> {
-            receiver.getUserNearbyDuring(location, startTime, now).thenApply(aroundMe -> {
+            receiver.getUserNearbyDuring(location, startTime, endTime).thenApply(aroundMe -> {
                 modelInfectionEvolution(identifySuspectContacts(aroundMe), counter);
                 return receiver.getNumberOfSickNeighbors(me.getUniqueId()).thenAccept(res -> {
                     float badMeetings = 0;

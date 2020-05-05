@@ -17,6 +17,7 @@ public class GridFirestoreInteractor extends ConcreteFirestoreInteractor {
     public GridFirestoreInteractor() {
         super();
     }
+
     String getGridId(Location location) {
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();

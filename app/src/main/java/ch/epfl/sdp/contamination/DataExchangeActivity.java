@@ -20,10 +20,6 @@ public class DataExchangeActivity extends AppCompatActivity {
 
     // TODO: This activity will be converted into a Service
 
-
-    private CachingDataSender sender;
-    private DataReceiver receiver;
-
     private LocationService service;
 
     @VisibleForTesting
@@ -31,11 +27,6 @@ public class DataExchangeActivity extends AppCompatActivity {
 
     @VisibleForTesting
     Handler uiHandler;
-
-    @VisibleForTesting
-    CachingDataSender getSender() {
-        return sender;
-    }
 
     @VisibleForTesting
     public LocationService getService() {
@@ -49,23 +40,33 @@ public class DataExchangeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_dataexchange);
         exchangeStatus = findViewById(R.id.exchange_status);
 
+        uiHandler = new Handler();
+
+        bindLocationService();
+    }
+
+    private void bindLocationService() {
         ServiceConnection conn = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 LocationService.LocationBinder binder = (LocationService.LocationBinder) service;
                 DataExchangeActivity.this.service = binder.getService();
-                DataExchangeActivity.this.sender = DataExchangeActivity.this.service.getSender();
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
                 DataExchangeActivity.this.service = null;
-                DataExchangeActivity.this.sender = null;
             }
         };
 
         bindService(new Intent(this, LocationService.class), conn, BIND_AUTO_CREATE);
 
-        uiHandler = new Handler();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // TODO: Invalidate Handler??
     }
 }

@@ -82,16 +82,16 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         }
     }
 
-    private Pair<Map<Carrier, Integer>,Integer> identifySuspectContacts_countInfected(Map<? extends Carrier, Integer> aroundMe) {
-        if(aroundMe == null ){
-            return new Pair(Collections.emptyMap(),0);
+    private Pair<Map<Carrier, Integer>, Integer> identifySuspectContacts_countInfected(Map<? extends Carrier, Integer> aroundMe) {
+        if (aroundMe == null) {
+            return new Pair(Collections.emptyMap(), 0);
         }
         Map<Carrier, Integer> contactDuration = new HashMap<>();
-        int infectionCounter = 0 ;
+        int infectionCounter = 0;
         for (Map.Entry<? extends Carrier, Integer> person : aroundMe.entrySet()) {
             switch (person.getKey().getInfectionStatus()) {
                 case INFECTED:
-                    infectionCounter +=1;
+                    infectionCounter += 1;
                 case UNKNOWN:
                     int timeCloseBy = person.getValue() * PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION; // Add discretized time slice
                     contactDuration.put(person.getKey(), timeCloseBy);
@@ -101,7 +101,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
             }
         }
 
-        return new Pair<Map<Carrier, Integer>, Integer>(contactDuration,infectionCounter);
+        return new Pair<Map<Carrier, Integer>, Integer>(contactDuration, infectionCounter);
     }
 
     private float getFactor(int recoveryCounter) {
@@ -110,50 +110,59 @@ public class ConcreteAnalysis implements InfectionAnalyst {
 
     /**
      * this Method will now return the number of 100% sick person we met
+     *
      * @param location
      * @param startTime
-     * @param callback
+     * @return
      */
     @Override
-    //TODO: merge
-    public CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime) {
+    public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime) {
         Date now = new Date(System.currentTimeMillis());
-        CompletableFuture<Integer> counterFuture =
-                receiver.getRecoveryCounter(me.getUniqueId()).thenApply(recoveryCounter -> {
-                    int recoveryCounter1 = 0;
-                    if (!recoveryCounter.isEmpty()) {
-                        recoveryCounter1 = (int) recoveryCounter.get(privateRecoveryCounter);
-                    }
-                    return recoveryCounter1;
-                });
-        return counterFuture.thenAccept(counter -> {
-            receiver.getUserNearbyDuring(location, startTime, now).thenApply(aroundMe -> {
-                modelInfectionEvolution(identifySuspectContacts(aroundMe), counter);
-                return receiver.getNumberOfSickNeighbors(me.getUniqueId()).thenAccept(res -> {
-    public void updateInfectionPredictions(Location location, Date startTime, Callback<Integer> callback) {
 
-        Date now = new Date(System.currentTimeMillis());
-        receiver.getRecoveryCounter(me.getUniqueId(), recoveryCounter->{
+        CompletableFuture<Integer> counterFuture = getCounterCompletableFuture();
+
+        CompletableFuture<Pair<Map<Carrier, Integer>, Integer>> suspicionsFuture =
+                getSuspiciousCompletableFuture(location, startTime, now);
+
+        CompletableFuture<Void> badMeetingsFuture = getBadMeetingCompletableFuture(counterFuture);
+
+        return counterFuture
+                .thenCombine(suspicionsFuture, (counter, suspicions) -> {
+                    modelInfectionEvolution(suspicions.first, counter);
+                    return suspicions.second;
+                }).thenCombine(badMeetingsFuture, ((integer, aVoid) -> integer));
+    }
+
+    private CompletableFuture<Integer> getCounterCompletableFuture() {
+        return receiver.getRecoveryCounter(me.getUniqueId()).thenApply(recoveryCounter -> {
             int recoveryCounter1 = 0;
-            if(!((Map)(recoveryCounter)).isEmpty()){
-                recoveryCounter1 =  ((int) (((HashMap) (recoveryCounter)).get(privateRecoveryCounter)));
+            if (!recoveryCounter.isEmpty()) {
+                recoveryCounter1 = (int) recoveryCounter.get(privateRecoveryCounter);
             }
-            final int counter = recoveryCounter1;
-            receiver.getUserNearbyDuring(location, startTime, now, aroundMe -> {
-                Pair<Map<Carrier,Integer>,Integer> suspicions = identifySuspectContacts_countInfected(aroundMe);
-                modelInfectionEvolution(suspicions.first,counter);
-                receiver.getNumberOfSickNeighbors(me.getUniqueId(), res -> {
+            return recoveryCounter1;
+        });
+    }
+
+    private CompletableFuture<Void> getBadMeetingCompletableFuture(CompletableFuture<Integer> counterFuture) {
+        return receiver.getNumberOfSickNeighbors(me.getUniqueId()).thenAcceptBoth(counterFuture,
+                (res, counter) -> {
                     float badMeetings = 0;
                     if (!res.isEmpty()) {
                         badMeetings = (float) (res.get(publicAlertAttribute));
                     }
                     if (badMeetings != 0) {
-                        updateCarrierInfectionProbability(Math.min(me.getIllnessProbability() + badMeetings * getFactor(counter), 1f));
+                        updateCarrierInfectionProbability(Math.min(me.getIllnessProbability()
+                                + badMeetings * getFactor(counter), 1f));
                         cachedSender.resetSickAlerts(me.getUniqueId());
                     }
-                    //callback.onCallback(suspicions.second);
                 });
-            });
+    }
+
+    private CompletableFuture<Pair<Map<Carrier, Integer>, Integer>> getSuspiciousCompletableFuture(Location location, Date startTime, Date now) {
+        return receiver.getUserNearbyDuring(location, startTime, now).thenApply(aroundMe -> {
+            Pair<Map<Carrier, Integer>, Integer> suspicions;
+            suspicions = identifySuspectContacts_countInfected(aroundMe);
+            return suspicions;
         });
     }
 

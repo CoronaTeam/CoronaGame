@@ -395,18 +395,19 @@ public class ConcreteAnalysisTest {
         Thread.sleep(10);
         sleep(5000);
         clickBack();
+        sleep(10000);
         // Now there should be some risk that I was infected
         onView(withId(R.id.my_infection_refresh)).perform(click());
         sleep(5000);
         // TODO: @Matteo still not working
-        clickBack();
-        //sleep(10000);
+        /*clickBack();
+        sleep(10000);*/
         //onView(withId(R.id.my_infection_status)).check(matches(withText("UNKNOWN")));
 
         // TODO: Restore original components
         //TODO: check if this should be removed
-        /*service.setReceiver(originalReceiver);
-        service.setAnalyst(originalAnalyst);*/
+        service.setReceiver(originalReceiver);
+        service.setAnalyst(originalAnalyst);
 
     }
 

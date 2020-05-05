@@ -18,6 +18,7 @@ import org.junit.Test;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -61,30 +62,35 @@ public class InfectionActivityTest {
         fragment.getLocationService().setSender(new FakeCachingDataSender());
         fragment.getLocationService().setReceiver(new DataReceiver() {
             @Override
-            public void getUserNearby(Location location, Date date, Callback<Set<? extends Carrier>> callback) {
-                callback.onCallback(null);
+            public CompletableFuture<Set<Carrier>> getUserNearby(Location location, Date date) {
+                return CompletableFuture.completedFuture(null);
             }
 
             @Override
-            public void getUserNearbyDuring(Location location, Date startDate, Date endDate, Callback<Map<? extends Carrier, Integer>> callback) {
-                callback.onCallback(null);
+            public CompletableFuture<Map<Carrier, Integer>> getUserNearbyDuring(Location location, Date startDate, Date endDate) {
+                return CompletableFuture.completedFuture(null);
+
             }
 
             @Override
-            public void getMyLastLocation(Account account, Callback<Location> callback) {
-                callback.onCallback(null);
+            public CompletableFuture<Location> getMyLastLocation(Account account) {
+                return CompletableFuture.completedFuture(null);
+
             }
 
             @Override
-            public void getNumberOfSickNeighbors(String userId, Callback<Map<String, Float>> callback) {
-                callback.onCallback(null);
+            public CompletableFuture<Map<String, Object>> getNumberOfSickNeighbors(String userId) {
+                return CompletableFuture.completedFuture(null);
+
             }
 
             @Override
-            public void getRecoveryCounter(String userId, Callback<Map<String, Integer>> callback) {
-                callback.onCallback(null);
+            public CompletableFuture<Map<String, Object>> getRecoveryCounter(String userId) {
+                return CompletableFuture.completedFuture(null);
+
             }
         });
+
         int now = (int)System.currentTimeMillis();
         fragment.onModelRefresh(null);
         sleep(10);

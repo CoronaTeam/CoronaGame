@@ -38,7 +38,6 @@ public class ConcretePositionAggregatorTest {
     @After
     public void release() {
         getActivity().stopService(new Intent(getContext(), LocationService.class));
-
     }
 
     @Test(expected = IllegalArgumentException.class)

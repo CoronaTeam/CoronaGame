@@ -33,7 +33,7 @@ import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.sleep;
 import static junit.framework.TestCase.assertNotNull;
-@Ignore("Lucas please fix: UserInfectionFragment not attached to a context")
+//@Ignore("Lucas please fix: UserInfectionFragment not attached to a context")
 public class InfectionActivityTest {
 
     private InfectionFragment fragment;
@@ -48,7 +48,7 @@ public class InfectionActivityTest {
     }
     @After
     public void release(){
-//        Intents.release();
+        Intents.release();
 //        fragment.getActivity().stopService(new Intent(getContext(), LocationService.class));
 
     }

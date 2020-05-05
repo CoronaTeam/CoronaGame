@@ -3,7 +3,6 @@ package ch.epfl.sdp.contamination;
 import android.location.Location;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -49,8 +48,6 @@ public class CachingDataSenderTest {
 //        assertEquals(manuallyRoundedLocation.getLongitude(),location.getLongitude(),0);
 //        assertEquals(manuallyRoundedLocation.getLatitude(),location.getLatitude(),0);
     }
-
-    @Ignore("Lucas please fix")
     @Test
     public void resetAlertsDeletesAlertAttribute(){
         sender.sendAlert(User.DEFAULT_USERID);
@@ -59,8 +56,6 @@ public class CachingDataSenderTest {
         receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID, res -> assertTrue(((HashMap)(res)).isEmpty()));
         sleep();
     }
-
-    @Ignore("Lucase please fix")
     @Test
     public void sendAlertIncrementsOrCreatesAlertAttribute(){
         sender.resetSickAlerts(User.DEFAULT_USERID);

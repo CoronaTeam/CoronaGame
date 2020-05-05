@@ -7,7 +7,9 @@ import android.location.Location;
 
 import androidx.fragment.app.Fragment;
 import androidx.test.espresso.intent.Intents;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
+import androidx.test.uiautomator.UiDevice;
 
 import java.util.Map;
 
@@ -141,5 +143,19 @@ public interface TestTools {
     static void resetSickCounter(){
         DocumentReference ref = documentReference(privateUserFolder,User.DEFAULT_USERID);
         ref.update(privateRecoveryCounter, FieldValue.delete());
+    }
+    static void clickBack(){
+        clickBack(1000);
+    }
+
+    /**
+     * Will click on the back button of the phone and wait before and after
+     * @param waitTime
+     */
+    static void clickBack(int waitTime){
+        UiDevice mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+        sleep(waitTime);
+        mDevice.pressBack();
+        sleep(waitTime);
     }
 }

@@ -28,6 +28,7 @@ public interface InfectionAnalyst {
 
     /**
      * Updates the infection probability after staying at 'location' starting from startTime
+     * Returns the
      * @param startTime
      */
     CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime);

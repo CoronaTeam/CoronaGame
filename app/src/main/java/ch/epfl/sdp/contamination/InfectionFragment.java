@@ -1,5 +1,6 @@
 package ch.epfl.sdp.contamination;
 
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -87,15 +88,48 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
 
         // TODO: Which location?
         service.getReceiver().getMyLastLocation(AccountFragment.getAccount(getActivity()), location -> {
-            service.getAnalyst().updateInfectionPredictions(location, refreshTime, n -> {
+            service.getAnalyst().updateInfectionPredictions(location, refreshTime, todayInfectionMeetings -> {
                 getActivity().runOnUiThread(() -> {
                     InfectionAnalyst analyst = service.getAnalyst();
                     infectionStatus.setText(analyst.getCarrier().getInfectionStatus().toString());
                     infectionProbability.setProgress(Math.round(analyst.getCarrier().getIllnessProbability() * 100));
                     Log.e("PROB:", analyst.getCarrier().getIllnessProbability() + "");
+                    displayAlert(todayInfectionMeetings);
                 });
+                //Display the Dialog saying you were close to todayInfectionMeetings number of infected people
+
+
             });
         });
+    }
+
+    private void displayAlert(int todayInfectionMeetings) {
+        if(todayInfectionMeetings<0){
+            throw new IllegalArgumentException();
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+        CharSequence first ;
+        CharSequence second;
+        CharSequence title = getText(R.string.infection_dialog_title);
+        switch (todayInfectionMeetings){
+            case 0 :
+                first = getText(R.string.infection_dialog_cool_message);
+                second = "";
+                break;
+            case 1 :
+                first = getText(R.string.infection_dialog_message1);
+                second = getText(R.string.one_infection_dialog_message2);
+                break;
+            default:
+                first = getText(R.string.infection_dialog_message1);
+                second = getText(R.string.several_infection_dialog_message2);
+
+        }
+        builder.setMessage((String)first + (todayInfectionMeetings==0?"":todayInfectionMeetings) + (String) second)
+                .setTitle(title);
+       AlertDialog dialog = builder.create();
+       dialog.show();
     }
 
     @VisibleForTesting

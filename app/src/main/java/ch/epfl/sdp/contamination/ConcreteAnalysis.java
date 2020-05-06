@@ -101,7 +101,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
             }
         }
 
-        return new Pair<Map<Carrier, Integer>, Integer>(contactDuration, infectionCounter);
+        return new Pair<>(contactDuration, infectionCounter);
     }
 
     private float getFactor(int recoveryCounter) {

@@ -179,24 +179,25 @@ public class ConcreteAnalysisTest {
     CachingDataSender sender = new FakeCachingDataSender(){
         @Override
         public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
-            firebaseStore.put(time, location);
-            return null;
+            fakeFirebaseStore.put(time, location);
+            return CompletableFuture.completedFuture(null);
         }
         @Override
         public CompletableFuture<Void> sendAlert(String userId, float previousIllnessProbability){
-            recentSickMeetingCounter.computeIfPresent(userId, (k,v) -> v+ 1 - previousIllnessProbability);
+            recentSickMeetingCounter.computeIfPresent(userId,
+                    (k, v) -> v + 1 - previousIllnessProbability);
             recentSickMeetingCounter.computeIfAbsent(userId, k->1-previousIllnessProbability);
-            return null;
+            return CompletableFuture.completedFuture(null);
         }
         @Override
         public CompletableFuture<Void> sendAlert(String userId){
             sendAlert(userId,0);
-            return null;
+            return CompletableFuture.completedFuture(null);
         }
         @Override
         public CompletableFuture<Void> resetSickAlerts(String userId){
             recentSickMeetingCounter.remove(userId);
-            return null;
+            return CompletableFuture.completedFuture(null);
         }
 
         @Override

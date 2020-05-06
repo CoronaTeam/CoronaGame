@@ -89,6 +89,7 @@ public class PathsHandler extends Fragment {
     private void getPathCoordinates(@NonNull Iterator<QueryDocumentSnapshot> qsIterator) {
         // TODO: get path for given day, NEED TO RETRIEVE POSITIONS ON SPECIFIC DAY TIME
         pathCoordinates = new ArrayList<>();
+        infected_met = new ArrayList<>();
 
         for (; qsIterator.hasNext(); ) {
             QueryDocumentSnapshot qs = qsIterator.next();

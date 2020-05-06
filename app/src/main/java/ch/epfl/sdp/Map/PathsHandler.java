@@ -59,7 +59,9 @@ public class PathsHandler extends Fragment {
 
     // default access restriction for now, could be package-private, depending on how we finally decide to organize files
     public static final String PATH_LAYER_ID = "linelayer"; // public for testing
+    static final String POINTS_LAYER_ID = "pointslayer";
     static final String PATH_SOURCE_ID = "line-source";
+    static final String POINTS_SOURCE_ID = "points-source";
 
     private PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
         this.parentClass = parentClass;
@@ -85,12 +87,12 @@ public class PathsHandler extends Fragment {
         for (; qsIterator.hasNext(); ) {
             QueryDocumentSnapshot qs = qsIterator.next();
             try {
-                GeoPoint geoPoint = (GeoPoint)((Map)qs.get("Position")).get("geoPoint");
+                GeoPoint geoPoint = (GeoPoint) ((Map) qs.get("Position")).get("geoPoint");
                 double lat = geoPoint.getLatitude();
                 double lon = geoPoint.getLongitude();
                 pathCoordinates.add(Point.fromLngLat(lon, lat));
                 // check infected met around this point of the path
-                Timestamp timestamp = (Timestamp)((Map)qs.get("Position")).get("timestamp");
+                Timestamp timestamp = (Timestamp) ((Map) qs.get("Position")).get("timestamp");
                 addInfectedMet(lat, lon, timestamp);
             } catch (NullPointerException ignored) {
                 Log.d("ERROR ADDING POINT", String.valueOf(ignored));
@@ -109,7 +111,8 @@ public class PathsHandler extends Fragment {
     private void addInfectedMet(double lat, double lon, Timestamp timestamp) throws ExecutionException, InterruptedException {
         ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
         Location location = LocationUtils.buildLocation(lat, lon);
-        CompletableFuture<Map<Carrier, Integer>> future = concreteDataReceiver.getUserNearbyDuring(location, timestamp.toDate(), timestamp.toDate());
+        CompletableFuture<Map<Carrier, Integer>> future = concreteDataReceiver
+                .getUserNearbyDuring(location, timestamp.toDate(), timestamp.toDate());
         Map<Carrier, Integer> users = null;
         try {
             users = future.get();
@@ -131,6 +134,26 @@ public class PathsHandler extends Fragment {
     }
 
     private void setPathLayer() {
+        Layer layer = new LineLayer(PATH_LAYER_ID, PATH_SOURCE_ID).withProperties(
+                PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
+                PropertyFactory.lineWidth(5f),
+                PropertyFactory.lineColor(Color.parseColor("maroon"))
+        );
+        map.getStyle(style -> {
+
+            // Create the LineString from the list of coordinates and then make a GeoJSON
+            // FeatureCollection so we can add the line to our map as a layer.
+            style.addSource(new GeoJsonSource(PATH_SOURCE_ID,
+                    FeatureCollection.fromFeatures(new Feature[]{Feature.fromGeometry(
+                            LineString.fromLngLats(pathCoordinates)
+                    )})));
+
+            style.addLayer(layer);
+        });
+        layer.setProperties(visibility(NONE));
+    }
+
+    private void setInfectedPointsLayer() {
         Layer layer = new LineLayer(PATH_LAYER_ID, PATH_SOURCE_ID).withProperties(
                 PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
                 PropertyFactory.lineWidth(5f),

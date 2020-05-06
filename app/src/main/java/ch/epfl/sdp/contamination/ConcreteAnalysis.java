@@ -119,51 +119,20 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime) {
         Date now = new Date(System.currentTimeMillis());
 
-        CompletableFuture<Integer> recoveryCounterFuture = receiver.getRecoveryCounter(me.getUniqueId())
-                .thenApply(recoveryCounter -> ((int) (recoveryCounter.getOrDefault(privateRecoveryCounter, 0))));
-
-        CompletableFuture<Pair<Map<Carrier, Integer>, Integer>> suspicionsFuture = receiver.getUserNearbyDuring(location, startTime, now)
-                .thenApply(aroundMe -> identifySuspectContacts_countInfected(aroundMe));
-
-        CompletableFuture<Void> updateProbabilityFuture = CompletableFuture.allOf(recoveryCounterFuture, suspicionsFuture)
-                .thenApply(v -> {
-                    modelInfectionEvolution(suspicionsFuture.join().first, recoveryCounterFuture.join());
-                    return null;
-                })
-                .thenCompose(v -> receiver.getNumberOfSickNeighbors(me.getUniqueId()))
-                .thenApply(res -> {
-                    float badMeetings = (float) res.getOrDefault(publicAlertAttribute, 0.);
-                    if (badMeetings > 0) {
-                        updateCarrierInfectionProbability(Math.min(me.getIllnessProbability() + badMeetings * getFactor(recoveryCounterFuture.join()), 1f));
-                        cachedSender.resetSickAlerts(me.getUniqueId());
-                    }
-                    return null;
-                });
-
-        return updateProbabilityFuture.thenApply(v -> suspicionsFuture.join().second);
-    }
-
-    /*@Override
-    public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime) {
-        Date now = new Date(System.currentTimeMillis());
-
         CompletableFuture<Integer> counterFuture = getCounterCompletableFuture();
 
         CompletableFuture<Pair<Map<Carrier, Integer>, Integer>> suspicionsFuture =
                 getSuspiciousCompletableFuture(location, startTime, now);
 
-        return counterFuture.thenCombine(suspicionsFuture, (counter, suspicions) ->
-                getBadMeetingsCompletableFuture(counter, suspicions).join());
+        return counterFuture.thenCompose(counter ->
+                suspicionsFuture.thenCompose(suspicions ->
+                        getBadMeetingsCompletableFuture(counter, suspicions)));
     }
 
     private CompletableFuture<Integer> getCounterCompletableFuture() {
-        return receiver.getRecoveryCounter(me.getUniqueId()).thenApply(recoveryCounter -> {
-            int recoveryCounter1 = 0;
-            if (!recoveryCounter.isEmpty()) {
-                recoveryCounter1 = (int) recoveryCounter.get(privateRecoveryCounter);
-            }
-            return recoveryCounter1;
-        });
+        return receiver.getRecoveryCounter(me.getUniqueId())
+                .thenApply(recoveryCounter ->
+                        ((int) (recoveryCounter.getOrDefault(privateRecoveryCounter, 0))));
     }
 
     private CompletableFuture<Pair<Map<Carrier, Integer>, Integer>> getSuspiciousCompletableFuture(
@@ -188,8 +157,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
             }
             return suspicions.second;
         });
-    }*/
-
+    }
 
     @Override
     public Carrier getCarrier() {

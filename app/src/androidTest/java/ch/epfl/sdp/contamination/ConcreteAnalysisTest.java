@@ -371,7 +371,8 @@ public class ConcreteAnalysisTest {
 
         // I was still on healthyLocation
         onView(withId(R.id.my_infection_refresh)).perform(click());
-        sleep();
+        sleep(5000);
+        clickBack();
         onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
 
         Thread.sleep(1500);

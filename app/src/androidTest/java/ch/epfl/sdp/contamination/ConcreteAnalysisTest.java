@@ -225,9 +225,11 @@ public class ConcreteAnalysisTest {
         Carrier me = new Layman(HEALTHY);
 
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
-        analyst.updateInfectionPredictions(testLocation, new Date(1585220363913L));
-        assertThat(me.getInfectionStatus(), equalTo(HEALTHY));
-        assertThat(me.getIllnessProbability(),greaterThan(0.f));
+        analyst.updateInfectionPredictions(testLocation, new Date(1585220363913L)).thenRun(()->{
+            assertThat(me.getInfectionStatus(), equalTo(HEALTHY));
+            assertThat(me.getIllnessProbability(),greaterThan(0.f));
+        });
+
     }
 
     private static Map<String,Object> getSickCount(){
@@ -299,7 +301,6 @@ public class ConcreteAnalysisTest {
 
         @Override
         public CompletableFuture<Map<String, Object>> getNumberOfSickNeighbors(String userId) {
-            //return null;
             return CompletableFuture.completedFuture(Collections.emptyMap());
         }
         public CompletableFuture<Map<String, Object>> getRecoveryCounter(String userId) {

@@ -42,7 +42,7 @@ import java.util.Random;
  * Create 2 different paths on 2 different days of the same user.
  * Create infected people met on these paths.
  */
-@Ignore("This is not a proper test, it is used for testing and demos, but it does not test anything, only generates data.")
+//@Ignore("This is not a proper test, it is used for testing and demos, but it does not test anything, only generates data.")
 public class DataForDemo {
     private Random r = new Random();
     private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
@@ -130,19 +130,29 @@ public class DataForDemo {
         // there are 2 infected people in this location, and 3 healthy
 
         // infected at coordinate (0, 0) of the square
-        sparseCarrierAndPositionCreation(Carrier.InfectionStatus.INFECTED, 1, 0, 0);
+        carrierAndPositionCreationUpload(Carrier.InfectionStatus.INFECTED, 1,
+                SPARSE_INITIAL_EPFL_LATITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
+                SPARSE_INITIAL_EPFL_LONGITUDE + getRandomNumberBetweenBounds(-0.01, 0.01));
 
         // infected at (0, 5)
-        sparseCarrierAndPositionCreation(Carrier.InfectionStatus.INFECTED, 1, 0, 5);
+        carrierAndPositionCreationUpload(Carrier.InfectionStatus.INFECTED, 1,
+                SPARSE_INITIAL_EPFL_LATITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
+                SPARSE_INITIAL_EPFL_LONGITUDE + getRandomNumberBetweenBounds(-0.01, 0.01));
 
         // healthy at (2, 2)
-        sparseCarrierAndPositionCreation(Carrier.InfectionStatus.HEALTHY, 0, 2, 2);
+        carrierAndPositionCreationUpload(Carrier.InfectionStatus.HEALTHY, 0,
+                SPARSE_INITIAL_EPFL_LATITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
+                SPARSE_INITIAL_EPFL_LONGITUDE + getRandomNumberBetweenBounds(-0.01, 0.01));
 
         // healthy at (5, 0)
-        sparseCarrierAndPositionCreation(Carrier.InfectionStatus.HEALTHY, 0, 5, 0);
+        carrierAndPositionCreationUpload(Carrier.InfectionStatus.HEALTHY, 0,
+                SPARSE_INITIAL_EPFL_LATITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
+                SPARSE_INITIAL_EPFL_LONGITUDE + getRandomNumberBetweenBounds(-0.01, 0.01));
 
         // healthy at (5, 5)
-        sparseCarrierAndPositionCreation(Carrier.InfectionStatus.HEALTHY, 0, 5, 5);
+        carrierAndPositionCreationUpload(Carrier.InfectionStatus.HEALTHY, 0,
+                SPARSE_INITIAL_EPFL_LATITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
+                SPARSE_INITIAL_EPFL_LONGITUDE + getRandomNumberBetweenBounds(-0.01, 0.01));
     }
 
     /**
@@ -179,12 +189,11 @@ public class DataForDemo {
         }
     }
 
-    private void sparseCarrierAndPositionCreation(Carrier.InfectionStatus infectionStatus,
-                                                  float infectionProbability, double latiOffset,
-                                                  double longiOffset) {
+    private void carrierAndPositionCreationUpload(Carrier.InfectionStatus infectionStatus,
+                                                  float infectionProbability, double lat,
+                                                  double lon) {
         Carrier carrier = new Layman(infectionStatus, infectionProbability);
-        Location userLocation = newLoc(SPARSE_INITIAL_EPFL_LATITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
-                SPARSE_INITIAL_EPFL_LONGITUDE + getRandomNumberBetweenBounds(-0.01, 0.01));
+        Location userLocation = newLoc(lat, lon);
         dataSender.registerLocation(carrier, userLocation, rightNow);
 
         Map<String, Object> element = new HashMap<>();

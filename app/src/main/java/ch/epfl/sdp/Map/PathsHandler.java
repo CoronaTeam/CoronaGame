@@ -61,7 +61,7 @@ public class PathsHandler extends Fragment {
     public static final String PATH_LAYER_ID = "linelayer"; // public for testing
     static final String PATH_SOURCE_ID = "line-source";
 
-    public PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) { // public for testing
+    private PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
         this.parentClass = parentClass;
         this.map = map;
         initFirestorePathRetrieval(this::getPathCoordinates);

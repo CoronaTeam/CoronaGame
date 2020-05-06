@@ -92,7 +92,7 @@ public class FirebaseActivityTest {
     public void testDetectNoInternetConnectionWhenDownload() {
         IS_NETWORK_DEBUG = true;
         IS_ONLINE = false;
-        clickWaitAndCheckText(R.id.FirebaseDownloadButton2,
+        clickWaitAndCheckText(R.id.FirebaseDownloadButton1,
                 R.id.FirebaseDownloadResult,
                 "Can't download while offline",
                 0);

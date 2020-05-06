@@ -4,15 +4,13 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.location.LocationService;
@@ -28,18 +26,11 @@ public class DataExchangeActivity extends AppCompatActivity {
 
     private LocationService service;
 
+    @VisibleForTesting
+    TextView exchangeStatus;
 
-    private TextView exchangeStatus;
-
-    OnSuccessListener successListener = o -> {
-        exchangeStatus.setText("EXCHANGE Succeeded");
-    };
-
-    OnFailureListener failureListener = e -> {
-        exchangeStatus.setText("EXCHANGE Failed");
-    };
-
-
+    @VisibleForTesting
+    Handler uiHandler;
 
     @VisibleForTesting
     CachingDataSender getSender() {
@@ -54,9 +45,6 @@ public class DataExchangeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-//        sender =                new ConcreteCachingDataSender(new GridFirestoreInteractor())
-//                .setOnSuccessListener(successListener).setOnFailureListener(failureListener);
 
         setContentView(R.layout.activity_dataexchange);
         exchangeStatus = findViewById(R.id.exchange_status);
@@ -75,6 +63,9 @@ public class DataExchangeActivity extends AppCompatActivity {
                 DataExchangeActivity.this.sender = null;
             }
         };
+
         bindService(new Intent(this, LocationService.class), conn, BIND_AUTO_CREATE);
+
+        uiHandler = new Handler();
     }
 }

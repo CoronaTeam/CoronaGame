@@ -1,42 +1,37 @@
 package ch.epfl.sdp;
 
-import androidx.annotation.VisibleForTesting;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
-import ch.epfl.sdp.firestore.FirestoreInteractor;
-import ch.epfl.sdp.firestore.QueryHandler;
 
-public class HistoryFirestoreInteractor {
+public class HistoryFirestoreInteractor extends ConcreteFirestoreInteractor {
 
-    private FirestoreInteractor fsi;
     private Account user;
 
     HistoryFirestoreInteractor(Account user) {
-        this.fsi = new ConcreteFirestoreInteractor();
+        super();
         this.user = user;
     }
 
-    public void read(QueryHandler handler) {
-        String path = "History/" + user.getId() + "/Positions";
-        fsi.readCollection(path, handler);
+    public CompletableFuture<Map<String, Map<String, Object>>> readHistory() {
+        return readCollection(collectionReference(historyPositionsPath()));
+    }
+
+    private String historyPositionsPath(){
+        return "History/" + user.getId() + "/Positions";
     }
 
 
-    public void write(Map<String, Object> content, OnSuccessListener success,
-                      OnFailureListener failure) {
-        String path = "History/" + user.getId() + "/Positions";
+    public CompletableFuture<Void> write(Map<String, Object> content) {
         PositionRecord posRec = (PositionRecord) content.values().toArray()[0];
 
-        fsi.writeDocumentWithID(path, posRec.calculateID(), content, success, failure);
-    }
+        Map<String, Object> lastPos = new HashMap<>();
+        lastPos.put("geoPoint", posRec.getGeoPoint());
+        lastPos.put("timeStamp", posRec.getTimestamp());
 
-    @VisibleForTesting
-    public void setFirestoreInteractor(FirestoreInteractor interactor) {
-        fsi = interactor;
+        return writeDocumentWithID(documentReference(historyPositionsPath(), posRec.calculateID()), content).thenRun(() ->
+                writeDocumentWithID(documentReference("LastPositions", user.getId()), lastPos));
     }
 }

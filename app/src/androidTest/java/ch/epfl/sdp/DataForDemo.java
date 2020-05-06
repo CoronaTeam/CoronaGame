@@ -6,8 +6,6 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 
@@ -15,6 +13,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Date;
+import java.util.SortedMap;
+import java.util.concurrent.CompletableFuture;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +27,8 @@ import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.contamination.GridFirestoreInteractor.COORDINATE_PRECISION;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Random;
@@ -49,16 +51,39 @@ public class DataForDemo {
     private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
     private CachingDataSender dataSender = new ConcreteCachingDataSender(gridFirestoreInteractor) {
         @Override
-        public void registerLocation(Carrier carrier, Location location, Date time) {
-            gridFirestoreInteractor.write(location, String.valueOf(time.getTime()), carrier,
-                    o -> System.out.println("location successfully added to firestore"),
-                    e -> System.out.println("location could not be uploaded to firestore")
-            );
+        public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
+            return gridFirestoreInteractor.gridWrite(location, String.valueOf(time.getTime()),
+                    carrier)
+                    .whenComplete((res, thr) ->{
+                        if (thr == null){
+                            System.out.println("location successfully added to firestore");
+                        }else{
+                            System.out.println("location could not be uploaded to firestore");
+                        }
+                    });
         }
 
         @Override
-        public void registerLocation(Carrier carrier, Location location, Date time, OnSuccessListener successListener, OnFailureListener failureListener) {
-            throw new UnsupportedOperationException();
+        public CompletableFuture<Void> sendAlert(String userId) {
+
+            return null;
+        }
+
+        @Override
+        public CompletableFuture<Void> sendAlert(String userId, float previousIllnessProbability) {
+
+            return null;
+        }
+
+        @Override
+        public CompletableFuture<Void> resetSickAlerts(String userId) {
+
+            return null;
+        }
+
+        @Override
+        public SortedMap<Date, Location> getLastPositions() {
+            return null;
         }
     };
 
@@ -98,9 +123,7 @@ public class DataForDemo {
                 element.put("timeStamp", Timestamp.now());
                 // db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
 
-                gridFirestoreInteractor.writeDocument("LastPositions/", element, o -> {
-                }, e -> {
-                });
+                gridFirestoreInteractor.writeDocument(collectionReference("LastPositions"), element);
             }
         }
 
@@ -152,10 +175,7 @@ public class DataForDemo {
                 element.put("infectionStatus", carrier.getInfectionStatus());
                 //db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
 
-                gridFirestoreInteractor.writeDocument("LastPositions/", element,
-                        o -> { }, e -> { });
-
-
+                gridFirestoreInteractor.writeDocument(collectionReference("LastPositions"), element);
             }
         }
     }
@@ -173,7 +193,7 @@ public class DataForDemo {
         element.put("timeStamp", Timestamp.now());
         // db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
 
-        gridFirestoreInteractor.writeDocument("LastPositions/", element, o -> { }, e -> { });
+        gridFirestoreInteractor.writeDocument(collectionReference("LastPositions"), element);
     }
 
     // write in History Collection on Firestore, user with ID USER_PATH_DEMO
@@ -188,11 +208,12 @@ public class DataForDemo {
             Map<String, Object> position = new HashMap();
             position.put("Position", new PositionRecord(Timestamp.now(),
                     new GeoPoint(location.getLatitude(), location.getLongitude())));
-            cfi.writeDocument("History/USER_PATH_DEMO2/Positions/", position,
-                    s -> pathLoaded[0] = true,
-                    f -> {
+            cfi.writeDocument(collectionReference("History/USER_PATH_DEMO2/Positions/"), position)
+                    .thenRun(() -> pathLoaded[0] = true)
+                    .exceptionally(e -> {
                         pathLoaded[0] = false;
-                        Log.d("PATH UPLOAD", "Error uploading positions Firestore.", f);
+                        Log.d("PATH UPLOAD", "Error uploading positions Firestore.", e);
+                        return null;
                     });
         }
     }

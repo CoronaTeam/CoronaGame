@@ -3,8 +3,7 @@ package ch.epfl.sdp.contamination;
 import android.location.Location;
 
 import java.util.Date;
-
-import ch.epfl.sdp.Callback;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * This class makes testing easier
@@ -17,8 +16,8 @@ public class FakeAnalyst implements InfectionAnalyst {
     }
 
     @Override
-    public void updateInfectionPredictions(Location location, Date startTime, Callback<Integer> callback) {
-        callback.onCallback(infectMeets);
+    public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime) {
+        return CompletableFuture.completedFuture(infectMeets);
     }
 
     @Override

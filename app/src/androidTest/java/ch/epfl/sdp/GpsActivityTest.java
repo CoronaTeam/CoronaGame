@@ -14,8 +14,6 @@ import android.os.IBinder;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 
@@ -24,10 +22,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import ch.epfl.sdp.contamination.ConcreteAnalysis;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
-import ch.epfl.sdp.firestore.QueryHandler;
 import ch.epfl.sdp.location.ConcreteLocationBroker;
 import ch.epfl.sdp.location.LocationBroker;
 import ch.epfl.sdp.location.LocationService;
@@ -36,6 +36,8 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static ch.epfl.sdp.TestTools.resetLocationServiceStatus;
+import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.TestUtils.buildLocation;
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 import static ch.epfl.sdp.location.LocationBroker.Provider.NETWORK;
@@ -60,7 +62,14 @@ public class GpsActivityTest {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 done.set(true);
-                ((LocationService.LocationBinder)service).getService().setBroker(br);
+                LocationService locationService = ((LocationService.LocationBinder)service).getService();
+                resetLocationServiceStatus(locationService);
+                // TODO: Refactor this to use only 1 reset function
+                locationService.setAnalyst(new ConcreteAnalysis(
+                        locationService.getAnalyst().getCarrier(),
+                        locationService.getReceiver(),
+                        locationService.getSender()));
+                locationService.setBroker(br);
             }
 
             @Override
@@ -144,6 +153,7 @@ public class GpsActivityTest {
 
         mockBroker.setProviderStatus(true);
         mockBroker.setFakeLocation(buildLocation(12, 19));
+        sleep();
         onView(withId(R.id.gpsLatitude)).check(matches(withText(startsWith(Double.toString(12)))));
         onView(withId(R.id.gpsLongitude)).check(matches(withText(startsWith(Double.toString(19)))));
     }
@@ -240,50 +250,85 @@ public class GpsActivityTest {
         }
     }
 
-    private FirestoreInteractor createWriteFirestoreInteractor(Boolean success, Object onSuccess) {
-        return new FirestoreInteractor() {
-            @Override
-            public void writeDocument(CollectionReference collectionReference, Object document,
-                                      OnSuccessListener successListener, OnFailureListener failureListener) {
-                writeBody(success, onSuccess, successListener, failureListener);
-            }
+    private class MockHistoryFirestoneInteractor extends HistoryFirestoreInteractor{
+        private Boolean success;
+        private Object onSuccess;
 
-            @Override
-            public void writeDocumentWithID(DocumentReference documentReference,
-                                            Object document,
-                                            OnSuccessListener successListener, OnFailureListener failureListener) {
-                writeBody(success, onSuccess, successListener, failureListener);
-            }
+        MockHistoryFirestoneInteractor(Account user, Boolean success, Object onSuccess) {
+            super(user);
+            this.success = success;
+            this.onSuccess = onSuccess;
+        }
 
-            @Override
-            public void readCollection(CollectionReference collectionReference, QueryHandler handler) {
+        @Override
+        public CompletableFuture<Map<String, Object>> readDocument(DocumentReference documentReference) {
 
-            }
+            return null;
+        }
 
-            @Override
-            public void readDocument(DocumentReference documentReference,
-                                     QueryHandler handler) {
+        @Override
+        public CompletableFuture<Map<String, Map<String, Object>>> readCollection(CollectionReference collectionReference) {
+            return null;
+        }
 
-            }
-        };
+        @Override
+        public CompletableFuture<Void> writeDocumentWithID(DocumentReference documentReference, Object document) {
+            CompletableFuture<Void> completableFuture = new CompletableFuture<>();
+            if(success) completableFuture.complete(null);
+            else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
+            return completableFuture;
+        }
+
+        @Override
+        public CompletableFuture<DocumentReference> writeDocument(CollectionReference collectionReference, Object document) {
+            CompletableFuture<DocumentReference> completableFuture = new CompletableFuture<>();
+            if(success) completableFuture.complete(null);
+            else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
+            return completableFuture;
+        }
+
     }
 
-    private void writeBody(Boolean success, Object onSuccess, OnSuccessListener successListener,
-                           OnFailureListener failureListener){
-        if (success) {
-            successListener.onSuccess(onSuccess);
-        }else{
-            failureListener.onFailure(new Exception());
-        }
+    private FirestoreInteractor createWriteFirestoreInteractor(Boolean success) {
+        return new FirestoreInteractor() {
+
+            @Override
+            public CompletableFuture<Map<String, Object>> readDocument(DocumentReference documentReference) {
+                return null;
+            }
+
+            @Override
+            public CompletableFuture<Map<String, Map<String, Object>>> readCollection(CollectionReference collectionReference) {
+                return null;
+            }
+
+            @Override
+            public CompletableFuture<Void> writeDocumentWithID(DocumentReference documentReference, Object document) {
+                CompletableFuture<Void> completableFuture = new CompletableFuture<>();
+                if(success) completableFuture.complete(null);
+                else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
+                return completableFuture;
+            }
+
+            @Override
+            public CompletableFuture<DocumentReference> writeDocument(CollectionReference collectionReference, Object document) {
+                CompletableFuture<DocumentReference> completableFuture = new CompletableFuture<>();
+                if(success) completableFuture.complete(null);
+                else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
+                return completableFuture;
+            }
+        };
     }
 
     private void detectsTest(Boolean isSuccess, Object onSuccess, String expectedText) throws Throwable {
         MockBroker mockBroker = new MockBroker();
         startActivityWithBroker(mockBroker);
 
-        FirestoreInteractor interactor = createWriteFirestoreInteractor(isSuccess, onSuccess);
+        HistoryFirestoreInteractor interactor = new MockHistoryFirestoneInteractor(
+                AuthenticationManager.getAccount(mActivityRule.getActivity()), isSuccess,
+                onSuccess);
 
-        mActivityRule.getActivity().setFirestoreInteractor(interactor);
+        mActivityRule.getActivity().setHistoryFirestoreInteractor(interactor);
 
         mockBroker.setProviderStatus(true);
         mockBroker.setFakeLocation(buildLocation(10, 20));

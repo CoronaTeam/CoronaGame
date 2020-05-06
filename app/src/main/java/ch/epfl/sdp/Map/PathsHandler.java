@@ -39,6 +39,7 @@ import ch.epfl.sdp.contamination.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.location.LocationUtils;
 
+import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
@@ -109,17 +110,23 @@ public class PathsHandler extends Fragment {
         ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
         Location location = LocationUtils.buildLocation(lat, lon);
         CompletableFuture<Map<Carrier, Integer>> future = concreteDataReceiver.getUserNearbyDuring(location, timestamp.toDate(), timestamp.toDate());
-        Map<Carrier, Integer> users;
+        Map<Carrier, Integer> users = null;
         try {
             users = future.get();
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
-        for (Map.Entry<Carrier, Integer> entry : future.get().entrySet()) {
-            Carrier carrier = entry.getKey();
-            Integer integer = entry.getValue();
-            //if (user not in infected_met && user is infected)
-            //infected_met.add(user_location);
+        // add as much point at this location as there are infected carrier
+        if (users != null) {
+            Carrier carrier;
+            Point point;
+            for (Map.Entry<Carrier, Integer> entry : users.entrySet()) {
+                carrier = entry.getKey();
+                if (carrier.getInfectionStatus().equals(INFECTED)) {
+                    point = Point.fromLngLat(lon, lat);
+                    infected_met.add(point);
+                }
+            }
         }
     }
 

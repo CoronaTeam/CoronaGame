@@ -35,10 +35,10 @@ import java.util.concurrent.Executor;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.AuthenticationManager;
-import ch.epfl.sdp.BiometricPromptWrapper;
-import ch.epfl.sdp.BiometricUtils;
+import ch.epfl.sdp.biometric.BiometricPromptWrapper;
+import ch.epfl.sdp.biometric.BiometricUtils;
 import ch.epfl.sdp.Callback;
-import ch.epfl.sdp.ConcreteBiometricPromptWrapper;
+import ch.epfl.sdp.biometric.ConcreteBiometricPromptWrapper;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.firestore.FirestoreInteractor;

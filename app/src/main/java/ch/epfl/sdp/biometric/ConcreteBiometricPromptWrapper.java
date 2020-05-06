@@ -1,11 +1,7 @@
-package ch.epfl.sdp;
+package ch.epfl.sdp.biometric;
 
 import androidx.annotation.NonNull;
 import androidx.biometric.BiometricPrompt;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-
-import java.util.concurrent.Executor;
 
 public class ConcreteBiometricPromptWrapper implements BiometricPromptWrapper {
     BiometricPrompt biometricPrompt;

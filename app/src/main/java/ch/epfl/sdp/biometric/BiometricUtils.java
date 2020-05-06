@@ -1,24 +1,14 @@
-package ch.epfl.sdp;
+package ch.epfl.sdp.biometric;
 
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.util.Log;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
 import androidx.core.app.ActivityCompat;
 
-import java.lang.reflect.Method;
-import java.util.concurrent.Executor;
-
-import static com.mapbox.mapboxsdk.Mapbox.getApplicationContext;
-
 public class BiometricUtils {
-
 
     public static boolean canAuthenticate(Context context) {
         if (!isPermissionGranted(context))

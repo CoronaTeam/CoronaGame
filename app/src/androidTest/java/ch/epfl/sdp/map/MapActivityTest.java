@@ -65,7 +65,7 @@ public class MapActivityTest {
     @Test
     public void pathGetsInstantiated() {
         sleep(15000);
-        assertNotNull(mapFragment.pathsHandler.pathCoordinates);
+        assertNotNull(mapFragment.getPathsHandler().pathCoordinates);
     }
 
     //"Map interactions should happen on the UI thread. Method invoked from wrong thread is getLayer.")

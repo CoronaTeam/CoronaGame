@@ -51,9 +51,9 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     public final static int LOCATION_PERMISSION_REQUEST = 20201;
     private static final int MIN_UP_INTERVAL_MILLISECS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
-    public PathsHandler pathsHandler; // public for testing
+    private PathsHandler pathsHandler;
     private MapView mapView;
-    private MapboxMap map; // public for testing
+    private MapboxMap map;
     private LocationBroker locationBroker;
     private LatLng prevLocation = new LatLng(0, 0);
     private ConcreteFirestoreInteractor db;
@@ -68,6 +68,10 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     @VisibleForTesting
     public MapboxMap getMap() {
         return map;
+    }
+
+    public PathsHandler getPathsHandler() {
+        return pathsHandler;
     }
 
     @Nullable

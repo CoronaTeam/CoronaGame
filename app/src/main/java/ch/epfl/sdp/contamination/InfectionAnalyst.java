@@ -29,7 +29,7 @@ public interface InfectionAnalyst {
      * @param startTime
      * @param endTime
      */
-    CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime, Date endTime);
+    CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime, Date endTime);
 
     /**
      * Returns the instance of the Carrier whose status is modified by the Infection Analyst

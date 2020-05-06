@@ -35,8 +35,7 @@ public class AuthenticationTest {
         onView(withId(R.id.sign_in_button)).check(matches(isDisplayed()));
         onView(withId(R.id.sign_in_button)).perform(click());
         sleep(10000);
-        UiDevice mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-        mDevice.pressBack(); // closes the google popup for signing in
+        TestTools.clickBack();// closes the google popup for signing in
     }
 
     @Test(expected = IllegalStateException.class)

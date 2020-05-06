@@ -1,5 +1,6 @@
 package ch.epfl.sdp.contamination;
 
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -64,7 +65,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
         ServiceConnection conn = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                InfectionFragment.this.service = ((LocationService.LocationBinder)service).getService();
+                InfectionFragment.this.service = ((LocationService.LocationBinder) service).getService();
             }
 
             @Override
@@ -83,7 +84,8 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
         switch (view.getId()) {
             case R.id.my_infection_refresh: {
                 onModelRefresh(view);
-            } break;
+            }
+            break;
         }
     }
 
@@ -95,15 +97,49 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
         // TODO: Which location?
         service.getReceiver().getMyLastLocation(AccountFragment.getAccount(getActivity()))
                 .thenApply(location -> service.getAnalyst().updateInfectionPredictions(location, refreshTime, new Date())
-                        .thenAccept(n -> {
-                            infectionStatus.setText(R.string.infection_status_posted);
+                        .thenAccept(todayInfectionMeetings -> {
+                            //TODO: should run on UI thread?
+                            getActivity().runOnUiThread(() -> {
+                                infectionStatus.setText(R.string.infection_status_posted);
                                 uiHandler.post(() -> {
-                                    infectionStatus.setText(service.getAnalyst().getCarrier().getInfectionStatus().toString());
-                                    infectionProbability.setProgress(Math.round(service.getAnalyst().getCarrier().getIllnessProbability() * 100));
-                                    Log.e("PROB:", service.getAnalyst().getCarrier().getIllnessProbability() + "");
+                                    InfectionAnalyst analyst = service.getAnalyst();
+                                    infectionStatus.setText(analyst.getCarrier().getInfectionStatus().toString());
+                                    infectionProbability.setProgress(Math.round(analyst.getCarrier().getIllnessProbability() * 100));
+                                    Log.e("PROB:", analyst.getCarrier().getIllnessProbability() + "");
+                                    displayAlert(todayInfectionMeetings);
                                 });
-                        }))
-                .join();
+                            });
+                        })
+                        .join());
+    }
+
+    private void displayAlert(int todayInfectionMeetings) {
+        if (todayInfectionMeetings < 0) {
+            throw new IllegalArgumentException();
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+        CharSequence first;
+        CharSequence second;
+        CharSequence title = getText(R.string.infection_dialog_title);
+        switch (todayInfectionMeetings) {
+            case 0:
+                first = getText(R.string.infection_dialog_cool_message);
+                second = "";
+                break;
+            case 1:
+                first = getText(R.string.infection_dialog_message1);
+                second = getText(R.string.one_infection_dialog_message2);
+                break;
+            default:
+                first = getText(R.string.infection_dialog_message1);
+                second = getText(R.string.several_infection_dialog_message2);
+
+        }
+        builder.setMessage((String) first + (todayInfectionMeetings == 0 ? "" : todayInfectionMeetings) + (String) second)
+                .setTitle(title);
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     @VisibleForTesting

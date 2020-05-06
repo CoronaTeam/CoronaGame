@@ -1,6 +1,7 @@
 package ch.epfl.sdp;
 
 import android.Manifest;
+import android.content.Context;
 import android.location.Location;
 
 import androidx.test.espresso.intent.Intents;
@@ -30,6 +31,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibilit
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static ch.epfl.sdp.MainActivity.IS_NETWORK_DEBUG;
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
+import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.resetSickCounter;
 import static ch.epfl.sdp.TestTools.sleep;
@@ -38,6 +40,7 @@ import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static junit.framework.TestCase.assertSame;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 
 public class UserInfectionTest {
     private InfectionAnalyst analyst;
@@ -63,7 +66,7 @@ public class UserInfectionTest {
         analyst =  new InfectionAnalyst() {
 
             @Override
-            public CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
+            public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
                 return null;
             }
 
@@ -80,9 +83,12 @@ public class UserInfectionTest {
         };
         fragment.getLocationService().setAnalyst(analyst);
         receiver = fragment.getLocationService().getReceiver();
+        resetLastChangeDate();
+
         sleep(1000);
 
     }
+
     @After
     public void release(){
         Intents.release();
@@ -119,15 +125,19 @@ public class UserInfectionTest {
         onView(withId(R.id.onlineStatusView)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)));
         IS_NETWORK_DEBUG = false;
     }
+
     @Test
     public void sendsNotificationToFirebaseAndAnalystOnRecovery(){
         setIllnessToHealthy();
         analyst.updateStatus(HEALTHY);
 //        IS_NETWORK_DEBUG = false;
 //        IS_ONLINE = true;
+        sleep(1000);
         resetSickCounter();
-        sleep(3000);
+        sleep(3500);
         onView(withId(R.id.infectionStatusButton)).perform(click());
+        resetLastChangeDate();
+
         sleep(5000);
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(5000);
@@ -139,11 +149,18 @@ public class UserInfectionTest {
         sleep(2000);
 
     }
+    private void resetLastChangeDate(){
+        /*fragment.*/getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE)
+                .edit().putLong("lastStatusChange", 0).apply();
+    }
+
     private void setIllnessToHealthy(){
         sleep(5000);
         if(fragment.isImmediatelyNowIll()){
             onView(withId(R.id.infectionStatusButton)).perform(click());
+
         }
+        resetLastChangeDate();
     }
 
     @Test
@@ -154,5 +171,17 @@ public class UserInfectionTest {
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(2000);
         assertSame(Carrier.InfectionStatus.INFECTED,analyst.getCarrier().getInfectionStatus());
+    }
+
+    @Test
+    public void checkStatusChangeRateLimit(){
+        setIllnessToHealthy();
+        Carrier.InfectionStatus initial = analyst.getCarrier().getInfectionStatus();
+        sleep(1000);
+        onView(withId(R.id.infectionStatusButton)).perform(click());
+        sleep(1000);
+        onView(withId(R.id.infectionStatusButton)).perform(click());
+        sleep(1000);
+        assertNotSame(initial,analyst.getCarrier().getInfectionStatus());
     }
 }

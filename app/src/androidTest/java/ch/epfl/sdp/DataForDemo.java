@@ -1,7 +1,11 @@
 package ch.epfl.sdp;
 
+import android.app.Activity;
 import android.location.Location;
+import android.net.Uri;
+import android.util.Log;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 
@@ -19,10 +23,13 @@ import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.ConcreteCachingDataSender;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.contamination.Layman;
+import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.contamination.GridFirestoreInteractor.COORDINATE_PRECISION;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Random;
 import java.util.UUID;
@@ -33,6 +40,10 @@ import java.util.UUID;
  * DEMO FOR USERS LOCATED ON MAP:
  * Create a grid with lots of users at some place and less at some other place.
  * These places are located around EPFL.
+ *
+ * DEMO FOR USER PATH ON MAP:
+ * Create 2 different paths on 2 different days of the same user.
+ * Create infected people met on these paths.
  */
 @Ignore("This is not a proper test, it is used for testing and demos, but it does not test anything, only generates data.")
 public class DataForDemo {
@@ -138,6 +149,7 @@ public class DataForDemo {
     /**
      * Generate 1000 HEALTHY,HEALTHY_CARRIER,INFECTED,IMMUNE,UNKNOWN users starting from location 4600000, 600000
      */
+
     @Test
     public void uploadBunchOfUsersAtEPFL() {
         Date rightNow = new Date(System.currentTimeMillis());
@@ -183,4 +195,27 @@ public class DataForDemo {
 
         gridFirestoreInteractor.writeDocument(collectionReference("LastPositions"), element);
     }
+
+    // write in History Collection on Firestore, user with ID USER_PATH_DEMO
+    @Test
+    public void uploadUserPaths() {
+        ConcreteFirestoreInteractor cfi = new ConcreteFirestoreInteractor();
+        final boolean[] pathLoaded = new boolean[1];
+        double lat = 50.0;//33.39767645465177;
+        double longi = -73.0;//-118.39439114221236;
+        for (double i=0; i<50*0.001; i=i+0.001) {
+            Location location = TestUtils.buildLocation(lat + i, longi + i);
+            Map<String, Object> position = new HashMap();
+            position.put("Position", new PositionRecord(Timestamp.now(),
+                    new GeoPoint(location.getLatitude(), location.getLongitude())));
+            cfi.writeDocument(collectionReference("History/USER_PATH_DEMO2/Positions/"), position)
+                    .thenRun(() -> pathLoaded[0] = true)
+                    .exceptionally(e -> {
+                        pathLoaded[0] = false;
+                        Log.d("PATH UPLOAD", "Error uploading positions Firestore.", e);
+                        return null;
+                    });
+        }
+    }
+
 }

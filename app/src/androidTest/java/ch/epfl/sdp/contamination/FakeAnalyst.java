@@ -10,13 +10,14 @@ import java.util.concurrent.CompletableFuture;
  */
 public class FakeAnalyst implements InfectionAnalyst {
     Carrier carrier;
+    static int infectMeets = 0 ;
     public FakeAnalyst(){
         this.carrier = new Layman(Carrier.InfectionStatus.HEALTHY);
     }
 
     @Override
-    public CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
-        return null;
+    public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
+        return CompletableFuture.completedFuture(infectMeets);
     }
 
     @Override

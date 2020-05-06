@@ -89,8 +89,18 @@
     <string name="email">E-mail</string>
     <string name="aggregator_status_on">You are online now</string>
     <string name="aggregator_status_off">Noo! You are offline</string>
-
     <string name="user_status_update">User infection status successfully updated!</string>
     <string name="error_status_update">Error updating user infection status.</string>
-    <string name="infection_status_posted">Posted!!</string>
+    <string name="infection_status_posted">Posted!</string>
+
+    <string name="see_my_last_path">See my last path</string>
+    <string name="cannot_retrieve_positions">Cannot retrieve positions from database</string>
+
+    <string name="error_infection_status_ratelimit">You can\'t change your infection status more than once a day</string>
+    <string name="infection_dialog_message1">"Watch out! You met "</string>
+    <string name="several_infection_dialog_message2">" infected persons!"</string>
+    <string name="infection_dialog_title">Daily report</string>
+    <string name="infection_dialog_cool_message">Fortunately, you have not met anyone sick since last time.</string>
+    <string name="one_infection_dialog_message2">" infected person!"</string>
+
 </resources>

@@ -25,6 +25,10 @@
             android:parentActivityName=".MainActivity">
         </activity>
 
+        <activity android:name=".Map.MapActivity"
+            android:parentActivityName=".MainActivity">
+        </activity>
+
         <meta-data
             android:name="com.google.android.gms.games.APP_ID"
             android:value="@string/app_id" />

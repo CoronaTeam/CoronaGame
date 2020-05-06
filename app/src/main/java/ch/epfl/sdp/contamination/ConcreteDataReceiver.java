@@ -98,7 +98,7 @@ public class ConcreteDataReceiver implements DataReceiver {
                                 return metDuringInterval;
                             });
                 })
-            .exceptionally(exception -> Collections.emptyMap());
+                .exceptionally(exception -> Collections.emptyMap());
     }
 
     @Override

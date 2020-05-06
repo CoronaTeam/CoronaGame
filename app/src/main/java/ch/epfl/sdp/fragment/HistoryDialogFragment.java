@@ -6,9 +6,11 @@ import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -17,18 +19,26 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import ch.epfl.sdp.Map.MapFragment;
 import ch.epfl.sdp.R;
 
 public class HistoryDialogFragment extends BottomSheetDialogFragment {
 
-    public static HistoryDialogFragment newInstance() {
-        return new HistoryDialogFragment();
+    private MapFragment parentFragment;
+
+    public /*static*/ HistoryDialogFragment(MapFragment mapFragment) {
+        parentFragment = mapFragment;
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
+
+        Button button = view.findViewById(R.id.pathButton);
+        button.setOnClickListener(v -> parentFragment.togglePath());
 
         return view;
     }
@@ -66,4 +76,5 @@ public class HistoryDialogFragment extends BottomSheetDialogFragment {
         ((Activity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         return displayMetrics.heightPixels;
     }
+
 }

@@ -19,6 +19,7 @@ import com.mapbox.geojson.LineString;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
+import com.mapbox.mapboxsdk.style.layers.HeatmapLayer;
 import com.mapbox.mapboxsdk.style.layers.Layer;
 import com.mapbox.mapboxsdk.style.layers.LineLayer;
 import com.mapbox.mapboxsdk.style.layers.Property;
@@ -39,6 +40,11 @@ import ch.epfl.sdp.contamination.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.location.LocationUtils;
 
+import static ch.epfl.sdp.Map.HeatMapHandler.HEATMAP_LAYER_ID;
+import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatMapColorRange;
+import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatMapWeight;
+import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatmapIntensity;
+import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatmapRadius;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
@@ -63,7 +69,7 @@ public class PathsHandler extends Fragment {
     static final String PATH_SOURCE_ID = "line-source";
     static final String POINTS_SOURCE_ID = "points-source";
 
-    private PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
+    PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
         this.parentClass = parentClass;
         this.map = map;
         initFirestorePathRetrieval(this::getPathCoordinates);
@@ -94,18 +100,21 @@ public class PathsHandler extends Fragment {
                 // check infected met around this point of the path
                 Timestamp timestamp = (Timestamp) ((Map) qs.get("Position")).get("timestamp");
                 addInfectedMet(lat, lon, timestamp);
-            } catch (NullPointerException ignored) {
-                Log.d("ERROR ADDING POINT", String.valueOf(ignored));
+            } catch (NullPointerException e) {
+                Log.d("ERROR ADDING POINT", String.valueOf(e));
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
 
         Log.d("PATH COORD LENGTH: ", String.valueOf(pathCoordinates.size()));
+        Log.d("INFECTED MET LENGTH: ", String.valueOf(pathCoordinates.size()));
         Log.d("IS PATH COORD NULL? ", (pathCoordinates == null) ? "YES" : "NO");
+        Log.d("IS INF MET NULL? ", (pathCoordinates == null) ? "YES" : "NO");
         latitude = pathCoordinates.get(0).latitude();
         longitude = pathCoordinates.get(0).longitude();
         setPathLayer();
+        setInfectedPointsLayer();
     }
 
     private void addInfectedMet(double lat, double lon, Timestamp timestamp) throws ExecutionException, InterruptedException {
@@ -154,18 +163,20 @@ public class PathsHandler extends Fragment {
     }
 
     private void setInfectedPointsLayer() {
-        Layer layer = new LineLayer(PATH_LAYER_ID, PATH_SOURCE_ID).withProperties(
-                PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
-                PropertyFactory.lineWidth(5f),
-                PropertyFactory.lineColor(Color.parseColor("maroon"))
-        );
+        Layer layer = new HeatmapLayer(POINTS_LAYER_ID, POINTS_SOURCE_ID);
+        layer.setProperties(
+                adjustHeatMapColorRange(),
+                adjustHeatMapWeight(),
+                adjustHeatmapIntensity(),
+                adjustHeatmapRadius()
+        ); // TODO: change static public to private in HeatMapHandler: use common classe for both handler (extract class)
         map.getStyle(style -> {
 
             // Create the LineString from the list of coordinates and then make a GeoJSON
             // FeatureCollection so we can add the line to our map as a layer.
-            style.addSource(new GeoJsonSource(PATH_SOURCE_ID,
+            style.addSource(new GeoJsonSource(POINTS_LAYER_ID,
                     FeatureCollection.fromFeatures(new Feature[]{Feature.fromGeometry(
-                            LineString.fromLngLats(pathCoordinates)
+                            LineString.fromLngLats(infected_met)
                     )})));
 
             style.addLayer(layer);

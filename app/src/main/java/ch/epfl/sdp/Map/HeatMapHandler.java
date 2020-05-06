@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ch.epfl.sdp.R;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
@@ -113,7 +112,7 @@ class HeatMapHandler {
     // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
     // Begin color ramp at 0-stop with a 0-transparency color
     // to create a blur-like effect.
-    private PropertyValue<Expression> adjustHeatMapColorRange() {
+    /*private*/ public static PropertyValue<Expression> adjustHeatMapColorRange() {
         return heatmapColor(
                 interpolate(
                         linear(), heatmapDensity(),
@@ -129,7 +128,7 @@ class HeatMapHandler {
 
     @NotNull
     // Increase the heatmap weight based on frequency and property magnitude
-    private PropertyValue<Expression> adjustHeatMapWeight() {
+    /*private*/ public static PropertyValue<Expression> adjustHeatMapWeight() {
         return heatmapWeight(
                 interpolate(
                         exponential(2), zoom(),
@@ -142,7 +141,7 @@ class HeatMapHandler {
     @NotNull
     // Increase the heatmap color weight weight by zoom level
     // heatmap-intensity is a multiplier on top of heatmap-weight
-    private PropertyValue<Expression> adjustHeatmapIntensity() {
+    /*private*/ public static PropertyValue<Expression> adjustHeatmapIntensity() {
         return heatmapIntensity(
                 interpolate(
                         linear(), zoom(),
@@ -154,7 +153,7 @@ class HeatMapHandler {
 
     @NotNull
     // Adjust the heatmap radius by zoom level
-    private PropertyValue<Expression> adjustHeatmapRadius() {
+    /*private*/ public static PropertyValue<Expression> adjustHeatmapRadius() {
         return heatmapRadius(
                 interpolate(
                         linear(), zoom(),

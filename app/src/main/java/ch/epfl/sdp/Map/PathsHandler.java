@@ -1,12 +1,14 @@
 package ch.epfl.sdp.Map;
 
 import android.graphics.Color;
+import android.location.Location;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -32,6 +34,7 @@ import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
+import ch.epfl.sdp.location.LocationUtils;
 
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
@@ -44,6 +47,7 @@ public class PathsHandler extends Fragment {
     private static final int ZOOM = 7;
     private MapboxMap map;
     public List<Point> pathCoordinates; // public for testing
+    private List<Point> infected_met;
     private FirebaseFirestore db = FirebaseFirestore.getInstance(); // we don't use ConcreteFirestoreInteractor because we want to do more specific op
     private MapFragment parentClass;
     public double latitude; //public fir testing
@@ -81,6 +85,11 @@ public class PathsHandler extends Fragment {
                 double lat = geoPoint.getLatitude();
                 double lon = geoPoint.getLongitude();
                 pathCoordinates.add(Point.fromLngLat(lon, lat));
+                // check infected met around this point of the path
+                Timestamp timestamp = (Timestamp)((Map)qs.get("Position")).get("timestamp");
+                ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
+                Location location = LocationUtils.buildLocation(lat, lon);
+                concreteDataReceiver.getUserNearbyDuring(location, timestamp.toDate(), timestamp.toDate());
             } catch (NullPointerException ignored) {
                 Log.d("ERROR ADDING POINT", String.valueOf(ignored));
             }

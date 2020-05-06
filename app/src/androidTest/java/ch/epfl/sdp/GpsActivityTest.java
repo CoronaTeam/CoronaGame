@@ -38,7 +38,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static ch.epfl.sdp.TestTools.resetLocationServiceStatus;
 import static ch.epfl.sdp.TestTools.sleep;
-import static ch.epfl.sdp.TestUtils.buildLocation;
+import static ch.epfl.sdp.location.LocationUtils.buildLocation;
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 import static ch.epfl.sdp.location.LocationBroker.Provider.NETWORK;
 import static org.hamcrest.core.StringStartsWith.startsWith;

@@ -1,11 +1,8 @@
 package ch.epfl.sdp;
 
-import android.app.Activity;
 import android.location.Location;
-import android.net.Uri;
 import android.util.Log;
 
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 
@@ -24,15 +21,13 @@ import ch.epfl.sdp.contamination.ConcreteCachingDataSender;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
+import ch.epfl.sdp.location.LocationUtils;
 
 import static ch.epfl.sdp.TestTools.newLoc;
-import static ch.epfl.sdp.contamination.GridFirestoreInteractor.COORDINATE_PRECISION;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
-import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Random;
-import java.util.UUID;
 
 /**
  * This class is used for creating fake data for the app demo.
@@ -204,7 +199,7 @@ public class DataForDemo {
         double lat = 50.0;//33.39767645465177;
         double longi = -73.0;//-118.39439114221236;
         for (double i=0; i<50*0.001; i=i+0.001) {
-            Location location = TestUtils.buildLocation(lat + i, longi + i);
+            Location location = LocationUtils.buildLocation(lat + i, longi + i);
             Map<String, Object> position = new HashMap();
             position.put("Position", new PositionRecord(Timestamp.now(),
                     new GeoPoint(location.getLatitude(), location.getLongitude())));

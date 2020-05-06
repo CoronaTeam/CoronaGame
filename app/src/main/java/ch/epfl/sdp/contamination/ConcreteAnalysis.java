@@ -119,51 +119,28 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime) {
         Date now = new Date(System.currentTimeMillis());
 
-        CompletableFuture<Integer> counterFuture = getCounterCompletableFuture();
+        CompletableFuture<Integer> recoveryCounterFuture = receiver.getRecoveryCounter(me.getUniqueId())
+                .thenApply(recoveryCounter -> ((int) (recoveryCounter.getOrDefault(privateRecoveryCounter, 0))));
 
-        CompletableFuture<Pair<Map<Carrier, Integer>, Integer>> suspicionsFuture =
-                getSuspiciousCompletableFuture(location, startTime, now);
+        CompletableFuture<Pair<Map<Carrier, Integer>, Integer>> suspicionsFuture = receiver.getUserNearbyDuring(location, startTime, now)
+                .thenApply(aroundMe -> identifySuspectContacts_countInfected(aroundMe));
 
-        CompletableFuture<Void> badMeetingsFuture = getBadMeetingCompletableFuture(counterFuture);
-
-        return counterFuture
-                .thenCombine(suspicionsFuture, (counter, suspicions) -> {
-                    modelInfectionEvolution(suspicions.first, counter);
-                    return suspicions.second;
-                }).thenCombine(badMeetingsFuture, ((integer, aVoid) -> integer));
-    }
-
-    private CompletableFuture<Integer> getCounterCompletableFuture() {
-        return receiver.getRecoveryCounter(me.getUniqueId()).thenApply(recoveryCounter -> {
-            int recoveryCounter1 = 0;
-            if (!recoveryCounter.isEmpty()) {
-                recoveryCounter1 = (int) recoveryCounter.get(privateRecoveryCounter);
-            }
-            return recoveryCounter1;
-        });
-    }
-
-    private CompletableFuture<Void> getBadMeetingCompletableFuture(CompletableFuture<Integer> counterFuture) {
-        return receiver.getNumberOfSickNeighbors(me.getUniqueId()).thenAcceptBoth(counterFuture,
-                (res, counter) -> {
-                    float badMeetings = 0;
-                    if (!res.isEmpty()) {
-                        badMeetings = (float) (res.get(publicAlertAttribute));
-                    }
-                    if (badMeetings != 0) {
-                        updateCarrierInfectionProbability(Math.min(me.getIllnessProbability()
-                                + badMeetings * getFactor(counter), 1f));
+        CompletableFuture<Void> updateProbabilityFuture = CompletableFuture.allOf(recoveryCounterFuture, suspicionsFuture)
+                .thenApply(v -> {
+                    modelInfectionEvolution(suspicionsFuture.join().first, recoveryCounterFuture.join());
+                    return null;
+                })
+                .thenCompose(v -> receiver.getNumberOfSickNeighbors(me.getUniqueId()))
+                .thenApply(res -> {
+                    float badMeetings = (float) res.getOrDefault(publicAlertAttribute, 0.);
+                    if (badMeetings > 0) {
+                        updateCarrierInfectionProbability(Math.min(me.getIllnessProbability() + badMeetings * getFactor(recoveryCounterFuture.join()), 1f));
                         cachedSender.resetSickAlerts(me.getUniqueId());
                     }
+                    return null;
                 });
-    }
 
-    private CompletableFuture<Pair<Map<Carrier, Integer>, Integer>> getSuspiciousCompletableFuture(Location location, Date startTime, Date now) {
-        return receiver.getUserNearbyDuring(location, startTime, now).thenApply(aroundMe -> {
-            Pair<Map<Carrier, Integer>, Integer> suspicions;
-            suspicions = identifySuspectContacts_countInfected(aroundMe);
-            return suspicions;
-        });
+        return updateProbabilityFuture.thenApply(v -> suspicionsFuture.join().second);
     }
 
     /*@Override

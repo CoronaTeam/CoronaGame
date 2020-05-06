@@ -215,7 +215,8 @@ public class LocationServiceTest {
 
         InfectionAnalyst fakeAnalyst = new InfectionAnalyst() {
             @Override
-            public CompletableFuture<Void> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
+            public CompletableFuture<Integer> updateInfectionPredictions(Location location,
+                                                                   Date startTime, Date endTime) {
                 locationNum.incrementAndGet();
                 locationRef.set(location);
                 return CompletableFuture.completedFuture(null);

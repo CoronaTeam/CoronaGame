@@ -31,6 +31,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibilit
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static ch.epfl.sdp.MainActivity.IS_NETWORK_DEBUG;
 import static ch.epfl.sdp.MainActivity.IS_ONLINE;
+import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.resetSickCounter;
 import static ch.epfl.sdp.TestTools.sleep;
@@ -39,6 +40,7 @@ import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static junit.framework.TestCase.assertSame;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 
 public class UserInfectionTest {
     private InfectionAnalyst analyst;
@@ -81,8 +83,8 @@ public class UserInfectionTest {
         };
         fragment.getLocationService().setAnalyst(analyst);
         receiver = fragment.getLocationService().getReceiver();
-        fragment.getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE)
-                .edit().putLong("lastStatusChange", 0).apply();
+        resetLastChangeDate();
+
         sleep(1000);
 
     }
@@ -124,18 +126,18 @@ public class UserInfectionTest {
         IS_NETWORK_DEBUG = false;
     }
 
-    @Ignore("Lucas Please fix")
     @Test
     public void sendsNotificationToFirebaseAndAnalystOnRecovery(){
         setIllnessToHealthy();
         analyst.updateStatus(HEALTHY);
 //        IS_NETWORK_DEBUG = false;
 //        IS_ONLINE = true;
+        sleep(1000);
         resetSickCounter();
-        sleep(3000);
+        sleep(3500);
         onView(withId(R.id.infectionStatusButton)).perform(click());
-        fragment.getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE)
-                .edit().putLong("lastStatusChange", 0).apply(); // reset last status change date
+        resetLastChangeDate();
+
         sleep(5000);
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(5000);
@@ -147,14 +149,18 @@ public class UserInfectionTest {
         sleep(2000);
 
     }
+    private void resetLastChangeDate(){
+        /*fragment.*/getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE)
+                .edit().putLong("lastStatusChange", 0).apply();
+    }
 
     private void setIllnessToHealthy(){
         sleep(5000);
         if(fragment.isImmediatelyNowIll()){
             onView(withId(R.id.infectionStatusButton)).perform(click());
-            fragment.getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE)
-                    .edit().putLong("lastStatusChange", 0).apply();
+
         }
+        resetLastChangeDate();
     }
 
     @Test
@@ -169,12 +175,13 @@ public class UserInfectionTest {
 
     @Test
     public void checkStatusChangeRateLimit(){
+        setIllnessToHealthy();
         Carrier.InfectionStatus initial = analyst.getCarrier().getInfectionStatus();
         sleep(1000);
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(1000);
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(1000);
-        assertSame(initial,analyst.getCarrier().getInfectionStatus());
+        assertNotSame(initial,analyst.getCarrier().getInfectionStatus());
     }
 }

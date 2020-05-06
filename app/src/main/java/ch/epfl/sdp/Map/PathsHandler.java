@@ -29,9 +29,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.location.LocationUtils;
@@ -87,11 +90,11 @@ public class PathsHandler extends Fragment {
                 pathCoordinates.add(Point.fromLngLat(lon, lat));
                 // check infected met around this point of the path
                 Timestamp timestamp = (Timestamp)((Map)qs.get("Position")).get("timestamp");
-                ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
-                Location location = LocationUtils.buildLocation(lat, lon);
-                concreteDataReceiver.getUserNearbyDuring(location, timestamp.toDate(), timestamp.toDate());
+                addInfectedMet(lat, lon, timestamp);
             } catch (NullPointerException ignored) {
                 Log.d("ERROR ADDING POINT", String.valueOf(ignored));
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
             }
         }
 
@@ -100,6 +103,24 @@ public class PathsHandler extends Fragment {
         latitude = pathCoordinates.get(0).latitude();
         longitude = pathCoordinates.get(0).longitude();
         setPathLayer();
+    }
+
+    private void addInfectedMet(double lat, double lon, Timestamp timestamp) throws ExecutionException, InterruptedException {
+        ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
+        Location location = LocationUtils.buildLocation(lat, lon);
+        CompletableFuture<Map<Carrier, Integer>> future = concreteDataReceiver.getUserNearbyDuring(location, timestamp.toDate(), timestamp.toDate());
+        Map<Carrier, Integer> users;
+        try {
+            users = future.get();
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        for (Map.Entry<Carrier, Integer> entry : future.get().entrySet()) {
+            Carrier carrier = entry.getKey();
+            Integer integer = entry.getValue();
+            //if (user not in infected_met && user is infected)
+            //infected_met.add(user_location);
+        }
     }
 
     private void setPathLayer() {
@@ -137,10 +158,5 @@ public class PathsHandler extends Fragment {
                     }
                 });
     }
-
-    /*private void getInfectedMet() { // This function is not done yet
-        ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
-        //concreteDataReceiver.getUserNearbyDuring();
-    }*/
 
 }

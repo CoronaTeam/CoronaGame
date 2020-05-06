@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Categories;
 
 import ch.epfl.sdp.Map.MapActivity;
 import ch.epfl.sdp.Map.MapFragment;
@@ -14,6 +15,8 @@ import ch.epfl.sdp.R;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static ch.epfl.sdp.TestTools.sleep;
 import static junit.framework.TestCase.assertEquals;
@@ -51,13 +54,6 @@ public class MapActivityTest {
     }*/ // DON'T KNOW HOW TO TEST THIS YET: DOES NOT PASS THE CIRRUS BUILD -->> "Map interactions should happen on the UI thread. Method invoked from wrong thread is cancelTransitions."
 
     @Test
-    public void pathGetsInstantiated() {
-        sleep(15000);
-        assertNotNull(mapFragment.pathsHandler.pathCoordinates);
-    }
-
-    //"Map interactions should happen on the UI thread. Method invoked from wrong thread is getLayer.")
-    @Test
     public void togglePathMakesItVisible() {
         onView(withId(R.id.history_button)).perform(click());
         onView(withId(R.id.pathButton)).perform(click());
@@ -66,28 +62,40 @@ public class MapActivityTest {
         //assertEquals(VISIBLE, layer.getVisibility().getValue());
     }
 
+    @Test
+    public void pathGetsInstantiated() {
+        sleep(15000);
+        assertNotNull(mapFragment.pathsHandler.pathCoordinates);
+    }
+
     //"Map interactions should happen on the UI thread. Method invoked from wrong thread is getLayer.")
     @Test
-    public void pathNotVisibleByDefault() {
+    public void pathButtonIsDisplayedInHistory() {
         onView(withId(R.id.history_button)).perform(click());
+        onView(withId(R.id.pathButton)).check(matches(isDisplayed()));
+    }
+
+    //"Map interactions should happen on the UI thread. Method invoked from wrong thread is getLayer.")
+    @Test @Ignore("Incomplete")
+    public void pathNotVisibleByDefault() {
+        /*onView(withId(R.id.history_button)).perform(click());
         onView(withId(R.id.pathButton)).perform(click());
         sleep(3000);
-        //Layer layer = mapFragment.map.getStyle().getLayer(PATH_LAYER_ID);
-        //assertNotEquals(VISIBLE, layer.getVisibility().getValue());
+        Layer layer = mapFragment.map.getStyle().getLayer(PATH_LAYER_ID);
+        assertNotEquals(VISIBLE, layer.getVisibility().getValue());*/
     }
 
     //"need to be able to click back on the map to make the history dialog fragment disappear")
-    @Test
+    @Test @Ignore("Incomplete")
     public void cameraTargetsPathWhenToggle() {
-        sleep(15000);
+        /*sleep(15000);
         onView(withId(R.id.history_button)).perform(click());
         onView(withId(R.id.pathButton)).perform(click());
         double exp_lat = mapFragment.pathsHandler.latitude;
         double exp_lon = mapFragment.pathsHandler.longitude;
         double act_lat = mapFragment.getMap().getCameraPosition().target.getLatitude();
         double act_lon = mapFragment.getMap().getCameraPosition().target.getLongitude();
-        //assertEquals(exp_lat, act_lat);
-        //assertEquals(exp_lon, act_lon);
+        assertEquals(exp_lat, act_lat);
+        assertEquals(exp_lon, act_lon);*/
     }
-
 }

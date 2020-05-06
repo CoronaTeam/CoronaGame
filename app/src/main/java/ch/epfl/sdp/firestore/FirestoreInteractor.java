@@ -1,28 +1,57 @@
 package ch.epfl.sdp.firestore;
 
-import androidx.annotation.VisibleForTesting;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import ch.epfl.sdp.Callback;
-
+/**
+ * This class represent an abstraction over the firestore database. It contains abstract methods
+ * to be implemented in the instances to interact with firestore some and a couple of static
+ * utilities.
+ */
 public abstract class FirestoreInteractor {
-    static FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    private static FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+    /**
+     * Convert a task into a completableFuture
+     *
+     * @param task The task we want to convert to a CompletableFuture
+     * @param <T>  The type of future required
+     * @return a future behaving as the original task
+     */
+    public static <T> CompletableFuture<T> taskToFuture(Task<T> task) {
+        CompletableFuture<T> future = new CompletableFuture<>();
+        task.addOnSuccessListener(future::complete);
+        task.addOnFailureListener(future::completeExceptionally);
+        return future;
+    }
+
+    /**
+     * Build a collectionReference from a string
+     *
+     * @param path a string formatted as xxx/xxx/xxx that represent the path to a collection in a
+     *             firestore database.
+     * @return a reference to that collection stored on firestore
+     */
+    public static CollectionReference collectionReference(String path) {
+        return firestore.collection(path);
+    }
+
+    /**
+     * Build  a documentReference from a string
+     *
+     * @param path       a string formatted as xxx/xxx/xxx that represent the path to a collection in a
+     *                   firestore database.
+     * @param documentID the id of the document
+     * @return a reference to a document stored on firestore
+     */
+    public static DocumentReference documentReference(String path, String documentID) {
+        return collectionReference(path).document(documentID);
+    }
 
     /**
      * Read a single document
@@ -67,21 +96,4 @@ public abstract class FirestoreInteractor {
      */
     public abstract CompletableFuture<DocumentReference> writeDocument(
             CollectionReference collectionReference, Object document);
-
-    //////////////////////////////////////////////////////////////
-
-    public static <T> CompletableFuture<T> taskToFuture(Task<T> task) {
-        CompletableFuture<T> future = new CompletableFuture<>();
-        task.addOnSuccessListener(value -> future.complete(value));
-        task.addOnFailureListener(ex -> future.completeExceptionally(ex));
-        return future;
-    }
-
-    public static CollectionReference collectionReference(String path) {
-        return firestore.collection(path);
-    }
-
-    public static DocumentReference documentReference(String path, String documentID) {
-        return collectionReference(path).document(documentID);
-    }
 }

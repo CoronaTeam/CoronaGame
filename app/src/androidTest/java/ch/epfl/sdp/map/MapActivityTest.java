@@ -84,8 +84,8 @@ public class MapActivityTest {
         onView(withId(R.id.pathButton)).perform(click());
         double exp_lat = mapFragment.pathsHandler.latitude;
         double exp_lon = mapFragment.pathsHandler.longitude;
-        double act_lat = mapFragment.map.getCameraPosition().target.getLatitude();
-        double act_lon = mapFragment.map.getCameraPosition().target.getLongitude();
+        double act_lat = mapFragment.getMap().getCameraPosition().target.getLatitude();
+        double act_lon = mapFragment.getMap().getCameraPosition().target.getLongitude();
         //assertEquals(exp_lat, act_lat);
         //assertEquals(exp_lon, act_lon);
     }

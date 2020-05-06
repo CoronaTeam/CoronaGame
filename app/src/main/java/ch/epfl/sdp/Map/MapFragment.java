@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 
 import com.mapbox.mapboxsdk.Mapbox;
@@ -50,24 +51,24 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     public final static int LOCATION_PERMISSION_REQUEST = 20201;
     private static final int MIN_UP_INTERVAL_MILLISECS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
+    public PathsHandler pathsHandler; // public for testing
     private MapView mapView;
-    public MapboxMap map; // public for testing
+    private MapboxMap map; // public for testing
     private LocationBroker locationBroker;
-
     private LatLng prevLocation = new LatLng(0, 0);
-
     private ConcreteFirestoreInteractor db;
-
     private CircleManager positionMarkerManager;
     private Circle userLocation;
-
     private HeatMapHandler heatMapHandler;
-    public PathsHandler pathsHandler; // public for testing
-
     private Account userAccount;
     private MapFragment classPointer;
 
     private View view;
+
+    @VisibleForTesting
+    public MapboxMap getMap() {
+        return map;
+    }
 
     @Nullable
     @Override
@@ -77,7 +78,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         ServiceConnection conn = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                locationBroker = ((LocationService.LocationBinder)service).getService().getBroker();
+                locationBroker = ((LocationService.LocationBinder) service).getService().getBroker();
                 goOnline();
             }
 
@@ -286,11 +287,14 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         switch (view.getId()) {
             case R.id.history_button: {
                 onClickHistory();
-            } break;
+            }
+            break;
             case R.id.heatMapToggle: {
                 toggleHeatMap();
-            } break;
-            default: break;
+            }
+            break;
+            default:
+                break;
         }
     }
 }

@@ -41,6 +41,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
  * as well as points of met infected users.
  */
 public class PathsHandler extends Fragment {
+    private static final int ZOOM = 7;
     private MapboxMap map;
     public List<Point> pathCoordinates; // public for testing
     private FirebaseFirestore db = FirebaseFirestore.getInstance(); // we don't use ConcreteFirestoreInteractor because we want to do more specific op
@@ -62,7 +63,7 @@ public class PathsHandler extends Fragment {
     public void setCameraPosition() {
         CameraPosition position = new CameraPosition.Builder()
                 .target(new LatLng(latitude, longitude))
-                .zoom(7)
+                .zoom(ZOOM)
                 .build();
         if (map != null) {
             map.setCameraPosition(position);

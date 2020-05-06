@@ -28,6 +28,7 @@ import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.contamination.GridFirestoreInteractor.COORDINATE_PRECISION;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Random;
@@ -207,11 +208,12 @@ public class DataForDemo {
             Map<String, Object> position = new HashMap();
             position.put("Position", new PositionRecord(Timestamp.now(),
                     new GeoPoint(location.getLatitude(), location.getLongitude())));
-            cfi.writeDocument("History/USER_PATH_DEMO2/Positions/", position,
-                    s -> pathLoaded[0] = true,
-                    f -> {
+            cfi.writeDocument(collectionReference("History/USER_PATH_DEMO2/Positions/"), position)
+                    .thenRun(() -> pathLoaded[0] = true)
+                    .exceptionally(e -> {
                         pathLoaded[0] = false;
-                        Log.d("PATH UPLOAD", "Error uploading positions Firestore.", f);
+                        Log.d("PATH UPLOAD", "Error uploading positions Firestore.", e);
+                        return null;
                     });
         }
     }

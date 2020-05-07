@@ -186,7 +186,7 @@ public class PathsHandler extends Fragment {
     }
 
     private void initFirestorePathRetrieval(Callback<Iterator<QueryDocumentSnapshot>> callback) {
-        db.collection("History/USER_PATH_DEMO/Positions")
+        db.collection("History/BETTER_PATH_DEMO/Positions")
                 //.orderBy("timestamp")
                 //.limit(50)
                 .get()

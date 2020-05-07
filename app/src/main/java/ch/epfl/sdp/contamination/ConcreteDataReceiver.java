@@ -5,26 +5,25 @@ import android.location.LocationManager;
 
 import androidx.annotation.VisibleForTesting;
 
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 import ch.epfl.sdp.Account;
-import ch.epfl.sdp.Callback;
-import ch.epfl.sdp.firestore.QueryHandler;
 
 import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicUserFolder;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 
 public class ConcreteDataReceiver implements DataReceiver {
 
@@ -41,150 +40,88 @@ public class ConcreteDataReceiver implements DataReceiver {
     }
 
     @Override
-    public void getUserNearby(Location location, Date date, Callback<Set<? extends Carrier>> callback) {
+    public CompletableFuture<Set<Carrier>> getUserNearby(Location location, Date date) {
 
-        QueryHandler nearbyHandler = new QueryHandler<QuerySnapshot>() {
-
-            @Override
-            public void onSuccess(QuerySnapshot snapshot) {
-
-                Set<Carrier> carriers = new HashSet<>();
-
-                for (QueryDocumentSnapshot q : snapshot) {
-                    carriers.add(new Layman(Enum.valueOf(Carrier.InfectionStatus.class,(String) q.get("infectionStatus")), ((float)((double)q.get("illnessProbability")))));
-                }
-
-                callback.onCallback(carriers);
+        return interactor.gridRead(location, date.getTime()).thenApply(stringMapMap -> {
+            Set<Carrier> carriers = new HashSet<>();
+            for (Map.Entry<String, Map<String, Object>> doc : stringMapMap.entrySet()) {
+                carriers.add((Carrier) doc);
+                carriers.add(new Layman(Enum.valueOf(Carrier.InfectionStatus.class,
+                        (String) doc.getValue().get("infectionStatus")),
+                        ((float) ((double) doc.getValue().get(
+                                "illnessProbability")))));
             }
-
-            @Override
-            public void onFailure() {
-
-                callback.onCallback(Collections.EMPTY_SET);
-            }
-        };
-
-        interactor.read(location, date.getTime(), nearbyHandler);
+            return carriers;
+        }).exceptionally(exception -> Collections.emptySet());
     }
 
-    private Set<Long> filterValidTimes(long startDate, long endDate, QuerySnapshot snapshot) {
+    private Set<Long> filterValidTimes(long startDate, long endDate, Map<String, Map<String, Object>> snapshot) {
         Set<Long> validTimes = new HashSet<>();
-
-        for (QueryDocumentSnapshot q : snapshot) {
-            long time = Long.decode((String)q.get("Time"));
+        for (Map.Entry<String, Map<String, Object>> q : snapshot.entrySet()) {
+            long time = Long.decode((String) q.getValue().get("Time"));
             if (startDate <= time && time <= endDate) {
                 validTimes.add(time);
             }
         }
-
         return validTimes;
     }
 
-    private class SliceQueryHandle implements QueryHandler<QuerySnapshot> {
+    @Override
+    public CompletableFuture<Map<Carrier, Integer>> getUserNearbyDuring(Location location,
+                                                                       Date startDate, Date endDate) {
+        return interactor.getTimes(location)
+                .thenApply(stringMapMap -> filterValidTimes(startDate.getTime(), endDate.getTime(), stringMapMap))
+                .thenCompose(validTimes -> {
+                    List<CompletableFuture<Map<String, Map<String, Object>>>> metDuringSlices = new ArrayList<>();
 
-        private Map<Carrier, Integer> metDuringInterval;
-        private AtomicInteger done;
-        private Set<Long> validTimes;
-        private Callback<Map<? extends Carrier, Integer>> callback;
+                    return CompletableFuture.allOf(metDuringSlices.toArray(new CompletableFuture[metDuringSlices.size()]))
+                            .thenApply(ignoredVoid -> {
+                                Stream<Map<String, Map<String, Object>>> results = metDuringSlices.stream().map(ft -> ft.join());
 
-        SliceQueryHandle(Set<Long> validTimes, Map<Carrier, Integer> metDuringInterval, AtomicInteger done, Callback<Map<? extends Carrier, Integer>> callback){
-            this.metDuringInterval = metDuringInterval;
-            this.done = done;
-            this.validTimes = validTimes;
-            this.callback = callback;
-        }
+                                Map<Carrier, Integer> metDuringInterval = new HashMap<>();
 
-        private void launchCallback() {
-            int size = validTimes.size();
-            boolean elected = true;
+                                results.forEach(res -> {
+                                    for (Map.Entry<String, Map<String, Object>> doc : res.entrySet()) {
+                                        Carrier c = new Layman(
+                                                Enum.valueOf(Carrier.InfectionStatus.class,
+                                                        (String) doc.getValue().get("infectionStatus")),
+                                                ((float) ((double) doc.getValue().get("illnessProbability"))));
 
-            done.incrementAndGet();
-            if (done.get() == size) {
-                while (!done.compareAndSet(size, 0)) {
-                    elected = (done.get() != 0);
-                }
-                if (elected) {
-                    callback.onCallback(metDuringInterval);
-                }
-            }
-        }
+                                        int numberOfMeetings = 1;
+                                        if (metDuringInterval.containsKey(c)) {
+                                            numberOfMeetings += metDuringInterval.get(c);
+                                        }
+                                        metDuringInterval.put(c, numberOfMeetings);
+                                    }
+                                });
 
-        @Override
-        public void onSuccess(QuerySnapshot snapshot) {
-            for (QueryDocumentSnapshot q : snapshot) {
-
-                Carrier c = new Layman(
-                        Enum.valueOf(Carrier.InfectionStatus.class,(String) q.get("infectionStatus")),
-                        ((float)((double)q.get("illnessProbability"))));
-
-                int numberOfMeetings = 1;
-                if (metDuringInterval.containsKey(c)) {
-                    numberOfMeetings += metDuringInterval.get(c);
-                }
-                metDuringInterval.put(c, numberOfMeetings);
-            }
-
-            launchCallback();
-        }
-
-        @Override
-        public void onFailure() {
-            // Do nothing
-        }
+                                return metDuringInterval;
+                            });
+                })
+                .exceptionally(exception -> Collections.emptyMap());
     }
 
     @Override
-    public void getUserNearbyDuring(Location location, Date startDate, Date endDate, Callback<Map<? extends Carrier, Integer>> callback) {
-
-
-        interactor.getTimes(location, new QueryHandler<QuerySnapshot>() {
-
-            @Override
-            public void onSuccess(QuerySnapshot snapshot) {
-
-                Set<Long> validTimes = filterValidTimes(startDate.getTime(), endDate.getTime(), snapshot);
-
-                Map<Carrier, Integer> metDuringInterval = new ConcurrentHashMap<>();
-
-                AtomicInteger done = new AtomicInteger();
-
-                QueryHandler updateFromTimeSlice = new SliceQueryHandle(validTimes, metDuringInterval, done, callback);
-
-                for (long t : validTimes) {
-                    interactor.read(location, t, updateFromTimeSlice);
-                }
-
-                // If there are not valid times, just start the callback with an empty map
-                if (validTimes.isEmpty()) {
-                    callback.onCallback(metDuringInterval);
-                }
-            }
-
-            @Override
-            public void onFailure() {
-                callback.onCallback(Collections.EMPTY_MAP);
-            }
-        });
-
-    }
-
-    @Override
-    public void getMyLastLocation(Account account, Callback<Location> callback) {
-        interactor.readLastLocation(account, snapshot -> {
-            if (snapshot.containsKey("geoPoint")) {
-                GeoPoint geoPoint = (GeoPoint) snapshot.get("geoPoint");
+    public CompletableFuture<Location> getMyLastLocation(Account account) {
+        return interactor.readLastLocation(account).thenApply(result -> {
+            if (result.entrySet().iterator().hasNext()) {
+                GeoPoint geoPoint = (GeoPoint)result.get("geoPoint");
                 Location location = new Location(LocationManager.GPS_PROVIDER);
                 location.setLatitude(geoPoint.getLatitude());
                 location.setLongitude(geoPoint.getLongitude());
-                callback.onCallback(location);
+                return location;
+            }else{
+                return null;
             }
         });
     }
 
-    public void getNumberOfSickNeighbors(String userId, Callback<Map<String, Float>>  callback){
-        interactor.readDocument(publicUserFolder, userId, callback);
+    @Override
+    public CompletableFuture<Map<String, Object>> getNumberOfSickNeighbors(String userId){
+        DocumentReference ref = documentReference(publicUserFolder, userId);
+        return interactor.readDocument(ref);
     }
-    public void getRecoveryCounter(String userId, Callback<Map<String,Integer>>callback){
-        interactor.readDocument(privateUserFolder, userId, callback);
+    public CompletableFuture<Map<String, Object>> getRecoveryCounter(String userId){
+        return interactor.readDocument(documentReference(privateUserFolder, userId));
     }
 }

@@ -2,15 +2,16 @@ package ch.epfl.sdp.contamination;
 
 import android.location.Location;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 
 import java.util.Date;
 import java.util.SortedMap;
+import java.util.concurrent.CompletableFuture;
 
-import ch.epfl.sdp.firestore.FirestoreInteractor;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.taskToFuture;
 
 public interface CachingDataSender {
     int EXPAND_FACTOR = 100000; //determines the GPS coordinates precision
@@ -28,32 +29,20 @@ public interface CachingDataSender {
     }
     /**
      *   Sends the location and date to firebase, along with the userID of the user using the app.
-     *   The default callback is executed after this operation
+     *   Operation depending on the result of the operation can be chained to the returned future
      * @param carrier : the carrier present at location
      * @param location : location, rounded by ~1 meter
      * @param time : date associated to that location
+     * @return a future notification of success or failure.
      */
-    void registerLocation(Carrier carrier, Location location, Date time);
+    CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time);
 
     /**
-     *   Sends the location and date to firebase, along with the userID of the user using the app.
-     *   Call the appropriate listener depending on the result of the operation
-     * @param carrier : the carrier present at location
-     * @param location : location, rounded by ~1 meter
-     * @param time : date associated to that location
-     * @param successListener : listener called in case of success
-     * @param failureListener: listener called in case of failure
-     */
-    void registerLocation(Carrier carrier,
-                          Location location,
-                          Date time,
-                          OnSuccessListener successListener,
-                          OnFailureListener failureListener);
-    /**
      * Notifies a user he has been close to an infected person
+     * @return
      */
-    default void sendAlert(String userId){
-        sendAlert(userId,0f);
+    default CompletableFuture<Void> sendAlert(String userId){
+        return sendAlert(userId,0f);
     }
 
     /**
@@ -61,15 +50,19 @@ public interface CachingDataSender {
      * Thus, it is "less" scary for them to know you are know sick. This method implements just that.
      * @param userId
      * @param previousIllnessProbability
+     * @return a future notification of success or failure.
      */
-    default void sendAlert(String userId, float previousIllnessProbability){
-        DocumentReference ref = FirestoreInteractor.documentReference(publicUserFolder,userId);
-        ref.update(publicAlertAttribute, FieldValue.increment(1f-previousIllnessProbability));
+    default CompletableFuture<Void> sendAlert(String userId, float previousIllnessProbability){
+        DocumentReference ref = documentReference(publicUserFolder,userId);
+        Task<Void> task = ref.update(publicAlertAttribute,
+                FieldValue.increment(1f-previousIllnessProbability));
+        return taskToFuture(task);
     }
 
-    default void resetSickAlerts(String userId){
-        DocumentReference ref = FirestoreInteractor.documentReference(publicUserFolder,userId);
-        ref.update(publicAlertAttribute, FieldValue.delete());
+    default CompletableFuture<Void> resetSickAlerts(String userId){
+        DocumentReference ref = documentReference(publicUserFolder,userId);
+        Task<Void> task = ref.update(publicAlertAttribute, FieldValue.delete());
+        return taskToFuture(task);
     }
     /**
      *  This is the cache part of the CachedSender.

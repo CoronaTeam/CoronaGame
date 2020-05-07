@@ -43,6 +43,7 @@
     <string name="error_status_update">Erreur lors de la mise à jour du statut d\'infection.</string>
     <string name="accountDetails">Détails du compte</string>
     <string name="email">E-mail</string>
+
     <string name="signin_text">🎈 Connectez-vous avec votre compte Google pour démarrer !</string>
     <string name="intro_page1_title">🔎 Restez en sécurité</string>
     <string name="intro_page1_description">À l\'aide de la heatmap pour vérifier les zones à risque</string>
@@ -50,4 +51,19 @@
     <string name="intro_page2_description">Pour informer les autres utilisateurs et les alerter s\'ils ont pu être infectés</string>
     <string name="intro_page3_title">📈 Obtenez votre probabilité d\'infection</string>
     <string name="intro_page3_description">En temps réel, calculée à partir de vos interactions géolocalisées avec d\'autres utilisateurs</string>
+
+    <string name="infection_status_posted">Envoyé!</string>
+
+    <string name="see_my_last_path">Voir mon dernier trajet</string>
+    <string name="cannot_retrieve_positions">Impossible de charger les positions depuis la base de donnée</string>
+
+    <string name="error_infection_status_ratelimit">Vous ne pouvez pas changer votre status plus d\'une fois par jour</string>
+    <string name="infection_dialog_message1">"Attention ! Vous avez rencontré "</string>
+    <string name="several_infection_dialog_message2">" personnes infectées !"</string>
+    <string name="infection_dialog_title">Rapport journalier</string>
+    <string name="infection_dialog_cool_message">"Vous n'avez rencontré personne d'infecté depuis la denière fois."</string>
+    <string name="one_infection_dialog_message2">" personnes infectées !"</string>
+    <string name="infection_probability">Probabilité d\'infection</string>
+    <string name="since_last_month">Depuis le mois dernier</string>
+
 </resources>

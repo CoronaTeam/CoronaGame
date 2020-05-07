@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.firestore.QueryHandler;
@@ -76,9 +77,9 @@ public class HistoryActivityTest {
     @Test
     @Ignore
     public void historyIsUpdated() {
-        FirestoreInteractor successInteractor = createReadTestFSI(true, querySnapshot);
+        //FirestoreInteractor successInteractor = createReadTestFSI(true, querySnapshot);
 
-        fragment.setFirestoreInteractor(successInteractor);
+        //fragment.setFirestoreInteractor(successInteractor);
 
         onView(withId(R.id.refresh_history)).perform(click());
         sleep(500);
@@ -100,17 +101,18 @@ public class HistoryActivityTest {
 
     @Test
     public void failureIsNotified() {
-        FirestoreInteractor failureInteractor = createReadTestFSI(false, null);
+        HistoryFirestoreInteractor failureInteractor = new failureHistoryFSI(
+                AuthenticationManager.getAccount(mActivityRule.getActivity()), false, null);
 
-        fragment.setFirestoreInteractor(failureInteractor);
+        fragment.setHistoryFirestoreInteractor(failureInteractor);
         onView(withId(R.id.refresh_history)).perform(click());
     }
 
     @Test @Ignore
     public void unreadableContentIsPurged() {
-        FirestoreInteractor unreadableInteractor = createReadTestFSI(true, unreadableSnapshot);
+        //FirestoreInteractor unreadableInteractor = createReadTestFSI(true, unreadableSnapshot);
 
-        fragment.setFirestoreInteractor(unreadableInteractor);
+        //fragment.setFirestoreInteractor(unreadableInteractor);
 
         onView(withId(R.id.refresh_history)).perform(click());
         sleep(500);
@@ -120,32 +122,70 @@ public class HistoryActivityTest {
                 .check(matches(withText("[...unreadable.:).]")));
     }
 
-    private FirestoreInteractor createReadTestFSI(Boolean success, QuerySnapshot snapshot) {
+    private class failureHistoryFSI extends HistoryFirestoreInteractor {
+        private Boolean success;
+        private Map<String, Object> docData;
+
+        failureHistoryFSI(Account user, Boolean success, Map<String, Object> docData) {
+            super(user);
+            this.success = success;
+            this.docData = docData;
+        }
+
+        @Override
+        public CompletableFuture<Map<String, Object>> readDocument(DocumentReference documentReference) {
+            CompletableFuture<Map<String, Object>> completableFuture = new CompletableFuture<>();
+            if(success) completableFuture.complete(docData);
+            else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
+            return completableFuture;
+        }
+
+        @Override
+        public CompletableFuture<Map<String, Map<String, Object>>> readCollection(CollectionReference collectionReference) {
+            CompletableFuture<Map<String, Map<String, Object>>> completableFuture = new CompletableFuture<>();
+            if(success) completableFuture.complete(null);
+            else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
+            return completableFuture;
+        }
+
+        @Override
+        public CompletableFuture<Void> writeDocumentWithID(DocumentReference documentReference, Object document) {
+            return null;
+        }
+
+        @Override
+        public CompletableFuture<DocumentReference> writeDocument(CollectionReference collectionReference, Object document) {
+            return null;
+        }
+    }
+
+    private FirestoreInteractor createReadTestFSI(Boolean success, Map<String, Object> docData) {
         return new FirestoreInteractor() {
 
             @Override
-            public void writeDocument(CollectionReference collectionReference, Object document,
-                                      OnSuccessListener successListener, OnFailureListener failureListener) {
-
+            public CompletableFuture<Map<String, Object>> readDocument(DocumentReference documentReference) {
+                CompletableFuture<Map<String, Object>> completableFuture = new CompletableFuture<>();
+                if(success) completableFuture.complete(docData);
+                else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
+                return completableFuture;
             }
 
             @Override
-            public void writeDocumentWithID(DocumentReference documentReference, Object document, OnSuccessListener successListener, OnFailureListener failureListener) {
-
+            public CompletableFuture<Map<String, Map<String, Object>>> readCollection(CollectionReference collectionReference) {
+                CompletableFuture<Map<String, Map<String, Object>>> completableFuture = new CompletableFuture<>();
+                if(success) completableFuture.complete(null);
+                else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
+                return completableFuture;
             }
 
             @Override
-            public void readCollection(CollectionReference collectionReference, QueryHandler handler) {
-                if (success) {
-                    handler.onSuccess(snapshot);
-                } else {
-                    handler.onFailure();
-                }
+            public CompletableFuture<Void> writeDocumentWithID(DocumentReference documentReference, Object document) {
+                return null;
             }
 
             @Override
-            public void readDocument(DocumentReference documentReference, QueryHandler handler) {
-                handler.onFailure();
+            public CompletableFuture<DocumentReference> writeDocument(CollectionReference collectionReference, Object document) {
+                return null;
             }
         };
     }

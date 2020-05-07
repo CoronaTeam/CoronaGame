@@ -9,6 +9,7 @@ import androidx.test.rule.GrantPermissionRule;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SnapshotMetadata;
+import com.google.firebase.firestore.Source;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -23,7 +24,7 @@ public class FirebaseOfflineCacheTest {
 
     private static final String TAG = "OFFLINE CACHE TEST";
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private String localChanges = "local changes blob";
+    private String localChanges = "local changes 29 avril";
 
     @Rule
     public final ActivityTestRule<FirebaseActivity> mActivityRule =

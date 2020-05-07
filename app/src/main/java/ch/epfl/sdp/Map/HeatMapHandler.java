@@ -5,51 +5,47 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.MultiPoint;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
+import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.HeatmapLayer;
+import com.mapbox.mapboxsdk.style.layers.PropertyValue;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import ch.epfl.sdp.R;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
-import ch.epfl.sdp.firestore.QueryHandler;
 
+import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.heatmapDensity;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.interpolate;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.linear;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.literal;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.rgb;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.rgba;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.zoom;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.heatmapColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.heatmapIntensity;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.heatmapOpacity;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.heatmapRadius;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.heatmapWeight;
 
 class HeatMapHandler {
-    private QueryHandler fireBaseHandler;
+    static final String HEATMAP_LAYER_ID = "lastPositions-heat";
+    private static final String LASTPOSITIONS_SOURCE_ID = "lastPositions";
+    private static final String HEATMAP_LAYER_SOURCE = "lastPositions";
     private MapFragment parentClass;
-
     private ConcreteFirestoreInteractor db;
     private MapboxMap map;
-
-    private static final String LASTPOSITIONS_SOURCE_ID = "lastPositions";
-    static final String HEATMAP_LAYER_ID = "lastPositions-heat";
-    private static final String HEATMAP_LAYER_SOURCE = "lastPositions";
 
 
     HeatMapHandler(@NonNull MapFragment parentClass, @NonNull ConcreteFirestoreInteractor db,
@@ -57,18 +53,30 @@ class HeatMapHandler {
         this.parentClass = parentClass;
         this.db = db;
         this.map = map;
-        initFireBaseQueryHandler();
+        initQuery();
     }
 
+    private void initQuery() {
+        db.readCollection(collectionReference("LastPositions"))
+                .thenAccept(value -> createGeoJson(value))
+                .exceptionally(e -> {
+                    Toast.makeText(parentClass.getActivity(), "Cannot retrieve " +
+                            "positions " +
+                            "from database", Toast.LENGTH_LONG).show();
+                    return null;
+                });
+    }
 
-    private void createGeoJson(@NotNull Iterator<QueryDocumentSnapshot> qsIterator) {
+    private void createGeoJson(@NotNull Map<String, Map<String, Object>> stringMapMap) {
         List<Point> infectionHeatMapPoints = new ArrayList<>();
+        Set<Map.Entry<String, Map<String, Object>>> entrySet = stringMapMap.entrySet();
 
-        for (; qsIterator.hasNext(); ) {
-            QueryDocumentSnapshot qs = qsIterator.next();
+        for (Map.Entry<String, Map<String, Object>> entry : entrySet) {
             try {
-                infectionHeatMapPoints.add(Point.fromLngLat(((GeoPoint) (qs.get("geoPoint"))).getLongitude(),
-                        ((GeoPoint) (qs.get("geoPoint"))).getLatitude()
+                GeoPoint geoPoint = (GeoPoint) entry.getValue().get("geoPoint");
+                infectionHeatMapPoints.add(Point.fromLngLat(
+                        geoPoint.getLongitude(),
+                        geoPoint.getLatitude()
                 ));
             } catch (NullPointerException ignored) {
             }
@@ -93,76 +101,66 @@ class HeatMapHandler {
         layer.setSourceLayer(HEATMAP_LAYER_SOURCE);
 
         layer.setProperties(
-                // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
-                // Begin color ramp at 0-stop with a 0-transparency color
-                // to create a blur-like effect.
-                heatmapColor(
-                        interpolate(
-                                linear(), heatmapDensity(),
-                                literal(0), rgba(33, 102, 172, 0),
-                                literal(0.2), rgba(103, 169, 207, 0.5),
-                                literal(0.6), rgba(209, 229, 240, 0.5),
-                                literal(0.85), rgba(253, 219, 199, 0.6),
-                                literal(0.9), rgba(239, 138, 98, 0.65),
-                                literal(1), rgba(178, 24, 43, 0.7)
-                        )
-                ),
-
-
-                // Increase the heatmap weight based on frequency and property magnitude
-                heatmapWeight(
-                        interpolate(
-                                exponential(2), zoom(),
-                                stop(8, 0.0001),
-                                stop(18, 0.3)
-                        )
-                ),
-
-
-                // Increase the heatmap color weight weight by zoom level
-                // heatmap-intensity is a multiplier on top of heatmap-weight
-                heatmapIntensity(
-                        interpolate(
-                                linear(), zoom(),
-                                stop(8, 2),
-                                stop(18, 100)
-                        )
-                ),
-
-                // Adjust the heatmap radius by zoom level
-                heatmapRadius(
-                        interpolate(
-                                linear(), zoom(),
-                                stop(8, 2),
-                                stop(18, 60)
-                        )
-                )
-
-
+                adjustHeatMapColorRange(),
+                adjustHeatMapWeight(),
+                adjustHeatmapIntensity(),
+                adjustHeatmapRadius()
         );
-
         map.getStyle(style -> style.addLayerAbove(layer, "waterway-label"));
     }
 
+    @NotNull
+    // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
+    // Begin color ramp at 0-stop with a 0-transparency color
+    // to create a blur-like effect.
+    private PropertyValue<Expression> adjustHeatMapColorRange() {
+        return heatmapColor(
+                interpolate(
+                        linear(), heatmapDensity(),
+                        literal(0), rgba(33, 102, 172, 0),
+                        literal(0.2), rgba(103, 169, 207, 0.5),
+                        literal(0.6), rgba(209, 229, 240, 0.5),
+                        literal(0.85), rgba(253, 219, 199, 0.6),
+                        literal(0.9), rgba(239, 138, 98, 0.65),
+                        literal(1), rgba(178, 24, 43, 0.7)
+                )
+        );
+    }
 
-    private void initFireBaseQueryHandler() {
+    @NotNull
+    // Increase the heatmap weight based on frequency and property magnitude
+    private PropertyValue<Expression> adjustHeatMapWeight() {
+        return heatmapWeight(
+                interpolate(
+                        exponential(2), zoom(),
+                        stop(8, 0.0001),
+                        stop(18, 0.3)
+                )
+        );
+    }
 
-        fireBaseHandler = new QueryHandler<QuerySnapshot>() {
+    @NotNull
+    // Increase the heatmap color weight weight by zoom level
+    // heatmap-intensity is a multiplier on top of heatmap-weight
+    private PropertyValue<Expression> adjustHeatmapIntensity() {
+        return heatmapIntensity(
+                interpolate(
+                        linear(), zoom(),
+                        stop(8, 2),
+                        stop(18, 100)
+                )
+        );
+    }
 
-            @Override
-            public void onSuccess(QuerySnapshot snapshot) {
-
-                Iterator<QueryDocumentSnapshot> qsIterator = snapshot.iterator(); // data from firebase
-
-                createGeoJson(qsIterator);
-            }
-
-            @Override
-            public void onFailure() {
-                Toast.makeText(parentClass.getActivity(), "Cannot retrieve positions from database", Toast.LENGTH_LONG).show();
-            }
-        };
-
-        db.readCollection("LastPositions", fireBaseHandler);
+    @NotNull
+    // Adjust the heatmap radius by zoom level
+    private PropertyValue<Expression> adjustHeatmapRadius() {
+        return heatmapRadius(
+                interpolate(
+                        linear(), zoom(),
+                        stop(8, 2),
+                        stop(18, 60)
+                )
+        );
     }
 }

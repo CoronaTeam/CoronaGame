@@ -2,12 +2,9 @@ package ch.epfl.sdp.contamination;
 
 import android.location.Location;
 
-import androidx.test.espresso.intent.Intents;
-import androidx.test.espresso.intent.rule.IntentsTestRule;
 import androidx.test.rule.ActivityTestRule;
 
 import ch.epfl.sdp.Account;
-import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.R;
 
 import org.junit.After;

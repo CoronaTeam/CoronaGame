@@ -54,5 +54,7 @@
     <string name="infection_dialog_title">Rapport journalier</string>
     <string name="infection_dialog_cool_message">"Vous n'avez rencontré personne d'infecté depuis la denière fois."</string>
     <string name="one_infection_dialog_message2">" personnes infectées !"</string>
+    <string name="infection_probability">Probabilité d\'infection</string>
+    <string name="since_last_month">Depuis le mois dernier</string>
 
 </resources>

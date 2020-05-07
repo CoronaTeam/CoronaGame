@@ -31,7 +31,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 import ch.epfl.sdp.Account;
@@ -39,6 +38,7 @@ import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.biometric.BiometricPromptWrapper;
+import ch.epfl.sdp.biometric.BiometricUtils;
 import ch.epfl.sdp.biometric.ConcreteBiometricPromptWrapper;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
@@ -62,14 +62,12 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     private String userName;
     private View view;
     private LocationService service;
+
+    private Executor executor;
     private BiometricPromptWrapper biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
-    private SharedPreferences sharedPref;
 
-    @VisibleForTesting
-    public void setBiometricPrompt(BiometricPromptWrapper biometricPrompt) {
-        this.biometricPrompt = biometricPrompt;
-    }
+    private SharedPreferences sharedPref;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -90,19 +88,17 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         checkOnline();
         getLoggedInUser();
 
-        Executor executor = ContextCompat.getMainExecutor(requireContext());
+        this.executor = ContextCompat.getMainExecutor(getActivity());
+        Intent intent = getActivity().getIntent();
 
-        if (BiometricPromptWrapper.canAuthenticate(getActivity())) {
-            this.biometricPrompt =
-                    new ConcreteBiometricPromptWrapper(UserInfectionFragment.this, executor,
-                            getActivity(),
-                            CompletableFuture.completedFuture(null).thenRun(this::executeHealthStatusChange));
-            this.promptInfo = ConcreteBiometricPromptWrapper.promptInfoBuilder(true,
-                    getString(R.string.bio_auth_prompt_title),
-                    getString(R.string.bio_auth_prompt_subtitle),
-                    getString(R.string.bio_auth_prompt_negative_button));
+        if (BiometricUtils.canAuthenticate(getActivity())) {
+            if (intent.hasExtra("wrapper")) {
+                this.biometricPrompt = (BiometricPromptWrapper) intent.getSerializableExtra("wrapper");
+            } else {
+                this.biometricPrompt = biometricPromptBuilder(this.executor);
+            }
+            this.promptInfo = promptInfoBuilder();
         }
-
         ServiceConnection conn = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
@@ -119,46 +115,43 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         // bindService(Intent, ServiceConnection, int):
         // it requires the service to remain running until stopService(Intent) is called,
         // regardless of whether any clients are connected to it.
-        //TODO: is myService useful?
-        ComponentName myService = requireActivity().startService(new Intent(getContext(), LocationService.class));
-        requireActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
-        sharedPref = requireActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE);
+        ComponentName myService = getActivity().startService(new Intent(getContext(), LocationService.class));
+        getActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
+
+
+        sharedPref = getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE);
+
         return view;
     }
 
     @Override
     public void onClick(View view) {
+
         switch (view.getId()) {
             case R.id.infectionStatusButton: {
-                onClickChangeStatus();
+                onClickChangeStatus(view);
             }
             break;
             case R.id.refreshButton: {
-                onClickRefresh();
+                onClickRefresh(view);
             }
             break;
         }
+
+
     }
 
-    private void onClickChangeStatus() {
+    public void onClickChangeStatus(View view) {
         if (checkOnline()) {
-            if (checkDayDifference()) {
-                if (BiometricPromptWrapper.canAuthenticate(getActivity())) {
-                    biometricPrompt.authenticate(promptInfo);
-                } else {
-                    executeHealthStatusChange();
-                }
+            if (BiometricUtils.canAuthenticate(getActivity())) {
+                biometricPrompt.authenticate(promptInfo);
             } else {
-                Toast.makeText(getActivity(),
-                        R.string.error_infection_status_ratelimit, Toast.LENGTH_LONG).show();
+                executeHealthStatusChange();
             }
-        } else {
-            Toast.makeText(getActivity(),
-                    R.string.you_cannot_update_your_status_you_are_offline, Toast.LENGTH_LONG).show();
         }
     }
 
-    private void onClickRefresh() {
+    public void onClickRefresh(View view) {
         checkOnline();
     }
 
@@ -186,7 +179,10 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         retrieveUserInfectionStatus(this::setInfectionColorAndMessage);
     }
 
-    private boolean checkDayDifference() {
+    private void executeHealthStatusChange() {
+        CharSequence buttonText = infectionStatusButton.getText();
+        boolean infected = buttonText.equals(getResources().getString(R.string.i_am_infected));
+
         Date currentTime = Calendar.getInstance().getTime();
         /* get 1 jan 1970 by default. It's definitely wrong but works as we want t check that
          * the status has not been updated less than a day ago.
@@ -194,29 +190,33 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         Date lastStatusChange = new Date(sharedPref.getLong("lastStatusChange", 0));
         long difference = Math.abs(currentTime.getTime() - lastStatusChange.getTime());
         long differenceDays = difference / (24 * 60 * 60 * 1000);
-        sharedPref.edit().putLong("lastStatusChange", currentTime.getTime()).apply();
-        return differenceDays > 1;
-    }
 
-    private void executeHealthStatusChange() {
-        CharSequence buttonText = infectionStatusButton.getText();
-        boolean infected = buttonText.equals(getResources().getString(R.string.i_am_infected));
-        if (infected) {
-            //Tell the analyst we are now sick !
-            service.getAnalyst().updateStatus(Carrier.InfectionStatus.INFECTED);
-            setInfectionColorAndMessage(true);
-            modifyUserInfectionStatus(userName, true,
-                    value -> {
-                    });
+        sharedPref.edit().putLong("lastStatusChange", currentTime.getTime()).apply();
+        if (differenceDays > 1) {
+            if (infected) {
+                //Tell the analyst we are now sick !
+                service.getAnalyst().updateStatus(Carrier.InfectionStatus.INFECTED);
+                setInfectionColorAndMessage(true);
+                modifyUserInfectionStatus(userName, true,
+                        value -> {
+                            //infectionUploadView.setText(String.format("%s at %s", value, Calendar.getInstance().getTime()));
+                        });
+            } else {
+                //Tell analyst we are now healthy !
+                service.getAnalyst().updateStatus(Carrier.InfectionStatus.HEALTHY);
+                sendRecoveryToFirebase();
+                setInfectionColorAndMessage(false);
+                modifyUserInfectionStatus(userName, false,
+                        value -> {
+                            //infectionUploadView.setText(String.format("%s at %s", value, Calendar.getInstance().getTime()))
+                        });
+            }
         } else {
-            //Tell analyst we are now healthy !
-            service.getAnalyst().updateStatus(Carrier.InfectionStatus.HEALTHY);
-            sendRecoveryToFirebase();
-            setInfectionColorAndMessage(false);
-            modifyUserInfectionStatus(userName, false,
-                    value -> {
-                    });
+            Toast.makeText(getActivity(),
+                    R.string.error_infection_status_ratelimit, Toast.LENGTH_LONG).show();
         }
+
+
     }
 
     private void sendRecoveryToFirebase() {
@@ -224,7 +224,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         ref.update(privateRecoveryCounter, FieldValue.increment(1));
     }
 
-    private void modifyUserInfectionStatus(String userPath, Boolean infected, Callback<String> callback) {
+    public void modifyUserInfectionStatus(String userPath, Boolean infected, Callback<String> callback) {
         Map<String, Object> user = new HashMap<>();
         user.put("Infected", infected);
         db.collection("Users").document(userPath)
@@ -240,7 +240,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
                         callback.onCallback(getString(R.string.error_status_update)));
     }
 
-    private void retrieveUserInfectionStatus(Callback<Boolean> callbackBoolean) {
+    public void retrieveUserInfectionStatus(Callback<Boolean> callbackBoolean) {
         db.collection("Users").document(userName).get().addOnSuccessListener(documentSnapshot ->
         {
             Log.d(TAG, "Infected status successfully loaded.");
@@ -266,9 +266,64 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
 
     private void clickAction(Button button, TextView textView, int buttonText, int textViewText, int textColor) {
         button.setText(buttonText);
-        textView.setTextColor(getResources().getColorStateList(textColor,
-                requireActivity().getTheme()));
+        textView.setTextColor(getResources().getColorStateList(textColor, getActivity().getTheme()));
         textView.setText(textViewText);
+    }
+
+    private BiometricPromptWrapper biometricPromptBuilder(Executor executor) {
+        return new ConcreteBiometricPromptWrapper(new BiometricPrompt(
+                UserInfectionFragment.this,
+                executor, new BiometricPrompt.AuthenticationCallback() {
+
+            @Override
+            public void onAuthenticationError(int errorCode,
+                                              @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                displayNegativeButtonToast(errorCode);
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(
+                    @NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                executeAndDisplayAuthSuccessToast();
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                displayAuthFailedToast();
+            }
+        }));
+    }
+
+    private BiometricPrompt.PromptInfo promptInfoBuilder() {
+        return new BiometricPrompt.PromptInfo.Builder()
+                .setConfirmationRequired(true)
+                .setTitle(getString(R.string.bio_auth_prompt_title))
+                .setSubtitle(getString(R.string.bio_auth_prompt_subtitle))
+                .setNegativeButtonText(getString(R.string.bio_auth_prompt_negative_button))
+                .build();
+    }
+
+    private void displayAuthFailedToast() {
+        Toast.makeText(getActivity().getApplicationContext(), R.string.authentication_failed,
+                Toast.LENGTH_SHORT)
+                .show();
+    }
+
+    private void displayNegativeButtonToast(int errorCode) {
+        if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
+            Toast.makeText(getActivity().getApplicationContext(),
+                    R.string.bio_auth_negative_button_toast, Toast.LENGTH_LONG)
+                    .show();
+        }
+    }
+
+    private void executeAndDisplayAuthSuccessToast() {
+        Toast.makeText(getActivity().getApplicationContext(),
+                R.string.bio_auth_success_toast, Toast.LENGTH_SHORT).show();
+        executeHealthStatusChange();
     }
 
     public LocationService getLocationService() {

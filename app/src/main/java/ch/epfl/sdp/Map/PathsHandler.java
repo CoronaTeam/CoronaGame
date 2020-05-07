@@ -105,9 +105,7 @@ public class PathsHandler extends Fragment {
         }
 
         Log.d("PATH COORD LENGTH: ", String.valueOf(pathCoordinates.size()));
-        Log.d("INFECTED MET LENGTH: ", String.valueOf(infected_met.size()));
         Log.d("IS PATH COORD NULL? ", (pathCoordinates == null) ? "YES" : "NO");
-        Log.d("IS INF MET NULL? ", (infected_met == null) ? "YES" : "NO");
         latitude = pathCoordinates.get(0).latitude();
         longitude = pathCoordinates.get(0).longitude();
         setPathLayer();
@@ -178,6 +176,7 @@ public class PathsHandler extends Fragment {
 
     private void initFirestorePathRetrieval(Callback<Iterator<QueryDocumentSnapshot>> callback) {
         db.collection("History/THAT_BETTER_PATH/Positions")
+                .orderBy("Position.timestamp")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

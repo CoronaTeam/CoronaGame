@@ -155,11 +155,11 @@ public class CarrierUpdatePersistenceTest {
 
         useAnalystWithSentinel();
 
-        LocationService.setAlarmDelay(1000);
+        assertThat(sentinel.get(), equalTo(0));
 
+        LocationService.setAlarmDelay(2000);
         startLocationServiceWithAlarm();
 
-        assertThat(sentinel.get(), equalTo(0));
 
         Date now = new Date();
         CachingDataSender fakeSender = new FakeCachingDataSender();

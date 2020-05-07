@@ -32,7 +32,7 @@
             android:textStyle="italic" />
 
         <fragment
-            android:name="ch.epfl.sdp.chart.InfectionProbabilityChartFragment"
+            android:name="ch.epfl.sdp.fragment.InfectionProbabilityChartFragment"
             android:id="@+id/infectionProbabilityChartFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

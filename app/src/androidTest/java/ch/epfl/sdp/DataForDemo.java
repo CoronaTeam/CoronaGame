@@ -42,7 +42,7 @@ import java.util.Random;
  * Create 2 different paths on 2 different days of the same user.
  * Create infected people met on these paths.
  */
-//@Ignore("This is not a proper test, it is used for testing and demos, but it does not test anything, only generates data.")
+@Ignore("This is not a proper test, it is used for testing and demos, but it does not test anything, only generates data.")
 public class DataForDemo {
     private Random r = new Random();
     private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
@@ -91,7 +91,7 @@ public class DataForDemo {
     private Date rightNow = new Date(System.currentTimeMillis());
 
     private List<Point> routeCoordinates;
-    private List<Point> infectedOnRoute;
+    private int[] infectedOnRoute;
 
     double getRandomNumberBetweenBounds(double lower, double upper){
         return r.nextDouble() * (upper-lower) + lower;
@@ -133,27 +133,32 @@ public class DataForDemo {
         // infected at coordinate (0, 0) of the square
         carrierAndPositionCreationUpload(Carrier.InfectionStatus.INFECTED, 1,
                 SPARSE_INITIAL_EPFL_LATITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
-                SPARSE_INITIAL_EPFL_LONGITUDE + getRandomNumberBetweenBounds(-0.01, 0.01));
+                SPARSE_INITIAL_EPFL_LONGITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
+                rightNow);
 
         // infected at (0, 5)
         carrierAndPositionCreationUpload(Carrier.InfectionStatus.INFECTED, 1,
                 SPARSE_INITIAL_EPFL_LATITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
-                SPARSE_INITIAL_EPFL_LONGITUDE + getRandomNumberBetweenBounds(-0.01, 0.01));
+                SPARSE_INITIAL_EPFL_LONGITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
+                rightNow);
 
         // healthy at (2, 2)
         carrierAndPositionCreationUpload(Carrier.InfectionStatus.HEALTHY, 0,
                 SPARSE_INITIAL_EPFL_LATITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
-                SPARSE_INITIAL_EPFL_LONGITUDE + getRandomNumberBetweenBounds(-0.01, 0.01));
+                SPARSE_INITIAL_EPFL_LONGITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
+                rightNow);
 
         // healthy at (5, 0)
         carrierAndPositionCreationUpload(Carrier.InfectionStatus.HEALTHY, 0,
                 SPARSE_INITIAL_EPFL_LATITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
-                SPARSE_INITIAL_EPFL_LONGITUDE + getRandomNumberBetweenBounds(-0.01, 0.01));
+                SPARSE_INITIAL_EPFL_LONGITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
+                rightNow);
 
         // healthy at (5, 5)
         carrierAndPositionCreationUpload(Carrier.InfectionStatus.HEALTHY, 0,
                 SPARSE_INITIAL_EPFL_LATITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
-                SPARSE_INITIAL_EPFL_LONGITUDE + getRandomNumberBetweenBounds(-0.01, 0.01));
+                SPARSE_INITIAL_EPFL_LONGITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
+                rightNow);
     }
 
     /**
@@ -192,10 +197,10 @@ public class DataForDemo {
 
     private void carrierAndPositionCreationUpload(Carrier.InfectionStatus infectionStatus,
                                                   float infectionProbability, double lat,
-                                                  double lon) {
+                                                  double lon, Date date) {
         Carrier carrier = new Layman(infectionStatus, infectionProbability);
         Location userLocation = newLoc(lat, lon);
-        dataSender.registerLocation(carrier, userLocation, rightNow);
+        dataSender.registerLocation(carrier, userLocation, date);
 
         Map<String, Object> element = new HashMap<>();
         element.put("geoPoint", new GeoPoint(userLocation.getLatitude(), userLocation.getLongitude()));
@@ -206,6 +211,7 @@ public class DataForDemo {
     }
 
     // write in History Collection on Firestore, user with ID USER_PATH_DEMO
+    @Ignore("this is a too simple straight path")
     @Test
     public void uploadUserPaths() {
         ConcreteFirestoreInteractor cfi = new ConcreteFirestoreInteractor();
@@ -231,20 +237,25 @@ public class DataForDemo {
     public void uploadBetterPath() {
         ConcreteFirestoreInteractor cfi = new ConcreteFirestoreInteractor();
         initRouteCoordinates();
-        // upload some infected users for some points:
+        initInfectedOnRoute();
+        int i = 0;
         for (Point point: routeCoordinates) {
             double lat = point.latitude();
             double lon = point.longitude();
             Location location = LocationUtils.buildLocation(lat, lon);
             Map<String, Object> position = new HashMap();
-            position.put("Position", new PositionRecord(Timestamp.now(),
+            Timestamp timestamp = Timestamp.now();
+            position.put("Position", new PositionRecord(timestamp,
                     new GeoPoint(location.getLatitude(), location.getLongitude())));
-            cfi.writeDocument(collectionReference("History/BETTER_DEMO_PATH/Positions/"), position)
+            cfi.writeDocument(collectionReference("History/BETTER_PATH_DEMO/Positions/"), position)
                     .thenRun(() -> Log.d("BETTER PATH UPLOAD", "Success upload positions"))
                     .exceptionally(e -> {
                         Log.d("BETTER PATH UPLOAD", "Error uploading positions", e);
                         return null;
                     });
+            if (infectedOnRoute[i] == 1) {
+                carrierAndPositionCreationUpload(Carrier.InfectionStatus.INFECTED, 1f, lat, lon, timestamp.toDate());
+            }
         }
     }
 
@@ -254,18 +265,12 @@ public class DataForDemo {
      */
     private void initRouteCoordinates() {
         routeCoordinates = new ArrayList<>();
-        infectedOnRoute = new ArrayList<>(); // we put some infected points along the routeCoordinates (11)
-
         routeCoordinates.add(Point.fromLngLat(-118.39439114221236, 33.397676454651766));
         routeCoordinates.add(Point.fromLngLat(-118.39421054012902, 33.39769799454838));
         routeCoordinates.add(Point.fromLngLat(-118.39408583869053, 33.39761901490136));
         routeCoordinates.add(Point.fromLngLat(-118.39388373635917, 33.397328225582285));
         routeCoordinates.add(Point.fromLngLat(-118.39372033447427, 33.39728514560042));
-        infectedOnRoute.add(Point.fromLngLat(-118.39372033447427, 33.39728514560042));
-
         routeCoordinates.add(Point.fromLngLat(-118.3930882271826, 33.39756875508861));
-        infectedOnRoute.add(Point.fromLngLat(-118.3930882271826, 33.39756875508861));
-
         routeCoordinates.add(Point.fromLngLat(-118.3928216241072, 33.39759029501192));
         routeCoordinates.add(Point.fromLngLat(-118.39227981785722, 33.397234885594564));
         routeCoordinates.add(Point.fromLngLat(-118.392021814881, 33.397005125197666));
@@ -273,18 +278,10 @@ public class DataForDemo {
         routeCoordinates.add(Point.fromLngLat(-118.39040499623022, 33.39696563506828));
         routeCoordinates.add(Point.fromLngLat(-118.39005669221234, 33.39703025527067));
         routeCoordinates.add(Point.fromLngLat(-118.38953208616074, 33.39691896489222));
-        infectedOnRoute.add(Point.fromLngLat(-118.38953208616074, 33.39691896489222));
-
         routeCoordinates.add(Point.fromLngLat(-118.38906338075398, 33.39695127501678));
         routeCoordinates.add(Point.fromLngLat(-118.38891287901787, 33.39686511465794));
-        infectedOnRoute.add(Point.fromLngLat(-118.38891287901787, 33.39686511465794));
-
         routeCoordinates.add(Point.fromLngLat(-118.38898167981154, 33.39671074380141));
-        infectedOnRoute.add(Point.fromLngLat(-118.38898167981154, 33.39671074380141));
-
         routeCoordinates.add(Point.fromLngLat(-118.38984598978178, 33.396064537239404));
-        infectedOnRoute.add(Point.fromLngLat(-118.38984598978178, 33.396064537239404));
-
         routeCoordinates.add(Point.fromLngLat(-118.38983738968255, 33.39582400356976));
         routeCoordinates.add(Point.fromLngLat(-118.38955358640874, 33.3955978295119));
         routeCoordinates.add(Point.fromLngLat(-118.389041880506, 33.39578092284221));
@@ -301,11 +298,7 @@ public class DataForDemo {
         routeCoordinates.add(Point.fromLngLat(-118.38791956755958, 33.39331092541894));
         routeCoordinates.add(Point.fromLngLat(-118.3874852625497, 33.39333964672257));
         routeCoordinates.add(Point.fromLngLat(-118.38686605540683, 33.39387816940854));
-        infectedOnRoute.add(Point.fromLngLat(-118.38686605540683, 33.39387816940854));
-
         routeCoordinates.add(Point.fromLngLat(-118.38607484627983, 33.39396792286514));
-        infectedOnRoute.add(Point.fromLngLat(-118.38607484627983, 33.39396792286514));
-
         routeCoordinates.add(Point.fromLngLat(-118.38519763616081, 33.39346171215717));
         routeCoordinates.add(Point.fromLngLat(-118.38523203655761, 33.393196040109466));
         routeCoordinates.add(Point.fromLngLat(-118.3849955338295, 33.393023711860515));
@@ -323,18 +316,26 @@ public class DataForDemo {
         routeCoordinates.add(Point.fromLngLat(-118.38258750605169, 33.388420985121336));
         routeCoordinates.add(Point.fromLngLat(-118.38177049662707, 33.388083490107284));
         routeCoordinates.add(Point.fromLngLat(-118.38080728551597, 33.38836353925403));
-        infectedOnRoute.add(Point.fromLngLat(-118.38080728551597, 33.38836353925403));
-
         routeCoordinates.add(Point.fromLngLat(-118.37928506795642, 33.38717870977523));
-        infectedOnRoute.add(Point.fromLngLat(-118.37928506795642, 33.38717870977523));
-
         routeCoordinates.add(Point.fromLngLat(-118.37898406448423, 33.3873079646849));
-        infectedOnRoute.add(Point.fromLngLat(-118.37898406448423, 33.3873079646849));
-
         routeCoordinates.add(Point.fromLngLat(-118.37935386875012, 33.38816247841951));
         routeCoordinates.add(Point.fromLngLat(-118.37794345248027, 33.387810620840135));
         routeCoordinates.add(Point.fromLngLat(-118.37546662390886, 33.38847843095069));
         routeCoordinates.add(Point.fromLngLat(-118.37091717142867, 33.39114243958559));
+    }
+
+    private void initInfectedOnRoute() {
+        infectedOnRoute = new int[routeCoordinates.size()];
+        // we put 1 where we want to add infected points along the routeCoordinates
+        infectedOnRoute[4] = 1;
+        infectedOnRoute[5] = 1;
+        infectedOnRoute[12] = 1;
+        infectedOnRoute[14] = 1;
+        infectedOnRoute[15] = 1;
+        infectedOnRoute[16] = 1;
+        infectedOnRoute[32] = 1;
+        infectedOnRoute[33] = 1;
+        infectedOnRoute[34] = 1;
     }
 
 }

@@ -42,7 +42,10 @@ public class ConcreteCachingDataSender implements CachingDataSender {
     public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
         refreshLastPositions(time, location);
         Map<String, Object> element = new HashMap<>();
-        element.put("geoPoint", new GeoPoint(location.getLatitude(), location.getLongitude()));
+        element.put("geoPoint", new GeoPoint(
+                location.getLatitude()/CachingDataSender.EXPAND_FACTOR,
+                location.getLongitude()/CachingDataSender.EXPAND_FACTOR
+        ));
         element.put("timeStamp", time.getTime());
         element.put("infectionStatus", carrier.getInfectionStatus());
         CompletableFuture<Void> future1 = gridInteractor.writeDocumentWithID(

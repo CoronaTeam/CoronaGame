@@ -8,6 +8,7 @@ import android.graphics.DashPathEffect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IFillFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
@@ -29,7 +31,11 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -85,11 +91,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
         setAxes();
         setLimitLines();
 
-        /*
         chart.animateX(1500);
-        Legend l = chart.getLegend();
-        l.setForm(Legend.LegendForm.LINE);
-        */
     }
 
     private void setChartStyle() {
@@ -99,53 +101,56 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
         chart.setOnChartValueSelectedListener(this);
         chart.setDrawGridBackground(false);
 
-        MarkerView mv = new ChartMarkerView(getActivity(), R.layout.chart_marker_view);
-        mv.setChartView(chart);
-        chart.setMarker(mv);
-
         chart.setDragEnabled(true);
         chart.setScaleEnabled(true);
         chart.setPinchZoom(true);
+
+        chart.setScaleYEnabled(false);
+
+        chart.getLegend().setEnabled(false);
     }
 
     private void setAxes() {
+        ValueFormatter xAxisFormatter = new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                Calendar cal = Calendar.getInstance();
+                cal.setTimeInMillis((long)value);
+                int month = cal.get(Calendar.MONTH) + 1;
+                return cal.get(Calendar.DAY_OF_MONTH) + "/" + (month < 10 ? "0" : "") + month;
+            }
+        };
         XAxis xAxis = chart.getXAxis();
-        xAxis.enableGridDashedLine(10f, 10f, 0f);
+        xAxis.setValueFormatter(xAxisFormatter);
+        xAxis.setGranularity(1000 * 60 * 60 * 24);
+        xAxis.setDrawGridLines(false);
 
         YAxis yAxis = chart.getAxisLeft();
         chart.getAxisRight().setEnabled(false);
-        yAxis.enableGridDashedLine(10f, 10f, 0f);
-        yAxis.setAxisMaximum(200f);
-        yAxis.setAxisMinimum(-50f);
+        yAxis.setDrawLabels(false);
+        yAxis.setDrawGridLines(false);
+        yAxis.setAxisMaximum(1.0f);
+        yAxis.setAxisMinimum(0.0f);
     }
 
     private void setLimitLines() {
-        LimitLine llXAxis = new LimitLine(9f, "Index 10");
-        llXAxis.setLineWidth(4f);
-        llXAxis.enableDashedLine(10f, 10f, 0f);
-        llXAxis.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_BOTTOM);
-        llXAxis.setTextSize(10f);
-        //llXAxis.setTypeface();
-
-        LimitLine ll1 = new LimitLine(150f, "Upper Limit");
-        ll1.setLineWidth(4f);
-        ll1.enableDashedLine(10f, 10f, 0f);
-        ll1.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_TOP);
+        LimitLine ll1 = new LimitLine(1f, "Infected");
+        ll1.setLineWidth(2f);
+        ll1.setLabelPosition(LimitLine.LimitLabelPosition.LEFT_BOTTOM);
+        ll1.setLineColor(Color.RED);
         ll1.setTextSize(10f);
-        //ll1.setTypeface(tfRegular);
 
-        LimitLine ll2 = new LimitLine(-30f, "Lower Limit");
-        ll2.setLineWidth(4f);
-        ll2.enableDashedLine(10f, 10f, 0f);
-        ll2.setLabelPosition(LimitLine.LimitLabelPosition.RIGHT_BOTTOM);
+        LimitLine ll2 = new LimitLine(0f, "Not infected");
+        ll2.setLineWidth(2f);
+        ll2.setLabelPosition(LimitLine.LimitLabelPosition.LEFT_TOP);
+        ll2.setLineColor(Color.GREEN);
         ll2.setTextSize(10f);
-        //ll2.setTypeface(tfRegular);
 
         XAxis xAxis = chart.getXAxis();
         YAxis yAxis = chart.getAxisLeft();
 
-        xAxis.setDrawLimitLinesBehindData(true);
-        yAxis.setDrawLimitLinesBehindData(true);
+        xAxis.setDrawLimitLinesBehindData(false);
+        yAxis.setDrawLimitLinesBehindData(false);
 
         yAxis.addLimitLine(ll1);
         yAxis.addLimitLine(ll2);
@@ -154,20 +159,23 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     private List<Entry> generateData() {
         if (service == null) throw new IllegalStateException();
 
-        // TODO:
-        // service.getAnalyst().getCarrier().getIllnessProbability();
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MONTH, -1);
+        Date since = calendar.getTime();
+        Map<Date, Float> infectionHistory = service.getAnalyst().getCarrier().getIllnessProbabilityHistory(since);
 
-        int count = 40;
-        float range = 180f;
+        infectionHistory = new TreeMap<>(infectionHistory);
+        infectionHistory.put(new Date("Thu May 02 15:35:47 GMT+02:00 2020"), 1.0f);
+        infectionHistory.put(new Date("Thu May 01 15:35:47 GMT+02:00 2020"), 0.5f);
+        infectionHistory.put(new Date("Thu Apr 27 15:35:47 GMT+02:00 2020"), 0.2f);
 
         ArrayList<Entry> values = new ArrayList<>();
 
-        for (int i = 0; i < count; i++) {
-            float val = (float) (Math.random() * range) - 30;
-            values.add(new Entry(i, val, getResources().getDrawable(R.drawable.ic_person, getContext().getTheme())));
+        Drawable drawable = getResources().getDrawable(R.drawable.ic_person, getContext().getTheme());
+        for (Map.Entry<Date, Float> entry : infectionHistory.entrySet()) {
+            System.out.println(entry.toString());
+            values.add(new Entry(entry.getKey().getTime(), entry.getValue(), drawable));
         }
-
-
 
         return values;
     }
@@ -187,12 +195,9 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
             chart.notifyDataSetChanged();
         } else {
             // create a dataset and give it a type
-            set1 = new LineDataSet(data, "DataSet 1");
+            set1 = new LineDataSet(data, "Infection Probability");
 
             set1.setDrawIcons(false);
-
-            // draw dashed line
-            set1.enableDashedLine(10f, 5f, 0f);
 
             // black lines and points
             set1.setColor(Color.BLACK);
@@ -205,34 +210,22 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
             // draw points as solid circles
             set1.setDrawCircleHole(false);
 
-            // customize legend entry
-            set1.setFormLineWidth(1f);
-            set1.setFormLineDashEffect(new DashPathEffect(new float[]{10f, 5f}, 0f));
-            set1.setFormSize(15.f);
+            set1.setDrawValues(false);
 
-            // text size of values
-            set1.setValueTextSize(9f);
 
-            // draw selection line as dashed
-            set1.enableDashedHighlightLine(10f, 5f, 0f);
+            // smooth out curve
+            set1.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
 
-            // set the filled area
-            set1.setDrawFilled(true);
-            set1.setFillFormatter(new IFillFormatter() {
-                @Override
-                public float getFillLinePosition(ILineDataSet dataSet, LineDataProvider dataProvider) {
-                    return chart.getAxisLeft().getAxisMinimum();
-                }
-            });
-
-            //Drawable drawable = ContextCompat.getDrawable(this, R.drawable.fade_red);
-            //set1.setFillDrawable(drawable);
             set1.setFillColor(Color.BLACK);
+
+            set1.setDrawFilled(true);
+            set1.setFillDrawable(ContextCompat.getDrawable(getContext(), R.drawable.chart_fade));
 
             ArrayList<ILineDataSet> dataSets = new ArrayList<>();
             dataSets.add(set1);
 
             chart.setData(new LineData(dataSets));
+            chart.invalidate();
         }
     }
 

@@ -169,49 +169,45 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
 
         List<Entry> data = generateData();
 
-        LineDataSet set1;
-
-        if (chart.getData() != null &&
-                chart.getData().getDataSetCount() > 0) {
-            set1 = (LineDataSet) chart.getData().getDataSetByIndex(0);
-            set1.setValues(data);
-            set1.notifyDataSetChanged();
-            chart.getData().notifyDataChanged();
-            chart.notifyDataSetChanged();
+        if (chart.getData() != null && chart.getData().getDataSetCount() > 0) {
+            updateExistingDataSet(data);
         } else {
-            // create a dataset and give it a type
-            set1 = new LineDataSet(data, "Infection Probability");
-
-            set1.setDrawIcons(false);
-
-            // black lines and points
-            set1.setColor(Color.BLACK);
-            set1.setCircleColor(Color.BLACK);
-
-            // line thickness and point size
-            set1.setLineWidth(1f);
-            set1.setCircleRadius(3f);
-
-            // draw points as solid circles
-            set1.setDrawCircleHole(false);
-
-            set1.setDrawValues(false);
-
-
-            // smooth out curve
-            set1.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
-
-            set1.setFillColor(Color.BLACK);
-
-            set1.setDrawFilled(true);
-            set1.setFillDrawable(ContextCompat.getDrawable(getContext(), R.drawable.chart_fade));
-
-            ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-            dataSets.add(set1);
-
-            chart.setData(new LineData(dataSets));
-            chart.invalidate();
+            createNewDataSet(data);
         }
+    }
+
+    private void updateExistingDataSet(List<Entry> data) {
+        LineDataSet set1 = (LineDataSet) chart.getData().getDataSetByIndex(0);
+        set1.setValues(data);
+        set1.notifyDataSetChanged();
+        chart.getData().notifyDataChanged();
+        chart.notifyDataSetChanged();
+    }
+
+    private void createNewDataSet(List<Entry> data) {
+        LineDataSet set1 = new LineDataSet(data, "Infection Probability");
+        set1.setDrawIcons(false);
+
+        set1.setColor(Color.BLACK);
+        set1.setCircleColor(Color.BLACK);
+        set1.setDrawCircleHole(false);
+        set1.setLineWidth(1f);
+        set1.setCircleRadius(3f);
+        set1.setFillColor(Color.BLACK);
+
+        set1.setDrawValues(false);
+
+        // smooth out curve
+        set1.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
+
+        set1.setDrawFilled(true);
+        set1.setFillDrawable(ContextCompat.getDrawable(getContext(), R.drawable.chart_fade));
+
+        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+        dataSets.add(set1);
+
+        chart.setData(new LineData(dataSets));
+        chart.invalidate();
     }
 
 

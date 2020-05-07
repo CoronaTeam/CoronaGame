@@ -24,23 +24,21 @@ import androidx.fragment.app.Fragment;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.AuthenticationManager;
-import ch.epfl.sdp.Callback;
+import ch.epfl.sdp.BiometricUtils;
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.biometric.BiometricPromptWrapper;
-import ch.epfl.sdp.biometric.BiometricUtils;
-import ch.epfl.sdp.biometric.ConcreteBiometricPromptWrapper;
 import ch.epfl.sdp.contamination.Carrier;
+import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.location.LocationService;
 
@@ -49,6 +47,8 @@ import static ch.epfl.sdp.MainActivity.IS_ONLINE;
 import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.taskToFuture;
 
 public class UserInfectionFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "User Infection Activity";
@@ -57,11 +57,11 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     private TextView onlineStatusView;
     private Button refreshButton;
     private Account account;
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirestoreInteractor fsi = new ConcreteFirestoreInteractor();
     private String userName;
     private View view;
     private LocationService service;
-    private BiometricPromptWrapper biometricPrompt;
+    private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
     private SharedPreferences sharedPref;
 
@@ -177,11 +177,12 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     private void getLoggedInUser() {
         account = AuthenticationManager.getAccount(getActivity());
         userName = account.getDisplayName();
-        retrieveUserInfectionStatus(this::setInfectionColorAndMessage);
+        retrieveUserInfectionStatus().thenAccept(this::setInfectionColorAndMessage);
     }
 
     private boolean checkElapsedTimeSinceLastChange() {
         Date currentTime = Calendar.getInstance().getTime();
+        //TODO: what does this means?
         /* get 1 jan 1970 by default. It's definitely wrong but works as we want t check that
          * the status has not been updated less than a day ago.
          */
@@ -200,57 +201,47 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
             //Tell the analyst we are now sick !
             service.getAnalyst().updateStatus(Carrier.InfectionStatus.INFECTED);
             setInfectionColorAndMessage(true);
-            modifyUserInfectionStatus(userName, true, value -> {
-            });
+            modifyUserInfectionStatus(userName, true);
         } else {
             //Tell analyst we are now healthy !
             service.getAnalyst().updateStatus(Carrier.InfectionStatus.HEALTHY);
             sendRecoveryToFirebase();
             setInfectionColorAndMessage(false);
-            modifyUserInfectionStatus(userName, false, value -> {
-            });
+            modifyUserInfectionStatus(userName, false);
         }
     }
 
     private void sendRecoveryToFirebase() {
-        DocumentReference ref = FirestoreInteractor.documentReference(privateUserFolder, account.getId());
+        DocumentReference ref = documentReference(privateUserFolder, account.getId());
         ref.update(privateRecoveryCounter, FieldValue.increment(1));
     }
 
-    private void modifyUserInfectionStatus(String userPath, Boolean infected, Callback<String> callback) {
+    private void modifyUserInfectionStatus(String userPath, Boolean infected) {
         Map<String, Object> user = new HashMap<>();
         user.put("Infected", infected);
-        db.collection("Users").document(userPath)
-                .set(user, SetOptions.merge());
 
-        DocumentReference userRef = db.collection("Users").document(userPath);
-
-        userRef
-                .update("Infected", infected)
-                .addOnSuccessListener(documentReference ->
-                        callback.onCallback(getString(R.string.user_status_update)))
-                .addOnFailureListener(e ->
-                        callback.onCallback(getString(R.string.error_status_update)));
+        DocumentReference userRef = documentReference("Users", userPath);
+        CompletableFuture<Void> future1 = taskToFuture(userRef.set(user, SetOptions.merge()));
+        CompletableFuture<Void> future2 = taskToFuture(userRef.update("Infected", infected));
+        future1.thenCompose(v -> future2);
     }
 
-    private void retrieveUserInfectionStatus(Callback<Boolean> callbackBoolean) {
-        db.collection("Users").document(userName).get().addOnSuccessListener(documentSnapshot ->
-        {
-            Log.d(TAG, "Infected status successfully loaded.");
-            Object infected = documentSnapshot.get("Infected");
-            if (infected == null) {
-                callbackBoolean.onCallback(false);
-            } else {
-                callbackBoolean.onCallback((boolean) infected);
-            }
-        })
-                .addOnFailureListener(e ->
-                        Log.w(TAG, "Error retrieving infection status from Firestore.", e));
+    private CompletableFuture<Boolean> retrieveUserInfectionStatus() {
+        return fsi.readDocument(documentReference("Users", userName))
+                .thenApply(stringObjectMap -> {
+                    Boolean infected = (Boolean) stringObjectMap.get("Infected");
+                    return infected == null ? false : infected;
+                }).exceptionally(e -> {
+                    Log.w(TAG, "Error retrieving infection status from " +
+                            "Firestore.", e);
+                    return null;
+                });
     }
 
     private void setInfectionColorAndMessage(boolean infected) {
         int buttonTextID = infected ? R.string.i_am_cured : R.string.i_am_infected;
-        int messageID = infected ? R.string.your_user_status_is_set_to_infected :
+        int messageID = infected ?
+                R.string.your_user_status_is_set_to_infected :
                 R.string.your_user_status_is_set_to_not_infected;
         int colorID = infected ? R.color.colorRedInfected : R.color.colorGreenCured;
         clickAction(infectionStatusButton, infectionStatusView, buttonTextID,
@@ -263,21 +254,19 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         textView.setText(textViewText);
     }
 
-    private BiometricPromptWrapper biometricPromptBuilder(Executor executor) {
-        return new ConcreteBiometricPromptWrapper(new BiometricPrompt(
+    private BiometricPrompt biometricPromptBuilder(Executor executor) {
+        return new BiometricPrompt(
                 UserInfectionFragment.this,
                 executor, new BiometricPrompt.AuthenticationCallback() {
 
             @Override
-            public void onAuthenticationError(int errorCode,
-                                              @NonNull CharSequence errString) {
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
                 super.onAuthenticationError(errorCode, errString);
                 displayNegativeButtonToast(errorCode);
             }
 
             @Override
-            public void onAuthenticationSucceeded(
-                    @NonNull BiometricPrompt.AuthenticationResult result) {
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
                 executeAndDisplayAuthSuccessToast();
             }
@@ -287,7 +276,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
                 super.onAuthenticationFailed();
                 displayAuthFailedToast();
             }
-        }));
+        });
     }
 
     private void displayAuthFailedToast() {

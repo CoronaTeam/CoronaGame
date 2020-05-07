@@ -1,4 +1,4 @@
-package ch.epfl.sdp.biometric;
+package ch.epfl.sdp;
 
 import android.Manifest;
 import android.content.Context;

@@ -67,10 +67,16 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
     @VisibleForTesting
     public MapboxMap getMap() {
+        while (map == null) {
+            getMap();
+        }
         return map;
     }
 
     public PathsHandler getPathsHandler() {
+        while (pathsHandler == null) {
+            getPathsHandler();
+        }
         return pathsHandler;
     }
 

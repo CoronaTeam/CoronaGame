@@ -40,7 +40,6 @@ import ch.epfl.sdp.contamination.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.location.LocationUtils;
 
-import static ch.epfl.sdp.Map.HeatMapHandler.HEATMAP_LAYER_ID;
 import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatMapColorRange;
 import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatMapWeight;
 import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatmapIntensity;

@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -48,6 +47,8 @@ public class GridSenderTest {
     final long outsideRange = 1585223373983L;
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
+
+    Handler uiHandler;
 
     Consumer<Void> writeSuccessToUi;
     Function<Throwable, Void> writeFailureToUi;
@@ -97,7 +98,7 @@ public class GridSenderTest {
         TextView exchangeStatus = mActivityRule.getActivity().exchangeStatus;
 
         // Get reference to UI handler
-        Handler uiHandler = mActivityRule.getActivity().uiHandler;
+        uiHandler = mActivityRule.getActivity().uiHandler;
 
         writeSuccessToUi = (a) -> uiHandler.post(() -> exchangeStatus.setText("EXCHANGE Succeeded"));
         writeFailureToUi = (a) -> {

@@ -33,6 +33,8 @@ public class DataExchangeActivity extends AppCompatActivity {
         return service;
     }
 
+    private ServiceConnection serviceConnection;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,7 +48,7 @@ public class DataExchangeActivity extends AppCompatActivity {
     }
 
     private void bindLocationService() {
-        ServiceConnection conn = new ServiceConnection() {
+        serviceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 LocationService.LocationBinder binder = (LocationService.LocationBinder) service;
@@ -59,7 +61,7 @@ public class DataExchangeActivity extends AppCompatActivity {
             }
         };
 
-        bindService(new Intent(this, LocationService.class), conn, BIND_AUTO_CREATE);
+        bindService(new Intent(this, LocationService.class), serviceConnection, BIND_AUTO_CREATE);
 
     }
 
@@ -67,6 +69,8 @@ public class DataExchangeActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        // TODO: Invalidate Handler??
+        if (serviceConnection != null) {
+            unbindService(serviceConnection);
+        }
     }
 }

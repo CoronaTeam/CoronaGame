@@ -307,6 +307,7 @@ public class ConcreteAnalysisTest {
             return CompletableFuture.completedFuture(getSickCount());
         }
     }
+
     @Test
     public void infectionProbabilityIsUpdated() throws Throwable {
         recoveryCounter = 0;

@@ -11,6 +11,11 @@ import java.util.concurrent.CompletableFuture;
 public class FakeAnalyst implements InfectionAnalyst {
     Carrier carrier;
     static int infectMeets = 0 ;
+
+    public FakeAnalyst(Carrier originalCarrier) {
+        carrier = originalCarrier;
+    }
+
     public FakeAnalyst(){
         this.carrier = new Layman(Carrier.InfectionStatus.HEALTHY);
     }
@@ -22,11 +27,11 @@ public class FakeAnalyst implements InfectionAnalyst {
 
     @Override
     public Carrier getCarrier() {
-        return new Layman(carrier.getInfectionStatus(),carrier.getIllnessProbability());
+        return carrier;
     }
 
     @Override
     public boolean updateStatus(Carrier.InfectionStatus stat) {
-        return false;
+        return carrier.evolveInfection(stat);
     }
 }

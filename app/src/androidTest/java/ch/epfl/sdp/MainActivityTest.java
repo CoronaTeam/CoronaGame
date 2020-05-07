@@ -3,6 +3,7 @@ package ch.epfl.sdp;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -16,6 +17,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static ch.epfl.sdp.TestTools.initSafeTest;
 
 @RunWith(AndroidJUnit4.class)
 public class MainActivityTest {
@@ -24,6 +26,11 @@ public class MainActivityTest {
     @Rule
     public final ActivityTestRule<MainActivity> mActivityRule =
             new ActivityTestRule<>(MainActivity.class);
+
+    @Before
+    public void setUp() {
+        initSafeTest(mActivityRule, true);
+    }
 
     @Test
     public void testCanGoToFirebaseActivity() {

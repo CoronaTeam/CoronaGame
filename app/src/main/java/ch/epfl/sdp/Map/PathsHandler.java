@@ -98,22 +98,22 @@ public class PathsHandler extends Fragment {
                 pathCoordinates.add(Point.fromLngLat(lon, lat));
                 // check infected met around this point of the path
                 Timestamp timestamp = (Timestamp) ((Map) qs.get("Position")).get("timestamp");
-                addInfectedMet(lat, lon, timestamp);
+                //addInfectedMet(lat, lon, timestamp);
             } catch (NullPointerException e) {
                 Log.d("ERROR ADDING POINT", String.valueOf(e));
             }
         }
 
         Log.d("PATH COORD LENGTH: ", String.valueOf(pathCoordinates.size()));
-        Log.d("INFECTED MET LENGTH: ", String.valueOf(pathCoordinates.size()));
+        Log.d("INFECTED MET LENGTH: ", String.valueOf(infected_met.size()));
         Log.d("IS PATH COORD NULL? ", (pathCoordinates == null) ? "YES" : "NO");
-        Log.d("IS INF MET NULL? ", (pathCoordinates == null) ? "YES" : "NO");
+        Log.d("IS INF MET NULL? ", (infected_met == null) ? "YES" : "NO");
         latitude = pathCoordinates.get(0).latitude();
         longitude = pathCoordinates.get(0).longitude();
         setPathLayer();
-        setInfectedPointsLayer();
+        //setInfectedPointsLayer();
     }
-
+/*
     private void addInfectedMet(double lat, double lon, Timestamp timestamp) {
         ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
         Location location = LocationUtils.buildLocation(lat, lon);
@@ -131,7 +131,7 @@ public class PathsHandler extends Fragment {
                         }
                     }
                 });
-    }
+    }*/
 
     private void setPathLayer() {
         Layer layer = new LineLayer(PATH_LAYER_ID, PATH_SOURCE_ID).withProperties(
@@ -153,7 +153,7 @@ public class PathsHandler extends Fragment {
         });
         layer.setProperties(visibility(NONE));
     }
-
+/*
     private void setInfectedPointsLayer() {
         Layer layer = new HeatmapLayer(POINTS_LAYER_ID, POINTS_SOURCE_ID);
         layer.setProperties(
@@ -174,10 +174,10 @@ public class PathsHandler extends Fragment {
             style.addLayer(layer);
         });
         layer.setProperties(visibility(NONE));
-    }
+    }*/
 
     private void initFirestorePathRetrieval(Callback<Iterator<QueryDocumentSnapshot>> callback) {
-        db.collection("History/BETTER_DEMO_PATH/Positions")
+        db.collection("History/THIS_BETTER_PATH/Positions")
                 //.orderBy("timestamp")
                 //.limit(50)
                 .get()

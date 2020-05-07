@@ -114,32 +114,26 @@ public class PathsHandler extends Fragment {
         latitude = pathCoordinates.get(0).latitude();
         longitude = pathCoordinates.get(0).longitude();
         setPathLayer();
-        setInfectedPointsLayer();
+        //setInfectedPointsLayer();
     }
 
     private void addInfectedMet(double lat, double lon, Timestamp timestamp) throws ExecutionException, InterruptedException {
         ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
         Location location = LocationUtils.buildLocation(lat, lon);
-        CompletableFuture<Map<Carrier, Integer>> future = concreteDataReceiver
-                .getUserNearbyDuring(location, timestamp.toDate(), timestamp.toDate());
-        Map<Carrier, Integer> users = null;
-        try {
-            users = future.get();
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-        }
-        // add as much point at this location as there are infected carrier
-        if (users != null) {
-            Carrier carrier;
-            Point point;
-            for (Map.Entry<Carrier, Integer> entry : users.entrySet()) {
-                carrier = entry.getKey();
-                if (carrier.getInfectionStatus().equals(INFECTED)) {
-                    point = Point.fromLngLat(lon, lat);
-                    infected_met.add(point);
-                }
-            }
-        }
+        concreteDataReceiver
+                .getUserNearbyDuring(location, timestamp.toDate(), timestamp.toDate())
+                .thenAccept(carrierIntegerMap -> {
+                    Log.d("ADD INFECTED", "after getting future value");
+                    Carrier carrier;
+                    Point point;
+                    for (Map.Entry<Carrier, Integer> entry : carrierIntegerMap.entrySet()) {
+                        carrier = entry.getKey();
+                        if (carrier.getInfectionStatus().equals(INFECTED)) {
+                            point = Point.fromLngLat(lon, lat);
+                            infected_met.add(point);
+                        }
+                    }
+                });
     }
 
     private void setPathLayer() {
@@ -162,7 +156,7 @@ public class PathsHandler extends Fragment {
         layer.setProperties(visibility(NONE));
     }
 
-    private void setInfectedPointsLayer() {
+    /*private void setInfectedPointsLayer() {
         Layer layer = new HeatmapLayer(POINTS_LAYER_ID, POINTS_SOURCE_ID);
         layer.setProperties(
                 adjustHeatMapColorRange(),
@@ -182,7 +176,7 @@ public class PathsHandler extends Fragment {
             style.addLayer(layer);
         });
         layer.setProperties(visibility(NONE));
-    }
+    }*/
 
     private void initFirestorePathRetrieval(Callback<Iterator<QueryDocumentSnapshot>> callback) {
         db.collection("History/BETTER_PATH_DEMO/Positions")

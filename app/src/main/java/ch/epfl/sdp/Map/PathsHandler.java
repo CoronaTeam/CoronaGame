@@ -12,6 +12,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.mapbox.geojson.Geometry;
 import com.mapbox.geojson.MultiPoint;
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Feature;
@@ -138,40 +139,30 @@ public class PathsHandler extends Fragment {
                 PropertyFactory.lineWidth(5f),
                 PropertyFactory.lineColor(Color.parseColor("maroon"))
         );
-        map.getStyle(style -> {
-
-            // Create the LineString from the list of coordinates and then make a GeoJSON
-            // FeatureCollection so we can add the line to our map as a layer.
-            style.addSource(new GeoJsonSource(PATH_SOURCE_ID,
-                    FeatureCollection.fromFeatures(new Feature[]{Feature.fromGeometry(
-                            LineString.fromLngLats(pathCoordinates)
-                    )})));
-
-            style.addLayer(layer);
-        });
+        LineString geometry = LineString.fromLngLats(pathCoordinates);
+        mapStyle(layer, geometry, POINTS_SOURCE_ID);
         layer.setProperties(visibility(NONE));
     }
 
     private void setInfectedPointsLayer() {
         Layer layer = new HeatmapLayer(POINTS_LAYER_ID, POINTS_SOURCE_ID);
+        MultiPoint geometry = MultiPoint.fromLngLats(infected_met);
         layer.setProperties(
                 adjustHeatMapColorRange(),
                 adjustHeatMapWeight(),
                 adjustHeatmapIntensity(),
                 adjustHeatmapRadius()
         ); // TODO: change static public to private in HeatMapHandler: use common classe for both handler (extract class)
+        mapStyle(layer, geometry, POINTS_SOURCE_ID);
+        layer.setProperties(visibility(NONE));
+    }
+
+    private void mapStyle(Layer layer, Geometry geometry, String sourceId) {
         map.getStyle(style -> {
-
-            // Create the LineString from the list of coordinates and then make a GeoJSON
-            // FeatureCollection so we can add the line to our map as a layer.
-            style.addSource(new GeoJsonSource(POINTS_LAYER_ID,
-                    FeatureCollection.fromFeatures(new Feature[]{Feature.fromGeometry(
-                            MultiPoint.fromLngLats(infected_met)
-                    )})));
-
+            style.addSource(new GeoJsonSource(sourceId,
+                    FeatureCollection.fromFeatures(new Feature[]{Feature.fromGeometry(geometry)})));
             style.addLayer(layer);
         });
-        layer.setProperties(visibility(NONE));
     }
 
     private void initFirestorePathRetrieval(Callback<Iterator<QueryDocumentSnapshot>> callback) {

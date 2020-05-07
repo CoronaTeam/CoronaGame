@@ -22,6 +22,9 @@ public interface InfectionAnalyst {
     //MODEL: This parameters models how long we are contagious before we remark our illness
     int UNINTENTIONAL_CONTAGION_TIME = 86400000; //[ms] actual : 24 hours
 
+    //MODEL: This parameter models the immunity gain by a person who has been cured against the disease, 0 = 100% immune, 1 = 0% immune
+    float IMMUNITY_FACTOR = 0.3f;
+
     /**
      * Updates the infection probability after staying at 'location' starting from startTime
      * @param startTime

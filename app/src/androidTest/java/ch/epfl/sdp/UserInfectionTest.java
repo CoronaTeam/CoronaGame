@@ -143,7 +143,7 @@ public class UserInfectionTest {
         sleep(5000);
         receiver.getRecoveryCounter(User.DEFAULT_USERID).thenAccept(res -> {
             assertFalse(res.isEmpty());
-            assertEquals(1l,res.get(privateRecoveryCounter));
+            assertEquals(1L,res.get(privateRecoveryCounter));
             assertSame(HEALTHY,analyst.getCarrier().getInfectionStatus());
         });
         sleep(2000);

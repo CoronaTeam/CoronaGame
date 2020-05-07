@@ -35,11 +35,11 @@ import java.util.concurrent.Executor;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.AuthenticationManager;
+import ch.epfl.sdp.Callback;
+import ch.epfl.sdp.R;
 import ch.epfl.sdp.biometric.BiometricPromptWrapper;
 import ch.epfl.sdp.biometric.BiometricUtils;
-import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.biometric.ConcreteBiometricPromptWrapper;
-import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.location.LocationService;
@@ -52,13 +52,13 @@ import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
 
 public class UserInfectionFragment extends Fragment implements View.OnClickListener {
 
+    private static final String TAG = "User Infection Activity";
     private Button infectionStatusButton;
     private TextView infectionStatusView;
     private TextView onlineStatusView;
     private Button refreshButton;
     private Account account;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private static final String TAG = "User Infection Activity";
     private String userName;
     private View view;
     private LocationService service;
@@ -102,7 +102,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         ServiceConnection conn = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                UserInfectionFragment.this.service = ((LocationService.LocationBinder)service).getService();
+                UserInfectionFragment.this.service = ((LocationService.LocationBinder) service).getService();
             }
 
             @Override
@@ -130,10 +130,12 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         switch (view.getId()) {
             case R.id.infectionStatusButton: {
                 onClickChangeStatus(view);
-            } break;
+            }
+            break;
             case R.id.refreshButton: {
                 onClickRefresh(view);
-            } break;
+            }
+            break;
         }
 
 
@@ -190,7 +192,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         long differenceDays = difference / (24 * 60 * 60 * 1000);
 
         sharedPref.edit().putLong("lastStatusChange", currentTime.getTime()).apply();
-        if(differenceDays > 1){
+        if (differenceDays > 1) {
             if (infected) {
                 //Tell the analyst we are now sick !
                 service.getAnalyst().updateStatus(Carrier.InfectionStatus.INFECTED);
@@ -209,7 +211,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
                             //infectionUploadView.setText(String.format("%s at %s", value, Calendar.getInstance().getTime()))
                         });
             }
-        }else {
+        } else {
             Toast.makeText(getActivity(),
                     R.string.error_infection_status_ratelimit, Toast.LENGTH_LONG).show();
         }
@@ -218,7 +220,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     }
 
     private void sendRecoveryToFirebase() {
-        DocumentReference ref = FirestoreInteractor.documentReference(privateUserFolder,account.getId());
+        DocumentReference ref = FirestoreInteractor.documentReference(privateUserFolder, account.getId());
         ref.update(privateRecoveryCounter, FieldValue.increment(1));
     }
 
@@ -272,6 +274,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         return new ConcreteBiometricPromptWrapper(new BiometricPrompt(
                 UserInfectionFragment.this,
                 executor, new BiometricPrompt.AuthenticationCallback() {
+
             @Override
             public void onAuthenticationError(int errorCode,
                                               @NonNull CharSequence errString) {
@@ -297,14 +300,14 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     private BiometricPrompt.PromptInfo promptInfoBuilder() {
         return new BiometricPrompt.PromptInfo.Builder()
                 .setConfirmationRequired(true)
-                .setTitle("Biometric authentication")
-                .setSubtitle("Confirm your health status change")
-                .setNegativeButtonText("Cancel")
+                .setTitle(getString(R.string.bio_auth_prompt_title))
+                .setSubtitle(getString(R.string.bio_auth_prompt_subtitle))
+                .setNegativeButtonText(getString(R.string.bio_auth_prompt_negative_button))
                 .build();
     }
 
     private void displayAuthFailedToast() {
-        Toast.makeText(getActivity().getApplicationContext(), "Authentication failed",
+        Toast.makeText(getActivity().getApplicationContext(), R.string.authentication_failed,
                 Toast.LENGTH_SHORT)
                 .show();
     }
@@ -312,21 +315,23 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     private void displayNegativeButtonToast(int errorCode) {
         if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
             Toast.makeText(getActivity().getApplicationContext(),
-                    "Come back when sure about your health status!", Toast.LENGTH_LONG)
+                    R.string.bio_auth_negative_button_toast, Toast.LENGTH_LONG)
                     .show();
         }
     }
 
     private void executeAndDisplayAuthSuccessToast() {
         Toast.makeText(getActivity().getApplicationContext(),
-                "Authentication succeeded!", Toast.LENGTH_SHORT).show();
+                R.string.bio_auth_success_toast, Toast.LENGTH_SHORT).show();
         executeHealthStatusChange();
     }
-    public LocationService getLocationService(){
+
+    public LocationService getLocationService() {
         return service;
     }
+
     @VisibleForTesting
-    public boolean isImmediatelyNowIll(){
+    public boolean isImmediatelyNowIll() {
         CharSequence buttonText = infectionStatusButton.getText();
         boolean healthy = buttonText.equals(getResources().getString(R.string.i_am_infected));
         return !healthy;

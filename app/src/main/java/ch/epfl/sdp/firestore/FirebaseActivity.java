@@ -8,15 +8,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.mapbox.mapboxsdk.style.expressions.Expression;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 
 import ch.epfl.sdp.R;
@@ -84,7 +81,7 @@ public class FirebaseActivity extends AppCompatActivity {
         }
     }
 
-    public void readData2(View view)  {
+    public void readData2(View view) {
         DocumentReference documentReference = documentReference("Tests/FirebaseActivity" +
                 "/Download", "DownloadTest");
         TextView outputView = findViewById(R.id.FirebaseDownloadResult);
@@ -101,7 +98,8 @@ public class FirebaseActivity extends AppCompatActivity {
     private BiConsumer<Object, Throwable> getObjectThrowableBiConsumer(TextView outputView) {
         return (result, throwable) -> {
             if (throwable != null) {
-                outputView.setText("Unexpected error" + throwable);
+                outputView.setText(String.format("%s%s", getString(R.string.unexpected_error),
+                        throwable));
             } else {
                 outputView.setText(R.string.docSnap_success_upload);
             }

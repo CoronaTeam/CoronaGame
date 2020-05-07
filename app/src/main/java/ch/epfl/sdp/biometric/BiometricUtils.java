@@ -8,8 +8,17 @@ import android.util.Log;
 import androidx.biometric.BiometricManager;
 import androidx.core.app.ActivityCompat;
 
+/**
+ * This class includes some utilities used when dealing with biometric authentication
+ */
 public class BiometricUtils {
 
+    /**
+     * Check if biometric authentication is available and can be used by the app
+     *
+     * @param context The Context in which the method is executed
+     * @return a boolean which correspond to the possibility or not to use biometric authentication
+     */
     public static boolean canAuthenticate(Context context) {
         if (!isPermissionGranted(context))
             return false;

@@ -14,6 +14,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 import ch.epfl.sdp.Map.MapFragment;
 import ch.epfl.sdp.fragment.AccountFragment;
+import ch.epfl.sdp.fragment.StatusFragment;
 import ch.epfl.sdp.fragment.UserInfectionFragment;
 
 public class TabActivity extends AppCompatActivity {
@@ -31,7 +32,7 @@ public class TabActivity extends AppCompatActivity {
 
     private static final Tab[] tabs = new Tab[]{
             new Tab(MapFragment.class, R.string.tab_map, R.drawable.tab_map),
-            new Tab(UserInfectionFragment.class, R.string.tab_status, R.drawable.tab_status),
+            new Tab(StatusFragment.class, R.string.tab_status, R.drawable.tab_status),
             new Tab(AccountFragment.class, R.string.tab_account, R.drawable.tab_account)
     };
 

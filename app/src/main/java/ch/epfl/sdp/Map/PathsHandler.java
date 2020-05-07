@@ -12,6 +12,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.mapbox.geojson.MultiPoint;
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
@@ -51,7 +52,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
  * as well as points of met infected users.
  */
 public class PathsHandler extends Fragment {
-    private static final int ZOOM = 7;
+    private static final int ZOOM = 11;
     private MapboxMap map;
     public List<Point> pathCoordinates; // public for testing
     private List<Point> infected_met;
@@ -119,7 +120,7 @@ public class PathsHandler extends Fragment {
         concreteDataReceiver
                 .getUserNearbyDuring(location, timestamp.toDate(), timestamp.toDate())
                 .thenAccept(carrierIntegerMap -> {
-                    Log.d("ADD INFECTED", "after getting future value");
+                    Log.d("ADD INFECTED", "got future value");
                     Carrier carrier;
                     Point point;
                     for (Map.Entry<Carrier, Integer> entry : carrierIntegerMap.entrySet()) {
@@ -135,6 +136,7 @@ public class PathsHandler extends Fragment {
     private void setPathLayer() {
         Layer layer = new LineLayer(PATH_LAYER_ID, PATH_SOURCE_ID).withProperties(
                 PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
+                PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND),
                 PropertyFactory.lineWidth(5f),
                 PropertyFactory.lineColor(Color.parseColor("maroon"))
         );
@@ -166,7 +168,7 @@ public class PathsHandler extends Fragment {
             // FeatureCollection so we can add the line to our map as a layer.
             style.addSource(new GeoJsonSource(POINTS_LAYER_ID,
                     FeatureCollection.fromFeatures(new Feature[]{Feature.fromGeometry(
-                            LineString.fromLngLats(infected_met)
+                            MultiPoint.fromLngLats(infected_met)
                     )})));
 
             style.addLayer(layer);
@@ -175,7 +177,7 @@ public class PathsHandler extends Fragment {
     }
 
     private void initFirestorePathRetrieval(Callback<Iterator<QueryDocumentSnapshot>> callback) {
-        db.collection("History/BETTER_PATH_DEMO/Positions")
+        db.collection("History/BETTER_DEMO_PATH/Positions")
                 //.orderBy("timestamp")
                 //.limit(50)
                 .get()

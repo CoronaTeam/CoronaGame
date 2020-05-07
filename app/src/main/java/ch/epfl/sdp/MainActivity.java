@@ -13,6 +13,8 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import ch.epfl.sdp.history.GpsActivity;
+import ch.epfl.sdp.history.HistoryActivity;
 import ch.epfl.sdp.contamination.InfectionActivity;
 import ch.epfl.sdp.firestore.FirebaseActivity;
 import ch.epfl.sdp.location.LocationService;

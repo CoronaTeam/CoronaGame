@@ -1,4 +1,4 @@
-package ch.epfl.sdp;
+package ch.epfl.sdp.history;
 
 import androidx.test.rule.ActivityTestRule;
 
@@ -26,6 +26,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import ch.epfl.sdp.Account;
+import ch.epfl.sdp.AuthenticationManager;
+import ch.epfl.sdp.R;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 
 import static androidx.test.espresso.Espresso.onData;

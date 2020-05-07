@@ -1,4 +1,4 @@
-package ch.epfl.sdp;
+package ch.epfl.sdp.history;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -11,6 +11,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.IBinder;
 
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -26,6 +27,9 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import ch.epfl.sdp.Account;
+import ch.epfl.sdp.AuthenticationManager;
+import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.ConcreteAnalysis;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.location.ConcreteLocationBroker;
@@ -107,7 +111,7 @@ public class GpsActivityTest {
             }
             mockBroker.setFakeLocation(buildLocation(currLatitude, currLongitude));
             Thread.sleep(1000);
-            onView(withId(R.id.gpsLatitude)).check(matches(withText(startsWith(Double.toString(currLatitude)))));
+            onView(ViewMatchers.withId(R.id.gpsLatitude)).check(matches(withText(startsWith(Double.toString(currLatitude)))));
             onView(withId(R.id.gpsLongitude)).check(matches(withText(startsWith(Double.toString(currLongitude)))));
         }
     }
@@ -250,7 +254,7 @@ public class GpsActivityTest {
         }
     }
 
-    private class MockHistoryFirestoneInteractor extends HistoryFirestoreInteractor{
+    private class MockHistoryFirestoneInteractor extends HistoryFirestoreInteractor {
         private Boolean success;
         private Object onSuccess;
 

@@ -1,9 +1,11 @@
-package ch.epfl.sdp;
+package ch.epfl.sdp.history;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import ch.epfl.sdp.Account;
+import ch.epfl.sdp.PositionRecord;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 
 public class HistoryFirestoreInteractor extends ConcreteFirestoreInteractor {
@@ -24,7 +26,7 @@ public class HistoryFirestoreInteractor extends ConcreteFirestoreInteractor {
     }
 
 
-    public CompletableFuture<Void> write(Map<String, Object> content) {
+    public CompletableFuture<Void> writePositions(Map<String, Object> content) {
         PositionRecord posRec = (PositionRecord) content.values().toArray()[0];
 
         Map<String, Object> lastPos = new HashMap<>();

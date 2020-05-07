@@ -30,8 +30,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.R;
@@ -102,8 +100,6 @@ public class PathsHandler extends Fragment {
                 addInfectedMet(lat, lon, timestamp);
             } catch (NullPointerException e) {
                 Log.d("ERROR ADDING POINT", String.valueOf(e));
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
             }
         }
 
@@ -114,10 +110,10 @@ public class PathsHandler extends Fragment {
         latitude = pathCoordinates.get(0).latitude();
         longitude = pathCoordinates.get(0).longitude();
         setPathLayer();
-        //setInfectedPointsLayer();
+        setInfectedPointsLayer();
     }
 
-    private void addInfectedMet(double lat, double lon, Timestamp timestamp) throws ExecutionException, InterruptedException {
+    private void addInfectedMet(double lat, double lon, Timestamp timestamp) {
         ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
         Location location = LocationUtils.buildLocation(lat, lon);
         concreteDataReceiver
@@ -156,7 +152,7 @@ public class PathsHandler extends Fragment {
         layer.setProperties(visibility(NONE));
     }
 
-    /*private void setInfectedPointsLayer() {
+    private void setInfectedPointsLayer() {
         Layer layer = new HeatmapLayer(POINTS_LAYER_ID, POINTS_SOURCE_ID);
         layer.setProperties(
                 adjustHeatMapColorRange(),
@@ -176,7 +172,7 @@ public class PathsHandler extends Fragment {
             style.addLayer(layer);
         });
         layer.setProperties(visibility(NONE));
-    }*/
+    }
 
     private void initFirestorePathRetrieval(Callback<Iterator<QueryDocumentSnapshot>> callback) {
         db.collection("History/BETTER_PATH_DEMO/Positions")

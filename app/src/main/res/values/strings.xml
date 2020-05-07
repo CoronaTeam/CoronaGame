@@ -91,6 +91,15 @@
     <string name="aggregator_status_off">Noo! You are offline</string>
     <string name="user_status_update">User infection status successfully updated!</string>
     <string name="error_status_update">Error updating user infection status.</string>
+
+    <string name="signin_text">🎈 Sign in with your Google account to begin!</string>
+    <string name="intro_page1_title">🔎 Stay aware of your surroundings</string>
+    <string name="intro_page1_description">Using the heatmap to check zones at risk</string>
+    <string name="intro_page2_title">🌡️ Indicate your infection status</string>
+    <string name="intro_page2_description">To let other users know and alert them if they might have been infected</string>
+    <string name="intro_page3_title">📈 Get your infection probability</string>
+    <string name="intro_page3_description">In real-time, computed from your geolocated interactions with other users</string>
+
     <string name="infection_status_posted">Posted!</string>
 
     <string name="see_my_last_path">See my last path</string>

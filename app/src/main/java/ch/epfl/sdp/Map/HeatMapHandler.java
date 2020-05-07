@@ -112,7 +112,7 @@ class HeatMapHandler {
     // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
     // Begin color ramp at 0-stop with a 0-transparency color
     // to create a blur-like effect.
-    /*private*/ public static PropertyValue<Expression> adjustHeatMapColorRange() {
+    /*private*/ static PropertyValue<Expression> adjustHeatMapColorRange() {
         return heatmapColor(
                 interpolate(
                         linear(), heatmapDensity(),
@@ -128,7 +128,7 @@ class HeatMapHandler {
 
     @NotNull
     // Increase the heatmap weight based on frequency and property magnitude
-    /*private*/ public static PropertyValue<Expression> adjustHeatMapWeight() {
+    /*private*/ static PropertyValue<Expression> adjustHeatMapWeight() {
         return heatmapWeight(
                 interpolate(
                         exponential(2), zoom(),
@@ -141,7 +141,7 @@ class HeatMapHandler {
     @NotNull
     // Increase the heatmap color weight weight by zoom level
     // heatmap-intensity is a multiplier on top of heatmap-weight
-    /*private*/ public static PropertyValue<Expression> adjustHeatmapIntensity() {
+    /*private*/ static PropertyValue<Expression> adjustHeatmapIntensity() {
         return heatmapIntensity(
                 interpolate(
                         linear(), zoom(),
@@ -153,7 +153,7 @@ class HeatMapHandler {
 
     @NotNull
     // Adjust the heatmap radius by zoom level
-    /*private*/ public static PropertyValue<Expression> adjustHeatmapRadius() {
+    /*private*/ static PropertyValue<Expression> adjustHeatmapRadius() {
         return heatmapRadius(
                 interpolate(
                         linear(), zoom(),

@@ -1,11 +1,15 @@
 package ch.epfl.sdp;
 
+import android.app.Activity;
 import android.location.Location;
+import android.net.Uri;
 import android.util.Log;
 
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -164,7 +168,6 @@ public class DataForDemo {
     /**
      * Generate 1000 HEALTHY,HEALTHY_CARRIER,INFECTED,IMMUNE,UNKNOWN users starting from location 4600000, 600000
      */
-
     @Test
     public void uploadBunchOfUsersAtEPFL() {
         Date rightNow = new Date(System.currentTimeMillis());
@@ -211,7 +214,6 @@ public class DataForDemo {
     }
 
     // write in History Collection on Firestore, user with ID USER_PATH_DEMO
-    @Ignore("this is a too simple straight path")
     @Test
     public void uploadUserPaths() {
         ConcreteFirestoreInteractor cfi = new ConcreteFirestoreInteractor();
@@ -235,7 +237,8 @@ public class DataForDemo {
 
     @Test
     public void uploadBetterPath() {
-        ConcreteFirestoreInteractor cfi = new ConcreteFirestoreInteractor();
+        Account account = fakeAccount();
+        HistoryFirestoreInteractor historyFirestoreInteractor = new HistoryFirestoreInteractor(account);
         initRouteCoordinates();
         initInfectedOnRoute();
         int i = 0;
@@ -243,23 +246,68 @@ public class DataForDemo {
         for (Point point: routeCoordinates) {
             double lat = point.latitude();
             double lon = point.longitude();
-            //Location location = LocationUtils.buildLocation(lat, lon);
             Map<String, Object> position = new HashMap();
             Timestamp timestamp = Timestamp.now();
             position.put("Position", new PositionRecord(timestamp,
                     new GeoPoint(lat, lon)));
-            cfi.writeDocument(collectionReference("History/THAT_BETTER_PATH/Positions/"), position)
+            historyFirestoreInteractor.write(position)
                     .thenRun(() -> Log.d("BETTER PATH UPLOAD", "Success upload positions"))
                     .exceptionally(e -> {
                         Log.d("BETTER PATH UPLOAD", "Error uploading positions", e);
                         return null;
-                    });
+                    });;
+
             if (infectedOnRoute[i] == 1) {
                 carrierAndPositionCreationUpload(Carrier.InfectionStatus.INFECTED, 1f, lat, lon, timestamp.toDate());
             }
             i+=1;
         }
         Log.d("LOOPINDEX: ", String.valueOf(i));
+    }
+
+    @NotNull
+    private Account fakeAccount() {
+        return new Account() {
+            @Override
+            public String getDisplayName() {
+                return "MY_PATH_DEMO";
+            }
+
+            @Override
+            public String getFamilyName() {
+                return "MY_PATH_DEMO";
+            }
+
+            @Override
+            public String getEmail() {
+                return null;
+            }
+
+            @Override
+            public Uri getPhotoUrl() {
+                return null;
+            }
+
+            @Override
+            public Boolean isGoogle() {
+                return null;
+            }
+
+            @Override
+            public String getPlayerId(Activity activity) {
+                return "MY_PATH_DEMO";
+            }
+
+            @Override
+            public GoogleSignInAccount getAccount() {
+                return null;
+            }
+
+            @Override
+            public String getId() {
+                return "MY_PATH_DEMO";
+            }
+        };
     }
 
     /**

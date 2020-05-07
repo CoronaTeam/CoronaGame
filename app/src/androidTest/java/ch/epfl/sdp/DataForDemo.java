@@ -91,6 +91,7 @@ public class DataForDemo {
     private Date rightNow = new Date(System.currentTimeMillis());
 
     private List<Point> routeCoordinates;
+    private List<Point> infectedOnRoute;
 
     double getRandomNumberBetweenBounds(double lower, double upper){
         return r.nextDouble() * (upper-lower) + lower;
@@ -230,6 +231,7 @@ public class DataForDemo {
     public void uploadBetterPath() {
         ConcreteFirestoreInteractor cfi = new ConcreteFirestoreInteractor();
         initRouteCoordinates();
+        // upload some infected users for some points:
         for (Point point: routeCoordinates) {
             double lat = point.latitude();
             double lon = point.longitude();
@@ -252,12 +254,18 @@ public class DataForDemo {
      */
     private void initRouteCoordinates() {
         routeCoordinates = new ArrayList<>();
+        infectedOnRoute = new ArrayList<>(); // we put some infected points along the routeCoordinates (11)
+
         routeCoordinates.add(Point.fromLngLat(-118.39439114221236, 33.397676454651766));
         routeCoordinates.add(Point.fromLngLat(-118.39421054012902, 33.39769799454838));
         routeCoordinates.add(Point.fromLngLat(-118.39408583869053, 33.39761901490136));
         routeCoordinates.add(Point.fromLngLat(-118.39388373635917, 33.397328225582285));
         routeCoordinates.add(Point.fromLngLat(-118.39372033447427, 33.39728514560042));
+        infectedOnRoute.add(Point.fromLngLat(-118.39372033447427, 33.39728514560042));
+
         routeCoordinates.add(Point.fromLngLat(-118.3930882271826, 33.39756875508861));
+        infectedOnRoute.add(Point.fromLngLat(-118.3930882271826, 33.39756875508861));
+
         routeCoordinates.add(Point.fromLngLat(-118.3928216241072, 33.39759029501192));
         routeCoordinates.add(Point.fromLngLat(-118.39227981785722, 33.397234885594564));
         routeCoordinates.add(Point.fromLngLat(-118.392021814881, 33.397005125197666));
@@ -265,10 +273,18 @@ public class DataForDemo {
         routeCoordinates.add(Point.fromLngLat(-118.39040499623022, 33.39696563506828));
         routeCoordinates.add(Point.fromLngLat(-118.39005669221234, 33.39703025527067));
         routeCoordinates.add(Point.fromLngLat(-118.38953208616074, 33.39691896489222));
+        infectedOnRoute.add(Point.fromLngLat(-118.38953208616074, 33.39691896489222));
+
         routeCoordinates.add(Point.fromLngLat(-118.38906338075398, 33.39695127501678));
         routeCoordinates.add(Point.fromLngLat(-118.38891287901787, 33.39686511465794));
+        infectedOnRoute.add(Point.fromLngLat(-118.38891287901787, 33.39686511465794));
+
         routeCoordinates.add(Point.fromLngLat(-118.38898167981154, 33.39671074380141));
+        infectedOnRoute.add(Point.fromLngLat(-118.38898167981154, 33.39671074380141));
+
         routeCoordinates.add(Point.fromLngLat(-118.38984598978178, 33.396064537239404));
+        infectedOnRoute.add(Point.fromLngLat(-118.38984598978178, 33.396064537239404));
+
         routeCoordinates.add(Point.fromLngLat(-118.38983738968255, 33.39582400356976));
         routeCoordinates.add(Point.fromLngLat(-118.38955358640874, 33.3955978295119));
         routeCoordinates.add(Point.fromLngLat(-118.389041880506, 33.39578092284221));
@@ -285,7 +301,11 @@ public class DataForDemo {
         routeCoordinates.add(Point.fromLngLat(-118.38791956755958, 33.39331092541894));
         routeCoordinates.add(Point.fromLngLat(-118.3874852625497, 33.39333964672257));
         routeCoordinates.add(Point.fromLngLat(-118.38686605540683, 33.39387816940854));
+        infectedOnRoute.add(Point.fromLngLat(-118.38686605540683, 33.39387816940854));
+
         routeCoordinates.add(Point.fromLngLat(-118.38607484627983, 33.39396792286514));
+        infectedOnRoute.add(Point.fromLngLat(-118.38607484627983, 33.39396792286514));
+
         routeCoordinates.add(Point.fromLngLat(-118.38519763616081, 33.39346171215717));
         routeCoordinates.add(Point.fromLngLat(-118.38523203655761, 33.393196040109466));
         routeCoordinates.add(Point.fromLngLat(-118.3849955338295, 33.393023711860515));
@@ -303,8 +323,14 @@ public class DataForDemo {
         routeCoordinates.add(Point.fromLngLat(-118.38258750605169, 33.388420985121336));
         routeCoordinates.add(Point.fromLngLat(-118.38177049662707, 33.388083490107284));
         routeCoordinates.add(Point.fromLngLat(-118.38080728551597, 33.38836353925403));
+        infectedOnRoute.add(Point.fromLngLat(-118.38080728551597, 33.38836353925403));
+
         routeCoordinates.add(Point.fromLngLat(-118.37928506795642, 33.38717870977523));
+        infectedOnRoute.add(Point.fromLngLat(-118.37928506795642, 33.38717870977523));
+
         routeCoordinates.add(Point.fromLngLat(-118.37898406448423, 33.3873079646849));
+        infectedOnRoute.add(Point.fromLngLat(-118.37898406448423, 33.3873079646849));
+
         routeCoordinates.add(Point.fromLngLat(-118.37935386875012, 33.38816247841951));
         routeCoordinates.add(Point.fromLngLat(-118.37794345248027, 33.387810620840135));
         routeCoordinates.add(Point.fromLngLat(-118.37546662390886, 33.38847843095069));

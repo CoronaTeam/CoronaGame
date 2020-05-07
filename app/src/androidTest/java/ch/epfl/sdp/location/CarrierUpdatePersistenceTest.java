@@ -224,13 +224,15 @@ public class CarrierUpdatePersistenceTest {
         fakeAnalyst.updateStatus(UNKNOWN);
         assertThat(fakeAnalyst.getCarrier().setIllnessProbability(.5f), equalTo(true));
 
-        // Stop the activity
-        mActivityRule.finishActivity();
+        // Stop LocationService
+        mActivityRule.getActivity().unbindService(mActivityRule.getActivity().serviceConnection);
         serviceBefore.stopSelf();
 
-        mockUserId();
-        // Restart the activity & the service
-        mActivityRule.launchActivity(new Intent());
+        // Restart the service and bind it
+        Intent serviceIntent = new Intent(mActivityRule.getActivity(), LocationService.class);
+        mActivityRule.getActivity().startService(serviceIntent);
+
+        mActivityRule.getActivity().bindLocationService();
 
         Carrier carrierAfter = mActivityRule.getActivity().getService().getAnalyst().getCarrier();
 

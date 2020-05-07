@@ -33,7 +33,8 @@ public class DataExchangeActivity extends AppCompatActivity {
         return service;
     }
 
-    private ServiceConnection serviceConnection;
+    @VisibleForTesting
+    public ServiceConnection serviceConnection;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -47,7 +48,8 @@ public class DataExchangeActivity extends AppCompatActivity {
         bindLocationService();
     }
 
-    private void bindLocationService() {
+    @VisibleForTesting
+    public void bindLocationService() {
         serviceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {

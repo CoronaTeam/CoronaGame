@@ -1,4 +1,4 @@
-package ch.epfl.sdp;
+package ch.epfl.sdp.location;
 
 import android.annotation.TargetApi;
 import android.location.Location;
@@ -6,7 +6,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.SystemClock;
 
-public class TestUtils {
+public class LocationUtils {
 
     @TargetApi(17)
     public static Location buildLocation(double latitude, double longitude) {

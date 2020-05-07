@@ -39,7 +39,7 @@ import static ch.epfl.sdp.TestTools.getMapValue;
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
-import static ch.epfl.sdp.TestUtils.buildLocation;
+import static ch.epfl.sdp.location.LocationUtils.buildLocation;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;

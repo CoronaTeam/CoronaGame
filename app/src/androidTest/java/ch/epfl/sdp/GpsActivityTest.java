@@ -153,7 +153,8 @@ public class GpsActivityTest {
 
         mockBroker.setProviderStatus(true);
         mockBroker.setFakeLocation(buildLocation(12, 19));
-        sleep();
+
+        sleep(3000);
         onView(withId(R.id.gpsLatitude)).check(matches(withText(startsWith(Double.toString(12)))));
         onView(withId(R.id.gpsLongitude)).check(matches(withText(startsWith(Double.toString(19)))));
     }

@@ -20,8 +20,8 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static ch.epfl.sdp.MainActivity.IS_NETWORK_DEBUG;
-import static ch.epfl.sdp.MainActivity.IS_ONLINE;
+import static ch.epfl.sdp.Tools.IS_NETWORK_DEBUG;
+import static ch.epfl.sdp.Tools.IS_ONLINE;
 
 
 public class FirebaseActivityTest {

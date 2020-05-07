@@ -18,8 +18,8 @@ import java.util.function.BiConsumer;
 
 import ch.epfl.sdp.R;
 
-import static ch.epfl.sdp.MainActivity.IS_ONLINE;
-import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
+import static ch.epfl.sdp.Tools.IS_ONLINE;
+import static ch.epfl.sdp.Tools.checkNetworkStatus;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 

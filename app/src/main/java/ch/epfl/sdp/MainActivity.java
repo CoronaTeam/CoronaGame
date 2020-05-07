@@ -21,20 +21,6 @@ import ch.epfl.sdp.location.LocationService;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static boolean IS_ONLINE = true;
-    public static boolean IS_NETWORK_DEBUG = false;
-
-    public static void checkNetworkStatus(Activity activity) {
-        if (!IS_NETWORK_DEBUG) {
-            ConnectivityManager cm =
-                    (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
-            assert cm != null;
-            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-            IS_ONLINE = (activeNetwork != null &&
-                    activeNetwork.isConnectedOrConnecting());
-        }
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

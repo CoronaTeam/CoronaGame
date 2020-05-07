@@ -35,7 +35,7 @@ import java.util.concurrent.Executor;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.AuthenticationManager;
-import ch.epfl.sdp.BiometricUtils;
+import ch.epfl.sdp.Tools;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
@@ -43,8 +43,8 @@ import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.location.LocationService;
 
 import static android.content.Context.BIND_AUTO_CREATE;
-import static ch.epfl.sdp.MainActivity.IS_ONLINE;
-import static ch.epfl.sdp.MainActivity.checkNetworkStatus;
+import static ch.epfl.sdp.Tools.IS_ONLINE;
+import static ch.epfl.sdp.Tools.checkNetworkStatus;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
@@ -95,7 +95,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         checkOnline();
         getLoggedInUser();
         Executor executor = ContextCompat.getMainExecutor(requireActivity());
-        if (BiometricUtils.canAuthenticate(getActivity())) {
+        if (Tools.canAuthenticate(getActivity())) {
             this.biometricPrompt = biometricPromptBuilder(executor);
             this.promptInfo = promptInfoBuilder();
         }
@@ -140,7 +140,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     private void onClickChangeStatus() {
         if (checkOnline()) {
             if (checkElapsedTimeSinceLastChange()) {
-                if (BiometricUtils.canAuthenticate(getActivity())) {
+                if (Tools.canAuthenticate(getActivity())) {
                     biometricPrompt.authenticate(promptInfo);
                 } else {
                     executeHealthStatusChange();

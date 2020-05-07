@@ -1,17 +1,26 @@
 package ch.epfl.sdp;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
+import android.util.Pair;
 
 import androidx.biometric.BiometricManager;
 import androidx.core.app.ActivityCompat;
 
+import com.google.firebase.firestore.GeoPoint;
+
 /**
  * This class includes some utilities used when dealing with biometric authentication
  */
-public class BiometricUtils {
+public class Tools {
+
+    public static boolean IS_ONLINE = true;
+    public static boolean IS_NETWORK_DEBUG = false;
 
     /**
      * Check if biometric authentication is available and can be used by the app
@@ -43,5 +52,20 @@ public class BiometricUtils {
         return ActivityCompat.checkSelfPermission(context,
                 Manifest.permission.USE_FINGERPRINT) ==
                 PackageManager.PERMISSION_GRANTED;
+    }
+
+    public static void checkNetworkStatus(Activity activity) {
+        if (!IS_NETWORK_DEBUG) {
+            ConnectivityManager cm =
+                    (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+            assert cm != null;
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            IS_ONLINE = (activeNetwork != null &&
+                    activeNetwork.isConnectedOrConnecting());
+        }
+    }
+
+    public Pair<Double, Double> geoPointToPair(GeoPoint geoPoint){
+        return new Pair<>(geoPoint.getLatitude(), geoPoint.getLongitude());
     }
 }

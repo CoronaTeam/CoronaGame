@@ -102,5 +102,6 @@
     <string name="infection_dialog_title">Daily report</string>
     <string name="infection_dialog_cool_message">Fortunately, you have not met anyone sick since last time.</string>
     <string name="one_infection_dialog_message2">" infected person!"</string>
+    <string name="infection_probability">Infection Probability</string>
 
 </resources>

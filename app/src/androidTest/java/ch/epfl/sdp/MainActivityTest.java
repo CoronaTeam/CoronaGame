@@ -1,8 +1,10 @@
 package ch.epfl.sdp;
 
+import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -30,6 +32,11 @@ public class MainActivityTest {
     @Before
     public void setUp() {
         initSafeTest(mActivityRule, true);
+    }
+
+    @After
+    public void release(){
+        Intents.release();
     }
 
     @Test

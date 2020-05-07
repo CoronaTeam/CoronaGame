@@ -15,7 +15,7 @@ import org.junit.rules.ExpectedException;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import ch.epfl.sdp.TestUtils;
+import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.contamination.DataExchangeActivity;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -31,7 +31,7 @@ public class LocationServiceTest {
 
     private AtomicBoolean registered;
 
-    private Location beenThere = TestUtils.buildLocation(13, 78);
+    private Location beenThere = TestTools.newLoc(13, 78);
     private Date now = new Date();
 
 

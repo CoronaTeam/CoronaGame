@@ -21,7 +21,6 @@ import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.DefaultAuthenticationManager;
 import ch.epfl.sdp.TestTools;
-import ch.epfl.sdp.TestUtils;
 import ch.epfl.sdp.contamination.CachingDataSender;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.DataExchangeActivity;
@@ -139,7 +138,7 @@ public class CarrierUpdatePersistenceTest {
 
         Date now = new Date();
         CachingDataSender fakeSender = new FakeCachingDataSender();
-        fakeSender.registerLocation(iAmBob, TestUtils.buildLocation(0, 0), now);
+        fakeSender.registerLocation(iAmBob, TestTools.newLoc(0, 0), now);
         mActivityRule.getActivity().getService().setSender(fakeSender);
 
         startLocationServiceWithAlarm();
@@ -164,7 +163,7 @@ public class CarrierUpdatePersistenceTest {
 
         Date now = new Date();
         CachingDataSender fakeSender = new FakeCachingDataSender();
-        fakeSender.registerLocation(iAmBob, TestUtils.buildLocation(1, 1), now);
+        fakeSender.registerLocation(iAmBob, TestTools.newLoc(1, 1), now);
         mActivityRule.getActivity().getService().setSender(fakeSender);
 
         while (sentinel.get() == 0) {}
@@ -197,7 +196,7 @@ public class CarrierUpdatePersistenceTest {
 
         Date aDate = new Date();
 
-        fakeSender.registerLocation(fakeAnalyst.getCarrier(), TestUtils.buildLocation(1, 1), aDate);
+        fakeSender.registerLocation(fakeAnalyst.getCarrier(), TestTools.newLoc(1, 1), aDate);
 
         startLocationServiceWithAlarm();
 

@@ -140,19 +140,19 @@ public class PathsHandler extends Fragment {
                 PropertyFactory.lineColor(Color.parseColor("maroon"))
         );
         LineString geometry = LineString.fromLngLats(pathCoordinates);
-        mapStyle(layer, geometry, POINTS_SOURCE_ID);
+        mapStyle(layer, geometry, PATH_SOURCE_ID);
         layer.setProperties(visibility(NONE));
     }
 
     private void setInfectedPointsLayer() {
         Layer layer = new HeatmapLayer(POINTS_LAYER_ID, POINTS_SOURCE_ID);
-        MultiPoint geometry = MultiPoint.fromLngLats(infected_met);
         layer.setProperties(
                 adjustHeatMapColorRange(),
                 adjustHeatMapWeight(),
                 adjustHeatmapIntensity(),
                 adjustHeatmapRadius()
-        ); // TODO: change static public to private in HeatMapHandler: use common classe for both handler (extract class)
+        );
+        MultiPoint geometry = MultiPoint.fromLngLats(infected_met);
         mapStyle(layer, geometry, POINTS_SOURCE_ID);
         layer.setProperties(visibility(NONE));
     }

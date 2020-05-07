@@ -50,7 +50,7 @@
         </activity>
 
         <activity
-            android:name=".history.GpsActivity"
+            android:name=".GpsActivity"
             android:parentActivityName=".MainActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -73,7 +73,7 @@
         </activity>
 
         <activity
-            android:name=".history.HistoryActivity"
+            android:name=".HistoryActivity"
             android:parentActivityName=".MainActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.DEFAULT" />

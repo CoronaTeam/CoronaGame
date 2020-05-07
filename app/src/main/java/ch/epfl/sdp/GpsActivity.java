@@ -1,4 +1,4 @@
-package ch.epfl.sdp.history;
+package ch.epfl.sdp;
 
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
@@ -29,10 +29,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.epfl.sdp.Account;
-import ch.epfl.sdp.AuthenticationManager;
-import ch.epfl.sdp.PositionRecord;
-import ch.epfl.sdp.R;
 import ch.epfl.sdp.location.LocationService;
 
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;

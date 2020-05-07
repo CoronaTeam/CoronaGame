@@ -1,4 +1,4 @@
-package ch.epfl.sdp.history;
+package ch.epfl.sdp;
 
 import android.os.Bundle;
 

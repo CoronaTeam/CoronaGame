@@ -1,4 +1,4 @@
-package ch.epfl.sdp.history;
+package ch.epfl.sdp;
 
 import androidx.test.rule.ActivityTestRule;
 
@@ -28,6 +28,9 @@ import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.AuthenticationManager;
+import ch.epfl.sdp.HistoryActivity;
+import ch.epfl.sdp.HistoryFirestoreInteractor;
+import ch.epfl.sdp.HistoryFragment;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 

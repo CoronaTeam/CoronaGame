@@ -1,4 +1,4 @@
-package ch.epfl.sdp.history;
+package ch.epfl.sdp;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,10 +18,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
-
-import ch.epfl.sdp.Account;
-import ch.epfl.sdp.AuthenticationManager;
-import ch.epfl.sdp.R;
 
 public class HistoryFragment extends Fragment {
 

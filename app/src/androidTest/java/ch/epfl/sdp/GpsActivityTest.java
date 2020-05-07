@@ -1,4 +1,4 @@
-package ch.epfl.sdp.history;
+package ch.epfl.sdp;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -29,6 +29,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.AuthenticationManager;
+import ch.epfl.sdp.GpsActivity;
+import ch.epfl.sdp.HistoryFirestoreInteractor;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.ConcreteAnalysis;
 import ch.epfl.sdp.firestore.FirestoreInteractor;

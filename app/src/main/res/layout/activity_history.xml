@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/history_fragment"
-        android:name="ch.epfl.sdp.history.HistoryFragment"
+        android:name="ch.epfl.sdp.HistoryFragment"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         app:layout_constraintStart_toStartOf="parent"

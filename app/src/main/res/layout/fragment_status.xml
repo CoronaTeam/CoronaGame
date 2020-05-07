@@ -21,8 +21,16 @@
             android:layout_height="wrap_content"
             android:text="@string/infection_probability"
             android:textSize="@dimen/appIntroHeadingTextSize"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="4dp"
             android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/since_last_month"
+            android:textSize="@dimen/appIntroHeadingTextSize"
+            android:layout_marginBottom="10dp"
+            android:textStyle="italic" />
 
         <fragment
             android:name="ch.epfl.sdp.chart.InfectionProbabilityChartFragment"

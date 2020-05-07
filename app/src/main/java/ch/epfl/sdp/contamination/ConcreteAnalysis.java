@@ -1,15 +1,16 @@
 package ch.epfl.sdp.contamination;
 
 import android.location.Location;
+import android.util.Pair;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
-
-import ch.epfl.sdp.Callback;
+import java.util.concurrent.CompletableFuture;
 
 import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
@@ -29,7 +30,6 @@ public class ConcreteAnalysis implements InfectionAnalyst {
 
     private float calculateCarrierInfectionProbability(Map<Carrier, Integer> suspectedContacts, float cumulativeSocialTime, int recoveryCounter) {
         float updatedProbability = me.getIllnessProbability();
-
         for (Map.Entry<Carrier, Integer> c : suspectedContacts.entrySet()) {
             // MODEL: Being close to a person for more than WINDOW_FOR_INFECTION_DETECTION implies becoming infected
             if (c.getValue() > WINDOW_FOR_INFECTION_DETECTION) {
@@ -39,7 +39,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
             } else {
 
                 // Calculate new weights for probabilities
-                float newWeight = c.getValue() / cumulativeSocialTime ;
+                float newWeight = c.getValue() / cumulativeSocialTime;
                 float oldWeight = 1 - newWeight;
 
                 // Updates the probability given the new contribution by Carrier c.getKey()
@@ -64,7 +64,8 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         me.setIllnessProbability(updatedProbability);
     }
 
-    private void modelInfectionEvolution(Map<Carrier, Integer> suspectedContacts,int recoveryCounter) {
+    private void modelInfectionEvolution(Map<Carrier, Integer> suspectedContacts,
+                                         int recoveryCounter) {
 
         switch (me.getInfectionStatus()) {
             case INFECTED:
@@ -76,17 +77,21 @@ public class ConcreteAnalysis implements InfectionAnalyst {
                     cumulativeSocialTime += cTime;
                 }
 
-                float updatedProbability = calculateCarrierInfectionProbability(suspectedContacts, cumulativeSocialTime,recoveryCounter);
+                float updatedProbability = calculateCarrierInfectionProbability(suspectedContacts, cumulativeSocialTime, recoveryCounter);
                 updateCarrierInfectionProbability(updatedProbability);
         }
     }
 
-    private Map<Carrier, Integer> identifySuspectContacts(Map<? extends Carrier, Integer> aroundMe) {
+    private Pair<Map<Carrier, Integer>, Integer> identifySuspectContacts_countInfected(Map<? extends Carrier, Integer> aroundMe) {
+        if (aroundMe == null) {
+            return new Pair(Collections.emptyMap(), 0);
+        }
         Map<Carrier, Integer> contactDuration = new HashMap<>();
-
+        int infectionCounter = 0;
         for (Map.Entry<? extends Carrier, Integer> person : aroundMe.entrySet()) {
             switch (person.getKey().getInfectionStatus()) {
                 case INFECTED:
+                    infectionCounter += 1;
                 case UNKNOWN:
                     int timeCloseBy = person.getValue() * PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION; // Add discretized time slice
                     contactDuration.put(person.getKey(), timeCloseBy);
@@ -96,40 +101,51 @@ public class ConcreteAnalysis implements InfectionAnalyst {
             }
         }
 
-        return contactDuration;
+        return new Pair<>(contactDuration, infectionCounter);
     }
 
-    private float getFactor(int recoveryCounter){
-        return (float)(Math.pow(InfectionAnalyst.IMMUNITY_FACTOR,recoveryCounter) * TRANSMISSION_FACTOR) ;
+    private float getFactor(int recoveryCounter) {
+        return (float) (Math.pow(InfectionAnalyst.IMMUNITY_FACTOR, recoveryCounter) * TRANSMISSION_FACTOR);
     }
 
-
+    /**
+     * this Method will now return the number of 100% sick person we met
+     *
+     * @param location
+     * @param startTime
+     * @return
+     */
     @Override
-    public void updateInfectionPredictions(Location location, Date startTime, Callback<Void> callback) {
-
+    public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime) {
         Date now = new Date(System.currentTimeMillis());
-        receiver.getRecoveryCounter(me.getUniqueId(), recoveryCounter->{
-            int recoveryCounter1 = 0;
-            if(!((Map)(recoveryCounter)).isEmpty()){
-                recoveryCounter1 =  ((int) (((HashMap) (recoveryCounter)).get(privateRecoveryCounter)));
-            }
-            final int counter = recoveryCounter1;
-            receiver.getUserNearbyDuring(location, startTime, now, aroundMe -> {
-                modelInfectionEvolution(identifySuspectContacts(aroundMe),counter);
-                receiver.getNumberOfSickNeighbors(me.getUniqueId(), res -> {
-                    float badMeetings = 0;
-                    if (!((Map) (res)).isEmpty()) {
-                        badMeetings = ((float) (((HashMap) (res)).get(publicAlertAttribute)));
-                    }
-                    if(badMeetings!=0){
-                        updateCarrierInfectionProbability(Math.min(me.getIllnessProbability() + badMeetings * getFactor(counter), 1f));
-                        cachedSender.resetSickAlerts(me.getUniqueId());
-                    }
-                    callback.onCallback(null);
-                });
-            });
-        });
 
+        CompletableFuture<Integer> counterFuture =
+                receiver.getRecoveryCounter(me.getUniqueId())
+                        .thenApply(recoveryCounter ->
+                                ((int) (recoveryCounter.getOrDefault(privateRecoveryCounter, 0))));
+
+        CompletableFuture<Pair<Map<Carrier, Integer>, Integer>> suspicionsFuture =
+                receiver.getUserNearbyDuring(location, startTime, now)
+                        .thenApply(this::identifySuspectContacts_countInfected);
+
+        return counterFuture.thenCompose(counter ->
+                suspicionsFuture.thenCompose(suspicions ->
+                        getBadMeetingsCompletableFuture(counter, suspicions)));
+    }
+
+    private CompletableFuture<Integer> getBadMeetingsCompletableFuture(Integer counter, Pair<Map<Carrier, Integer>, Integer> suspicions) {
+        return receiver.getNumberOfSickNeighbors(me.getUniqueId()).thenApply(res -> {
+            float badMeetings = 0;
+            if (!res.isEmpty()) {
+                badMeetings = ((float) (res.get(publicAlertAttribute)));
+            }
+            if (badMeetings != 0) {
+                updateCarrierInfectionProbability(Math.min(me.getIllnessProbability() +
+                        badMeetings * getFactor(counter), 1f));
+                cachedSender.resetSickAlerts(me.getUniqueId());
+            }
+            return suspicions.second;
+        });
     }
 
     @Override
@@ -139,31 +155,31 @@ public class ConcreteAnalysis implements InfectionAnalyst {
 
     @Override
     public boolean updateStatus(InfectionStatus stat) {
-        if(stat != me.getInfectionStatus()){
+        if (stat != me.getInfectionStatus()) {
             float previousIllnessProbability = me.getIllnessProbability();
             me.evolveInfection(stat);
-            if(stat == InfectionStatus.INFECTED) {
+            if (stat == InfectionStatus.INFECTED) {
                 //Now, retrieve all user that have been nearby the last UNINTENTIONAL_CONTAGION_TIME milliseconds
 
                 //1: retrieve your own last positions
-                SortedMap<Date,Location> lastPositions = cachedSender.getLastPositions();
+                SortedMap<Date, Location> lastPositions = cachedSender.getLastPositions();
 
                 //2: Ask firebase who was there
 
                 Set<String> userIds = new HashSet<>();
-                lastPositions.forEach((date,location) -> receiver.getUserNearby(location,date,around->{
+                lastPositions.forEach((date, location) -> receiver.getUserNearby(location, date).thenAccept(around -> {
                     around.forEach(neighbor -> {
-                        if(neighbor.getInfectionStatus()!= InfectionStatus.INFECTED){ // only non-infected users need to be informed
+                        if (neighbor.getInfectionStatus() != InfectionStatus.INFECTED) { // only non-infected users need to be informed
                             userIds.add(neighbor.getUniqueId()); //won't add someone already in the set
                         }
                     });
                 }));
                 //Tell those user that they have been close to you
                 //TODO: discuss whether considering only the previous Illness probability is good
-                userIds.forEach(u -> cachedSender.sendAlert(u,previousIllnessProbability));
+                userIds.forEach(u -> cachedSender.sendAlert(u, previousIllnessProbability));
             }
             return true;
-        }else{
+        } else {
             return false;
         }
     }

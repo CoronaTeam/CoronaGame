@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 
 import com.mapbox.mapboxsdk.Mapbox;
@@ -50,21 +51,28 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     public final static int LOCATION_PERMISSION_REQUEST = 20201;
     private static final int MIN_UP_INTERVAL_MILLISECS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
+    private PathsHandler pathsHandler;
     private MapView mapView;
     private MapboxMap map;
     private LocationBroker locationBroker;
-
     private LatLng prevLocation = new LatLng(0, 0);
-
     private ConcreteFirestoreInteractor db;
-
     private CircleManager positionMarkerManager;
     private Circle userLocation;
-
     private HeatMapHandler heatMapHandler;
-
     private Account userAccount;
     private MapFragment classPointer;
+
+    private View view;
+
+    @VisibleForTesting
+    public MapboxMap getMap() {
+        return map;
+    }
+
+    public PathsHandler getPathsHandler() {
+        return pathsHandler;
+    }
 
     @Nullable
     @Override
@@ -74,7 +82,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         ServiceConnection conn = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                locationBroker = ((LocationService.LocationBinder)service).getService().getBroker();
+                locationBroker = ((LocationService.LocationBinder) service).getService().getBroker();
                 goOnline();
             }
 
@@ -85,6 +93,11 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             }
         };
 
+        // startService() overrides the default service lifetime that is managed by
+        // bindService(Intent, ServiceConnection, int):
+        // it requires the service to remain running until stopService(Intent) is called,
+        // regardless of whether any clients are connected to it.
+        ComponentName myService = getActivity().startService(new Intent(getContext(), LocationService.class));
         getActivity().bindService(new Intent(getContext(), LocationService.class), conn, Context.BIND_AUTO_CREATE);
 
         userAccount = AccountFragment.getAccount(getActivity());
@@ -96,7 +109,10 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         Mapbox.getInstance(getContext(), BuildConfig.mapboxAPIKey);
 
         // This contains the MapView in XML and needs to be called after the access token is configured.
-        View view = inflater.inflate(R.layout.fragment_map, container, false);
+        view = inflater.inflate(R.layout.fragment_map, container, false);
+
+        view.findViewById(R.id.mapFragment).setVisibility(View.INVISIBLE);
+        view.findViewById(R.id.heatMapToggle).setVisibility(View.GONE);
 
         mapView = view.findViewById(R.id.mapFragment);
         mapView.onCreate(savedInstanceState);
@@ -115,6 +131,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
                         updateUserMarkerPosition(prevLocation);
                         heatMapHandler = new HeatMapHandler(classPointer, db, map);
+                        pathsHandler = new PathsHandler(classPointer, map);
                     }
                 });
             }
@@ -132,6 +149,9 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         if (locationBroker.hasPermissions(GPS)) {
             prevLocation = new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
             updateUserMarkerPosition(prevLocation);
+            view.findViewById(R.id.mapFragment).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.heatMapToggle).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.heapMapLoadingSpinner).setVisibility(View.GONE);
 
         } else {
             Toast.makeText(getActivity(), "Missing permission", Toast.LENGTH_LONG).show();
@@ -239,13 +259,17 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     }
 
     private void onClickHistory() {
-        HistoryDialogFragment dialog = HistoryDialogFragment.newInstance();
+        HistoryDialogFragment dialog = new HistoryDialogFragment(this);
         dialog.show(getActivity().getSupportFragmentManager(), "history_dialog_fragment");
     }
 
     private void toggleHeatMap() {
+        toggleLayer(HeatMapHandler.HEATMAP_LAYER_ID);
+    }
+
+    private void toggleLayer(String layerId) {
         map.getStyle(style -> {
-            Layer layer = style.getLayer(HeatMapHandler.HEATMAP_LAYER_ID);
+            Layer layer = style.getLayer(layerId);
             if (layer != null) {
                 if (VISIBLE.equals(layer.getVisibility().getValue())) {
                     layer.setProperties(visibility(NONE));
@@ -256,17 +280,25 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         });
     }
 
+    public void togglePath() {
+        toggleLayer(PathsHandler.PATH_LAYER_ID);
+        pathsHandler.setCameraPosition();
+    }
+
     @Override
     public void onClick(View view) {
         System.out.println(view.getId());
         switch (view.getId()) {
             case R.id.history_button: {
                 onClickHistory();
-            } break;
+            }
+            break;
             case R.id.heatMapToggle: {
                 toggleHeatMap();
-            } break;
-            default: break;
+            }
+            break;
+            default:
+                break;
         }
     }
 }

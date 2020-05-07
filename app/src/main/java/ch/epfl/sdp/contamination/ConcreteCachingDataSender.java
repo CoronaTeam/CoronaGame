@@ -17,36 +17,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.fragment.AccountFragment;
 
 import static ch.epfl.sdp.AuthenticationManager.getActivity;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 
 public class ConcreteCachingDataSender implements CachingDataSender {
-    private GridFirestoreInteractor gridInteractor;
     SortedMap<Date, Location> lastPositions;
-    // Default success listener
-    private OnSuccessListener successListener = o -> {
-    };
-
-    // Default Failure listener
-    private OnFailureListener failureListener = e -> {
-    };
-
+    private GridFirestoreInteractor gridInteractor;
     public ConcreteCachingDataSender(GridFirestoreInteractor interactor) {
         this.gridInteractor = interactor;
         this.lastPositions = new TreeMap<>();
-    }
-
-    public ConcreteCachingDataSender setOnSuccessListener(OnSuccessListener successListener) {
-        this.successListener = successListener;
-        return this;
-    }
-
-    public ConcreteCachingDataSender setOnFailureListener(OnFailureListener failureListener) {
-        this.failureListener = failureListener;
-        return this;
     }
 
     @VisibleForTesting
@@ -55,27 +39,17 @@ public class ConcreteCachingDataSender implements CachingDataSender {
     }
 
     @Override
-    public void registerLocation(Carrier carrier, Location location, Date time) {
-        registerLocation(carrier, location, time, successListener, failureListener);
-    }
-
-    @Override
-    public void registerLocation(Carrier carrier,
-                                 Location location,
-                                 Date time,
-                                 OnSuccessListener successListener,
-                                 OnFailureListener failureListener) {
+    public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
         refreshLastPositions(time, location);
-
         Map<String, Object> element = new HashMap<>();
         element.put("geoPoint", new GeoPoint(location.getLatitude(), location.getLongitude()));
         element.put("timeStamp", time.getTime());
         element.put("infectionStatus", carrier.getInfectionStatus());
-        gridInteractor.writeDocumentWithID("LastPositions", AccountFragment.getAccount(getActivity()).getId(),
-                element, s -> {
-                    gridInteractor.write(location, String.valueOf(time.getTime()), carrier, successListener, failureListener);
-                },
-                failureListener);
+        CompletableFuture<Void> future1 = gridInteractor.writeDocumentWithID(
+                documentReference("LastPositions", AccountFragment.getAccount(getActivity()).getId()),
+                element);
+        CompletableFuture<Void> future2 = gridInteractor.gridWrite(location, String.valueOf(time.getTime()), carrier);
+        return CompletableFuture.allOf(future1, future2);
     }
 
     /**

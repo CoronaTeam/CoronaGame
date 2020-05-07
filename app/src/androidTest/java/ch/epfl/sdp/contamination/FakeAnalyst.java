@@ -3,21 +3,21 @@ package ch.epfl.sdp.contamination;
 import android.location.Location;
 
 import java.util.Date;
-
-import ch.epfl.sdp.Callback;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * This class makes testing easier
  */
 public class FakeAnalyst implements InfectionAnalyst {
     Carrier carrier;
+    static int infectMeets = 0 ;
     public FakeAnalyst(){
         this.carrier = new Layman(Carrier.InfectionStatus.HEALTHY);
     }
 
     @Override
-    public void updateInfectionPredictions(Location location, Date startTime, Callback<Void> callback) {
-
+    public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime) {
+        return CompletableFuture.completedFuture(infectMeets);
     }
 
     @Override

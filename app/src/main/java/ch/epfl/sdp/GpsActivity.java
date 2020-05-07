@@ -59,8 +59,8 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
     private boolean connectedToService = false;
 
     @VisibleForTesting
-    void setFirestoreInteractor(FirestoreInteractor interactor) {
-        db.setFirestoreInteractor(interactor);
+    void setHistoryFirestoreInteractor(HistoryFirestoreInteractor interactor) {
+        db = interactor;
     }
 
     private void displayNewLocation(Location newLocation) {
@@ -90,7 +90,13 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         Map<String, Object> element = new HashMap();
         element.put("Position", new PositionRecord(Timestamp.now(),
                 new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude())));
-        db.write(element, o -> uploadStatus.setText(R.string.sync_ok), e -> uploadStatus.setText(R.string.sync_error));
+        db.write(element).whenComplete((res, thr) -> {
+            if (thr == null){
+                uploadStatus.setText(R.string.sync_ok);
+            }else{
+                uploadStatus.setText(R.string.sync_error);
+            }
+        });
     }
 
     @Override

@@ -164,16 +164,10 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
         Date since = calendar.getTime();
         Map<Date, Float> infectionHistory = service.getAnalyst().getCarrier().getIllnessProbabilityHistory(since);
 
-        infectionHistory = new TreeMap<>(infectionHistory);
-        infectionHistory.put(new Date("Thu May 02 15:35:47 GMT+02:00 2020"), 1.0f);
-        infectionHistory.put(new Date("Thu May 01 15:35:47 GMT+02:00 2020"), 0.5f);
-        infectionHistory.put(new Date("Thu Apr 27 15:35:47 GMT+02:00 2020"), 0.2f);
-
         ArrayList<Entry> values = new ArrayList<>();
 
         Drawable drawable = getResources().getDrawable(R.drawable.ic_person, getContext().getTheme());
         for (Map.Entry<Date, Float> entry : infectionHistory.entrySet()) {
-            System.out.println(entry.toString());
             values.add(new Entry(entry.getKey().getTime(), entry.getValue(), drawable));
         }
 

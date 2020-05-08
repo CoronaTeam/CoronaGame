@@ -1,7 +1,6 @@
 package ch.epfl.sdp.Map;
 
 import android.graphics.Color;
-import android.media.JetPlayer;
 import android.location.Location;
 import android.util.Log;
 import android.widget.Toast;
@@ -10,18 +9,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 
-import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.mapbox.geojson.Geometry;
-import com.mapbox.geojson.MultiPoint;
-import com.mapbox.geojson.Point;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.Geometry;
 import com.mapbox.geojson.LineString;
+import com.mapbox.geojson.MultiPoint;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -35,20 +31,17 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
-import ch.epfl.sdp.firestore.FirestoreInteractor;
-
-import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
+import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
+import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.location.LocationUtils;
 
 import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatMapColorRange;
@@ -56,6 +49,7 @@ import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatMapWeight;
 import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatmapIntensity;
 import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatmapRadius;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
@@ -64,18 +58,19 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
  * as well as points of met infected users.
  */
 public class PathsHandler extends Fragment {
+    static final String POINTS_SOURCE_ID = "points-source";
+    static final String POINTS_LAYER_ID = "pointslayer";
+    static final String PATH_SOURCE_ID = "line-source";
     private static final int ZOOM = 7;
+    static final String PATH_LAYER_ID = "linelayer"; // public for testing
     public List<Point> pathCoordinates;
+    public List<Point> infected_met;
     private MapboxMap map;
     private FirestoreInteractor fsi = new ConcreteFirestoreInteractor();
     private MapFragment parentClass;
     private double latitude;
     private double longitude;
-    static final String POINTS_SOURCE_ID = "points-source";
-    private static final String PATH_LAYER_ID = "linelayer"; // public for testing
-    static final String POINTS_LAYER_ID = "pointslayer";
-    static final String PATH_SOURCE_ID = "line-source";
-    
+
 
     PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
         this.parentClass = parentClass;
@@ -126,7 +121,8 @@ public class PathsHandler extends Fragment {
                 double lon = geoPoint.getLongitude();
                 pathCoordinates.add(Point.fromLngLat(lon, lat));
                 // check infected met around this point of the path
-                Timestamp timestamp = (Timestamp) ((Map) qs.get("Position")).get("timestamp");
+                Timestamp timestamp = (Timestamp) ((Map) doc.getValue().get("Position")).get(
+                        "timestamp");
                 addInfectedMet(lat, lon, timestamp);
             } catch (NullPointerException e) {
                 Log.d("ERROR ADDING POINT", String.valueOf(e));
@@ -194,12 +190,19 @@ public class PathsHandler extends Fragment {
     }
 
     private CompletableFuture<Map<String, Map<String, Object>>> initFirestorePathRetrieval() {
-        return taskToFuture(collectionReference("History/USER_PATH_DEMO/Positions").orderBy("Position.timestamp").get())
-                .thenApply(stringMapMap -> {
-                    if (stringMapMap.isEmpty()) {
+        return FirestoreInteractor.taskToFuture(
+                collectionReference("History/USER_PATH_DEMO" + "/Positions")
+                        .orderBy("Position" + ".timestamp").get())
+                .thenApply(collection -> {
+                    if (collection.isEmpty()) {
                         throw new RuntimeException("Collection doesn't contain any document");
                     } else {
-                        return stringMapMap;
+                        List<DocumentSnapshot> list = collection.getDocuments();
+                        Map<String, Map<String, Object>> result = new HashMap<>();
+                        for (DocumentSnapshot doc : list) {
+                            result.put(doc.getId(), doc.getData());
+                        }
+                        return result;
                     }
                 })
                 .exceptionally(e -> {
@@ -209,5 +212,4 @@ public class PathsHandler extends Fragment {
                     return Collections.emptyMap();
                 });
     }
-
 }

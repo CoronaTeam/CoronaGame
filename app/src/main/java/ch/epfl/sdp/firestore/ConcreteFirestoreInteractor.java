@@ -6,6 +6,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -37,22 +39,6 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
                                 return Collections.emptyMap();
                             }
                         });
-
-        /*
-        Task<DocumentSnapshot> task = documentReference.get();
-        while (!task.isComplete()) {}
-        return taskToFuture(task)
-                .thenApply(
-                        doc -> {
-                            if (doc.exists()) {
-                                return doc.getData();
-                            } else {
-                                // Document does not exist
-                                return Collections.emptyMap();
-                            }
-                        });
-
-         */
     }
 
     @Override

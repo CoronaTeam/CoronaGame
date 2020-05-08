@@ -94,7 +94,6 @@
         </activity>
 
         <service android:name=".location.LocationService">
-            
         </service>
 
     </application>

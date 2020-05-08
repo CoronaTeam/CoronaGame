@@ -13,6 +13,8 @@ public class CoronaGame extends Application implements Application.ActivityLifec
     private Activity currentActivity;
     private static Context context;
 
+    public static final String SHARED_PREF_FILENAME = "coronagame_shared_pref";
+
     @Override
     public void onCreate() {
         super.onCreate();

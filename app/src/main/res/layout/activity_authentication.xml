@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="40dp"
+    android:orientation="vertical"
+    android:background="@color/cardview_light_background"
+    android:gravity="center" >
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/signin_text"
+        android:textStyle="bold"
+        android:textColor="@color/design_default_color_on_secondary"
+        android:textSize="@dimen/appIntroHeadingTextSize"
+        android:layout_marginBottom="60dp"/>
 
     <com.google.android.gms.common.SignInButton
         android:id="@+id/sign_in_button"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:clickable="true"
         android:focusable="true"
@@ -18,5 +31,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
     <!--layout_width=127dp and layout_height=44dp-->

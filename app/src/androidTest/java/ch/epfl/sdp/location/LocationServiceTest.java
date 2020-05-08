@@ -12,8 +12,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.contamination.DataExchangeActivity;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -28,6 +30,10 @@ public class LocationServiceTest {
     public ExpectedException exception = ExpectedException.none();
 
     private AtomicBoolean registered;
+
+    private Location beenThere = TestTools.newLoc(13, 78);
+    private Date now = new Date();
+
 
     @Before
     public void setupTestIndicator() {
@@ -116,8 +122,9 @@ public class LocationServiceTest {
     }
 
     @Test
-    public void canStopAggregator() {
+    public void canStopAggregator() throws Throwable {
         mActivityRule.getActivity().getService().onProviderDisabled(LocationManager.GPS_PROVIDER);
         // TODO: This test should check the effects of the operation
+        mActivityRule.finishActivity();
     }
 }

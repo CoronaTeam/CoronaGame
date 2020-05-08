@@ -66,7 +66,7 @@ public class UserInfectionTest {
         analyst =  new InfectionAnalyst() {
 
             @Override
-            public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime) {
+            public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
                 return null;
             }
 

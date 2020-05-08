@@ -20,34 +20,33 @@ public final class ConcretePositionAggregator extends Observable implements Posi
     private Date newestDate;
     private boolean isOnline;
     private CachingDataSender cachingDataSender;
-    private InfectionAnalyst analyst;
+    private Carrier carrier;
     private Timer updatePosTimer;
     HashMap<Long, List<Location>> buffer;
 
-    public ConcretePositionAggregator(CachingDataSender cachingDataSender, InfectionAnalyst analyst, int maxLocationsPerAggregation){
-        if(cachingDataSender == null || analyst == null){
-
-            throw new IllegalArgumentException("DataSender or analyst should not be null");
-        }else if(maxLocationsPerAggregation <= 0){
+    public ConcretePositionAggregator(CachingDataSender cachingDataSender, Carrier carrier, int maxLocationsPerAggregation){
+        if (cachingDataSender == null || carrier == null) {
+            throw new IllegalArgumentException("DataSender and Carrier should not be null");
+        } else if (maxLocationsPerAggregation <= 0) {
             throw new IllegalArgumentException("There should be more than zero locations per aggregation!");
         }
         this.timelapBetweenNewLocationRegistration =  WINDOW_FOR_LOCATION_AGGREGATION / maxLocationsPerAggregation;
         this.buffer = new HashMap<>();
         this.cachingDataSender = cachingDataSender;
-        this.analyst = analyst;
+        this.carrier = carrier;
         this.lastDate = null;
         this.isOnline = false;
         startTimer();
     }
 
-    public ConcretePositionAggregator(CachingDataSender cachingDataSender, InfectionAnalyst analyst){
-       this(cachingDataSender,analyst,PositionAggregator.MAXIMAL_NUMBER_OF_LOCATIONS_PER_AGGREGATION);
+    public ConcretePositionAggregator(CachingDataSender cachingDataSender, Carrier carrier){
+       this(cachingDataSender, carrier, PositionAggregator.MAXIMAL_NUMBER_OF_LOCATIONS_PER_AGGREGATION);
     }
-    protected void setAnalyst(InfectionAnalyst a) {
-        if (a == null) {
-            throw new IllegalArgumentException("Null analyst");
+    protected void setCarrier(Carrier person) {
+        if (person == null) {
+            throw new IllegalArgumentException("Null person given");
         }
-        this.analyst = a;
+        this.carrier = person;
     }
 
     /**
@@ -111,7 +110,7 @@ public final class ConcretePositionAggregator extends Observable implements Posi
             Location meanLocation = getMean(targetLocations);
             Location expandedLocation = CachingDataSender.RoundAndExpandLocation(meanLocation);
 //            System.out.println("----SENDING-----"+expandedLocation.toString() + " with date : "+lastDate.toString());
-            cachingDataSender.registerLocation(analyst.getCarrier(),expandedLocation,lastDate);
+            cachingDataSender.registerLocation(carrier,expandedLocation,lastDate);
 
         }
     }

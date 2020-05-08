@@ -24,10 +24,20 @@ public abstract class FirestoreInteractor {
      * @return a future behaving as the original task
      */
     public static <T> CompletableFuture<T> taskToFuture(Task<T> task) {
-        CompletableFuture<T> future = new CompletableFuture<>();
-        task.addOnSuccessListener(future::complete);
-        task.addOnFailureListener(future::completeExceptionally);
-        return future;
+        if (task.isComplete()) {
+            if (task.isSuccessful()) {
+                return CompletableFuture.completedFuture(task.getResult());
+            } else {
+                CompletableFuture<T> exceptionFuture = new CompletableFuture<>();
+                exceptionFuture.completeExceptionally(task.getException());
+                return exceptionFuture;
+            }
+        } else {
+            CompletableFuture<T> future = new CompletableFuture<>();
+            task.addOnSuccessListener(value -> future.complete(value))
+                    .addOnFailureListener(ex -> future.completeExceptionally(ex));
+            return future;
+        }
     }
 
     /**

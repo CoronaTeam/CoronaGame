@@ -39,7 +39,7 @@ import static ch.epfl.sdp.TestTools.getMapValue;
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
-import static ch.epfl.sdp.TestUtils.buildLocation;
+import static ch.epfl.sdp.location.LocationUtils.buildLocation;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
@@ -214,7 +214,7 @@ public class ConcreteAnalysisTest {
         assertThat(me.setIllnessProbability(.5f), equalTo(false));
 
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
-        analyst.updateInfectionPredictions(testLocation, new Date(1585223373980L));
+        analyst.updateInfectionPredictions(testLocation, new Date(1585223373980L), new Date());
         assertThat(me.getInfectionStatus(), equalTo(INFECTED));
 
     }
@@ -225,7 +225,7 @@ public class ConcreteAnalysisTest {
         Carrier me = new Layman(HEALTHY);
 
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
-        analyst.updateInfectionPredictions(testLocation, new Date(1585220363913L)).thenRun(()->{
+        analyst.updateInfectionPredictions(testLocation, new Date(1585220363913L), new Date()).thenRun(()->{
             assertThat(me.getInfectionStatus(), equalTo(HEALTHY));
             assertThat(me.getIllnessProbability(),greaterThan(0.f));
         });
@@ -307,6 +307,7 @@ public class ConcreteAnalysisTest {
             return CompletableFuture.completedFuture(getSickCount());
         }
     }
+
     @Test
     public void infectionProbabilityIsUpdated() throws Throwable {
         recoveryCounter = 0;
@@ -408,7 +409,6 @@ public class ConcreteAnalysisTest {
         //onView(withId(R.id.my_infection_status)).check(matches(withText("UNKNOWN")));
 
         // TODO: Restore original components
-        //TODO: check if this should be removed
         service.setReceiver(originalReceiver);
         service.setAnalyst(originalAnalyst);
 
@@ -456,7 +456,7 @@ public class ConcreteAnalysisTest {
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
         sender.sendAlert(me.getUniqueId());
         sender.sendAlert(me.getUniqueId(),0.4f);
-        analyst.updateInfectionPredictions(null,null);
+        analyst.updateInfectionPredictions(null,null, null);
         assertEquals(TRANSMISSION_FACTOR* (1+ (1-0.4)),me.getIllnessProbability(),0.00001f);
         mockReceiver.getNumberOfSickNeighbors(me.getUniqueId()).thenAccept(res -> assertTrue((res).isEmpty()));
     }
@@ -478,7 +478,7 @@ public class ConcreteAnalysisTest {
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
         sender.sendAlert(me.getUniqueId());
         sender.sendAlert(me.getUniqueId(),0.4f);
-        analyst.updateInfectionPredictions(null,null).thenAccept(res->{
+        analyst.updateInfectionPredictions(null,null, null).thenAccept(res->{
             assertEquals(1.6 * Math.pow(IMMUNITY_FACTOR,recoveryCounter)*TRANSMISSION_FACTOR ,me.getIllnessProbability(),0.00001f);
         });
     }

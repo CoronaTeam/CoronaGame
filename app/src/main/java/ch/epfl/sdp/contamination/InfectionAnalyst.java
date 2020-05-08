@@ -25,12 +25,11 @@ public interface InfectionAnalyst {
     float IMMUNITY_FACTOR = 0.3f;
 
     /**
-     * Updates the infection probability after staying at 'location' starting from startTime
-     * Returns the
+     * Updates the infection probability after staying at 'location' starting from startTime until 'endTime'
      * @param startTime
-     * @return
+     * @param endTime
      */
-    CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime);
+    CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime, Date endTime);
 
     /**
      * Returns the instance of the Carrier whose status is modified by the Infection Analyst

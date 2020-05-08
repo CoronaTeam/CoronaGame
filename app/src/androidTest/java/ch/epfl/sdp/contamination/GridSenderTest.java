@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -34,7 +33,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static ch.epfl.sdp.TestUtils.buildLocation;
+import static ch.epfl.sdp.location.LocationUtils.buildLocation;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.mockito.Mockito.when;
@@ -48,6 +47,8 @@ public class GridSenderTest {
     final long outsideRange = 1585223373983L;
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
+
+    Handler uiHandler;
 
     Consumer<Void> writeSuccessToUi;
     Function<Throwable, Void> writeFailureToUi;
@@ -97,7 +98,7 @@ public class GridSenderTest {
         TextView exchangeStatus = mActivityRule.getActivity().exchangeStatus;
 
         // Get reference to UI handler
-        Handler uiHandler = mActivityRule.getActivity().uiHandler;
+        uiHandler = mActivityRule.getActivity().uiHandler;
 
         writeSuccessToUi = (a) -> uiHandler.post(() -> exchangeStatus.setText("EXCHANGE Succeeded"));
         writeFailureToUi = (a) -> {

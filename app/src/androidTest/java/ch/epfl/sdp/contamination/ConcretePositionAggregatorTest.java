@@ -2,7 +2,6 @@ package ch.epfl.sdp.contamination;
 
 import android.location.Location;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -10,9 +9,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
-import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.expandedLocEquals;
+import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
+import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -26,17 +26,17 @@ public class ConcretePositionAggregatorTest {
     @Before
     public void initTest(){
         this.sender  = new FakeCachingDataSender();
-        this.aggregator = new ConcretePositionAggregator(sender,new FakeAnalyst(),maxNumberOfLoc);
+        this.aggregator = new ConcretePositionAggregator(sender,new Layman(HEALTHY),maxNumberOfLoc);
         aggregator.updateToOnline();
         timelap = PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION/maxNumberOfLoc;
     }
     @Test(expected = IllegalArgumentException.class)
     public void cantInstantiateOnZeroMaxLocationPerAggregation(){
-        new ConcretePositionAggregator(sender,new FakeAnalyst(),0);
+        new ConcretePositionAggregator(sender,new Layman(HEALTHY),0);
     }
     @Test(expected = IllegalArgumentException.class)
     public void cantInstantiateOnNegativeMaxLocationPerAggregation(){
-        new ConcretePositionAggregator(sender,new FakeAnalyst(),-1);
+        new ConcretePositionAggregator(sender,new Layman(HEALTHY),-1);
     }
     @Test(expected = IllegalArgumentException.class)
     public void addPositionFailsOnNullInput(){
@@ -44,7 +44,7 @@ public class ConcretePositionAggregatorTest {
     }
     @Test(expected = IllegalArgumentException.class)
     public void canNotInstantiateAggregatorWithNullSender(){
-        new ConcretePositionAggregator(null,new FakeAnalyst());
+        new ConcretePositionAggregator(null, new Layman(HEALTHY));
     }
     @Test(expected = IllegalArgumentException.class)
     public void canNotInstantiateAggregatorWithNullAnalyst(){

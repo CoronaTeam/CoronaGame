@@ -25,17 +25,34 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
     }
 
     @Override
-    public CompletableFuture<Map<String, Object>> readDocument(DocumentReference documentReference) {
+    public CompletableFuture<Map<String, Object>> readDocument(@NotNull DocumentReference documentReference) {
+
+        return taskToFuture(documentReference.get())
+                .thenApply(
+                        doc -> {
+                            if (doc.exists()) {
+                                return doc.getData();
+                            } else {
+                                // Document does not exist
+                                return Collections.emptyMap();
+                            }
+                        });
+
+        /*
         Task<DocumentSnapshot> task = documentReference.get();
-        CompletableFuture<DocumentSnapshot> completableFuture = taskToFuture(task);
-        return completableFuture.thenApply(doc -> {
-            if (doc.exists()) {
-                doc.getData();
-                return doc.getData();
-            } else {
-                throw new RuntimeException("Document doesn't exist");
-            }
-        }).exceptionally(e -> Collections.emptyMap());
+        while (!task.isComplete()) {}
+        return taskToFuture(task)
+                .thenApply(
+                        doc -> {
+                            if (doc.exists()) {
+                                return doc.getData();
+                            } else {
+                                // Document does not exist
+                                return Collections.emptyMap();
+                            }
+                        });
+
+         */
     }
 
     @Override

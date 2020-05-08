@@ -20,10 +20,6 @@ public class DataExchangeActivity extends AppCompatActivity {
 
     // TODO: This activity will be converted into a Service
 
-
-    private CachingDataSender sender;
-    private DataReceiver receiver;
-
     private LocationService service;
 
     @VisibleForTesting
@@ -33,14 +29,12 @@ public class DataExchangeActivity extends AppCompatActivity {
     Handler uiHandler;
 
     @VisibleForTesting
-    CachingDataSender getSender() {
-        return sender;
-    }
-
-    @VisibleForTesting
     public LocationService getService() {
         return service;
     }
+
+    @VisibleForTesting
+    public ServiceConnection serviceConnection;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,23 +43,36 @@ public class DataExchangeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_dataexchange);
         exchangeStatus = findViewById(R.id.exchange_status);
 
-        ServiceConnection conn = new ServiceConnection() {
+        uiHandler = new Handler();
+
+        bindLocationService();
+    }
+
+    @VisibleForTesting
+    public void bindLocationService() {
+        serviceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 LocationService.LocationBinder binder = (LocationService.LocationBinder) service;
                 DataExchangeActivity.this.service = binder.getService();
-                DataExchangeActivity.this.sender = DataExchangeActivity.this.service.getSender();
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
                 DataExchangeActivity.this.service = null;
-                DataExchangeActivity.this.sender = null;
             }
         };
 
-        bindService(new Intent(this, LocationService.class), conn, BIND_AUTO_CREATE);
+        bindService(new Intent(this, LocationService.class), serviceConnection, BIND_AUTO_CREATE);
 
-        uiHandler = new Handler();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (serviceConnection != null) {
+            unbindService(serviceConnection);
+        }
     }
 }

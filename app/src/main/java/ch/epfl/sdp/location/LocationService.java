@@ -149,7 +149,7 @@ public class LocationService extends Service implements LocationListener {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent.hasExtra(ALARM_GOES_OFF)) {
+        if (intent != null && intent.hasExtra(ALARM_GOES_OFF)) {
             // It's time to run the model, starting from time 'lastUpdated';
             updateInfectionModel();
         }

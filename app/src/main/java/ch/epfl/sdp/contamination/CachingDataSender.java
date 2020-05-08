@@ -20,6 +20,8 @@ public interface CachingDataSender {
     String privateUserFolder = "privateUser/";
     String privateRecoveryCounter = "recoveryCounter";
 
+    int MAX_CACHE_ENTRY_AGE = InfectionAnalyst.UNINTENTIONAL_CONTAGION_TIME;
+
     static Location RoundAndExpandLocation(Location l){
         int a = (int)(0.5 + l.getLatitude()*EXPAND_FACTOR);
         int b = (int)(0.5 + l.getLongitude()*EXPAND_FACTOR);

@@ -48,6 +48,8 @@ public class GridSenderTest {
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
 
+    Handler uiHandler;
+
     Consumer<Void> writeSuccessToUi;
     Function<Throwable, Void> writeFailureToUi;
 
@@ -96,7 +98,7 @@ public class GridSenderTest {
         TextView exchangeStatus = mActivityRule.getActivity().exchangeStatus;
 
         // Get reference to UI handler
-        Handler uiHandler = mActivityRule.getActivity().uiHandler;
+        uiHandler = mActivityRule.getActivity().uiHandler;
 
         writeSuccessToUi = (a) -> uiHandler.post(() -> exchangeStatus.setText("EXCHANGE Succeeded"));
         writeFailureToUi = (a) -> {

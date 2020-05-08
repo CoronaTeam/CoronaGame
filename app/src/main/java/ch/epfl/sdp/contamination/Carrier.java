@@ -59,5 +59,4 @@ public interface Carrier {
      * @return a Map containing, for each date, the probability of being infected
      */
     Map<Date, Float> getIllnessProbabilityHistory(Date since);
-
 }

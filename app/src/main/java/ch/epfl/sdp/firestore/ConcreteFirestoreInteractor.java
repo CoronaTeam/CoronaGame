@@ -25,31 +25,33 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
 
     @Override
     public CompletableFuture<Map<String, Object>> readDocument(@NotNull DocumentReference documentReference) {
-        CompletableFuture<Map<String, Object>> result = null;
-        try {
-            serverIdlingResource.increment();
-            Task<DocumentSnapshot> task = documentReference.get();
-            result = taskToFuture(task)
-                    .thenApply(
-                    doc -> {
-                        if (doc.exists()) {
-                            return doc.getData();
-                        } else {
-                            // Document does not exist
-                            return Collections.emptyMap();
-                        }
-                    });
-        } catch (Exception e) {
-            result = new CompletableFuture<>();
-            result.completeExceptionally(e);
-        } finally {
-            serverIdlingResource.decrement();
-            if (result == null) {
-                result = new CompletableFuture<>();
-                result.completeExceptionally(new Exception());
-            }
-            return result;
-        }
+
+        return taskToFuture(documentReference.get())
+                .thenApply(
+                        doc -> {
+                            if (doc.exists()) {
+                                return doc.getData();
+                            } else {
+                                // Document does not exist
+                                return Collections.emptyMap();
+                            }
+                        });
+
+        /*
+        Task<DocumentSnapshot> task = documentReference.get();
+        while (!task.isComplete()) {}
+        return taskToFuture(task)
+                .thenApply(
+                        doc -> {
+                            if (doc.exists()) {
+                                return doc.getData();
+                            } else {
+                                // Document does not exist
+                                return Collections.emptyMap();
+                            }
+                        });
+
+         */
     }
 
     @Override

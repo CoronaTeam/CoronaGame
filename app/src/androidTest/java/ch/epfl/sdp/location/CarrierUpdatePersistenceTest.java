@@ -155,6 +155,8 @@ public class CarrierUpdatePersistenceTest {
 
         useAnalystWithSentinel();
 
+        sentinel.set(0);
+
         assertThat(sentinel.get(), equalTo(0));
 
         LocationService.setAlarmDelay(2000);

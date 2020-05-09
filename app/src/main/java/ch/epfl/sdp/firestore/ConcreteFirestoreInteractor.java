@@ -6,8 +6,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -20,14 +18,8 @@ import java.util.concurrent.CompletableFuture;
  */
 public class ConcreteFirestoreInteractor extends FirestoreInteractor {
 
-    /**
-     * Default constructor
-     */
-    public ConcreteFirestoreInteractor() {
-    }
-
     @Override
-    public CompletableFuture<Map<String, Object>> readDocument(@NotNull DocumentReference documentReference) {
+    public CompletableFuture<Map<String, Object>> readDocument(DocumentReference documentReference) {
 
         return taskToFuture(documentReference.get())
                 .thenApply(

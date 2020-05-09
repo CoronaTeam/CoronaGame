@@ -10,8 +10,6 @@ import android.widget.TextView;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -21,15 +19,11 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 
-import ch.epfl.sdp.firestore.QueryHandler;
-
 public class HistoryFragment extends Fragment {
 
     private HistoryFirestoreInteractor db;
 
     private Account account;
-
-    private QueryHandler handler;
 
     private TextView connectionStatus;
 

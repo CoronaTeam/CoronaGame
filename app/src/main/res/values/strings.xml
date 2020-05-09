@@ -1,10 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <resources>
+    <string name="accountDetails">Account details</string>
+
+    <string name="aggregator_status_off">Noo! You are offline</string>
+    <string name="aggregator_status_on">You are online now</string>
+
     <string name="app_id" translatable="false">807375232223</string>
     <string name="app_name">CoronaGame</string>
 
+    <string name="authentication_failed">Authentication failed</string>
+
+    <string name="bio_auth_negative_button_toast">Come back when sure about your health status!</string>
+    <string name="bio_auth_prompt_negative_button">Cancel</string>
+    <string name="bio_auth_prompt_subtitle">Confirm your health status change</string>
+    <string name="bio_auth_prompt_title">Biometric authentication</string>
+    <string name="bio_auth_success_toast">Authentication succeeded!</string>
+
     <string name="can_t_Download_Offline">Can\'t download while offline</string>
     <string name="can_t_Upload_Offline">Can\'t upload while offline</string>
+
+    <string name="cannot_retrieve_positions">Cannot retrieve positions from database</string>
 
     <string name="connection_error" translatable="false">CONNECTION ERROR</string>
 
@@ -16,6 +31,11 @@
 
     <string name="downloading">Downloading …</string>
 
+    <string name="email">E-mail</string>
+
+    <string name="error_infection_status_ratelimit">You can\'t change your infection status more than once a day</string>
+    <string name="error_status_update">Error updating user infection status.</string>
+
     <string name="exchange_failed" translatable="false">EXCHANGE Failed</string>
     <string name="exchange_succed" translatable="false">EXCHANGE Succeeded</string>
 
@@ -25,6 +45,19 @@
 
     <string name="i_am_cured">I am cured</string>
     <string name="i_am_infected">I am infected</string>
+
+    <string name="infection_dialog_cool_message">Fortunately, you have not met anyone sick since last time.</string>
+    <string name="infection_dialog_message1">"Watch out! You met "</string>
+    <string name="infection_dialog_title">Daily report</string>
+    <string name="infection_probability">Infection Probability</string>
+    <string name="infection_status_posted">Posted!</string>
+
+    <string name="intro_page1_description">Using the heatmap to check zones at risk</string>
+    <string name="intro_page1_title">&#128270; Stay aware of your surroundings</string>
+    <string name="intro_page2_description">To let other users know and alert them if they might have been infected</string>
+    <string name="intro_page2_title">&#127777;️ Indicate your infection status</string>
+    <string name="intro_page3_description">In real-time, computed from your geolocated interactions with other users</string>
+    <string name="intro_page3_title">&#128200; Get your infection probability</string>
 
     <string name="latitude">Latitude</string>
 
@@ -46,25 +79,35 @@
 
     <string name="no_data_uploaded_yet">No data uploaded yet.</string>
 
+    <string name="one_infection_dialog_message2">" infected person!"</string>
+
     <string name="past_positions">Past positions</string>
 
     <string name="query_ok">QUERY OK</string>
 
     <string name="refresh">Refresh</string>
 
+    <string name="see_my_last_path">See my last path</string>
+
     <string name="send">Send</string>
+
+    <string name="several_infection_dialog_message2">" infected persons!"</string>
 
     <string name="sign_in" translatable="false">SignIn</string>
 
+    <string name="signin_text">&#127880; Sign in with your Google account to begin!</string>
+
     <string name="signout">SignOut</string>
+
+    <string name="since_last_month">Since last month</string>
 
     <string name="sync_error" translatable="false">SYNC ERROR!</string>
     <string name="sync_ok" translatable="false">SYNC OK</string>
 
     <string name="tab_account">Account</string>
     <string name="tab_history">History</string>
-    <string name="tab_status">Status</string>
     <string name="tab_map">Map</string>
+    <string name="tab_status">Status</string>
 
     <string name="textView" translatable="false">TextView</string>
 
@@ -74,8 +117,13 @@
 
     <string name="todo" translatable="false">TODO</string>
 
+    <string name="unexpected_error">Unexpected error: </string>
+
     <string name="uploading">Uploading …</string>
     <string name="uploading_with_dots">Uploading…</string>
+
+    <string name="user_id" translatable="false">#%1$s</string>
+    <string name="user_status_update">User infection status successfully updated!</string>
 
     <string name="waiting_for_gps">Waiting for GPS…</string>
 
@@ -83,35 +131,4 @@
 
     <string name="your_user_status_is_set_to_infected">Your user status is set to infected.</string>
     <string name="your_user_status_is_set_to_not_infected">Your user status is set to not infected.</string>
-
-    <string name="user_id" translatable="false">#%1$s</string>
-    <string name="accountDetails">Account details</string>
-    <string name="email">E-mail</string>
-    <string name="aggregator_status_on">You are online now</string>
-    <string name="aggregator_status_off">Noo! You are offline</string>
-    <string name="user_status_update">User infection status successfully updated!</string>
-    <string name="error_status_update">Error updating user infection status.</string>
-
-    <string name="signin_text">🎈 Sign in with your Google account to begin!</string>
-    <string name="intro_page1_title">🔎 Stay aware of your surroundings</string>
-    <string name="intro_page1_description">Using the heatmap to check zones at risk</string>
-    <string name="intro_page2_title">🌡️ Indicate your infection status</string>
-    <string name="intro_page2_description">To let other users know and alert them if they might have been infected</string>
-    <string name="intro_page3_title">📈 Get your infection probability</string>
-    <string name="intro_page3_description">In real-time, computed from your geolocated interactions with other users</string>
-
-    <string name="infection_status_posted">Posted!</string>
-
-    <string name="see_my_last_path">See my last path</string>
-    <string name="cannot_retrieve_positions">Cannot retrieve positions from database</string>
-
-    <string name="error_infection_status_ratelimit">You can\'t change your infection status more than once a day</string>
-    <string name="infection_dialog_message1">"Watch out! You met "</string>
-    <string name="several_infection_dialog_message2">" infected persons!"</string>
-    <string name="infection_dialog_title">Daily report</string>
-    <string name="infection_dialog_cool_message">Fortunately, you have not met anyone sick since last time.</string>
-    <string name="one_infection_dialog_message2">" infected person!"</string>
-    <string name="infection_probability">Infection Probability</string>
-    <string name="since_last_month">Since last month</string>
-
 </resources>

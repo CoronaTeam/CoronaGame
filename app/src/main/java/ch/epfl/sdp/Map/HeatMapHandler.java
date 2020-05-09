@@ -57,7 +57,7 @@ class HeatMapHandler {
 
     private void initQuery() {
         db.readCollection(collectionReference("LastPositions"))
-                .thenAccept(value -> createGeoJson(value))
+                .thenAccept(this::createGeoJson)
                 .exceptionally(e -> {
                     Toast.makeText(parentClass.getActivity(), "Cannot retrieve " +
                             "positions " +

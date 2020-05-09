@@ -1,12 +1,8 @@
 package ch.epfl.sdp;
 
-import android.app.Activity;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
@@ -18,20 +14,6 @@ import ch.epfl.sdp.firestore.FirebaseActivity;
 import ch.epfl.sdp.location.LocationService;
 
 public class MainActivity extends AppCompatActivity {
-
-    public static boolean IS_ONLINE = true;
-    public static boolean IS_NETWORK_DEBUG = false;
-
-    public static void checkNetworkStatus(Activity activity) {
-        if (!IS_NETWORK_DEBUG) {
-            ConnectivityManager cm =
-                    (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
-            assert cm != null;
-            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-            IS_ONLINE = (activeNetwork != null &&
-                    activeNetwork.isConnectedOrConnecting());
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +43,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onServiceDisconnected(ComponentName name) { }
+            public void onServiceDisconnected(ComponentName name) {
+            }
         };
         bindService(serviceIntent, conn, BIND_AUTO_CREATE);
     }
@@ -74,42 +57,54 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    /** Called when the user taps the DisplayGps button */
+    /**
+     * Called when the user taps the DisplayGps button
+     */
     public void setGPSView(View view) {
         Intent intent = new Intent(this, GpsActivity.class);
         startActivity(intent);
     }
 
-    /** Called when the user taps the DisplayGps button */
+    /**
+     * Called when the user taps the DisplayGps button
+     */
     public void setIntroView(View view) {
         Intent intent = new Intent(this, IntroActivity.class);
         startActivity(intent);
     }
-  
+
     public void setHistoryView(View view) {
         Intent intent = new Intent(this, HistoryActivity.class);
         startActivity(intent);
     }
 
-    /**Called when the user taps the BeginSignIn button*/
-    public void setSignInView(View v){
+    /**
+     * Called when the user taps the BeginSignIn button
+     */
+    public void setSignInView(View v) {
         Intent intent = new Intent(this, Authentication.class);
         startActivity(intent);
     }
 
-    /**Called when the user taps the Tabs button*/
-    public void setTabsView(View v){
+    /**
+     * Called when the user taps the Tabs button
+     */
+    public void setTabsView(View v) {
         Intent intent = new Intent(this, TabActivity.class);
         startActivity(intent);
     }
 
-    /**Called when the user taps the UserInfection button*/
+    /**
+     * Called when the user taps the UserInfection button
+     */
     public void setUserInfectionView(View v) {
         Intent intent = new Intent(this, UserInfectionActivity.class);
         startActivity(intent);
     }
 
-    /**Called when the user taps the Infection button*/
+    /**
+     * Called when the user taps the Infection button
+     */
     public void setInfectionView(View v) {
         Intent intent = new Intent(this, InfectionActivity.class);
         startActivity(intent);

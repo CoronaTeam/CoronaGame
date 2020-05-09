@@ -1,5 +1,7 @@
 package ch.epfl.sdp;
 
+import android.util.Pair;
+
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 

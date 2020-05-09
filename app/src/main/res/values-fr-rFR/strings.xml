@@ -1,69 +1,108 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
+    <string name="accountDetails">Détails du compte</string>
+
+    <string name="aggregator_status_off">Zut! Vous êtes hors ligne</string>
+    <string name="aggregator_status_on">Vous êtes maintenant en ligne</string>
+
     <string name="app_name">CoronaGame</string>
+
+    <string name="authentication_failed">Échec de l\'authentification</string>
+
+    <string name="bio_auth_negative_button_toast">Revenez quand vous serez sûr de votre état de santé !</string>
+    <string name="bio_auth_prompt_negative_button">Annuler</string>
+    <string name="bio_auth_prompt_subtitle">Confirmez le changement de votre état de santé</string>
+    <string name="bio_auth_prompt_title">Authentification biométrique</string>
+    <string name="bio_auth_success_toast">L\'authentification a réussi !</string>
+
     <string name="can_t_Download_Offline">Téléchargement hors ligne impossible</string>
     <string name="can_t_Upload_Offline">Transfert hors ligne impossible</string>
-    <string name="launch_history">Lancer l\'historique</string>
-    <string name="launch_gps">Lancer le GPS</string>
-    <string name="launch_firebase">Lancer Firebase</string>
-    <string name="i_am_infected">Je suis infecté(e)</string>
-    <string name="i_am_cured">Je ne suis pas infecté(e)</string>
-    <string name="gps_status_on">"Signal GPS acquis "</string>
-    <string name="gps_status_off">Signal GPS perdu</string>
-    <string name="gps_signal_missing">Signal GPS manquant</string>
-    <string name="downloading">Téléchargement en cours…</string>
+
+    <string name="cannot_retrieve_positions">Impossible de charger les positions depuis la base de donnée</string>
+
     <string name="download">Télécharger</string>
-    <string name="your_user_status_is_set_to_not_infected">Votre statut utilisateur est défini sur non-infecté(e)</string>
-    <string name="your_user_status_is_set_to_infected">Votre statut utilisateur est défini sur infecté(e)</string>
-    <string name="you_cannot_update_your_status_you_are_offline">Téléchargement hors ligne impossible</string>
-    <string name="waiting_for_gps">En attente du GPS…</string>
-    <string name="uploading_with_dots">Transfert…</string>
+
+    <string name="downloading">Téléchargement en cours…</string>
+
+    <string name="email">E-mail</string>
+
+    <string name="error_infection_status_ratelimit">Vous ne pouvez pas changer votre status plus d\'une fois par jour</string>
+    <string name="error_status_update">Erreur lors de la mise à jour du statut d\'infection.</string>
+
+    <string name="gps_signal_missing">Signal GPS manquant</string>
+    <string name="gps_status_off">Signal GPS perdu</string>
+    <string name="gps_status_on">"Signal GPS acquis "</string>
+
+    <string name="i_am_cured">Je ne suis pas infecté(e)</string>
+    <string name="i_am_infected">Je suis infecté(e)</string>
+
+    <string name="infection_dialog_cool_message">"Vous n'avez rencontré personne d'infecté depuis la denière fois."</string>
+    <string name="infection_dialog_message1">"Attention ! Vous avez rencontré "</string>
+    <string name="infection_dialog_title">Rapport journalier</string>
+    <string name="infection_probability">Probabilité d\'infection</string>
+    <string name="infection_status_posted">Envoyé!</string>
+
+    <string name="intro_page1_description">À l\'aide de la heatmap pour vérifier les zones à risque</string>
+    <string name="intro_page1_title">&#128270; Restez en sécurité</string>
+    <string name="intro_page2_description">Pour informer les autres utilisateurs et les alerter s\'ils ont pu être infectés</string>
+    <string name="intro_page2_title">&#127777;️ Indiquez votre état d\'infection</string>
+    <string name="intro_page3_description">En temps réel, calculée à partir de vos interactions géolocalisées avec d\'autres utilisateurs</string>
+    <string name="intro_page3_title">&#128200; Obtenez votre probabilité d\'infection</string>
+
+    <string name="latitude">Latitude</string>
+
+    <string name="launch_firebase">Lancer Firebase</string>
+    <string name="launch_gps">Lancer le GPS</string>
+    <string name="launch_history">Lancer l\'historique</string>
     <string name="launch_intro">Lancer l\'intro</string>
-    <string name="past_positions">Dernières positions</string>
-    <string name="tab_account">Compte</string>
-    <string name="tab_history">Historique</string>
-    <string name="tab_status">Statut</string>
-    <string name="tab_map">Carte</string>
-    <string name="signout">Se déconnecter</string>
-    <string name="refresh">Rafraîchir</string>
-    <string name="my_past_positions">Mes dernières positions</string>
-    <string name="no_data_uploaded_yet">Aucune donnée transférée</string>
-    <string name="query_ok">Requête OK</string>
-    <string name="send">Envoyer</string>
-    <string name="uploading">Transfert…</string>
-    <string name="loading_with_dots">Chargement…</string>
-    <string name="longitude">Longitude</string>
     <string name="launch_signin">Lancer SignIn</string>
     <string name="launch_tabs">Lancer Tabs</string>
     <string name="launch_user_infection">Lancer User Infection</string>
-    <string name="latitude">Latitude</string>
-    <string name="aggregator_status_on">Vous êtes maintenant en ligne</string>
-    <string name="aggregator_status_off">Zut! Vous êtes hors ligne</string>
-    <string name="user_status_update">Statut d\'infection mis à jour!</string>
-    <string name="error_status_update">Erreur lors de la mise à jour du statut d\'infection.</string>
-    <string name="accountDetails">Détails du compte</string>
-    <string name="email">E-mail</string>
 
-    <string name="signin_text">🎈 Connectez-vous avec votre compte Google pour démarrer !</string>
-    <string name="intro_page1_title">🔎 Restez en sécurité</string>
-    <string name="intro_page1_description">À l\'aide de la heatmap pour vérifier les zones à risque</string>
-    <string name="intro_page2_title">🌡️ Indiquez votre état d\'infection</string>
-    <string name="intro_page2_description">Pour informer les autres utilisateurs et les alerter s\'ils ont pu être infectés</string>
-    <string name="intro_page3_title">📈 Obtenez votre probabilité d\'infection</string>
-    <string name="intro_page3_description">En temps réel, calculée à partir de vos interactions géolocalisées avec d\'autres utilisateurs</string>
+    <string name="loading_with_dots">Chargement…</string>
 
-    <string name="infection_status_posted">Envoyé!</string>
+    <string name="longitude">Longitude</string>
+
+    <string name="my_past_positions">Mes dernières positions</string>
+
+    <string name="no_data_uploaded_yet">Aucune donnée transférée</string>
+
+    <string name="one_infection_dialog_message2">" personnes infectées !"</string>
+
+    <string name="past_positions">Dernières positions</string>
+
+    <string name="query_ok">Requête OK</string>
+
+    <string name="refresh">Rafraîchir</string>
 
     <string name="see_my_last_path">Voir mon dernier trajet</string>
-    <string name="cannot_retrieve_positions">Impossible de charger les positions depuis la base de donnée</string>
 
-    <string name="error_infection_status_ratelimit">Vous ne pouvez pas changer votre status plus d\'une fois par jour</string>
-    <string name="infection_dialog_message1">"Attention ! Vous avez rencontré "</string>
+    <string name="send">Envoyer</string>
+
     <string name="several_infection_dialog_message2">" personnes infectées !"</string>
-    <string name="infection_dialog_title">Rapport journalier</string>
-    <string name="infection_dialog_cool_message">"Vous n'avez rencontré personne d'infecté depuis la denière fois."</string>
-    <string name="one_infection_dialog_message2">" personnes infectées !"</string>
-    <string name="infection_probability">Probabilité d\'infection</string>
+
+    <string name="signin_text">&#127880; Connectez-vous avec votre compte Google pour démarrer !</string>
+
+    <string name="signout">Se déconnecter</string>
+
     <string name="since_last_month">Depuis le mois dernier</string>
 
+    <string name="tab_account">Compte</string>
+    <string name="tab_history">Historique</string>
+    <string name="tab_map">Carte</string>
+    <string name="tab_status">Statut</string>
+
+    <string name="unexpected_error">Erreur inattendue: </string>
+
+    <string name="uploading">Transfert…</string>
+    <string name="uploading_with_dots">Transfert…</string>
+
+    <string name="user_status_update">Statut d\'infection mis à jour!</string>
+
+    <string name="waiting_for_gps">En attente du GPS…</string>
+
+    <string name="you_cannot_update_your_status_you_are_offline">Téléchargement hors ligne impossible</string>
+
+    <string name="your_user_status_is_set_to_infected">Votre statut utilisateur est défini sur infecté(e)</string>
+    <string name="your_user_status_is_set_to_not_infected">Votre statut utilisateur est défini sur non-infecté(e)</string>
 </resources>

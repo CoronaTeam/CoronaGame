@@ -5,6 +5,8 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 
+import ch.epfl.sdp.R;
+
 public class HistoryActivity extends FragmentActivity {
 
     @Override

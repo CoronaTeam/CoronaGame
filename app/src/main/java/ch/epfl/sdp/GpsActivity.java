@@ -29,7 +29,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.location.LocationService;
 
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
@@ -90,7 +89,7 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         Map<String, Object> element = new HashMap();
         element.put("Position", new PositionRecord(Timestamp.now(),
                 new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude())));
-        db.write(element).whenComplete((res, thr) -> {
+        db.writePositions(element).whenComplete((res, thr) -> {
             if (thr == null){
                 uploadStatus.setText(R.string.sync_ok);
             }else{

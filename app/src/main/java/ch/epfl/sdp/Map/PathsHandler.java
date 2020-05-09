@@ -6,18 +6,19 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.mapbox.geojson.Geometry;
-import com.mapbox.geojson.MultiPoint;
-import com.mapbox.geojson.Point;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.Geometry;
 import com.mapbox.geojson.LineString;
+import com.mapbox.geojson.MultiPoint;
+import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
@@ -29,15 +30,18 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
-import ch.epfl.sdp.Callback;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
+import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
+import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.location.LocationUtils;
 
 import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatMapColorRange;
@@ -45,6 +49,7 @@ import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatMapWeight;
 import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatmapIntensity;
 import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatmapRadius;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
@@ -53,25 +58,44 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
  * as well as points of met infected users.
  */
 public class PathsHandler extends Fragment {
-    private static final int ZOOM = 13;
-    private MapboxMap map;
-    public List<Point> pathCoordinates; // public for testing
-    private List<Point> infected_met;
-    private FirebaseFirestore db = FirebaseFirestore.getInstance(); // we don't use ConcreteFirestoreInteractor because we want to do more specific op
-    private MapFragment parentClass;
-    public double latitude; //public fir testing
-    public double longitude; // public for testing
-
-    // default access restriction for now, could be package-private, depending on how we finally decide to organize files
-    public static final String PATH_LAYER_ID = "linelayer"; // public for testing
+    static final String POINTS_SOURCE_ID = "points-source";
     static final String POINTS_LAYER_ID = "pointslayer";
     static final String PATH_SOURCE_ID = "line-source";
-    static final String POINTS_SOURCE_ID = "points-source";
+    private static final int ZOOM = 7;
+    static final String PATH_LAYER_ID = "linelayer"; // public for testing
+    public List<Point> pathCoordinates;
+    public List<Point> infected_met;
+    private MapboxMap map;
+    private FirestoreInteractor fsi = new ConcreteFirestoreInteractor();
+    private MapFragment parentClass;
+    private double latitude;
+    private double longitude;
+
 
     PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
         this.parentClass = parentClass;
         this.map = map;
-        initFirestorePathRetrieval(this::getPathCoordinates);
+        initFirestorePathRetrieval().thenAccept(this::getPathCoordinates);
+    }
+
+    @VisibleForTesting
+    public static String getPathLayerId() {
+        return PATH_LAYER_ID;
+    }
+
+    @VisibleForTesting
+    public List<Point> getPathCoordinatesAttribute() {
+        return pathCoordinates;
+    }
+
+    @VisibleForTesting
+    public double getLatitude() {
+        return latitude;
+    }
+
+    @VisibleForTesting
+    public double getLongitude() {
+        return longitude;
     }
 
     // public for now, could be package-private, depending on how we finally decide to organize files
@@ -85,20 +109,20 @@ public class PathsHandler extends Fragment {
         }
     }
 
-    private void getPathCoordinates(@NonNull Iterator<QueryDocumentSnapshot> qsIterator) {
+    private void getPathCoordinates(Map<String, Map<String, Object>> stringMapMap) {
         // TODO: get path for given day, NEED TO RETRIEVE POSITIONS ON SPECIFIC DAY TIME
         pathCoordinates = new ArrayList<>();
         infected_met = new ArrayList<>();
 
-        for (; qsIterator.hasNext(); ) {
-            QueryDocumentSnapshot qs = qsIterator.next();
+        for (Map.Entry<String, Map<String, Object>> doc : stringMapMap.entrySet()) {
             try {
-                GeoPoint geoPoint = (GeoPoint) ((Map) qs.get("Position")).get("geoPoint");
+                GeoPoint geoPoint = (GeoPoint) ((Map) doc.getValue().get("Position")).get("geoPoint");
                 double lat = geoPoint.getLatitude();
                 double lon = geoPoint.getLongitude();
                 pathCoordinates.add(Point.fromLngLat(lon, lat));
                 // check infected met around this point of the path
-                Timestamp timestamp = (Timestamp) ((Map) qs.get("Position")).get("timestamp");
+                Timestamp timestamp = (Timestamp) ((Map) doc.getValue().get("Position")).get(
+                        "timestamp");
                 addInfectedMet(lat, lon, timestamp);
             } catch (NullPointerException e) {
                 Log.d("ERROR ADDING POINT", String.valueOf(e));
@@ -165,19 +189,27 @@ public class PathsHandler extends Fragment {
         });
     }
 
-    private void initFirestorePathRetrieval(Callback<Iterator<QueryDocumentSnapshot>> callback) {
-        db.collection("History/THAT_BETTER_PATH/Positions")
-                .orderBy("Position.timestamp")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        callback.onCallback(task.getResult().iterator());
+    private CompletableFuture<Map<String, Map<String, Object>>> initFirestorePathRetrieval() {
+        return FirestoreInteractor.taskToFuture(
+                collectionReference("History/USER_PATH_DEMO" + "/Positions")
+                        .orderBy("Position" + ".timestamp").get())
+                .thenApply(collection -> {
+                    if (collection.isEmpty()) {
+                        throw new RuntimeException("Collection doesn't contain any document");
                     } else {
-                        Toast.makeText(parentClass.getActivity(),
-                                R.string.cannot_retrieve_positions,
-                                Toast.LENGTH_LONG).show();
+                        List<DocumentSnapshot> list = collection.getDocuments();
+                        Map<String, Map<String, Object>> result = new HashMap<>();
+                        for (DocumentSnapshot doc : list) {
+                            result.put(doc.getId(), doc.getData());
+                        }
+                        return result;
                     }
+                })
+                .exceptionally(e -> {
+                    Toast.makeText(parentClass.getActivity(),
+                            R.string.cannot_retrieve_positions,
+                            Toast.LENGTH_LONG).show();
+                    return Collections.emptyMap();
                 });
     }
-
 }

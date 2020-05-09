@@ -105,4 +105,5 @@
 
     <string name="your_user_status_is_set_to_infected">Votre statut utilisateur est défini sur infecté(e)</string>
     <string name="your_user_status_is_set_to_not_infected">Votre statut utilisateur est défini sur non-infecté(e)</string>
+    <string name="refresh_to_see_status">Rafraîchir pour voir votre statut</string>
 </resources>

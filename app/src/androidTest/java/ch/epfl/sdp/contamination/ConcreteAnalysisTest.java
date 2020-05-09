@@ -331,7 +331,7 @@ public class ConcreteAnalysisTest {
         cityReceiver.setMyCurrentLocation(buildLocation(0, 0));
 
         //fragment.onModelRefresh(null);
-        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
+        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh());
 
         TestTools.sleep();
         clickBack();
@@ -351,7 +351,7 @@ public class ConcreteAnalysisTest {
 
         Thread.sleep(10);
 
-        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
+        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh());
         Thread.sleep(10);
         clickBack();
 
@@ -368,7 +368,7 @@ public class ConcreteAnalysisTest {
         city.get(badLocation).put(nowMillis+13,Collections.singleton((new Layman(INFECTED))));
         city.get(badLocation).put(nowMillis+14,Collections.singleton(man1));
         Thread.sleep(30);
-        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
+        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh());
 
         clickBack();
 
@@ -395,7 +395,7 @@ public class ConcreteAnalysisTest {
         // I go to the bad location
         cityReceiver.setMyCurrentLocation(buildLocation(40, 113.4));
 
-        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
+        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh());
         Thread.sleep(10);
         sleep(5000);
         clickBack();
@@ -507,7 +507,7 @@ public class ConcreteAnalysisTest {
         cityReceiver.setMyCurrentLocation(buildLocation(42, 113.4));
         // Now there should be some risk that I was infected
 
-        mActivityRule.getActivity().runOnUiThread(( ) -> fragment.onModelRefresh(null));
+        mActivityRule.getActivity().runOnUiThread(( ) -> fragment.onModelRefresh());
         sleep(1000);
         clickBack();
         sleep(11);

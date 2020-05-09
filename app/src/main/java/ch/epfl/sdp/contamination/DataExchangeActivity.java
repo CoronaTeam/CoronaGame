@@ -20,21 +20,19 @@ public class DataExchangeActivity extends AppCompatActivity {
 
     // TODO: This activity will be converted into a Service
 
-    private LocationService service;
-
+    @VisibleForTesting
+    public ServiceConnection serviceConnection;
     @VisibleForTesting
     TextView exchangeStatus;
 
     @VisibleForTesting
     Handler uiHandler;
+    private LocationService service;
 
     @VisibleForTesting
     public LocationService getService() {
         return service;
     }
-
-    @VisibleForTesting
-    public ServiceConnection serviceConnection;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,7 +62,6 @@ public class DataExchangeActivity extends AppCompatActivity {
         };
 
         bindService(new Intent(this, LocationService.class), serviceConnection, BIND_AUTO_CREATE);
-
     }
 
     @Override

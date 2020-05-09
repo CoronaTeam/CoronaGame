@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -15,35 +16,22 @@ import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.storage.ConcreteManager;
 import ch.epfl.sdp.storage.StorageManager;
 
-public class Layman implements Carrier{
+public class Layman implements Carrier {
 
     private InfectionStatus myStatus;
     // Every update of infectedWithProbability must happen through setInfectionProbability()
     private float infectedWithProbability;
-
     private StorageManager<Date, Float> infectionHistory;
-
     // TODO: Properly set the uniqueID (!!)
     private String uniqueID;
 
-    public Layman() {
-    }
-
-    // TODO: Properly set uniqueID (also modify equalsTo and hashCode!!)
-    public Layman(InfectionStatus initialStatus) {
-        this(initialStatus, initialStatus == InfectionStatus.INFECTED ? 1 : 0);
-    }
-
-    public Layman(InfectionStatus initialStatus, float infectedWithProbability) {
-        this(initialStatus, infectedWithProbability, "__NOT_UNIQUE_NOW");
-    }
-
-    public Layman(InfectionStatus initialStatus, String uniqueID){
-        this(initialStatus, initialStatus == InfectionStatus.INFECTED ? 1 : 0,uniqueID);
-    }
-
+    /**
+     * @param initialStatus
+     * @param infectedWithProbability
+     * @param uniqueID
+     */
     public Layman(InfectionStatus initialStatus, float infectedWithProbability, String uniqueID) {
-        DateFormat format = new SimpleDateFormat("E MMM dd hh:mm:ss zzz yyyy");
+        DateFormat format = new SimpleDateFormat("E MMM dd hh:mm:ss zzz yyyy", Locale.FRANCE);
 
         this.infectionHistory = new ConcreteManager<>(
                 CoronaGame.getContext(),
@@ -63,22 +51,33 @@ public class Layman implements Carrier{
         this.uniqueID = uniqueID;
     }
 
+    // TODO: Properly set uniqueID (also modify equalsTo and hashCode!!)
+    public Layman(InfectionStatus initialStatus) {
+        this(initialStatus, initialStatus == InfectionStatus.INFECTED ? 1 : 0);
+    }
+
+    public Layman(InfectionStatus initialStatus, float infectedWithProbability) {
+        this(initialStatus, infectedWithProbability, "__NOT_UNIQUE_NOW");
+    }
+
+    public Layman(InfectionStatus initialStatus, String uniqueID) {
+        this(initialStatus, initialStatus == InfectionStatus.INFECTED ? 1 : 0, uniqueID);
+    }
+
+    public Layman() {
+    }
+
     @Override
     public InfectionStatus getInfectionStatus() {
         return myStatus;
     }
 
-    /**
-     * This method should only be called by someone 100% sure about the actual status.
-     * @param newStatus
-     * @return
-     */
     @Override
     public boolean evolveInfection(InfectionStatus newStatus) {
         myStatus = newStatus;
         if (newStatus == InfectionStatus.INFECTED) {
             setIllnessProbability(1);
-        }else if(newStatus == InfectionStatus.HEALTHY){
+        } else if (newStatus == InfectionStatus.HEALTHY) {
             setIllnessProbability(0);
         }
         return true;
@@ -86,13 +85,11 @@ public class Layman implements Carrier{
 
     @Override
     public float getIllnessProbability() {
-        switch (myStatus) {
-            case INFECTED:
-                return 1;
-            default:
-                // Only useful case: the infection hits the 10% of the population overall
-                return infectedWithProbability;
+        if (myStatus == InfectionStatus.INFECTED) {
+            return 1;
         }
+        // Only useful case: the infection hits the 10% of the population overall
+        return infectedWithProbability;
     }
 
     @Override
@@ -121,15 +118,16 @@ public class Layman implements Carrier{
     @Override
     public boolean equals(@Nullable Object obj) {
         return (obj instanceof Layman) &&
-                ((Layman)obj).uniqueID.equals(this.uniqueID) &&
-                ((Layman)obj).myStatus == this.myStatus &&
-                ((Layman)obj).infectedWithProbability == this.infectedWithProbability;
+                ((Layman) obj).uniqueID.equals(this.uniqueID) &&
+                ((Layman) obj).myStatus == this.myStatus &&
+                ((Layman) obj).infectedWithProbability == this.infectedWithProbability;
     }
 
     @NonNull
     @Override
     public String toString() {
-        return String.format("#%s: %s (p=%f)", uniqueID, myStatus, infectedWithProbability);
+        return String.format(Locale.FRANCE, "#%s: %s (p=%f)", uniqueID, myStatus,
+                infectedWithProbability);
     }
 
     // TODO: If uniqueID is properly assigned, its hash can be the hash of the carrier
@@ -149,7 +147,7 @@ public class Layman implements Carrier{
         infectionHistory.close();
     }
 
-    ///Getters Needed for the conversion from Object to Map<String, Object> during the Fierbase
+    ///Getters Needed for the conversion from Object to Map<String, Object> during the Firebase
     // Upload
     public InfectionStatus getMyStatus() {
         return myStatus;

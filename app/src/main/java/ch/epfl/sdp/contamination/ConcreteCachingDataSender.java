@@ -20,8 +20,9 @@ import static ch.epfl.sdp.AuthenticationManager.getActivity;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 
 public class ConcreteCachingDataSender implements CachingDataSender {
-    SortedMap<Date, Location> lastPositions;
+    private SortedMap<Date, Location> lastPositions;
     private GridFirestoreInteractor gridInteractor;
+
     public ConcreteCachingDataSender(GridFirestoreInteractor interactor) {
         this.gridInteractor = interactor;
         this.lastPositions = new TreeMap<>();
@@ -37,8 +38,8 @@ public class ConcreteCachingDataSender implements CachingDataSender {
         refreshLastPositions(time, location);
         Map<String, Object> element = new HashMap<>();
         element.put("geoPoint", new GeoPoint(
-                location.getLatitude()/CachingDataSender.EXPAND_FACTOR,
-                location.getLongitude()/CachingDataSender.EXPAND_FACTOR
+                location.getLatitude() / CachingDataSender.EXPAND_FACTOR,
+                location.getLongitude() / CachingDataSender.EXPAND_FACTOR
         ));
         element.put("timeStamp", time.getTime());
         element.put("infectionStatus", carrier.getInfectionStatus());
@@ -47,6 +48,12 @@ public class ConcreteCachingDataSender implements CachingDataSender {
                 element);
         CompletableFuture<Void> future2 = gridInteractor.gridWrite(location, String.valueOf(time.getTime()), carrier);
         return CompletableFuture.allOf(future1, future2);
+    }
+
+    @Override
+    public SortedMap<Date, Location> getLastPositions() {
+        refreshLastPositions(new Date(System.currentTimeMillis()), null);
+        return Collections.unmodifiableSortedMap(lastPositions);
     }
 
     /**
@@ -58,11 +65,5 @@ public class ConcreteCachingDataSender implements CachingDataSender {
         if (location != null) {
             lastPositions.put(time, location);
         }
-    }
-
-    @Override
-    public SortedMap<Date, Location> getLastPositions() {
-        refreshLastPositions(new Date(System.currentTimeMillis()), null);
-        return Collections.unmodifiableSortedMap(lastPositions);
     }
 }

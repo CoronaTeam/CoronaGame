@@ -48,7 +48,8 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
@@ -60,7 +61,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
 
         lastUpdateTime = System.currentTimeMillis();
 
-        infectionStatus.setText("Refresh to see your status");
+        infectionStatus.setText(R.string.refresh_to_see_status);
 
         ServiceConnection conn = new ServiceConnection() {
             @Override
@@ -74,22 +75,19 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
             }
         };
 
-        getActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
+        requireActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
 
         return view;
     }
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.my_infection_refresh: {
-                onModelRefresh(view);
-            }
-            break;
+        if (view.getId() == R.id.my_infection_refresh) {
+            onModelRefresh();
         }
     }
 
-    public void onModelRefresh(View v) {
+    void onModelRefresh() {
 
         Date refreshTime = new Date(lastUpdateTime);
         lastUpdateTime = System.currentTimeMillis();
@@ -99,7 +97,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
                 .thenApply(location -> service.getAnalyst().updateInfectionPredictions(location, refreshTime, new Date())
                         .thenAccept(todayInfectionMeetings -> {
                             //TODO: should run on UI thread?
-                            getActivity().runOnUiThread(() -> {
+                            requireActivity().runOnUiThread(() -> {
                                 infectionStatus.setText(R.string.infection_status_posted);
                                 uiHandler.post(() -> {
                                     InfectionAnalyst analyst = service.getAnalyst();
@@ -136,14 +134,15 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
                 second = getText(R.string.several_infection_dialog_message2);
 
         }
-        builder.setMessage((String) first + (todayInfectionMeetings == 0 ? "" : todayInfectionMeetings) + (String) second)
+        builder.setMessage((String) first + (todayInfectionMeetings == 0 ? "" :
+                todayInfectionMeetings) + second)
                 .setTitle(title);
         AlertDialog dialog = builder.create();
         dialog.show();
     }
 
     @VisibleForTesting
-    public LocationService getLocationService() {
+    LocationService getLocationService() {
         return service;
     }
 

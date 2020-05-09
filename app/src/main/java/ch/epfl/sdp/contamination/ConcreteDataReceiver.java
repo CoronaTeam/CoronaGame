@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
@@ -47,7 +48,7 @@ public class ConcreteDataReceiver implements DataReceiver {
             for (Map.Entry<String, Map<String, Object>> doc : stringMapMap.entrySet()) {
                 carriers.add((Carrier) doc);
                 carriers.add(new Layman(Enum.valueOf(Carrier.InfectionStatus.class,
-                        (String) doc.getValue().get("infectionStatus")),
+                        (String) Objects.requireNonNull(doc.getValue().get("infectionStatus"))),
                         ((float) ((double) doc.getValue().get(
                                 "illnessProbability")))));
             }
@@ -58,7 +59,7 @@ public class ConcreteDataReceiver implements DataReceiver {
     private Set<Long> filterValidTimes(long startDate, long endDate, Map<String, Map<String, Object>> snapshot) {
         Set<Long> validTimes = new HashSet<>();
         for (Map.Entry<String, Map<String, Object>> q : snapshot.entrySet()) {
-            long time = Long.decode((String) q.getValue().get("Time"));
+            long time = Long.decode((String) Objects.requireNonNull(q.getValue().get("Time")));
             if (startDate <= time && time <= endDate) {
                 validTimes.add(time);
             }
@@ -68,7 +69,7 @@ public class ConcreteDataReceiver implements DataReceiver {
 
     @Override
     public CompletableFuture<Map<Carrier, Integer>> getUserNearbyDuring(Location location,
-                                                                       Date startDate, Date endDate) {
+                                                                        Date startDate, Date endDate) {
         return interactor.getTimes(location)
                 .thenApply(stringMapMap -> filterValidTimes(startDate.getTime(), endDate.getTime(), stringMapMap))
                 .thenCompose(validTimes -> {
@@ -84,11 +85,12 @@ public class ConcreteDataReceiver implements DataReceiver {
                                     for (Map.Entry<String, Map<String, Object>> doc : res.entrySet()) {
                                         Carrier c = new Layman(
                                                 Enum.valueOf(Carrier.InfectionStatus.class,
-                                                        (String) doc.getValue().get("infectionStatus")),
+                                                        (String) Objects.requireNonNull(doc.getValue().get("infectionStatus"))),
                                                 ((float) ((double) doc.getValue().get("illnessProbability"))));
 
                                         int numberOfMeetings = 1;
                                         if (metDuringInterval.containsKey(c)) {
+                                            //noinspection ConstantConditions
                                             numberOfMeetings += metDuringInterval.get(c);
                                         }
                                         metDuringInterval.put(c, numberOfMeetings);
@@ -105,23 +107,24 @@ public class ConcreteDataReceiver implements DataReceiver {
     public CompletableFuture<Location> getMyLastLocation(Account account) {
         return interactor.readLastLocation(account).thenApply(result -> {
             if (result.entrySet().iterator().hasNext()) {
-                GeoPoint geoPoint = (GeoPoint)result.get("geoPoint");
+                GeoPoint geoPoint = (GeoPoint) result.get("geoPoint");
                 Location location = new Location(LocationManager.GPS_PROVIDER);
                 location.setLatitude(geoPoint.getLatitude());
                 location.setLongitude(geoPoint.getLongitude());
                 return location;
-            }else{
+            } else {
                 return null;
             }
         });
     }
 
     @Override
-    public CompletableFuture<Map<String, Object>> getNumberOfSickNeighbors(String userId){
+    public CompletableFuture<Map<String, Object>> getNumberOfSickNeighbors(String userId) {
         DocumentReference ref = documentReference(publicUserFolder, userId);
         return interactor.readDocument(ref);
     }
-    public CompletableFuture<Map<String, Object>> getRecoveryCounter(String userId){
+
+    public CompletableFuture<Map<String, Object>> getRecoveryCounter(String userId) {
         return interactor.readDocument(documentReference(privateUserFolder, userId));
     }
 }

@@ -23,6 +23,9 @@ import static ch.epfl.sdp.Tools.checkNetworkStatus;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 
+/**
+ *
+ */
 public class FirebaseActivity extends AppCompatActivity {
     private FirestoreInteractor fs;
 

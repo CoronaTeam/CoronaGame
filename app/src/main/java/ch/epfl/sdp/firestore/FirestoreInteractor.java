@@ -34,8 +34,8 @@ public abstract class FirestoreInteractor {
             }
         } else {
             CompletableFuture<T> future = new CompletableFuture<>();
-            task.addOnSuccessListener(value -> future.complete(value))
-                    .addOnFailureListener(ex -> future.completeExceptionally(ex));
+            task.addOnSuccessListener(future::complete)
+                    .addOnFailureListener(future::completeExceptionally);
             return future;
         }
     }

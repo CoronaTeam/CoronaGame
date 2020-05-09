@@ -26,6 +26,7 @@ public interface InfectionAnalyst {
 
     /**
      * Updates the infection probability after staying at 'location' starting from startTime until 'endTime'
+     *
      * @param startTime
      * @param endTime
      */
@@ -33,11 +34,14 @@ public interface InfectionAnalyst {
 
     /**
      * Returns the instance of the Carrier whose status is modified by the Infection Analyst
+     *
      * @return
      */
     Carrier getCarrier();
+
     /**
      * This will update the carrier status. Gets called by UserInfectionActivity, i.e. when a user discovers his illness,
+     *
      * @return
      */
     boolean updateStatus(Carrier.InfectionStatus stat);

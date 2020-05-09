@@ -89,7 +89,7 @@ public class InfectionActivityTest {
         });
 
         int now = (int)System.currentTimeMillis();
-        fragment.onModelRefresh(null);
+        fragment.onModelRefresh();
         sleep(10);
         onView(withId(R.id.my_infection_refresh)).perform(click());
         clickBack();

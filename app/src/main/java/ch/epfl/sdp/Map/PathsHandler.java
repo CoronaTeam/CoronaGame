@@ -142,7 +142,8 @@ public class PathsHandler extends Fragment {
         Log.d("IS PATH COORD NULL? ", (yesterdayPathCoordinates == null) ? "YES" : "NO");
         latitudeYesterday = yesterdayPathCoordinates.get(0).latitude();
         longitudeYesterday = yesterdayPathCoordinates.get(0).longitude();
-        setPathLayer();
+        setPathLayer(YESTERDAY_PATH_LAYER_ID, YESTERDAY_PATH_SOURCE_ID, yesterdayPathCoordinates);
+        setPathLayer(BEFORE_PATH_LAYER_ID, BEFORE_PATH_SOURCE_ID, beforeYesterdayPathCoordinates);
         setInfectedPointsLayer();
     }
 
@@ -165,15 +166,15 @@ public class PathsHandler extends Fragment {
                 });
     }
 
-    private void setPathLayer() {
-        Layer layer = new LineLayer(YESTERDAY_PATH_LAYER_ID, YESTERDAY_PATH_SOURCE_ID).withProperties(
+    private void setPathLayer(String layerId, String sourceId, List<Point> path) {
+        Layer layer = new LineLayer(layerId, sourceId).withProperties(
                 PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
                 PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND),
                 PropertyFactory.lineWidth(5f),
                 PropertyFactory.lineColor(Color.parseColor("maroon"))
         );
-        LineString geometry = LineString.fromLngLats(yesterdayPathCoordinates);
-        mapStyle(layer, geometry, YESTERDAY_PATH_SOURCE_ID);
+        LineString geometry = LineString.fromLngLats(path);
+        mapStyle(layer, geometry, sourceId);
         layer.setProperties(visibility(NONE));
     }
 

@@ -144,7 +144,8 @@ public class PathsHandler extends Fragment {
         longitudeYesterday = yesterdayPathCoordinates.get(0).longitude();
         setPathLayer(YESTERDAY_PATH_LAYER_ID, YESTERDAY_PATH_SOURCE_ID, yesterdayPathCoordinates);
         setPathLayer(BEFORE_PATH_LAYER_ID, BEFORE_PATH_SOURCE_ID, beforeYesterdayPathCoordinates);
-        setInfectedPointsLayer();
+        setInfectedPointsLayer(YESTERDAY_PATH_LAYER_ID, YESTERDAY_PATH_SOURCE_ID, yesterdayInfectedMet);
+        setInfectedPointsLayer(BEFORE_PATH_LAYER_ID, BEFORE_PATH_SOURCE_ID, beforeYesterdayInfectedMet);
     }
 
     private void addInfectedMet(double lat, double lon, Timestamp timestamp) {
@@ -178,16 +179,16 @@ public class PathsHandler extends Fragment {
         layer.setProperties(visibility(NONE));
     }
 
-    private void setInfectedPointsLayer() {
-        Layer layer = new HeatmapLayer(YESTERDAY_POINTS_LAYER_ID, YESTERDAY_POINTS_SOURCE_ID);
+    private void setInfectedPointsLayer(String layerId, String sourceId, List<Point> infected) {
+        Layer layer = new HeatmapLayer(layerId, sourceId);
         layer.setProperties(
                 adjustHeatMapColorRange(),
                 adjustHeatMapWeight(),
                 adjustHeatmapIntensity(),
                 adjustHeatmapRadius()
         );
-        MultiPoint geometry = MultiPoint.fromLngLats(yesterdayInfectedMet);
-        mapStyle(layer, geometry, YESTERDAY_POINTS_SOURCE_ID);
+        MultiPoint geometry = MultiPoint.fromLngLats(infected);
+        mapStyle(layer, geometry, sourceId);
         layer.setProperties(visibility(NONE));
     }
 

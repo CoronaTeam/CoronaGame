@@ -128,11 +128,17 @@ public class PathsHandler extends Fragment {
                 GeoPoint geoPoint = (GeoPoint) ((Map) doc.getValue().get("Position")).get("geoPoint");
                 double lat = geoPoint.getLatitude();
                 double lon = geoPoint.getLongitude();
-                yesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
-                // check infected met around this point of the path
                 Timestamp timestamp = (Timestamp) ((Map) doc.getValue().get("Position")).get(
                         "timestamp");
-                addInfectedMet(lat, lon, timestamp);
+
+               /* if (timestamp is yesterday) {
+                    yesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
+                } else if (timestamp is before yesterday) {
+                    beforeYesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
+                }*/
+                // check infected met around this point of the path
+                addInfectedMet(lat, lon, timestamp, yesterdayInfectedMet);
+                addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
             } catch (NullPointerException e) {
                 Log.d("ERROR ADDING POINT", String.valueOf(e));
             }
@@ -148,7 +154,7 @@ public class PathsHandler extends Fragment {
         setInfectedPointsLayer(BEFORE_PATH_LAYER_ID, BEFORE_PATH_SOURCE_ID, beforeYesterdayInfectedMet);
     }
 
-    private void addInfectedMet(double lat, double lon, Timestamp timestamp) {
+    private void addInfectedMet(double lat, double lon, Timestamp timestamp, List<Point> infected) {
         ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
         Location location = LocationUtils.buildLocation(lat, lon);
         concreteDataReceiver
@@ -161,7 +167,7 @@ public class PathsHandler extends Fragment {
                         carrier = entry.getKey();
                         if (carrier.getInfectionStatus().equals(INFECTED)) {
                             point = Point.fromLngLat(lon, lat);
-                            yesterdayInfectedMet.add(point);
+                            infected.add(point);
                         }
                     }
                 });

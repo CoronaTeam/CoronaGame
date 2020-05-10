@@ -38,7 +38,10 @@ public class HistoryDialogFragment extends BottomSheetDialogFragment {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
 
         Button button = view.findViewById(R.id.pathButton);
-        button.setOnClickListener(v -> parentFragment.togglePath());
+        button.setOnClickListener(v -> parentFragment.togglePath("yesterday"));
+
+        Button button2 = view.findViewById(R.id.otherPathButton);
+        button2.setOnClickListener(v -> parentFragment.togglePath("before yesterday"));
 
         return view;
     }

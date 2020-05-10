@@ -105,7 +105,7 @@ public class PathsHandler extends Fragment {
     }
 
     // public for now, could be package-private, depending on how we finally decide to organize files
-    public void setCameraPosition() {
+    public void setCameraPosition(String day) {
         CameraPosition position = new CameraPosition.Builder()
                 .target(new LatLng(latitude, longitude))
                 .zoom(ZOOM)

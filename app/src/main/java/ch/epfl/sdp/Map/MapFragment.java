@@ -41,6 +41,10 @@ import ch.epfl.sdp.fragment.HistoryDialogFragment;
 import ch.epfl.sdp.location.LocationBroker;
 import ch.epfl.sdp.location.LocationService;
 
+import static ch.epfl.sdp.Map.PathsHandler.BEFORE_PATH_LAYER_ID;
+import static ch.epfl.sdp.Map.PathsHandler.BEFORE_POINTS_LAYER_ID;
+import static ch.epfl.sdp.Map.PathsHandler.YESTERDAY_PATH_LAYER_ID;
+import static ch.epfl.sdp.Map.PathsHandler.YESTERDAY_POINTS_LAYER_ID;
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
@@ -280,9 +284,12 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         });
     }
 
-    public void togglePath() {
-        toggleLayer(PathsHandler.YESTERDAY_PATH_LAYER_ID);
-        pathsHandler.setCameraPosition();
+    public void togglePath(String day) {
+        String pathLayerId = day.equals("yesterday") ? YESTERDAY_PATH_LAYER_ID : BEFORE_PATH_LAYER_ID;
+        String infectedLayerId = day.equals("yesterday") ? YESTERDAY_POINTS_LAYER_ID : BEFORE_POINTS_LAYER_ID;
+        toggleLayer(pathLayerId);
+        toggleLayer(infectedLayerId);
+        pathsHandler.setCameraPosition(day);
     }
 
     @Override

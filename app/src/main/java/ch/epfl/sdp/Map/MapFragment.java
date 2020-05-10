@@ -281,7 +281,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     }
 
     public void togglePath() {
-        toggleLayer(PathsHandler.PATH_LAYER_ID);
+        toggleLayer(PathsHandler.YESTERDAY_PATH_LAYER_ID);
         pathsHandler.setCameraPosition();
     }
 

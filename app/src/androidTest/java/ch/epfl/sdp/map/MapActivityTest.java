@@ -7,7 +7,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Categories;
 
 import ch.epfl.sdp.Map.MapActivity;
 import ch.epfl.sdp.Map.MapFragment;
@@ -65,7 +64,7 @@ public class MapActivityTest {
     @Test
     public void pathGetsInstantiated() {
         sleep(15000);
-        assertNotNull(mapFragment.getPathsHandler().pathCoordinates);
+        assertNotNull(mapFragment.getPathsHandler().yesterdayPathCoordinates);
     }
 
     //"Map interactions should happen on the UI thread. Method invoked from wrong thread is getLayer.")

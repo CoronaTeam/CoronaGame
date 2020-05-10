@@ -12,7 +12,6 @@ import androidx.fragment.app.Fragment;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Geometry;
@@ -50,6 +49,7 @@ import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatmapIntensity;
 import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatmapRadius;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReferenceOrdered;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
@@ -58,13 +58,19 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
  * as well as points of met infected users.
  */
 public class PathsHandler extends Fragment {
-    static final String POINTS_SOURCE_ID = "points-source";
-    static final String POINTS_LAYER_ID = "pointslayer";
-    static final String PATH_SOURCE_ID = "line-source";
-    private static final int ZOOM = 7;
-    static final String PATH_LAYER_ID = "linelayer"; // public for testing
-    public List<Point> pathCoordinates;
-    public List<Point> infected_met;
+    static final String YESTERDAY_POINTS_SOURCE_ID = "points-source-one";
+    static final String BEFORE_POINTS_SOURCE_ID = "points-source-two";
+    static final String YESTERDAY_POINTS_LAYER_ID = "pointslayer-one";
+    static final String BEFORE_POINTS_LAYER_ID = "pointslayer-two";
+    static final String YESTERDAY_PATH_SOURCE_ID = "line-source-one";
+    static final String BEFORE_PATH_SOURCE_ID = "line-source-two";
+    private static final int ZOOM = 13;
+    static final String YESTERDAY_PATH_LAYER_ID = "linelayer-one";
+    static final String BEFORE_PATH_LAYER_ID = "linelayer-two";
+    public List<Point> yesterdayPathCoordinates;
+    public List<Point> beforeYesterdayPathCoordinates;
+    public List<Point> yesterdayInfectedMet;
+    public List<Point> beforeYesterdayInfectedMet;
     private MapboxMap map;
     private FirestoreInteractor fsi = new ConcreteFirestoreInteractor();
     private MapFragment parentClass;
@@ -79,13 +85,13 @@ public class PathsHandler extends Fragment {
     }
 
     @VisibleForTesting
-    public static String getPathLayerId() {
-        return PATH_LAYER_ID;
+    public static String getYesterdayPathLayerId() {
+        return YESTERDAY_PATH_LAYER_ID;
     }
 
     @VisibleForTesting
     public List<Point> getPathCoordinatesAttribute() {
-        return pathCoordinates;
+        return yesterdayPathCoordinates;
     }
 
     @VisibleForTesting
@@ -111,15 +117,15 @@ public class PathsHandler extends Fragment {
 
     private void getPathCoordinates(Map<String, Map<String, Object>> stringMapMap) {
         // TODO: get path for given day, NEED TO RETRIEVE POSITIONS ON SPECIFIC DAY TIME
-        pathCoordinates = new ArrayList<>();
-        infected_met = new ArrayList<>();
+        yesterdayPathCoordinates = new ArrayList<>();
+        yesterdayInfectedMet = new ArrayList<>();
 
         for (Map.Entry<String, Map<String, Object>> doc : stringMapMap.entrySet()) {
             try {
                 GeoPoint geoPoint = (GeoPoint) ((Map) doc.getValue().get("Position")).get("geoPoint");
                 double lat = geoPoint.getLatitude();
                 double lon = geoPoint.getLongitude();
-                pathCoordinates.add(Point.fromLngLat(lon, lat));
+                yesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
                 // check infected met around this point of the path
                 Timestamp timestamp = (Timestamp) ((Map) doc.getValue().get("Position")).get(
                         "timestamp");
@@ -129,10 +135,10 @@ public class PathsHandler extends Fragment {
             }
         }
 
-        Log.d("PATH COORD LENGTH: ", String.valueOf(pathCoordinates.size()));
-        Log.d("IS PATH COORD NULL? ", (pathCoordinates == null) ? "YES" : "NO");
-        latitude = pathCoordinates.get(0).latitude();
-        longitude = pathCoordinates.get(0).longitude();
+        Log.d("PATH COORD LENGTH: ", String.valueOf(yesterdayPathCoordinates.size()));
+        Log.d("IS PATH COORD NULL? ", (yesterdayPathCoordinates == null) ? "YES" : "NO");
+        latitude = yesterdayPathCoordinates.get(0).latitude();
+        longitude = yesterdayPathCoordinates.get(0).longitude();
         setPathLayer();
         setInfectedPointsLayer();
     }
@@ -150,34 +156,34 @@ public class PathsHandler extends Fragment {
                         carrier = entry.getKey();
                         if (carrier.getInfectionStatus().equals(INFECTED)) {
                             point = Point.fromLngLat(lon, lat);
-                            infected_met.add(point);
+                            yesterdayInfectedMet.add(point);
                         }
                     }
                 });
     }
 
     private void setPathLayer() {
-        Layer layer = new LineLayer(PATH_LAYER_ID, PATH_SOURCE_ID).withProperties(
+        Layer layer = new LineLayer(YESTERDAY_PATH_LAYER_ID, YESTERDAY_PATH_SOURCE_ID).withProperties(
                 PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
                 PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND),
                 PropertyFactory.lineWidth(5f),
                 PropertyFactory.lineColor(Color.parseColor("maroon"))
         );
-        LineString geometry = LineString.fromLngLats(pathCoordinates);
-        mapStyle(layer, geometry, PATH_SOURCE_ID);
+        LineString geometry = LineString.fromLngLats(yesterdayPathCoordinates);
+        mapStyle(layer, geometry, YESTERDAY_PATH_SOURCE_ID);
         layer.setProperties(visibility(NONE));
     }
 
     private void setInfectedPointsLayer() {
-        Layer layer = new HeatmapLayer(POINTS_LAYER_ID, POINTS_SOURCE_ID);
+        Layer layer = new HeatmapLayer(YESTERDAY_POINTS_LAYER_ID, YESTERDAY_POINTS_SOURCE_ID);
         layer.setProperties(
                 adjustHeatMapColorRange(),
                 adjustHeatMapWeight(),
                 adjustHeatmapIntensity(),
                 adjustHeatmapRadius()
         );
-        MultiPoint geometry = MultiPoint.fromLngLats(infected_met);
-        mapStyle(layer, geometry, POINTS_SOURCE_ID);
+        MultiPoint geometry = MultiPoint.fromLngLats(yesterdayInfectedMet);
+        mapStyle(layer, geometry, YESTERDAY_POINTS_SOURCE_ID);
         layer.setProperties(visibility(NONE));
     }
 
@@ -191,13 +197,13 @@ public class PathsHandler extends Fragment {
 
     private CompletableFuture<Map<String, Map<String, Object>>> initFirestorePathRetrieval() {
         return FirestoreInteractor.taskToFuture(
-                collectionReference("History/USER_PATH_DEMO" + "/Positions")
+                collectionReference("History/THAT_BETTER_PATH" + "/Positions")
                         .orderBy("Position" + ".timestamp").get())
                 .thenApply(collection -> {
                     if (collection.isEmpty()) {
                         throw new RuntimeException("Collection doesn't contain any document");
                     } else {
-                        List<DocumentSnapshot> list = collection.getDocuments();
+                        List<DocumentSnapshot> list = collection.getDocuments();//.sort((doc1, doc2) -> doc1.getTimestamp("timestamp").compareTo( doc2.getTimestamp("timestamp")));
                         Map<String, Map<String, Object>> result = new HashMap<>();
                         for (DocumentSnapshot doc : list) {
                             result.put(doc.getId(), doc.getData());

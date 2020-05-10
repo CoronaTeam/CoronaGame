@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Geometry;
@@ -31,6 +32,7 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -118,27 +120,27 @@ public class PathsHandler extends Fragment {
         }
     }
 
-    private void getPathCoordinates(Map<String, Map<String, Object>> stringMapMap) {
+    private void getPathCoordinates(Iterator<QueryDocumentSnapshot> iterator) {
         // TODO: get path for given day, NEED TO RETRIEVE POSITIONS ON SPECIFIC DAY TIME
         yesterdayPathCoordinates = new ArrayList<>();
         yesterdayInfectedMet = new ArrayList<>();
 
-        for (Map.Entry<String, Map<String, Object>> doc : stringMapMap.entrySet()) {
+        for (; iterator.hasNext(); ) {
+            QueryDocumentSnapshot qs = iterator.next();
             try {
-                GeoPoint geoPoint = (GeoPoint) ((Map) doc.getValue().get("Position")).get("geoPoint");
+                GeoPoint geoPoint = (GeoPoint) ((Map) qs.get("Position")).get("geoPoint");
                 double lat = geoPoint.getLatitude();
                 double lon = geoPoint.getLongitude();
-                Timestamp timestamp = (Timestamp) ((Map) doc.getValue().get("Position")).get(
+                Timestamp timestamp = (Timestamp) ((Map) qs.get("Position")).get(
                         "timestamp");
 
-               /* if (timestamp is yesterday) {
+                if (true/*timestamp is yesterday*/) {
                     yesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
-                } else if (timestamp is before yesterday) {
+                    addInfectedMet(lat, lon, timestamp, yesterdayInfectedMet);
+                } else if (true/*timestamp is before yesterday*/) {
                     beforeYesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
-                }*/
-                // check infected met around this point of the path
-                addInfectedMet(lat, lon, timestamp, yesterdayInfectedMet);
-                addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
+                    addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
+                }
             } catch (NullPointerException e) {
                 Log.d("ERROR ADDING POINT", String.valueOf(e));
             }
@@ -206,7 +208,7 @@ public class PathsHandler extends Fragment {
         });
     }
 
-    private CompletableFuture<Map<String, Map<String, Object>>> initFirestorePathRetrieval() {
+    private CompletableFuture<Iterator<QueryDocumentSnapshot>> initFirestorePathRetrieval() {
         return FirestoreInteractor.taskToFuture(
                 collectionReference("History/THAT_BETTER_PATH" + "/Positions")
                         .orderBy("Position" + ".timestamp").get())
@@ -219,14 +221,15 @@ public class PathsHandler extends Fragment {
                         for (DocumentSnapshot doc : list) {
                             result.put(doc.getId(), doc.getData());
                         }
-                        return result;
+                        //return result;
+                        return collection.iterator();
                     }
                 })
                 .exceptionally(e -> {
                     Toast.makeText(parentClass.getActivity(),
                             R.string.cannot_retrieve_positions,
                             Toast.LENGTH_LONG).show();
-                    return Collections.emptyMap();
+                    return Collections.emptyIterator();
                 });
     }
 }

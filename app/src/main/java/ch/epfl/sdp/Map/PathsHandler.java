@@ -10,7 +10,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.mapbox.geojson.Feature;
@@ -31,7 +30,6 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -216,12 +214,6 @@ public class PathsHandler extends Fragment {
                     if (collection.isEmpty()) {
                         throw new RuntimeException("Collection doesn't contain any document");
                     } else {
-                        List<DocumentSnapshot> list = collection.getDocuments();//.sort((doc1, doc2) -> doc1.getTimestamp("timestamp").compareTo( doc2.getTimestamp("timestamp")));
-                        Map<String, Map<String, Object>> result = new HashMap<>();
-                        for (DocumentSnapshot doc : list) {
-                            result.put(doc.getId(), doc.getData());
-                        }
-                        //return result;
                         return collection.iterator();
                     }
                 })

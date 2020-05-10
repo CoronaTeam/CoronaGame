@@ -49,7 +49,6 @@ import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatmapIntensity;
 import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatmapRadius;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
-import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReferenceOrdered;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
@@ -74,8 +73,10 @@ public class PathsHandler extends Fragment {
     private MapboxMap map;
     private FirestoreInteractor fsi = new ConcreteFirestoreInteractor();
     private MapFragment parentClass;
-    private double latitude;
-    private double longitude;
+    private double latitudeYesterday;
+    private double latitudeBefore;
+    private double longitudeYesterday;
+    private double longitudeBefore;
 
 
     PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
@@ -95,19 +96,21 @@ public class PathsHandler extends Fragment {
     }
 
     @VisibleForTesting
-    public double getLatitude() {
-        return latitude;
+    public double getLatitudeYesterday() {
+        return latitudeYesterday;
     }
 
     @VisibleForTesting
-    public double getLongitude() {
-        return longitude;
+    public double getLongitudeYesterday() {
+        return longitudeYesterday;
     }
 
     // public for now, could be package-private, depending on how we finally decide to organize files
     public void setCameraPosition(String day) {
+        double lat = day.equals("yesterday") ? latitudeYesterday : latitudeBefore;
+        double lon = day.equals("yesterday") ? longitudeYesterday : longitudeBefore;
         CameraPosition position = new CameraPosition.Builder()
-                .target(new LatLng(latitude, longitude))
+                .target(new LatLng(lat, lon))
                 .zoom(ZOOM)
                 .build();
         if (map != null) {
@@ -137,8 +140,8 @@ public class PathsHandler extends Fragment {
 
         Log.d("PATH COORD LENGTH: ", String.valueOf(yesterdayPathCoordinates.size()));
         Log.d("IS PATH COORD NULL? ", (yesterdayPathCoordinates == null) ? "YES" : "NO");
-        latitude = yesterdayPathCoordinates.get(0).latitude();
-        longitude = yesterdayPathCoordinates.get(0).longitude();
+        latitudeYesterday = yesterdayPathCoordinates.get(0).latitude();
+        longitudeYesterday = yesterdayPathCoordinates.get(0).longitude();
         setPathLayer();
         setInfectedPointsLayer();
     }

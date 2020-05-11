@@ -3,12 +3,10 @@ package ch.epfl.sdp.Map;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.location.Location;
-import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 
@@ -31,10 +29,7 @@ import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -120,7 +115,7 @@ public class PathsHandler extends Fragment {
     }
 
     @VisibleForTesting
-    public List<Point> getPathCoordinatesAttribute() {
+    public List<Point> getYesterdayPathCoordinatesAttribute() {
         return yesterdayPathCoordinates;
     }
 
@@ -134,8 +129,7 @@ public class PathsHandler extends Fragment {
         return longitudeYesterday;
     }
 
-    // public for now, could be package-private, depending on how we finally decide to organize files
-    public void setCameraPosition(String day) {
+    void setCameraPosition(String day) {
         double lat = day.equals("yesterday") ? latitudeYesterday : latitudeBefore;
         double lon = day.equals("yesterday") ? longitudeYesterday : longitudeBefore;
         CameraPosition position = new CameraPosition.Builder()
@@ -161,18 +155,13 @@ public class PathsHandler extends Fragment {
                 double lon = geoPoint.getLongitude();
                 Timestamp timestamp = (Timestamp) ((Map) qs.get("Position")).get("timestamp");
 
-                String pathLocalDate = null;
-                if (timestamp != null) {
-                    Date date = timestamp.toDate();
-                    pathLocalDate = dateToSimpleString(date);
-                } else {
-                    throw new RuntimeException("Timestamp is null");
-                }
+                Date date = timestamp.toDate();
+                String pathLocalDate = dateToSimpleString(date);
 
-                if (pathLocalDate.equals(yesterday)/*timestamp is yesterday*/) {
+                if (pathLocalDate.equals(yesterday)) {
                     yesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
                     addInfectedMet(lat, lon, timestamp, yesterdayInfectedMet);
-                } else if (pathLocalDate.equals(beforeYesterday)/*timestamp is before yesterday*/) {
+                } else if (pathLocalDate.equals(beforeYesterday)) {
                     beforeYesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
                     addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
                 }
@@ -184,15 +173,36 @@ public class PathsHandler extends Fragment {
         Log.d("PATH COORD LENGTH: ", String.valueOf(yesterdayPathCoordinates.size()));
         Log.d("IS PATH COORD NULL? ", (yesterdayPathCoordinates == null) ? "YES" : "NO");
 
-        latitudeYesterday = yesterdayPathCoordinates.get(0).latitude();
-        latitudeBefore = beforeYesterdayPathCoordinates.get(0).latitude();
-        longitudeYesterday = yesterdayPathCoordinates.get(0).longitude();
-        longitudeBefore = beforeYesterdayPathCoordinates.get(0).longitude();
+        setUpPath(yesterdayPathCoordinates);
+        setUpPath(beforeYesterdayPathCoordinates);
 
-        setPathLayer(YESTERDAY_PATH_LAYER_ID, YESTERDAY_PATH_SOURCE_ID, yesterdayPathCoordinates);
-        setPathLayer(BEFORE_PATH_LAYER_ID, BEFORE_PATH_SOURCE_ID, beforeYesterdayPathCoordinates);
-        setInfectedPointsLayer(YESTERDAY_PATH_LAYER_ID, YESTERDAY_PATH_SOURCE_ID, yesterdayInfectedMet);
-        setInfectedPointsLayer(BEFORE_PATH_LAYER_ID, BEFORE_PATH_SOURCE_ID, beforeYesterdayInfectedMet);
+        if (!yesterdayInfectedMet.isEmpty()) {
+            setInfectedPointsLayer(YESTERDAY_PATH_LAYER_ID, YESTERDAY_PATH_SOURCE_ID, yesterdayInfectedMet);
+        }
+        if (!beforeYesterdayInfectedMet.isEmpty()) {
+            setInfectedPointsLayer(BEFORE_PATH_LAYER_ID, BEFORE_PATH_SOURCE_ID, beforeYesterdayInfectedMet);
+        }
+        if (!yesterdayPathCoordinates.isEmpty()) {
+            latitudeYesterday = yesterdayPathCoordinates.get(0).latitude();
+            longitudeYesterday = yesterdayPathCoordinates.get(0).longitude();
+        }
+        if (!beforeYesterdayPathCoordinates.isEmpty()) {
+            latitudeBefore = beforeYesterdayPathCoordinates.get(0).latitude();
+            longitudeBefore = beforeYesterdayPathCoordinates.get(0).longitude();
+        }
+
+    }
+
+    private void setUpPath(List<Point> pathCoordinates) {
+        String layerId = pathCoordinates.equals(yesterdayPathCoordinates) ? YESTERDAY_PATH_LAYER_ID : BEFORE_PATH_LAYER_ID;
+        String sourceId = pathCoordinates.equals(yesterdayPathCoordinates) ? YESTERDAY_PATH_SOURCE_ID : BEFORE_PATH_SOURCE_ID;
+        if (!pathCoordinates.isEmpty()) {
+            setPathLayer(layerId, sourceId, pathCoordinates);
+        } else {
+            Toast.makeText(parentClass.getActivity(),
+                    R.string.no_corresponding_path,
+                    Toast.LENGTH_LONG).show();
+        }
     }
 
     private void addInfectedMet(double lat, double lon, Timestamp timestamp, List<Point> infected) {

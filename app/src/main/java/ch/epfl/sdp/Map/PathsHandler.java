@@ -1,5 +1,6 @@
 package ch.epfl.sdp.Map;
 
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
@@ -31,6 +32,7 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -79,10 +81,9 @@ public class PathsHandler extends Fragment {
     private double latitudeBefore;
     private double longitudeYesterday;
     private double longitudeBefore;
-    private Date rightNow = new Date(System.currentTimeMillis());
 
-    private Date yesterday;
-    private Date beforeYesterday;
+    private String yesterday;
+    private String beforeYesterday;
     private static final int ZOOM = 13;
     private MapboxMap map;
     private MapFragment parentClass;
@@ -91,16 +92,26 @@ public class PathsHandler extends Fragment {
     PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
         this.parentClass = parentClass;
         this.map = map;
+        setCalendar();
         initFirestorePathRetrieval().thenAccept(this::getPathCoordinates);
     }
 
     private void setCalendar() {
+        Date rightNow = new Date(System.currentTimeMillis());
         Calendar cal = Calendar.getInstance();
         cal.setTime(rightNow);
         cal.add(Calendar.DAY_OF_MONTH, -1);
-        yesterday = cal.getTime();
+        Date yes = cal.getTime();
         cal.add(Calendar.DAY_OF_MONTH, -1);
-        beforeYesterday = cal.getTime();
+        Date bef = cal.getTime();
+
+        yesterday = dateToSimpleString(yes);
+        beforeYesterday = dateToSimpleString(bef);
+    }
+
+    private String dateToSimpleString(Date date) {
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+        return sdf.format(date);
     }
 
     @VisibleForTesting
@@ -137,9 +148,10 @@ public class PathsHandler extends Fragment {
     }
 
     private void getPathCoordinates(Iterator<QueryDocumentSnapshot> iterator) {
-        // TODO: get path for given day, NEED TO RETRIEVE POSITIONS ON SPECIFIC DAY TIME
         yesterdayPathCoordinates = new ArrayList<>();
+        beforeYesterdayPathCoordinates = new ArrayList<>();
         yesterdayInfectedMet = new ArrayList<>();
+        beforeYesterdayInfectedMet = new ArrayList<>();
 
         for (; iterator.hasNext(); ) {
             QueryDocumentSnapshot qs = iterator.next();
@@ -152,7 +164,7 @@ public class PathsHandler extends Fragment {
                 String pathLocalDate = null;
                 if (timestamp != null) {
                     Date date = timestamp.toDate();
-                    pathLocalDate = date.toString();
+                    pathLocalDate = dateToSimpleString(date);
                 } else {
                     throw new RuntimeException("Timestamp is null");
                 }
@@ -171,8 +183,12 @@ public class PathsHandler extends Fragment {
 
         Log.d("PATH COORD LENGTH: ", String.valueOf(yesterdayPathCoordinates.size()));
         Log.d("IS PATH COORD NULL? ", (yesterdayPathCoordinates == null) ? "YES" : "NO");
+
         latitudeYesterday = yesterdayPathCoordinates.get(0).latitude();
+        latitudeBefore = beforeYesterdayPathCoordinates.get(0).latitude();
         longitudeYesterday = yesterdayPathCoordinates.get(0).longitude();
+        longitudeBefore = beforeYesterdayPathCoordinates.get(0).longitude();
+
         setPathLayer(YESTERDAY_PATH_LAYER_ID, YESTERDAY_PATH_SOURCE_ID, yesterdayPathCoordinates);
         setPathLayer(BEFORE_PATH_LAYER_ID, BEFORE_PATH_SOURCE_ID, beforeYesterdayPathCoordinates);
         setInfectedPointsLayer(YESTERDAY_PATH_LAYER_ID, YESTERDAY_PATH_SOURCE_ID, yesterdayInfectedMet);

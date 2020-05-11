@@ -2,10 +2,12 @@ package ch.epfl.sdp.Map;
 
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 
@@ -28,8 +30,10 @@ import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +60,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
  * This class is used to display the user's last positions as a line on the map,
  * as well as points of met infected users.
  */
+@RequiresApi(api = Build.VERSION_CODES.O)
 public class PathsHandler extends Fragment {
     static final String YESTERDAY_POINTS_SOURCE_ID = "points-source-one";
     static final String BEFORE_POINTS_SOURCE_ID = "points-source-two";
@@ -63,19 +68,21 @@ public class PathsHandler extends Fragment {
     static final String BEFORE_POINTS_LAYER_ID = "pointslayer-two";
     static final String YESTERDAY_PATH_SOURCE_ID = "line-source-one";
     static final String BEFORE_PATH_SOURCE_ID = "line-source-two";
-    private static final int ZOOM = 13;
     static final String YESTERDAY_PATH_LAYER_ID = "linelayer-one";
     static final String BEFORE_PATH_LAYER_ID = "linelayer-two";
     public List<Point> yesterdayPathCoordinates;
     public List<Point> beforeYesterdayPathCoordinates;
     public List<Point> yesterdayInfectedMet;
     public List<Point> beforeYesterdayInfectedMet;
-    private MapboxMap map;
-    private MapFragment parentClass;
     private double latitudeYesterday;
     private double latitudeBefore;
     private double longitudeYesterday;
     private double longitudeBefore;
+    private LocalDate yesterday = LocalDate.now().minusDays(1);
+    private LocalDate beforeYesterday = yesterday.minusDays(1);
+    private static final int ZOOM = 13;
+    private MapboxMap map;
+    private MapFragment parentClass;
 
 
     PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {

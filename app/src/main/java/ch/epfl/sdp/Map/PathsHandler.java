@@ -30,8 +30,11 @@ import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
+import java.text.ParseException;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -43,7 +46,6 @@ import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
-import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.location.LocationUtils;
 
@@ -60,7 +62,6 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
  * This class is used to display the user's last positions as a line on the map,
  * as well as points of met infected users.
  */
-@RequiresApi(api = Build.VERSION_CODES.O)
 public class PathsHandler extends Fragment {
     static final String YESTERDAY_POINTS_SOURCE_ID = "points-source-one";
     static final String BEFORE_POINTS_SOURCE_ID = "points-source-two";
@@ -78,8 +79,10 @@ public class PathsHandler extends Fragment {
     private double latitudeBefore;
     private double longitudeYesterday;
     private double longitudeBefore;
-    private LocalDate yesterday = LocalDate.now().minusDays(1);
-    private LocalDate beforeYesterday = yesterday.minusDays(1);
+    private Date rightNow = new Date(System.currentTimeMillis());
+
+    private Date yesterday;
+    private Date beforeYesterday;
     private static final int ZOOM = 13;
     private MapboxMap map;
     private MapFragment parentClass;
@@ -89,6 +92,15 @@ public class PathsHandler extends Fragment {
         this.parentClass = parentClass;
         this.map = map;
         initFirestorePathRetrieval().thenAccept(this::getPathCoordinates);
+    }
+
+    private void setCalendar() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(rightNow);
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        yesterday = cal.getTime();
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        beforeYesterday = cal.getTime();
     }
 
     @VisibleForTesting
@@ -135,13 +147,20 @@ public class PathsHandler extends Fragment {
                 GeoPoint geoPoint = (GeoPoint) ((Map) qs.get("Position")).get("geoPoint");
                 double lat = geoPoint.getLatitude();
                 double lon = geoPoint.getLongitude();
-                Timestamp timestamp = (Timestamp) ((Map) qs.get("Position")).get(
-                        "timestamp");
+                Timestamp timestamp = (Timestamp) ((Map) qs.get("Position")).get("timestamp");
 
-                if (true/*timestamp is yesterday*/) {
+                String pathLocalDate = null;
+                if (timestamp != null) {
+                    Date date = timestamp.toDate();
+                    pathLocalDate = date.toString();
+                } else {
+                    throw new RuntimeException("Timestamp is null");
+                }
+
+                if (pathLocalDate.equals(yesterday)/*timestamp is yesterday*/) {
                     yesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
                     addInfectedMet(lat, lon, timestamp, yesterdayInfectedMet);
-                } else if (true/*timestamp is before yesterday*/) {
+                } else if (pathLocalDate.equals(beforeYesterday)/*timestamp is before yesterday*/) {
                     beforeYesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
                     addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
                 }

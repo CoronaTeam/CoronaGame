@@ -35,8 +35,6 @@ public class MapActivityTest {
     }
 
 
-
-
     ////////////////////////////////// Tests for PathsHandler //////////////////////////////////////
     /*@Test
     public void setCameraTargetToPath() {
@@ -52,7 +50,7 @@ public class MapActivityTest {
         assertEquals(12.0, camLon);
     }*/ // DON'T KNOW HOW TO TEST THIS YET: DOES NOT PASS THE CIRRUS BUILD -->> "Map interactions should happen on the UI thread. Method invoked from wrong thread is cancelTransitions."
 
-    @Test
+    @Test @Ignore("Incomplete")
     public void togglePathMakesItVisible() {
         onView(withId(R.id.history_button)).perform(click());
         onView(withId(R.id.pathButton)).perform(click());

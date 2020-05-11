@@ -64,21 +64,27 @@ public class PathsHandler extends Fragment {
     static final String BEFORE_POINTS_SOURCE_ID = "points-source-two";
     static final String YESTERDAY_POINTS_LAYER_ID = "pointslayer-one";
     static final String BEFORE_POINTS_LAYER_ID = "pointslayer-two";
+
     static final String YESTERDAY_PATH_SOURCE_ID = "line-source-one";
     static final String BEFORE_PATH_SOURCE_ID = "line-source-two";
     static final String YESTERDAY_PATH_LAYER_ID = "linelayer-one";
     static final String BEFORE_PATH_LAYER_ID = "linelayer-two";
+
     public List<Point> yesterdayPathCoordinates;
     public List<Point> beforeYesterdayPathCoordinates;
+
     public List<Point> yesterdayInfectedMet;
     public List<Point> beforeYesterdayInfectedMet;
+
     private double latitudeYesterday;
     private double latitudeBefore;
     private double longitudeYesterday;
     private double longitudeBefore;
+    private boolean pathLocationSet = false;
 
     private String yesterday;
     private String beforeYesterday;
+
     private static final int ZOOM = 13;
     private MapboxMap map;
     private MapFragment parentClass;
@@ -100,8 +106,8 @@ public class PathsHandler extends Fragment {
         cal.add(Calendar.DAY_OF_MONTH, -1);
         Date bef = cal.getTime();
 
-        yesterday = dateToSimpleString(yes);
-        beforeYesterday = dateToSimpleString(bef);
+        yesterday = "2020/05/07"; //this is for demo only, should be replaced by: dateToSimpleString(yes);
+        beforeYesterday = "2020/04/27";//this is for demo only, should be replaced by: dateToSimpleString(bef);
     }
 
     private String dateToSimpleString(Date date) {
@@ -130,14 +136,16 @@ public class PathsHandler extends Fragment {
     }
 
     void setCameraPosition(String day) {
-        double lat = day.equals("yesterday") ? latitudeYesterday : latitudeBefore;
-        double lon = day.equals("yesterday") ? longitudeYesterday : longitudeBefore;
-        CameraPosition position = new CameraPosition.Builder()
-                .target(new LatLng(lat, lon))
-                .zoom(ZOOM)
-                .build();
-        if (map != null) {
-            map.setCameraPosition(position);
+        if (pathLocationSet) {
+            double lat = day.equals("yesterday") ? latitudeYesterday : latitudeBefore;
+            double lon = day.equals("yesterday") ? longitudeYesterday : longitudeBefore;
+            CameraPosition position = new CameraPosition.Builder()
+                    .target(new LatLng(lat, lon))
+                    .zoom(ZOOM)
+                    .build();
+            if (map != null) {
+                map.setCameraPosition(position);
+            }
         }
     }
 
@@ -157,6 +165,7 @@ public class PathsHandler extends Fragment {
 
                 Date date = timestamp.toDate();
                 String pathLocalDate = dateToSimpleString(date);
+                Log.d("DATE:", pathLocalDate);
 
                 if (pathLocalDate.equals(yesterday)) {
                     yesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
@@ -177,18 +186,20 @@ public class PathsHandler extends Fragment {
         setUpPath(beforeYesterdayPathCoordinates);
 
         if (!yesterdayInfectedMet.isEmpty()) {
-            setInfectedPointsLayer(YESTERDAY_PATH_LAYER_ID, YESTERDAY_PATH_SOURCE_ID, yesterdayInfectedMet);
+            setInfectedPointsLayer(YESTERDAY_POINTS_LAYER_ID, YESTERDAY_POINTS_SOURCE_ID, yesterdayInfectedMet);
         }
         if (!beforeYesterdayInfectedMet.isEmpty()) {
-            setInfectedPointsLayer(BEFORE_PATH_LAYER_ID, BEFORE_PATH_SOURCE_ID, beforeYesterdayInfectedMet);
+            setInfectedPointsLayer(BEFORE_POINTS_LAYER_ID, BEFORE_POINTS_SOURCE_ID, beforeYesterdayInfectedMet);
         }
         if (!yesterdayPathCoordinates.isEmpty()) {
             latitudeYesterday = yesterdayPathCoordinates.get(0).latitude();
             longitudeYesterday = yesterdayPathCoordinates.get(0).longitude();
+            pathLocationSet = true;
         }
         if (!beforeYesterdayPathCoordinates.isEmpty()) {
             latitudeBefore = beforeYesterdayPathCoordinates.get(0).latitude();
             longitudeBefore = beforeYesterdayPathCoordinates.get(0).longitude();
+            pathLocationSet = true;
         }
 
     }

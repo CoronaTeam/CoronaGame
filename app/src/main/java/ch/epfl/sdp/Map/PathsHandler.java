@@ -71,7 +71,6 @@ public class PathsHandler extends Fragment {
     public List<Point> yesterdayInfectedMet;
     public List<Point> beforeYesterdayInfectedMet;
     private MapboxMap map;
-    private FirestoreInteractor fsi = new ConcreteFirestoreInteractor();
     private MapFragment parentClass;
     private double latitudeYesterday;
     private double latitudeBefore;

@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import ch.epfl.sdp.Account;
+import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.ConcreteDataReceiver;
@@ -60,30 +62,28 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
  * as well as points of met infected users.
  */
 public class PathsHandler extends Fragment {
-    static final String YESTERDAY_POINTS_SOURCE_ID = "points-source-one";
-    static final String BEFORE_POINTS_SOURCE_ID = "points-source-two";
+    private static final String YESTERDAY_POINTS_SOURCE_ID = "points-source-one";
+    private static final String BEFORE_POINTS_SOURCE_ID = "points-source-two";
     static final String YESTERDAY_POINTS_LAYER_ID = "pointslayer-one";
     static final String BEFORE_POINTS_LAYER_ID = "pointslayer-two";
 
-    static final String YESTERDAY_PATH_SOURCE_ID = "line-source-one";
-    static final String BEFORE_PATH_SOURCE_ID = "line-source-two";
+    private static final String YESTERDAY_PATH_SOURCE_ID = "line-source-one";
+    private static final String BEFORE_PATH_SOURCE_ID = "line-source-two";
     static final String YESTERDAY_PATH_LAYER_ID = "linelayer-one";
     static final String BEFORE_PATH_LAYER_ID = "linelayer-two";
 
-    public List<Point> yesterdayPathCoordinates;
-    public List<Point> beforeYesterdayPathCoordinates;
-
-    public List<Point> yesterdayInfectedMet;
-    public List<Point> beforeYesterdayInfectedMet;
+    private List<Point> yesterdayPathCoordinates;
 
     private double latitudeYesterday;
     private double latitudeBefore;
     private double longitudeYesterday;
     private double longitudeBefore;
-    private boolean pathLocationSet = false;
 
-    private String yesterday;
-    private String beforeYesterday;
+    private boolean pathLocationSet1 = false;
+    private boolean pathLocationSet2 = false;
+
+    private String yesterdayString;
+    private String beforeYesterdayString;
 
     private static final int ZOOM = 13;
     private MapboxMap map;
@@ -106,8 +106,8 @@ public class PathsHandler extends Fragment {
         cal.add(Calendar.DAY_OF_MONTH, -1);
         Date bef = cal.getTime();
 
-        yesterday = "2020/05/07"; //this is for demo only, should be replaced by: dateToSimpleString(yes);
-        beforeYesterday = "2020/04/27";//this is for demo only, should be replaced by: dateToSimpleString(bef);
+        yesterdayString = "2020/05/07"; //this is for demo only, should be replaced by: dateToSimpleString(yes);
+        beforeYesterdayString = "2020/04/27";//this is for demo only, should be replaced by: dateToSimpleString(bef);
     }
 
     private String dateToSimpleString(Date date) {
@@ -116,26 +116,22 @@ public class PathsHandler extends Fragment {
     }
 
     @VisibleForTesting
-    public static String getYesterdayPathLayerId() {
-        return YESTERDAY_PATH_LAYER_ID;
-    }
-
-    @VisibleForTesting
     public List<Point> getYesterdayPathCoordinatesAttribute() {
         return yesterdayPathCoordinates;
     }
 
     @VisibleForTesting
-    public double getLatitudeYesterday() {
-        return latitudeYesterday;
+    public String getYesterdayDate() {
+        return yesterdayString;
     }
 
     @VisibleForTesting
-    public double getLongitudeYesterday() {
-        return longitudeYesterday;
+    public String getBeforeYesterdayDate() {
+        return beforeYesterdayString;
     }
 
     void setCameraPosition(String day) {
+        boolean pathLocationSet = day.equals("yesterday") ? pathLocationSet1 : pathLocationSet2;
         if (pathLocationSet) {
             double lat = day.equals("yesterday") ? latitudeYesterday : latitudeBefore;
             double lon = day.equals("yesterday") ? longitudeYesterday : longitudeBefore;
@@ -151,9 +147,9 @@ public class PathsHandler extends Fragment {
 
     private void getPathCoordinates(Iterator<QueryDocumentSnapshot> iterator) {
         yesterdayPathCoordinates = new ArrayList<>();
-        beforeYesterdayPathCoordinates = new ArrayList<>();
-        yesterdayInfectedMet = new ArrayList<>();
-        beforeYesterdayInfectedMet = new ArrayList<>();
+        List<Point> beforeYesterdayPathCoordinates = new ArrayList<>();
+        List<Point> yesterdayInfectedMet = new ArrayList<>();
+        List<Point> beforeYesterdayInfectedMet = new ArrayList<>();
 
         for (; iterator.hasNext(); ) {
             QueryDocumentSnapshot qs = iterator.next();
@@ -167,10 +163,10 @@ public class PathsHandler extends Fragment {
                 String pathLocalDate = dateToSimpleString(date);
                 Log.d("DATE:", pathLocalDate);
 
-                if (pathLocalDate.equals(yesterday)) {
+                if (pathLocalDate.equals(yesterdayString)) {
                     yesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
                     addInfectedMet(lat, lon, timestamp, yesterdayInfectedMet);
-                } else if (pathLocalDate.equals(beforeYesterday)) {
+                } else if (pathLocalDate.equals(beforeYesterdayString)) {
                     beforeYesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
                     addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
                 }
@@ -182,9 +178,6 @@ public class PathsHandler extends Fragment {
         Log.d("PATH COORD LENGTH: ", String.valueOf(yesterdayPathCoordinates.size()));
         Log.d("IS PATH COORD NULL? ", (yesterdayPathCoordinates == null) ? "YES" : "NO");
 
-        setUpPath(yesterdayPathCoordinates);
-        setUpPath(beforeYesterdayPathCoordinates);
-
         if (!yesterdayInfectedMet.isEmpty()) {
             setInfectedPointsLayer(YESTERDAY_POINTS_LAYER_ID, YESTERDAY_POINTS_SOURCE_ID, yesterdayInfectedMet);
         }
@@ -192,28 +185,18 @@ public class PathsHandler extends Fragment {
             setInfectedPointsLayer(BEFORE_POINTS_LAYER_ID, BEFORE_POINTS_SOURCE_ID, beforeYesterdayInfectedMet);
         }
         if (!yesterdayPathCoordinates.isEmpty()) {
+            setPathLayer(YESTERDAY_PATH_LAYER_ID, YESTERDAY_PATH_SOURCE_ID, yesterdayPathCoordinates);
             latitudeYesterday = yesterdayPathCoordinates.get(0).latitude();
             longitudeYesterday = yesterdayPathCoordinates.get(0).longitude();
-            pathLocationSet = true;
+            pathLocationSet1 = true;
         }
         if (!beforeYesterdayPathCoordinates.isEmpty()) {
+            setPathLayer(BEFORE_PATH_LAYER_ID, BEFORE_PATH_SOURCE_ID, beforeYesterdayPathCoordinates);
             latitudeBefore = beforeYesterdayPathCoordinates.get(0).latitude();
             longitudeBefore = beforeYesterdayPathCoordinates.get(0).longitude();
-            pathLocationSet = true;
+            pathLocationSet2 = true;
         }
 
-    }
-
-    private void setUpPath(List<Point> pathCoordinates) {
-        String layerId = pathCoordinates.equals(yesterdayPathCoordinates) ? YESTERDAY_PATH_LAYER_ID : BEFORE_PATH_LAYER_ID;
-        String sourceId = pathCoordinates.equals(yesterdayPathCoordinates) ? YESTERDAY_PATH_SOURCE_ID : BEFORE_PATH_SOURCE_ID;
-        if (!pathCoordinates.isEmpty()) {
-            setPathLayer(layerId, sourceId, pathCoordinates);
-        } else {
-            Toast.makeText(parentClass.getActivity(),
-                    R.string.no_corresponding_path,
-                    Toast.LENGTH_LONG).show();
-        }
     }
 
     private void addInfectedMet(double lat, double lon, Timestamp timestamp, List<Point> infected) {
@@ -268,9 +251,15 @@ public class PathsHandler extends Fragment {
         });
     }
 
+    private String getUserName() {
+        Account account = AuthenticationManager.getAccount(getActivity());
+        return account.getDisplayName();
+    }
+
     private CompletableFuture<Iterator<QueryDocumentSnapshot>> initFirestorePathRetrieval() {
+        String userPath = "THAT_BETTER_PATH"; // should get path for current user: replace by getUserName()
         return FirestoreInteractor.taskToFuture(
-                collectionReference("History/THAT_BETTER_PATH" + "/Positions")
+                collectionReference("History/" + userPath + "/Positions")
                         .orderBy("Position" + ".timestamp").get())
                 .thenApply(collection -> {
                     if (collection.isEmpty()) {

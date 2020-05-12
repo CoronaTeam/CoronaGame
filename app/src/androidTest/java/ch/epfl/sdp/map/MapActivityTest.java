@@ -34,21 +34,28 @@ public class MapActivityTest {
         mapFragment = (MapFragment) activityRule.getActivity().getFragment();
     }
 
+    @Test
+    public void pathGetsInstantiated() {
+        sleep(15000);
+        assertNotNull(mapFragment.getPathsHandler().getYesterdayPathCoordinatesAttribute());
+    }
 
-    ////////////////////////////////// Tests for PathsHandler //////////////////////////////////////
-    /*@Test
-    public void setCameraTargetToPath() {
-        mapFragment.pathsHandler.latitude = 12.0;
-        mapFragment.pathsHandler.longitude = 12.0;
+    @Test
+    public void pathButtonIsDisplayedInHistory() {
+        onView(withId(R.id.history_button)).perform(click());
+        onView(withId(R.id.pathButton)).check(matches(isDisplayed()));
+    }
 
-        mapFragment.pathsHandler.setCameraPosition();
-
-        double camLat = mapFragment.map.getCameraPosition().target.getLatitude();
-        double camLon = mapFragment.map.getCameraPosition().target.getLongitude();
-
-        assertEquals(12.0, camLat);
-        assertEquals(12.0, camLon);
-    }*/ // DON'T KNOW HOW TO TEST THIS YET: DOES NOT PASS THE CIRRUS BUILD -->> "Map interactions should happen on the UI thread. Method invoked from wrong thread is cancelTransitions."
+    // Since we want to test functions dealing with Calendar,
+    // we don't use calendar for a more objective test:
+    // we hardcode dates w.r.t. the day on which this test is ran
+    @Test
+    public void datesFormattedAsYYYYmmDD() { // their expected format is defined as "yyyy/MM/dd"
+        String expected_yesterday = "2020/05/07";
+        String expected_before = "2020/04/27";
+        assertEquals(expected_yesterday, mapFragment.getPathsHandler().getYesterdayDate());
+        assertEquals(expected_before, mapFragment.getPathsHandler().getBeforeYesterdayDate());
+    }
 
     @Test @Ignore("Incomplete")
     public void togglePathMakesItVisible() {
@@ -57,19 +64,6 @@ public class MapActivityTest {
         sleep(3000);
         //Layer layer = mapFragment.map.getStyle().getLayer(PATH_LAYER_ID);
         //assertEquals(VISIBLE, layer.getVisibility().getValue());
-    }
-
-    @Test
-    public void pathGetsInstantiated() {
-        sleep(15000);
-        assertNotNull(mapFragment.getPathsHandler().yesterdayPathCoordinates);
-    }
-
-    //"Map interactions should happen on the UI thread. Method invoked from wrong thread is getLayer.")
-    @Test
-    public void pathButtonIsDisplayedInHistory() {
-        onView(withId(R.id.history_button)).perform(click());
-        onView(withId(R.id.pathButton)).check(matches(isDisplayed()));
     }
 
     //"Map interactions should happen on the UI thread. Method invoked from wrong thread is getLayer.")

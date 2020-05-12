@@ -33,6 +33,15 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
                         });
     }
 
+    private Map<String, Map<String, Object>> parseCollection(QuerySnapshot collection) {
+        List<DocumentSnapshot> list = collection.getDocuments();
+        Map<String, Map<String, Object>> result = new HashMap<>();
+        for (DocumentSnapshot doc : list) {
+            result.put(doc.getId(), doc.getData());
+        }
+        return result;
+    }
+
     @Override
     public CompletableFuture<Map<String, Map<String, Object>>> readCollection(CollectionReference collectionReference) {
         Task<QuerySnapshot> collectionTask = collectionReference.get();
@@ -42,12 +51,7 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
                     if (collection.isEmpty()) {
                         throw new RuntimeException("Collection doesn't contain any document");
                     } else {
-                        List<DocumentSnapshot> list = collection.getDocuments();
-                        Map<String, Map<String, Object>> result = new HashMap<>();
-                        for (DocumentSnapshot doc : list) {
-                            result.put(doc.getId(), doc.getData());
-                        }
-                        return result;
+                        return parseCollection(collection);
                     }
                 })
                 .exceptionally(e -> Collections.emptyMap());

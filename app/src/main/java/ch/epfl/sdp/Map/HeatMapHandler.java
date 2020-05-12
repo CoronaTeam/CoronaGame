@@ -25,6 +25,8 @@ import java.util.Set;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
+import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
+import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_DOC;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.heatmapDensity;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.interpolate;
@@ -56,7 +58,7 @@ class HeatMapHandler {
     }
 
     private void initQuery() {
-        db.readCollection(collectionReference("LastPositions"))
+        db.readCollection(collectionReference(LAST_POSITIONS_DOC))
                 .thenAccept(this::createGeoJson)
                 .exceptionally(e -> {
                     Toast.makeText(parentClass.getActivity(), "Cannot retrieve " +
@@ -72,7 +74,7 @@ class HeatMapHandler {
 
         for (Map.Entry<String, Map<String, Object>> entry : entrySet) {
             try {
-                GeoPoint geoPoint = (GeoPoint) entry.getValue().get("geoPoint");
+                GeoPoint geoPoint = (GeoPoint) entry.getValue().get(GEOPOINT_TAG);
                 infectionHeatMapPoints.add(Point.fromLngLat(
                         geoPoint.getLongitude(),
                         geoPoint.getLatitude()

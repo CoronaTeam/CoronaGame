@@ -5,18 +5,19 @@ import android.util.Log;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
+import com.mapbox.geojson.Point;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import com.mapbox.geojson.Point;
+import java.util.Map;
+import java.util.Random;
 import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
-import java.util.HashMap;
-import java.util.Map;
 
 import ch.epfl.sdp.contamination.CachingDataSender;
 import ch.epfl.sdp.contamination.Carrier;
@@ -28,8 +29,10 @@ import ch.epfl.sdp.location.LocationUtils;
 
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
-
-import java.util.Random;
+import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
+import static ch.epfl.sdp.firestore.FirestoreLabels.INFECTION_STATUS_TAG;
+import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_DOC;
+import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
 
 /**
  * This class is used for creating fake data for the app demo.
@@ -119,11 +122,11 @@ public class DataForDemo {
                 dataSender.registerLocation(carrier, userLocation, rightNow);
 
                 Map<String, Object> element = new HashMap<>();
-                element.put("geoPoint", new GeoPoint(userLocation.getLatitude(), userLocation.getLongitude()));
-                element.put("timeStamp", Timestamp.now());
+                element.put(GEOPOINT_TAG, new GeoPoint(userLocation.getLatitude(), userLocation.getLongitude()));
+                element.put(TIMESTAMP_TAG, Timestamp.now());
                 // db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
 
-                gridFirestoreInteractor.writeDocument(collectionReference("LastPositions"), element);
+                gridFirestoreInteractor.writeDocument(collectionReference(LAST_POSITIONS_DOC), element);
             }
         }
 
@@ -184,12 +187,12 @@ public class DataForDemo {
                 dataSender.registerLocation(carrier, userLocation, rightNow);
 
                 Map<String, Object> element = new HashMap<>();
-                element.put("geoPoint", new GeoPoint(userLocation.getLatitude(), userLocation.getLongitude()));
-                element.put("timeStamp", Timestamp.now());
-                element.put("infectionStatus", carrier.getInfectionStatus());
+                element.put(GEOPOINT_TAG, new GeoPoint(userLocation.getLatitude(), userLocation.getLongitude()));
+                element.put(TIMESTAMP_TAG, Timestamp.now());
+                element.put(INFECTION_STATUS_TAG, carrier.getInfectionStatus());
                 //db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
 
-                gridFirestoreInteractor.writeDocument(collectionReference("LastPositions"), element);
+                gridFirestoreInteractor.writeDocument(collectionReference(LAST_POSITIONS_DOC), element);
             }
         }
     }
@@ -202,11 +205,11 @@ public class DataForDemo {
         dataSender.registerLocation(carrier, userLocation, date);
 
         Map<String, Object> element = new HashMap<>();
-        element.put("geoPoint", new GeoPoint(userLocation.getLatitude(), userLocation.getLongitude()));
-        element.put("timeStamp", Timestamp.now());
+        element.put(GEOPOINT_TAG, new GeoPoint(userLocation.getLatitude(), userLocation.getLongitude()));
+        element.put(TIMESTAMP_TAG, Timestamp.now());
         // db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
 
-        gridFirestoreInteractor.writeDocument(collectionReference("LastPositions"), element);
+        gridFirestoreInteractor.writeDocument(collectionReference(LAST_POSITIONS_DOC), element);
     }
 
     // write in History Collection on Firestore, user with ID USER_PATH_DEMO

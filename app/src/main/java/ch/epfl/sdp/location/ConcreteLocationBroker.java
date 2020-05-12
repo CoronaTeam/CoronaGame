@@ -29,7 +29,6 @@ public class ConcreteLocationBroker implements LocationBroker {
         this.context = context;
     }
 
-    // TODO: use Map.of()
     private static final Map<Provider, String> providerToString = new HashMap<Provider, String>() {{
         put(GPS, LocationManager.GPS_PROVIDER);
         put(NETWORK, LocationManager.NETWORK_PROVIDER);
@@ -83,32 +82,6 @@ public class ConcreteLocationBroker implements LocationBroker {
 
     @Override
     public void requestPermissions(Activity activity, int requestCode) {
-        // TODO: uncomment this
-        /* This is the correct implementation. Could not test it!
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-            // Need to explicitly ask for location permission
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.location_permission_title)
-                    .setMessage(R.string.location_permission_description)
-                    .setPositiveButton(R.string.location_permission_accept_btn, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            ActivityCompat.requestPermissions(
-                                    GpsActivity.this,
-                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                    LOCATION_REQUEST_CODE);
-                        }
-                    })
-                    .create()
-                    .show();
-        } else {
-            // Implicit consent
-            ActivityCompat.requestPermissions(
-                    GpsActivity.this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    LOCATION_REQUEST_CODE);
-        }
-         */
         ActivityCompat.requestPermissions(
                 activity,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},

@@ -175,8 +175,6 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         trackerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
         ((ListView)findViewById(R.id.location_tracker)).setAdapter(trackerAdapter);
 
-
-        // TODO: Take real account
         account = AuthenticationManager.getAccount(this);
 
         db = new HistoryFirestoreInteractor(account);

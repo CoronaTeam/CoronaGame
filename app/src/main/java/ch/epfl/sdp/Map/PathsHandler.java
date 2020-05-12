@@ -12,7 +12,6 @@ import androidx.fragment.app.Fragment;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Geometry;
@@ -50,6 +49,7 @@ import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatmapIntensity;
 import static ch.epfl.sdp.Map.HeatMapHandler.adjustHeatmapRadius;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
+import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
@@ -116,7 +116,7 @@ public class PathsHandler extends Fragment {
 
         for (Map.Entry<String, Map<String, Object>> doc : stringMapMap.entrySet()) {
             try {
-                GeoPoint geoPoint = (GeoPoint) ((Map) doc.getValue().get("Position")).get("geoPoint");
+                GeoPoint geoPoint = (GeoPoint) ((Map) doc.getValue().get("Position")).get(GEOPOINT_TAG);
                 double lat = geoPoint.getLatitude();
                 double lon = geoPoint.getLongitude();
                 pathCoordinates.add(Point.fromLngLat(lon, lat));

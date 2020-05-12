@@ -23,13 +23,11 @@ public class Layman implements Carrier{
 
     private StorageManager<Date, Float> infectionHistory;
 
-    // TODO: Properly set the uniqueID (!!)
     private String uniqueID;
 
     public Layman() {
     }
 
-    // TODO: Properly set uniqueID (also modify equalsTo and hashCode!!)
     public Layman(InfectionStatus initialStatus) {
         this(initialStatus, initialStatus == InfectionStatus.INFECTED ? 1 : 0);
     }
@@ -131,8 +129,7 @@ public class Layman implements Carrier{
     public String toString() {
         return String.format("#%s: %s (p=%f)", uniqueID, myStatus, infectedWithProbability);
     }
-
-    // TODO: If uniqueID is properly assigned, its hash can be the hash of the carrier
+    
     @Override
     public int hashCode() {
         return Objects.hash(uniqueID, myStatus, infectedWithProbability);

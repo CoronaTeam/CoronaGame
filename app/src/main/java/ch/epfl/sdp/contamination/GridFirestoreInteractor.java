@@ -9,6 +9,8 @@ import java.util.concurrent.CompletableFuture;
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 
+import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_DOC;
+
 public class GridFirestoreInteractor extends ConcreteFirestoreInteractor {
 
     // MODEL: Round the location to the 5th decimal digit
@@ -34,7 +36,7 @@ public class GridFirestoreInteractor extends ConcreteFirestoreInteractor {
     }
 
     public CompletableFuture<Map<String, Object>> readLastLocation(Account account) {
-        return readDocument(documentReference("LastPositions", account.getId()));
+        return readDocument(documentReference(LAST_POSITIONS_DOC, account.getId()));
     }
 
 

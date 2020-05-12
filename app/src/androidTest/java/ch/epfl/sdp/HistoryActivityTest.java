@@ -26,12 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import ch.epfl.sdp.Account;
-import ch.epfl.sdp.AuthenticationManager;
-import ch.epfl.sdp.HistoryActivity;
-import ch.epfl.sdp.HistoryFirestoreInteractor;
-import ch.epfl.sdp.HistoryFragment;
-import ch.epfl.sdp.R;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 
 import static androidx.test.espresso.Espresso.onData;
@@ -41,6 +35,8 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static ch.epfl.sdp.TestTools.sleep;
+import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
+import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
 import static org.hamcrest.CoreMatchers.anything;
 import static org.mockito.Mockito.when;
 
@@ -65,8 +61,8 @@ public class HistoryActivityTest {
         when(querySnapshot.iterator()).thenReturn(Collections.singletonList(queryDocumentSnapshot).iterator());
         Date date = new GregorianCalendar(2020, Calendar.MARCH, 17).getTime();
         Map<String, Object> lastPos = new HashMap<>();
-        lastPos.put("geoPoint", new GeoPoint(19, 98));
-        lastPos.put("timeStamp", new Timestamp(date));
+        lastPos.put(GEOPOINT_TAG, new GeoPoint(19, 98));
+        lastPos.put(TIMESTAMP_TAG, new Timestamp(date));
         when(queryDocumentSnapshot.getData()).thenReturn(lastPos);
 
         when(unreadableSnapshot.iterator()).thenReturn(Collections.singletonList(unreadableDocumentSnapshot).iterator());

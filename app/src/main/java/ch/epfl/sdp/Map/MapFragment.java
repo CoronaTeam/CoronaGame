@@ -25,7 +25,6 @@ import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
-import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.plugins.annotation.Circle;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
@@ -97,7 +96,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         // bindService(Intent, ServiceConnection, int):
         // it requires the service to remain running until stopService(Intent) is called,
         // regardless of whether any clients are connected to it.
-        ComponentName myService = getActivity().startService(new Intent(getContext(), LocationService.class));
+        getActivity().startService(new Intent(getContext(), LocationService.class));
         getActivity().bindService(new Intent(getContext(), LocationService.class), conn, Context.BIND_AUTO_CREATE);
 
         userAccount = AccountFragment.getAccount(getActivity());
@@ -116,25 +115,19 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
         mapView = view.findViewById(R.id.mapFragment);
         mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(@NonNull MapboxMap mapboxMap) {
-                map = mapboxMap;
+        mapView.getMapAsync(mapboxMap -> {
+            map = mapboxMap;
 
-                mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-                        positionMarkerManager = new CircleManager(mapView, map, style);
+            mapboxMap.setStyle(Style.MAPBOX_STREETS, style -> {
+                positionMarkerManager = new CircleManager(mapView, map, style);
 
-                        userLocation = positionMarkerManager.create(new CircleOptions()
-                                .withLatLng(prevLocation));
+                userLocation = positionMarkerManager.create(new CircleOptions()
+                        .withLatLng(prevLocation));
 
-                        updateUserMarkerPosition(prevLocation);
-                        heatMapHandler = new HeatMapHandler(classPointer, db, map);
-                        pathsHandler = new PathsHandler(classPointer, map);
-                    }
-                });
-            }
+                updateUserMarkerPosition();
+                heatMapHandler = new HeatMapHandler(classPointer, db, map);
+                pathsHandler = new PathsHandler(classPointer, map);
+            });
         });
 
 
@@ -148,7 +141,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     public void onLocationChanged(Location newLocation) {
         if (locationBroker.hasPermissions(GPS)) {
             prevLocation = new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
-            updateUserMarkerPosition(prevLocation);
+            updateUserMarkerPosition();
             view.findViewById(R.id.mapFragment).setVisibility(View.VISIBLE);
             view.findViewById(R.id.heatMapToggle).setVisibility(View.VISIBLE);
             view.findViewById(R.id.heapMapLoadingSpinner).setVisibility(View.GONE);
@@ -158,15 +151,15 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         }
     }
 
-    private void updateUserMarkerPosition(LatLng location) {
+    private void updateUserMarkerPosition() {
         // This method is where we update the marker position once we have new coordinates. First we
         // check if this is the first time we are executing this handler, the best way to do this is
         // check if marker is null
 
         if (map != null && map.getStyle() != null) {
-            userLocation.setLatLng(location);
+            userLocation.setLatLng(prevLocation);
             positionMarkerManager.update(userLocation);
-            map.animateCamera(CameraUpdateFactory.newLatLng(location));
+            map.animateCamera(CameraUpdateFactory.newLatLng(prevLocation));
         }
     }
 

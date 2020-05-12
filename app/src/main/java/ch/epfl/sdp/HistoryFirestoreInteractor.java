@@ -4,9 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import ch.epfl.sdp.Account;
-import ch.epfl.sdp.PositionRecord;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
+
+import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
+import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_DOC;
+import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
 
 public class HistoryFirestoreInteractor extends ConcreteFirestoreInteractor {
 
@@ -30,10 +32,10 @@ public class HistoryFirestoreInteractor extends ConcreteFirestoreInteractor {
         PositionRecord posRec = (PositionRecord) content.values().toArray()[0];
 
         Map<String, Object> lastPos = new HashMap<>();
-        lastPos.put("geoPoint", posRec.getGeoPoint());
-        lastPos.put("timeStamp", posRec.getTimestamp());
+        lastPos.put(GEOPOINT_TAG, posRec.getGeoPoint());
+        lastPos.put(TIMESTAMP_TAG, posRec.getTimestamp());
 
         return writeDocumentWithID(documentReference(historyPositionsPath(), posRec.calculateID()), content).thenRun(() ->
-                writeDocumentWithID(documentReference("LastPositions", user.getId()), lastPos));
+                writeDocumentWithID(documentReference(LAST_POSITIONS_DOC, user.getId()), lastPos));
     }
 }

@@ -8,16 +8,19 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import androidx.fragment.app.Fragment;
+
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
-import androidx.fragment.app.Fragment;
+import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
+import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
 
 public class HistoryFragment extends Fragment {
 
@@ -70,9 +73,9 @@ public class HistoryFragment extends Fragment {
                     Map<String, Object> positionRecord = mapEntry.getValue();
                     //TODO resource strings with interpolation
                     historyAdapter.insert(String.format("Found @ %s:%s on %s",
-                            ((GeoPoint)(positionRecord.get("geoPoint"))).getLatitude(),
-                            ((GeoPoint)(positionRecord.get("geoPoint"))).getLongitude(),
-                            ((Timestamp)(positionRecord.get("timeStamp"))).toDate()), 0);
+                            ((GeoPoint)(positionRecord.get(GEOPOINT_TAG))).getLatitude(),
+                            ((GeoPoint)(positionRecord.get(GEOPOINT_TAG))).getLongitude(),
+                            ((Timestamp)(positionRecord.get(TIMESTAMP_TAG))).toDate()), 0);
                 } catch (NullPointerException e) {
                     historyAdapter.insert("[...unreadable.:).]", 0);
                 }

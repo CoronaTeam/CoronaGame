@@ -24,6 +24,7 @@ import ch.epfl.sdp.Account;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicUserFolder;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
+import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
 
 public class ConcreteDataReceiver implements DataReceiver {
 
@@ -105,7 +106,7 @@ public class ConcreteDataReceiver implements DataReceiver {
     public CompletableFuture<Location> getMyLastLocation(Account account) {
         return interactor.readLastLocation(account).thenApply(result -> {
             if (result.entrySet().iterator().hasNext()) {
-                GeoPoint geoPoint = (GeoPoint)result.get("geoPoint");
+                GeoPoint geoPoint = (GeoPoint)result.get(GEOPOINT_TAG);
                 Location location = new Location(LocationManager.GPS_PROVIDER);
                 location.setLatitude(geoPoint.getLatitude());
                 location.setLongitude(geoPoint.getLongitude());

@@ -39,7 +39,6 @@ import static ch.epfl.sdp.TestTools.getMapValue;
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
-import static ch.epfl.sdp.location.LocationUtils.buildLocation;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
@@ -47,6 +46,7 @@ import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
 import static ch.epfl.sdp.contamination.InfectionAnalyst.IMMUNITY_FACTOR;
 import static ch.epfl.sdp.contamination.InfectionAnalyst.TRANSMISSION_FACTOR;
+import static ch.epfl.sdp.location.LocationUtils.buildLocation;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -314,10 +314,9 @@ public class ConcreteAnalysisTest {
         CityDataReceiver cityReceiver = new CityDataReceiver();
         Carrier me = new Layman(HEALTHY);
 
-
         InfectionFragment fragment = ((InfectionFragment)mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
 
-        LocationService service = fragment.getLocationService();
+        LocationService service = fragment.getLocationService().join();
 
         DataReceiver originalReceiver = service.getReceiver();
         service.setReceiver(cityReceiver);
@@ -464,7 +463,7 @@ public class ConcreteAnalysisTest {
     @Test
     public void doesUpdateCorrectlySicknessState(){
         InfectionFragment fragment = ((InfectionFragment)mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
-        LocationService service = fragment.getLocationService();
+        LocationService service = fragment.getLocationService().join();
         Carrier me = new Layman(HEALTHY);
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
         analyst.updateStatus(INFECTED);
@@ -490,7 +489,7 @@ public class ConcreteAnalysisTest {
         Carrier me = new Layman(HEALTHY);
 
         InfectionFragment fragment = ((InfectionFragment)mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
-        LocationService service = fragment.getLocationService();
+        LocationService service = fragment.getLocationService().join();
         service.setReceiver(cityReceiver);
         InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver,sender);
         service.setAnalyst(analysis);

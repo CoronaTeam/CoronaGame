@@ -37,7 +37,7 @@ public interface TestTools {
      * @param activityTestRule : activity to launch
      * @param <E>
      */
-    static <E extends Activity> void initSafeTest(ActivityTestRule<E> activityTestRule, Boolean launchActivity) throws IllegalStateException {
+    static <E extends Activity> void initSafeTest(ActivityTestRule<E> activityTestRule, boolean launchActivity) throws IllegalStateException {
         try {
             Intents.init();
         } catch (IllegalStateException alreadyBeenInit) {

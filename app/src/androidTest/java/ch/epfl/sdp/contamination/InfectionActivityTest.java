@@ -4,9 +4,6 @@ import android.location.Location;
 
 import androidx.test.rule.ActivityTestRule;
 
-import ch.epfl.sdp.Account;
-import ch.epfl.sdp.R;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -16,6 +13,10 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+
+import ch.epfl.sdp.Account;
+import ch.epfl.sdp.R;
+import ch.epfl.sdp.location.LocationService;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -47,17 +48,20 @@ public class InfectionActivityTest {
 
     @Test
     public void receiverIsInstantiated(){
-        assertNotNull(fragment.getLocationService().getReceiver());
+        assertNotNull(fragment.getLocationService().join().getReceiver());
     }
     @Test
     public void analystIsInstantiated(){
-        assertNotNull(fragment.getLocationService().getAnalyst());
+        assertNotNull(fragment.getLocationService().join().getAnalyst());
     }
     private void displayHelper(){
         InfectionAnalyst analyst = new FakeAnalyst();
-        fragment.getLocationService().setAnalyst(analyst);
-        fragment.getLocationService().setSender(new FakeCachingDataSender());
-        fragment.getLocationService().setReceiver(new DataReceiver() {
+
+        LocationService service = fragment.getLocationService().join();
+
+        service.setAnalyst(analyst);
+        service.setSender(new FakeCachingDataSender());
+        service.setReceiver(new DataReceiver() {
             @Override
             public CompletableFuture<Set<Carrier>> getUserNearby(Location location, Date date) {
                 return CompletableFuture.completedFuture(null);

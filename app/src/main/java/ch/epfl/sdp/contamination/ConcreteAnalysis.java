@@ -131,12 +131,9 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     }
 
     private void dispatchModelUpdates(int recoveryCounter, Map<Carrier, Integer> suspectContacts, float badMeetingsCoefficient) {
-        // TODO: @Lucas, I don't understand why you put this condition, the model must be always updated
-        if (badMeetingsCoefficient > 0) {
-            updateCarrierInfectionProbability(
-                    Math.min(calculateCarrierInfectionProbability(suspectContacts) + badMeetingsCoefficient * getFactor(recoveryCounter), 1f));
-            cachedSender.resetSickAlerts(me.getUniqueId());
-        }
+        updateCarrierInfectionProbability(
+                Math.min(calculateCarrierInfectionProbability(suspectContacts) + badMeetingsCoefficient * getFactor(recoveryCounter), 1f));
+        cachedSender.resetSickAlerts(me.getUniqueId());
     }
 
     @Override
@@ -145,34 +142,34 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     }
 
     @Override
-    public boolean updateStatus(InfectionStatus stat) {
-        if (stat != me.getInfectionStatus()) {
-            float previousIllnessProbability = me.getIllnessProbability();
-            me.evolveInfection(stat);
-            if (stat == INFECTED) {
-                //Now, retrieve all user that have been nearby the last UNINTENTIONAL_CONTAGION_TIME milliseconds
+    public boolean updateStatus(InfectionStatus newStatus) {
 
-                //1: retrieve your own last positions
-                SortedMap<Date, Location> lastPositions = cachedSender.getLastPositions();
-
-                //2: Ask firebase who was there
-
-                Set<String> userIds = new HashSet<>();
-                lastPositions.forEach((date, location) -> receiver.getUserNearby(location, date).thenAccept(around -> {
-                    around.forEach(neighbor -> {
-                        if (neighbor.getInfectionStatus() != INFECTED) { // only non-infected users need to be informed
-                            userIds.add(neighbor.getUniqueId()); //won't add someone already in the set
-                        }
-                    });
-                }));
-                //Tell those user that they have been close to you
-                //TODO: discuss whether considering only the previous Illness probability is good
-                userIds.forEach(u -> cachedSender.sendAlert(u, previousIllnessProbability));
-            }
-            return true;
-        } else {
+        if (newStatus == me.getInfectionStatus()) {
             return false;
         }
+
+        float previousIllnessProbability = me.getIllnessProbability();
+        me.evolveInfection(newStatus);
+
+        if (newStatus == INFECTED) {
+            //1: retrieve your own last positions
+            SortedMap<Date, Location> lastPositions = cachedSender.getLastPositions();
+
+            //2: Ask firebase who was there
+            Set<String> userIds = new HashSet<>();
+            lastPositions.forEach((date, location) -> receiver.getUserNearby(location, date).thenAccept(around -> {
+                around.forEach(neighbor -> {
+                    if (neighbor.getInfectionStatus() != INFECTED) { // only non-infected users need to be informed
+                        userIds.add(neighbor.getUniqueId()); //won't add someone already in the set
+                    }
+                });
+            }));
+            //Tell those user that they have been close to you
+            //TODO: discuss whether considering only the previous Illness probability is good
+            userIds.forEach(u -> cachedSender.sendAlert(u, previousIllnessProbability));
+        }
+
+        return true;
     }
 }
    

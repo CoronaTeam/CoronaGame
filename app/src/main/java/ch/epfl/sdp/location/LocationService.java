@@ -250,12 +250,29 @@ public class LocationService extends Service implements LocationListener {
         return analyst;
     }
 
+
+
     public CachingDataSender getSender() {
         return sender;
     }
 
     public DataReceiver getReceiver() {
         return receiver;
+    }
+
+    @VisibleForTesting
+    public void resetAnalyst(){
+        analyst = new ConcreteAnalysis(me, receiver, sender);
+    }
+
+    @VisibleForTesting
+    public void setCarrier(Carrier carrier){
+        me = carrier;
+    }
+
+    @VisibleForTesting
+    public void resetSender(){
+        sender = new ConcreteCachingDataSender(gridInteractor);
     }
 
     @VisibleForTesting

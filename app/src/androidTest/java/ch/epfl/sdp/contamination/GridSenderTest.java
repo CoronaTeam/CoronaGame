@@ -27,6 +27,7 @@ import java.util.function.Function;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.TestTools;
+import ch.epfl.sdp.testActivities.DataExchangeActivity;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;

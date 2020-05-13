@@ -92,6 +92,7 @@ public class UserInfectionTest {
         Intents.release();
         analyst = null;
         receiver = null;
+        fragment.getLocationService().resetAnalyst();
     }
 
     @Test

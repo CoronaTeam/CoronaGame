@@ -73,8 +73,23 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".testActivities.DataExchangeActivity">
+            <intent-filter>
+                <action android:name="applicationB.intent.action.Launch" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".testActivities.AccountActivity">
+            <intent-filter>
+                <action android:name="applicationB.intent.action.Launch" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".testActivities.InfectionActivity">
             <intent-filter>
                 <action android:name="applicationB.intent.action.Launch" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -88,24 +103,10 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".contamination.InfectionActivity">
-            <intent-filter>
-                <action android:name="applicationB.intent.action.Launch" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
         <activity
             android:name=".tabActivity.TabActivity"
             android:theme="@style/AppTheme.NoActionBar">
 
-            <intent-filter>
-                <action android:name="applicationB.intent.action.Launch" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".contamination.DataExchangeActivity">
             <intent-filter>
                 <action android:name="applicationB.intent.action.Launch" />
                 <category android:name="android.intent.category.DEFAULT" />

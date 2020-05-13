@@ -1,4 +1,4 @@
-package ch.epfl.sdp.contamination;
+package ch.epfl.sdp.contamination.fragment;
 
 import android.app.AlertDialog;
 import android.content.ComponentName;
@@ -22,6 +22,7 @@ import androidx.fragment.app.Fragment;
 import java.util.Date;
 
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.contamination.InfectionAnalyst;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
 import ch.epfl.sdp.location.LocationService;
 
@@ -37,7 +38,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
 
     private Handler uiHandler;
 
-    InfectionFragment(Handler uiHandler) {
+    public InfectionFragment(Handler uiHandler) {
         this.uiHandler = uiHandler;
     }
 

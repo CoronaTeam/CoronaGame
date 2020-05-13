@@ -1,4 +1,4 @@
-package ch.epfl.sdp.contamination;
+package ch.epfl.sdp.testActivities;
 
 import android.content.ComponentName;
 import android.content.Intent;
@@ -23,10 +23,10 @@ public class DataExchangeActivity extends AppCompatActivity {
     private LocationService service;
 
     @VisibleForTesting
-    TextView exchangeStatus;
+    public TextView exchangeStatus;
 
     @VisibleForTesting
-    Handler uiHandler;
+    public Handler uiHandler;
 
     @VisibleForTesting
     public LocationService getService() {

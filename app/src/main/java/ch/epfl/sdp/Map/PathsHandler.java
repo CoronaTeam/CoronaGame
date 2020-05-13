@@ -106,8 +106,8 @@ public class PathsHandler extends Fragment {
         cal.add(Calendar.DAY_OF_MONTH, -1);
         Date bef = cal.getTime();
 
-        yesterdayString = "2020/05/07"; //this is for demo only, should be replaced by: dateToSimpleString(yes);
-        beforeYesterdayString = "2020/04/27";//this is for demo only, should be replaced by: dateToSimpleString(bef);
+        yesterdayString = dateToSimpleString(yes);//"2020/05/07"; //this is for demo only, should be replaced by: dateToSimpleString(yes);
+        beforeYesterdayString = dateToSimpleString(bef);//"2020/04/27";//this is for demo only, should be replaced by: dateToSimpleString(bef);
     }
 
     private String dateToSimpleString(Date date) {
@@ -161,12 +161,13 @@ public class PathsHandler extends Fragment {
 
                 Date date = timestamp.toDate();
                 String pathLocalDate = dateToSimpleString(date);
-                Log.d("DATE:", pathLocalDate);
 
                 if (pathLocalDate.equals(yesterdayString)) {
+                    Log.d("(yesterday)DATE:", pathLocalDate);
                     yesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
                     addInfectedMet(lat, lon, timestamp, yesterdayInfectedMet);
                 } else if (pathLocalDate.equals(beforeYesterdayString)) {
+                    Log.d("(before)DATE:", pathLocalDate);
                     beforeYesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
                     addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
                 }
@@ -175,8 +176,8 @@ public class PathsHandler extends Fragment {
             }
         }
 
-        Log.d("PATH COORD LENGTH: ", String.valueOf(yesterdayPathCoordinates.size()));
-        Log.d("IS PATH COORD NULL? ", (yesterdayPathCoordinates == null) ? "YES" : "NO");
+        Log.d("yesterday PATH COORD LENGTH: ", String.valueOf(yesterdayPathCoordinates.size()));
+        Log.d("before PATH COORD LENGTH: ", String.valueOf(beforeYesterdayPathCoordinates.size()));
 
         if (!yesterdayInfectedMet.isEmpty()) {
             setInfectedPointsLayer(YESTERDAY_POINTS_LAYER_ID, YESTERDAY_POINTS_SOURCE_ID, yesterdayInfectedMet);
@@ -205,7 +206,6 @@ public class PathsHandler extends Fragment {
         concreteDataReceiver
                 .getUserNearbyDuring(location, timestamp.toDate(), timestamp.toDate())
                 .thenAccept(carrierIntegerMap -> {
-                    Log.d("ADD INFECTED", "got future value");
                     Carrier carrier;
                     Point point;
                     for (Map.Entry<Carrier, Integer> entry : carrierIntegerMap.entrySet()) {
@@ -257,7 +257,7 @@ public class PathsHandler extends Fragment {
     }
 
     private CompletableFuture<Iterator<QueryDocumentSnapshot>> initFirestorePathRetrieval() {
-        String userPath = "THAT_BETTER_PATH"; // should get path for current user: replace by getUserName()
+        String userPath = "USER_ID_X42"; // should get path for current user: replace by getUserName()
         return FirestoreInteractor.taskToFuture(
                 collectionReference("History/" + userPath + "/Positions")
                         .orderBy("Position" + ".timestamp").get())

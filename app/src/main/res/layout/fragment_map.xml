@@ -48,4 +48,33 @@
         android:layout_gravity="center"
         />
 
+    <com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout
+        android:id="@+id/activity_main_rfal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        mapbox:rfal_frame_color="#ffffff"
+        mapbox:rfal_frame_alpha="0.7"
+        >
+
+    </com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout>
+
+    <com.wangjie.rapidfloatingactionbutton.RapidFloatingActionButton
+        android:id="@+id/activity_main_rfab"
+        android:layout_width="151dp"
+        android:layout_height="128dp"
+        android:layout_marginTop="589dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="15dp"
+        android:padding="8dp"
+        app:layout_anchor="@+id/history_button"
+        app:layout_anchorGravity="end|top"
+        mapbox:rfab_color_normal="#37474f"
+        mapbox:rfab_color_pressed="#263238"
+        mapbox:rfab_drawable="@drawable/rfab__drawable_rfab_default"
+        mapbox:rfab_shadow_color="#999999"
+        mapbox:rfab_shadow_dx="0dp"
+        mapbox:rfab_shadow_dy="5dp"
+        mapbox:rfab_shadow_radius="7dp"
+        mapbox:rfab_size="normal" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

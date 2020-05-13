@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
@@ -31,6 +32,14 @@ import com.mapbox.mapboxsdk.plugins.annotation.Circle;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions;
 import com.mapbox.mapboxsdk.style.layers.Layer;
+import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionButton;
+import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionHelper;
+import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout;
+import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RFACLabelItem;
+import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RapidFloatingActionContentLabelList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.BuildConfig;
@@ -50,7 +59,7 @@ import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
-public class MapFragment extends Fragment implements LocationListener, View.OnClickListener {
+public class MapFragment extends Fragment implements LocationListener, View.OnClickListener, RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener {
 
     public final static int LOCATION_PERMISSION_REQUEST = 20201;
     private static final int MIN_UP_INTERVAL_MILLISECS = 1000;
@@ -266,11 +275,59 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         HistoryDialogFragment dialog = new HistoryDialogFragment(this);
         dialog.show(getActivity().getSupportFragmentManager(), "history_dialog_fragment");
     }
+/////////////////////////////////////////////////////////////////////////////////////////////////////:
+    private RapidFloatingActionLayout rfaLayout;
+    private RapidFloatingActionButton rfaBtn;
+    private RapidFloatingActionHelper rfabHelper;
+
+    private void rapidFloatingButton() {
+
+        RapidFloatingActionContentLabelList rfaContent = new RapidFloatingActionContentLabelList(getContext());
+        rfaContent.setOnRapidFloatingActionContentLabelListListener(this);
+        List<RFACLabelItem> items = new ArrayList<>();
+        items.add(new RFACLabelItem<Integer>()
+                .setLabel("PATH1")
+                .setResId(R.drawable.fab_history)
+                .setIconNormalColor(0xff056f00)
+                .setIconPressedColor(0xff0d5302)
+                .setLabelColor(0xff056f00)
+                .setWrapper(0)
+        );
+        items.add(new RFACLabelItem<Integer>()
+                .setLabel("path2")
+                .setResId(R.drawable.fab_history)
+                .setIconNormalColor(0xff283593)
+                .setIconPressedColor(0xff1a237e)
+                .setLabelColor(0xff283593)
+                .setWrapper(1)
+        );
+        rfaContent
+                .setItems(items)
+                //.setIconShadowRadius(ABTextUtil.dip2px(getContext(), 5))
+                .setIconShadowColor(0xff888888)
+                //.setIconShadowDy(ABTextUtil.dip2px(getContext(), 5))
+        ;
+        rfabHelper = new RapidFloatingActionHelper(
+                getContext(),
+                rfaLayout,
+                rfaBtn,
+                rfaContent
+        ).build();
+    }
+
+    public void onRFACItemLabelClick(int position, RFACLabelItem item) {
+        Toast.makeText(getContext(), "clicked label: " + position, Toast.LENGTH_SHORT).show();
+        rfabHelper.toggleContent();
+    }
+    public void onRFACItemIconClick(int position, RFACLabelItem item) {
+        Toast.makeText(getContext(), "clicked icon: " + position, Toast.LENGTH_SHORT).show();
+        rfabHelper.toggleContent();
+    }
+/////////////////////////////////////////////////////////////////////////////////////////////////////:
 
     private void toggleHeatMap() {
         toggleLayer(HeatMapHandler.HEATMAP_LAYER_ID);
     }
-
     private void toggleLayer(String layerId) {
         map.getStyle(style -> {
             Layer layer = style.getLayer(layerId);

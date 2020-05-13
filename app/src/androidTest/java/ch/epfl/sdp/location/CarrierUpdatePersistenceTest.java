@@ -163,7 +163,7 @@ public class CarrierUpdatePersistenceTest {
         restoreRealAnalyst();
     }
 
-    @Test(timeout = 10000)
+    @Test(timeout = 30000)
     public void alarmSetByServiceIsSuccessful() {
 
         useAnalystWithSentinel();

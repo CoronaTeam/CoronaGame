@@ -3,10 +3,8 @@ package ch.epfl.sdp.fragment;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,9 +17,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 
-import ch.epfl.sdp.Map.MapFragment;
+import ch.epfl.sdp.map.MapFragment;
 import ch.epfl.sdp.R;
 
 public class HistoryDialogFragment extends BottomSheetDialogFragment {

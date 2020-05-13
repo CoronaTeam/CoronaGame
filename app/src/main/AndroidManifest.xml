@@ -18,21 +18,21 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".Authentication">
+        <activity android:name=".testActivities.Authentication">
             <intent-filter>
                 <action android:name="applicationB.intent.action.Launch" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".UserInfectionActivity">
+        <activity android:name=".testActivities.UserInfectionActivity">
             <intent-filter>
                 <action android:name="applicationB.intent.action.Launch" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".Map.MapActivity">
+        <activity android:name=".map.MapActivity">
             <intent-filter>
                 <action android:name="applicationB.intent.action.Launch" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -59,7 +59,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".GpsActivity">
+        <activity android:name=".toDelete.GpsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -74,14 +74,14 @@
         </activity>
 
         <activity
-            android:name=".AccountActivity">
+            android:name=".testActivities.AccountActivity">
             <intent-filter>
                 <action android:name="applicationB.intent.action.Launch" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".HistoryActivity" >
+        <activity android:name=".toDelete.HistoryActivity" >
             <intent-filter>
                 <action android:name="applicationB.intent.action.Launch" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -96,7 +96,7 @@
         </activity>
 
         <activity
-            android:name=".TabActivity"
+            android:name=".tabActivity.TabActivity"
             android:theme="@style/AppTheme.NoActionBar">
 
             <intent-filter>

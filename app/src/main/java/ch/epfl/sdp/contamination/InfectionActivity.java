@@ -4,7 +4,7 @@ import android.os.Handler;
 
 import androidx.fragment.app.Fragment;
 
-import ch.epfl.sdp.SingleFragmentActivity;
+import ch.epfl.sdp.utilities.SingleFragmentActivity;
 
 public class InfectionActivity extends SingleFragmentActivity {
     @Override

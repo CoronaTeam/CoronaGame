@@ -7,10 +7,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Categories;
 
-import ch.epfl.sdp.Map.MapActivity;
-import ch.epfl.sdp.Map.MapFragment;
 import ch.epfl.sdp.R;
 
 import static androidx.test.espresso.Espresso.onView;

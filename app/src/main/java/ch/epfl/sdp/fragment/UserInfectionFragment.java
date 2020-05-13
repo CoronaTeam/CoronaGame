@@ -33,9 +33,9 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-import ch.epfl.sdp.Account;
-import ch.epfl.sdp.AuthenticationManager;
-import ch.epfl.sdp.Tools;
+import ch.epfl.sdp.utilities.Account;
+import ch.epfl.sdp.utilities.AuthenticationManager;
+import ch.epfl.sdp.utilities.Tools;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
@@ -43,8 +43,8 @@ import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.location.LocationService;
 
 import static android.content.Context.BIND_AUTO_CREATE;
-import static ch.epfl.sdp.Tools.IS_ONLINE;
-import static ch.epfl.sdp.Tools.checkNetworkStatus;
+import static ch.epfl.sdp.utilities.Tools.IS_ONLINE;
+import static ch.epfl.sdp.utilities.Tools.checkNetworkStatus;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;

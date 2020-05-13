@@ -2,9 +2,6 @@ package ch.epfl.sdp.contamination;
 
 import android.location.Location;
 
-import androidx.test.espresso.intent.Intents;
-import androidx.test.rule.ActivityTestRule;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,8 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import ch.epfl.sdp.R;
-import ch.epfl.sdp.User;
+import ch.epfl.sdp.utilities.User;
 
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;

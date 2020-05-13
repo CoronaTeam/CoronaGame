@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import ch.epfl.sdp.Account;
+import ch.epfl.sdp.utilities.Account;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 
 public class GridFirestoreInteractor extends ConcreteFirestoreInteractor {

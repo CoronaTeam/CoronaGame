@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -21,13 +20,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
-import ch.epfl.sdp.Account;
-import ch.epfl.sdp.AccountFactory;
-import ch.epfl.sdp.AuthenticationManager;
+import ch.epfl.sdp.utilities.Account;
+import ch.epfl.sdp.utilities.AccountFactory;
+import ch.epfl.sdp.utilities.AuthenticationManager;
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.User;
+import ch.epfl.sdp.utilities.User;
 
 public class AccountFragment extends Fragment implements View.OnClickListener, MenuItem.OnMenuItemClickListener {
 

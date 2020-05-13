@@ -10,7 +10,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
-import ch.epfl.sdp.User;
+import ch.epfl.sdp.utilities.User;
 
 /**
  * This class, made to make testing other classes convenient, simulates the behavior of a regular datasender to firestore, but store info locally

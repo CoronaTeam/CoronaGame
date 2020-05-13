@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.fragment.AccountFragment;
 
-import static ch.epfl.sdp.AuthenticationManager.getActivity;
+import static ch.epfl.sdp.utilities.AuthenticationManager.getActivity;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 
 public class ConcreteCachingDataSender implements CachingDataSender {

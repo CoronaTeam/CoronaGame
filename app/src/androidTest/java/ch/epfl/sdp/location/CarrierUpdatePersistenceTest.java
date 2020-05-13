@@ -17,9 +17,9 @@ import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import ch.epfl.sdp.utilities.AuthenticationManager;
+import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.CoronaGame;
-import ch.epfl.sdp.utilities.DefaultAuthenticationManager;
+import ch.epfl.sdp.identity.DefaultAuthenticationManager;
 import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.contamination.CachingDataSender;
 import ch.epfl.sdp.contamination.Carrier;

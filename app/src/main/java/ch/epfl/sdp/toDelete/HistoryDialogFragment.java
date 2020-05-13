@@ -1,4 +1,4 @@
-package ch.epfl.sdp.fragment;
+package ch.epfl.sdp.toDelete;
 
 import android.app.Activity;
 import android.app.Dialog;

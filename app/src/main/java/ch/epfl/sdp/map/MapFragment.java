@@ -32,12 +32,12 @@ import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions;
 import com.mapbox.mapboxsdk.style.layers.Layer;
 
-import ch.epfl.sdp.utilities.Account;
+import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.BuildConfig;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
-import ch.epfl.sdp.fragment.AccountFragment;
-import ch.epfl.sdp.fragment.HistoryDialogFragment;
+import ch.epfl.sdp.identity.fragment.AccountFragment;
+import ch.epfl.sdp.toDelete.HistoryDialogFragment;
 import ch.epfl.sdp.location.LocationBroker;
 import ch.epfl.sdp.location.LocationService;
 

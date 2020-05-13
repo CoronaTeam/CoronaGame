@@ -1,4 +1,4 @@
-package ch.epfl.sdp.fragment;
+package ch.epfl.sdp.identity.fragment;
 
 import android.app.Activity;
 import android.content.Intent;

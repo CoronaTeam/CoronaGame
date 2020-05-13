@@ -4,7 +4,7 @@ import android.location.Location;
 
 import androidx.test.rule.ActivityTestRule;
 
-import ch.epfl.sdp.utilities.Account;
+import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.R;
 
 import org.junit.After;

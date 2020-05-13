@@ -19,8 +19,8 @@ import ch.epfl.sdp.contamination.ConcreteCachingDataSender;
 import ch.epfl.sdp.contamination.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.location.LocationService;
-import ch.epfl.sdp.utilities.AuthenticationManager;
-import ch.epfl.sdp.utilities.User;
+import ch.epfl.sdp.identity.AuthenticationManager;
+import ch.epfl.sdp.identity.User;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;

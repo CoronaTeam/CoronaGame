@@ -1,4 +1,4 @@
-package ch.epfl.sdp.utilities;
+package ch.epfl.sdp.identity;
 
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
@@ -6,9 +6,9 @@ import androidx.test.rule.ActivityTestRule;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.TestTools;
-import ch.epfl.sdp.fragment.AuthenticationFragment;
+import ch.epfl.sdp.identity.fragment.AuthenticationFragment;
 import ch.epfl.sdp.testActivities.Authentication;
-import ch.epfl.sdp.utilities.AuthenticationManager;
+import ch.epfl.sdp.identity.AuthenticationManager;
 
 import org.junit.After;
 import org.junit.Before;

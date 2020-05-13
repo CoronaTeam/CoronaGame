@@ -28,15 +28,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.toDelete.GpsActivity;
 import ch.epfl.sdp.contamination.ConcreteAnalysis;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.location.ConcreteLocationBroker;
 import ch.epfl.sdp.location.LocationBroker;
 import ch.epfl.sdp.location.LocationService;
-import ch.epfl.sdp.toDelete.HistoryFirestoreInteractor;
-import ch.epfl.sdp.utilities.Account;
-import ch.epfl.sdp.utilities.AuthenticationManager;
+import ch.epfl.sdp.identity.Account;
+import ch.epfl.sdp.identity.AuthenticationManager;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;

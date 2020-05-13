@@ -22,7 +22,7 @@ import androidx.fragment.app.Fragment;
 import java.util.Date;
 
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.fragment.AccountFragment;
+import ch.epfl.sdp.identity.fragment.AccountFragment;
 import ch.epfl.sdp.location.LocationService;
 
 import static android.content.Context.BIND_AUTO_CREATE;

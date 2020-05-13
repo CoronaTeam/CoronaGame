@@ -24,7 +24,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
-import ch.epfl.sdp.utilities.Account;
+import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.location.LocationService;

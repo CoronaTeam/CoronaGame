@@ -1,11 +1,11 @@
-package ch.epfl.sdp.utilities;
+package ch.epfl.sdp.identity;
 
 import android.net.Uri;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.epfl.sdp.utilities.User;
+import ch.epfl.sdp.identity.User;
 
 import static org.junit.Assert.assertEquals;
 

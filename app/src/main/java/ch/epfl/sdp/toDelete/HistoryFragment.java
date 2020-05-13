@@ -19,8 +19,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 
-import ch.epfl.sdp.utilities.Account;
-import ch.epfl.sdp.utilities.AuthenticationManager;
+import ch.epfl.sdp.identity.Account;
+import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.R;
 
 public class HistoryFragment extends Fragment {

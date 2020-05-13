@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.SortedMap;
 
 import ch.epfl.sdp.TestTools;
-import ch.epfl.sdp.utilities.User;
+import ch.epfl.sdp.identity.User;
 
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;

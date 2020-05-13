@@ -3,7 +3,7 @@ package ch.epfl.sdp.testActivities;
 import androidx.fragment.app.Fragment;
 
 import ch.epfl.sdp.utilities.SingleFragmentActivity;
-import ch.epfl.sdp.fragment.AuthenticationFragment;
+import ch.epfl.sdp.identity.fragment.AuthenticationFragment;
 
 /**
  * AuthenticationActivity : handling the signIn process via google play. This class will check if a user has been already logged in.

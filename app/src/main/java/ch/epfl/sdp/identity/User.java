@@ -1,11 +1,9 @@
-package ch.epfl.sdp.utilities;
+package ch.epfl.sdp.identity;
 
 import android.app.Activity;
 import android.net.Uri;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-
-import ch.epfl.sdp.utilities.Account;
 
 /**
  * This class is there for testing purposes and for representing a user in UserInfectionActivity

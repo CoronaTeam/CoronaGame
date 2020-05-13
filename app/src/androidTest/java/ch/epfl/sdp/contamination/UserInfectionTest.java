@@ -11,7 +11,6 @@ import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -19,13 +18,9 @@ import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.contamination.Carrier;
-import ch.epfl.sdp.contamination.DataReceiver;
-import ch.epfl.sdp.contamination.InfectionAnalyst;
-import ch.epfl.sdp.contamination.Layman;
-import ch.epfl.sdp.fragment.UserInfectionFragment;
+import ch.epfl.sdp.testActivities.UserInfectionFragment;
 import ch.epfl.sdp.testActivities.UserInfectionActivity;
-import ch.epfl.sdp.utilities.User;
+import ch.epfl.sdp.identity.User;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;

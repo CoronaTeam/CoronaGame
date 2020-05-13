@@ -29,8 +29,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.epfl.sdp.utilities.Account;
-import ch.epfl.sdp.utilities.AuthenticationManager;
+import ch.epfl.sdp.identity.Account;
+import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.utilities.PositionRecord;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.location.LocationService;

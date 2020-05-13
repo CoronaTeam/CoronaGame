@@ -14,8 +14,8 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 import ch.epfl.sdp.map.MapFragment;
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.fragment.AccountFragment;
-import ch.epfl.sdp.fragment.StatusFragment;
+import ch.epfl.sdp.identity.fragment.AccountFragment;
+import ch.epfl.sdp.contamination.fragment.StatusFragment;
 
 public class TabActivity extends AppCompatActivity {
 

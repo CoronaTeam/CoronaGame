@@ -23,7 +23,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.SortedMap;
 
-import ch.epfl.sdp.utilities.AuthenticationManager;
+import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.CachingDataSender;

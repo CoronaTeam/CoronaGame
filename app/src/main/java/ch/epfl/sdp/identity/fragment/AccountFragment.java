@@ -1,4 +1,4 @@
-package ch.epfl.sdp.fragment;
+package ch.epfl.sdp.identity.fragment;
 
 import android.app.Activity;
 import android.net.Uri;
@@ -21,11 +21,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
-import ch.epfl.sdp.utilities.Account;
-import ch.epfl.sdp.utilities.AccountFactory;
-import ch.epfl.sdp.utilities.AuthenticationManager;
+import ch.epfl.sdp.identity.Account;
+import ch.epfl.sdp.identity.AccountFactory;
+import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.utilities.User;
+import ch.epfl.sdp.identity.User;
 
 public class AccountFragment extends Fragment implements View.OnClickListener, MenuItem.OnMenuItemClickListener {
 

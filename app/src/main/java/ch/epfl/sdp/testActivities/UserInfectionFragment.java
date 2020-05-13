@@ -1,4 +1,4 @@
-package ch.epfl.sdp.fragment;
+package ch.epfl.sdp.testActivities;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -33,8 +33,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-import ch.epfl.sdp.utilities.Account;
-import ch.epfl.sdp.utilities.AuthenticationManager;
+import ch.epfl.sdp.identity.Account;
+import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.utilities.Tools;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.Carrier;

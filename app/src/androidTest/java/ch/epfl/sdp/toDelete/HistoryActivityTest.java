@@ -27,12 +27,9 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.toDelete.HistoryActivity;
-import ch.epfl.sdp.toDelete.HistoryFirestoreInteractor;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
-import ch.epfl.sdp.toDelete.HistoryFragment;
-import ch.epfl.sdp.utilities.Account;
-import ch.epfl.sdp.utilities.AuthenticationManager;
+import ch.epfl.sdp.identity.Account;
+import ch.epfl.sdp.identity.AuthenticationManager;
 
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;

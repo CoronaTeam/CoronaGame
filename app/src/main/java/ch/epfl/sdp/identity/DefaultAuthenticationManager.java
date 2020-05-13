@@ -1,4 +1,4 @@
-package ch.epfl.sdp.utilities;
+package ch.epfl.sdp.identity;
 
 import android.app.Activity;
 import android.content.Context;

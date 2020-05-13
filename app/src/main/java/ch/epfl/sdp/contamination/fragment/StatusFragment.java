@@ -1,4 +1,4 @@
-package ch.epfl.sdp.fragment;
+package ch.epfl.sdp.contamination.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

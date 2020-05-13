@@ -14,9 +14,9 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
-import ch.epfl.sdp.fragment.AccountFragment;
+import ch.epfl.sdp.identity.fragment.AccountFragment;
 
-import static ch.epfl.sdp.utilities.AuthenticationManager.getActivity;
+import static ch.epfl.sdp.identity.AuthenticationManager.getActivity;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 
 public class ConcreteCachingDataSender implements CachingDataSender {

@@ -1,4 +1,4 @@
-package ch.epfl.sdp.utilities;
+package ch.epfl.sdp.identity;
 
 //import Account;
 

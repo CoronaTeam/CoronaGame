@@ -1,12 +1,12 @@
-package ch.epfl.sdp.utilities;
+package ch.epfl.sdp.identity;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.epfl.sdp.utilities.AccountFactory;
-import ch.epfl.sdp.utilities.User;
+import ch.epfl.sdp.identity.AccountFactory;
+import ch.epfl.sdp.identity.User;
 
 import static org.junit.Assert.assertEquals;
 

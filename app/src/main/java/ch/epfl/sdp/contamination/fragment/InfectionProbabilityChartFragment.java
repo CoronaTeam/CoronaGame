@@ -1,4 +1,4 @@
-package ch.epfl.sdp.fragment;
+package ch.epfl.sdp.contamination.fragment;
 
 import android.content.ComponentName;
 import android.content.Intent;

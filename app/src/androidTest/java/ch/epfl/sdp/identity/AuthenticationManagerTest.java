@@ -1,4 +1,4 @@
-package ch.epfl.sdp.utilities;
+package ch.epfl.sdp.identity;
 
 import android.widget.ImageView;
 
@@ -10,8 +10,8 @@ import androidx.test.rule.ActivityTestRule;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.testActivities.AccountActivity;
 import ch.epfl.sdp.testActivities.Authentication;
-import ch.epfl.sdp.utilities.AuthenticationManager;
-import ch.epfl.sdp.utilities.User;
+import ch.epfl.sdp.identity.AuthenticationManager;
+import ch.epfl.sdp.identity.User;
 
 import org.junit.After;
 import org.junit.Before;

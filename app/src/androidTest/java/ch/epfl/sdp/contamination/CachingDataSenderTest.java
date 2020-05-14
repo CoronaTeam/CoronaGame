@@ -7,12 +7,11 @@ import org.junit.Test;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.SortedMap;
 
 import ch.epfl.sdp.TestTools;
-import ch.epfl.sdp.User;
+import ch.epfl.sdp.identity.User;
 
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;

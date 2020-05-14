@@ -25,6 +25,7 @@ import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.location.LocationUtils;
+import ch.epfl.sdp.utilities.PositionRecord;
 
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;

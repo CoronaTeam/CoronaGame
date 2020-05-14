@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.TimeUnit;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.Layman;
@@ -49,9 +50,19 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     private LineChart chart;
     private LocationService service;
 
-    private static long DATA_TIME_SCALE_SHIFT = 29;
-    private static int DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24;
-    private static float DATA_TIME_GRANULARITY = (float)(DAY_IN_MILLISECONDS << DATA_TIME_SCALE_SHIFT);
+    private static long DATA_TIME_SCALE = 1000L;
+    private static float DATA_TIME_GRANULARITY = (float)(1000L * 60L * 60L * 24L) / DATA_TIME_SCALE; // one day in ms
+    private final ValueFormatter DATA_TIME_FORMATTER = new ValueFormatter() {
+        @Override
+        public String getFormattedValue(float value) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(referenceTime + (long)(value * DATA_TIME_SCALE));
+            int month = cal.get(Calendar.MONTH) + 1;
+            return cal.get(Calendar.DAY_OF_MONTH) + "/" + (month < 10 ? "0" : "") + month;
+        }
+    };
+
+    private long referenceTime = 0L;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -112,17 +123,8 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     }
 
     private void setAxes() {
-        ValueFormatter xAxisFormatter = new ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value) {
-                Calendar cal = Calendar.getInstance();
-                cal.setTimeInMillis((long)value);
-                int month = cal.get(Calendar.MONTH) + 1;
-                return cal.get(Calendar.DAY_OF_MONTH) + "/" + (month < 10 ? "0" : "") + month;
-            }
-        };
         XAxis xAxis = chart.getXAxis();
-        xAxis.setValueFormatter(xAxisFormatter);
+        xAxis.setValueFormatter(DATA_TIME_FORMATTER);
         xAxis.setGranularity(DATA_TIME_GRANULARITY); // seconds in a day
         xAxis.setDrawGridLines(false);
 
@@ -173,9 +175,14 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
         ArrayList<Entry> values = new ArrayList<>();
 
         Drawable drawable = getResources().getDrawable(R.drawable.ic_person, getContext().getTheme());
+        boolean first = true;
         for (Map.Entry<Date, Float> entry : infectionHistory.entrySet()) {
+            if (first) {
+                referenceTime = entry.getKey().getTime();
+                first = false;
+            }
             Log.e("CHART_DATA", "at ms=" + entry.getKey().getTime());
-            values.add(new Entry((float)(entry.getKey().getTime() << DATA_TIME_SCALE_SHIFT), entry.getValue(), drawable));
+            values.add(new Entry((float)(entry.getKey().getTime() - referenceTime) / DATA_TIME_SCALE, entry.getValue(), drawable));
         }
 
         return values;

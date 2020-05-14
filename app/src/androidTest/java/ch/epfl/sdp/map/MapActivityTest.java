@@ -78,7 +78,7 @@ public class MapActivityTest {
     }
 
 
-    @Test(timeout = 30000)
+    @Test(timeout = 50000)
     public void testHeatMapLoadCorrectly() throws Throwable {
         testMapLoadCorrectly();
 
@@ -103,7 +103,7 @@ public class MapActivityTest {
         });
     }
 
-    @Test(timeout = 50000)
+    @Test(timeout = 100000)
     public void testHeatMapToggleButton() throws Throwable {
 
         testHeatMapLoadCorrectly();

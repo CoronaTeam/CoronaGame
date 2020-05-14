@@ -1,6 +1,7 @@
 package ch.epfl.sdp.contamination;
 
 import android.location.Location;
+import android.util.Log;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -10,8 +11,6 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
 
-import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
-import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
@@ -28,17 +27,17 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         this.cachedSender = dataSender;
     }
 
-    private void updateCarrierInfectionProbability(float updatedProbability) {
+    private void updateCarrierInfectionProbability(Date when, float updatedProbability) {
         if (updatedProbability > CERTAINTY_APPROXIMATION_THRESHOLD) {
             // MODEL: If I'm almost certainly ill, then I will be marked as INFECTED
-            me.evolveInfection(INFECTED);
+            me.evolveInfection(when, INFECTED);
         } else if (updatedProbability < ABSENCE_APPROXIMATION_THRESHOLD) {
             // MODEL: If I'm almost certainly healthy, then I will be marked as HEALTHY
-            me.evolveInfection(InfectionStatus.HEALTHY);
+            me.evolveInfection(when, InfectionStatus.HEALTHY);
         } else {
-            me.evolveInfection(InfectionStatus.UNKNOWN);
+            me.evolveInfection(when, InfectionStatus.UNKNOWN);
         }
-        me.setIllnessProbability(updatedProbability);
+        me.setIllnessProbability(when, updatedProbability);
     }
 
     private int countMeetingsWithInfected(Map<? extends Carrier, Integer> aroundMe) {
@@ -53,7 +52,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         return infectedMet;
     }
 
-    private float calculateCarrierInfectionProbability(Map<Carrier, Integer> suspectedContacts) {
+    private float calculateCarrierInfectionProbability(Date when, Map<Carrier, Integer> suspectedContacts) {
         int cumulativeSocialTime = 0;
 
         for (Integer meetingLength : suspectedContacts.values()) {
@@ -65,7 +64,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         for (Map.Entry<Carrier, Integer> c : suspectedContacts.entrySet()) {
             // MODEL: Being close to a person for more than WINDOW_FOR_INFECTION_DETECTION implies becoming infected
             if (c.getValue() > WINDOW_FOR_INFECTION_DETECTION) {
-                me.evolveInfection(InfectionStatus.INFECTED);
+                me.evolveInfection(when, InfectionStatus.INFECTED);
                 updatedProbability = 1;
                 break;
             } else {
@@ -114,6 +113,8 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     @Override
     public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
 
+        // TODO: DISABLED this just for debug
+        /*
         CompletableFuture<Integer> recoveryCounter =
                 receiver.getRecoveryCounter(me.getUniqueId())
                         .thenApply(rc -> (int) (rc.getOrDefault(privateRecoveryCounter, 0)));
@@ -128,11 +129,21 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         return CompletableFuture.allOf(recoveryCounter, peopleAroundMe, badMeetingCoefficient)
                 .thenRun(() -> dispatchModelUpdates(recoveryCounter.join(), identifySuspectContacts(peopleAroundMe.join()), badMeetingCoefficient.join()))
                 .thenApply(v -> countMeetingsWithInfected(peopleAroundMe.join()));
+
+         */
+
+        updateCarrierInfectionProbability(endTime, me.getIllnessProbability() + .1f);
+
+        Log.e("CARRIER_INFECTION_UPDATE", "Modified to: " + Float.toString(me.getIllnessProbability()));
+
+        return CompletableFuture.completedFuture(0);
     }
 
-    private void dispatchModelUpdates(int recoveryCounter, Map<Carrier, Integer> suspectContacts, float badMeetingsCoefficient) {
+    private void dispatchModelUpdates(Date when, int recoveryCounter, Map<Carrier, Integer> suspectContacts, float badMeetingsCoefficient) {
         updateCarrierInfectionProbability(
-                Math.min(calculateCarrierInfectionProbability(suspectContacts) + badMeetingsCoefficient * getFactor(recoveryCounter), 1f));
+                when,
+                Math.min(calculateCarrierInfectionProbability(when, suspectContacts) + badMeetingsCoefficient * getFactor(recoveryCounter), 1f)
+        );
         cachedSender.resetSickAlerts(me.getUniqueId());
     }
 

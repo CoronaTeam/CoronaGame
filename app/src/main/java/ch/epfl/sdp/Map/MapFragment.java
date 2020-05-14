@@ -61,6 +61,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private HeatMapHandler heatMapHandler;
     private Account userAccount;
     private MapFragment classPointer;
+    private ServiceConnection conn;
 
     private View view;
 
@@ -78,7 +79,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         classPointer = this;
 
-        ServiceConnection conn = new ServiceConnection() {
+        conn = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 locationBroker = ((LocationService.LocationBinder) service).getService().getBroker();
@@ -240,6 +241,12 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     public void onDestroy() {
         System.err.println("destroy");
         mapView.onDestroy();
+
+        // Unbind service
+        if (conn != null) {
+            getActivity().unbindService(conn);
+        }
+
         super.onDestroy();
 
     }

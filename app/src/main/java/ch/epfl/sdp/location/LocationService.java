@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -21,6 +22,8 @@ import androidx.annotation.VisibleForTesting;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.SortedMap;
 
 import ch.epfl.sdp.AuthenticationManager;
@@ -41,7 +44,7 @@ import ch.epfl.sdp.contamination.PositionAggregator;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 
-public class LocationService extends Service implements LocationListener {
+public class LocationService extends Service implements LocationListener, Observer {
 
     public final static int LOCATION_PERMISSION_REQUEST = 20201;
     private static final int MIN_UP_INTERVAL_MILLISECS = 1000;
@@ -49,12 +52,12 @@ public class LocationService extends Service implements LocationListener {
 
     public static final String ALARM_GOES_OFF = "beeep!";
 
-    public static final String INFECTION_PROBABILITY_TAG = "infectionProbability";
-    public static final String INFECTION_STATUS_TAG = "infectionStatus";
-    public static final String LAST_UPDATED_TAG = "lastUpdated";
+    public static final String INFECTION_PROBABILITY_PREF = "infectionProbability";
+    public static final String INFECTION_STATUS_PREF = "infectionStatus";
+    public static final String LAST_UPDATED_PREF = "lastUpdated";
 
-    // TODO: This value should be set to several hours. It's now 2 minutes to allow for demo
-    private static long alarmDelayMillis = 120_000;
+    // TODO: This value should be set to several hours. It's now 20 seconds to allow for demo
+    private static long alarmDelayMillis = 20_000;
 
     private LocationBroker broker;
     private PositionAggregator aggregator;
@@ -65,8 +68,6 @@ public class LocationService extends Service implements LocationListener {
 
     private DataReceiver receiver;
     private CachingDataSender sender;
-
-    private Carrier me;
 
     private boolean isAlarmSet = false;
 
@@ -93,20 +94,27 @@ public class LocationService extends Service implements LocationListener {
         isAlarmSet = true;
     }
 
-    private void loadCarrierStatus() {
-        float infectionProbability = sharedPref.getFloat(INFECTION_PROBABILITY_TAG, 0);
-        InfectionStatus infectionStatus = InfectionStatus.values()[sharedPref.getInt(INFECTION_STATUS_TAG, InfectionStatus.HEALTHY.ordinal())];
+    private Carrier locallyLoadCarrier() {
+        lastUpdated = new Date(sharedPref.getLong(LAST_UPDATED_PREF, System.currentTimeMillis()));
 
-        me = new Layman(infectionStatus, infectionProbability, AuthenticationManager.getUserId());
+        float infectionProbability = sharedPref.getFloat(INFECTION_PROBABILITY_PREF, 0);
+        InfectionStatus infectionStatus = InfectionStatus.values()[sharedPref.getInt(INFECTION_STATUS_PREF, InfectionStatus.HEALTHY.ordinal())];
 
-        lastUpdated = new Date(sharedPref.getLong(LAST_UPDATED_TAG, System.currentTimeMillis()));
+        Layman carrier = new Layman(infectionStatus, infectionProbability, AuthenticationManager.getUserId());
+
+        // Register as observer of Layman
+        carrier.addObserver(this);
+
+        return carrier;
     }
 
-    private void storeCarrierStatus() {
+    public void locallyStoreCarrier() {
+        Carrier me = analyst.getCarrier();
+
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putFloat(INFECTION_PROBABILITY_TAG, me.getIllnessProbability())
-                .putInt(INFECTION_STATUS_TAG, me.getInfectionStatus().ordinal())
-                .putLong(LAST_UPDATED_TAG, lastUpdated.getTime())
+        editor.putFloat(INFECTION_PROBABILITY_PREF, me.getIllnessProbability())
+                .putInt(INFECTION_STATUS_PREF, me.getInfectionStatus().ordinal())
+                .putLong(LAST_UPDATED_PREF, lastUpdated.getTime())
                 .commit();
     }
 
@@ -122,7 +130,7 @@ public class LocationService extends Service implements LocationListener {
 
         sharedPref = this.getSharedPreferences(CoronaGame.SHARED_PREF_FILENAME, Context.MODE_PRIVATE);
 
-        loadCarrierStatus();
+        Carrier me = locallyLoadCarrier();
 
         analyst = new ConcreteAnalysis(me, receiver, sender);
         aggregator = new ConcretePositionAggregator(sender, me);
@@ -143,22 +151,28 @@ public class LocationService extends Service implements LocationListener {
             analyst.updateInfectionPredictions(l.getValue(), lastUpdated, l.getKey());
             lastUpdated = l.getKey();
         }
-
-        storeCarrierStatus();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.hasExtra(ALARM_GOES_OFF)) {
+            isAlarmSet = false;
             // It's time to run the model, starting from time 'lastUpdated';
             updateInfectionModel();
         }
 
         if (!isAlarmSet) {
+            Log.e("LOCATION_SERVICE", "Setting alarm");
             // Create next alarm
             setModelUpdateAlarm();
         }
         return START_STICKY;
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        // React to changes to carrier status
+        locallyStoreCarrier();
     }
 
     public class LocationBinder extends android.os.Binder {

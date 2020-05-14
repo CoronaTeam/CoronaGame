@@ -40,17 +40,33 @@ public interface Carrier {
     boolean evolveInfection(InfectionStatus newStatus);
 
     /**
+     * Modify the infection status,
+     * for a past time 'when'
+     * @param newStatus
+     * @return
+     */
+    boolean evolveInfection(Date when, InfectionStatus newStatus);
+
+
+    /**
      * Returns the probability that the Carrier is ill, if his status is UNKNOWN
      */
     float getIllnessProbability();
 
     /**
-     * Updates the probability that the Carrier is ill, if his status is UNKNOWN
+     * Updates the probability that the Carrier is ill
      * Returns false if:
      *  - probability < 0 or >= 1
-     *  - status is != UNKNOWN
      */
     boolean setIllnessProbability(float probability);
+
+    /**
+     * Updates the probability that the Carrier is ill
+     * for a past time 'when'
+     * Returns false if:
+     *  - probability < 0 or >= 1
+     */
+    boolean setIllnessProbability(Date when, float probability);
 
     /**
      * Retrieves the evolution of infection probability for the carrier,
@@ -59,4 +75,6 @@ public interface Carrier {
      * @return a Map containing, for each date, the probability of being infected
      */
     Map<Date, Float> getIllnessProbabilityHistory(Date since);
+
+    void deleteLocalProbabilityHistory();
 }

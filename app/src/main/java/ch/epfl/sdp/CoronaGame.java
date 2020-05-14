@@ -8,6 +8,9 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 public class CoronaGame extends Application implements Application.ActivityLifecycleCallbacks {
 
     private Activity currentActivity;
@@ -15,12 +18,15 @@ public class CoronaGame extends Application implements Application.ActivityLifec
 
     public static final String SHARED_PREF_FILENAME = "coronagame_shared_pref";
 
+    public static final DateFormat dateFormat = new SimpleDateFormat("E MMM dd hh:mm:ss zzz yyyy");
+
     @Override
     public void onCreate() {
         super.onCreate();
         registerActivityLifecycleCallbacks(this);
         CoronaGame.context = getApplicationContext();
     }
+
 
     public static Context getContext() {
         return CoronaGame.context;

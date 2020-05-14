@@ -7,9 +7,15 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.LimitLine;
@@ -28,17 +34,16 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.location.LocationService;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 
-public class InfectionProbabilityChartFragment extends Fragment implements OnChartValueSelectedListener {
+public class InfectionProbabilityChartFragment extends Fragment implements OnChartValueSelectedListener, Observer {
 
     private View view;
     private LineChart chart;
@@ -69,6 +74,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 InfectionProbabilityChartFragment.this.service = ((LocationService.LocationBinder)service).getService();
+                ((Layman) InfectionProbabilityChartFragment.this.service.getAnalyst().getCarrier()).addObserver(InfectionProbabilityChartFragment.this);
                 updateData();
             }
             @Override
@@ -155,6 +161,11 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
         Date since = calendar.getTime();
         Map<Date, Float> infectionHistory = service.getAnalyst().getCarrier().getIllnessProbabilityHistory(since);
 
+        // TODO: Debug log
+        Log.e("CHART_DATA", "Receiving data...");
+        infectionHistory.forEach((k, v) -> Log.e("CHART_DATA_PAYLOAD", k.toString() + ": " + v));
+
+
         ArrayList<Entry> values = new ArrayList<>();
 
         Drawable drawable = getResources().getDrawable(R.drawable.ic_person, getContext().getTheme());
@@ -220,5 +231,14 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     @Override
     public void onNothingSelected() {
 
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+
+        //TODO: Debug log
+        Log.e("CHART_UPDATE", "New data available! Regenerating view");
+
+        updateData();
     }
 }

@@ -1,9 +1,12 @@
 package ch.epfl.sdp.location;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.test.rule.ActivityTestRule;
 
@@ -15,7 +18,9 @@ import org.junit.rules.ExpectedException;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.TestTools;
+import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.DataExchangeActivity;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -126,5 +131,36 @@ public class LocationServiceTest {
         mActivityRule.getActivity().getService().onProviderDisabled(LocationManager.GPS_PROVIDER);
         // TODO: This test should check the effects of the operation
         mActivityRule.finishActivity();
+    }
+
+    // TODO: Move to DemoTools
+    @Test
+    public void storedUserStatus() {
+        SharedPreferences sharedPrefs = mActivityRule.getActivity().getSharedPreferences(CoronaGame.SHARED_PREF_FILENAME, Context.MODE_PRIVATE);
+
+        Log.e("USER_STATUS", Carrier.InfectionStatus.values()[sharedPrefs.getInt(LocationService.INFECTION_STATUS_PREF, 0)].toString());
+        Log.e("USER_PROB", Float.toString(sharedPrefs.getFloat(LocationService.INFECTION_PROBABILITY_PREF, -1.f)));
+    }
+
+    // TODO: Move to DemoTools
+    @Test
+    public void changesToCarrierAreSavedLocally() {
+        LocationService service = mActivityRule.getActivity().getService();
+
+        service.getAnalyst().updateStatus(Carrier.InfectionStatus.INFECTED);
+
+        TestTools.sleep();
+
+        SharedPreferences sharedPrefs = mActivityRule.getActivity().getSharedPreferences(CoronaGame.SHARED_PREF_FILENAME, Context.MODE_PRIVATE);
+
+        assertThat(sharedPrefs.getFloat(LocationService.INFECTION_PROBABILITY_PREF, 0f), equalTo(1f));
+        assertThat(sharedPrefs.getInt(LocationService.INFECTION_STATUS_PREF, 0), equalTo(Carrier.InfectionStatus.INFECTED.ordinal()));
+
+        service.getAnalyst().updateStatus(Carrier.InfectionStatus.HEALTHY);
+
+        TestTools.sleep();
+
+        assertThat(sharedPrefs.getFloat(LocationService.INFECTION_PROBABILITY_PREF, 0f), equalTo(0f));
+        assertThat(sharedPrefs.getInt(LocationService.INFECTION_STATUS_PREF, 0), equalTo(Carrier.InfectionStatus.HEALTHY.ordinal()));
     }
 }

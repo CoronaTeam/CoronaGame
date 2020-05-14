@@ -3,19 +3,18 @@ package ch.epfl.sdp.contamination;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Observable;
 
 import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.storage.ConcreteManager;
 import ch.epfl.sdp.storage.StorageManager;
 
-public class Layman implements Carrier{
+public class Layman extends Observable implements Carrier {
 
     private InfectionStatus myStatus;
     // Every update of infectedWithProbability must happen through setInfectionProbability()
@@ -40,25 +39,43 @@ public class Layman implements Carrier{
         this(initialStatus, initialStatus == InfectionStatus.INFECTED ? 1 : 0,uniqueID);
     }
 
-    public Layman(InfectionStatus initialStatus, float infectedWithProbability, String uniqueID) {
-        DateFormat format = new SimpleDateFormat("E MMM dd hh:mm:ss zzz yyyy");
-
-        this.infectionHistory = new ConcreteManager<>(
+    private StorageManager<Date, Float> initStorageManager(String fileId) {
+        return new ConcreteManager<>(
                 CoronaGame.getContext(),
-                uniqueID + ".csv",
+                fileId + ".csv",
                 date -> {
                     try {
-                        return format.parse(date);
+                        return CoronaGame.dateFormat.parse(date);
                     } catch (ParseException e) {
                         throw new IllegalArgumentException("The file specified has wrong format: field 'date'");
                     }
                 },
                 Float::valueOf
         );
+    }
 
+    public Layman(InfectionStatus initialStatus, float infectedWithProbability, String uniqueID) {
         this.myStatus = initialStatus;
-        setIllnessProbability(infectedWithProbability);
         this.uniqueID = uniqueID;
+
+        this.infectionHistory = initStorageManager(uniqueID);
+        validateAndSetProbability(new Date(), infectedWithProbability);
+    }
+
+    private boolean validateAndSetProbability(Date when, float probability) {
+        if (probability < 0 || 1 <= probability) {
+            return false;
+        }
+
+        if (myStatus == InfectionStatus.INFECTED) {
+            return false;
+        }
+
+        // Include this update into the history
+        infectionHistory.write(Collections.singletonMap(when, probability));
+
+        infectedWithProbability = probability;
+        return true;
     }
 
     @Override
@@ -73,12 +90,22 @@ public class Layman implements Carrier{
      */
     @Override
     public boolean evolveInfection(InfectionStatus newStatus) {
+        return evolveInfection(new Date(), newStatus);
+    }
+
+    @Override
+    public boolean evolveInfection(Date when, InfectionStatus newStatus) {
         myStatus = newStatus;
         if (newStatus == InfectionStatus.INFECTED) {
-            setIllnessProbability(1);
+            validateAndSetProbability(when, 1);
         }else if(newStatus == InfectionStatus.HEALTHY){
-            setIllnessProbability(0);
+            validateAndSetProbability(when, 0);
         }
+
+        // Broadcast the update
+        setChanged();
+        notifyObservers();
+
         return true;
     }
 
@@ -95,20 +122,19 @@ public class Layman implements Carrier{
 
     @Override
     public boolean setIllnessProbability(float probability) {
-        if (probability < 0 || 1 <= probability) {
+        return setIllnessProbability(new Date(), probability);
+    }
+
+    @Override
+    public boolean setIllnessProbability(Date when, float probability) {
+        if (validateAndSetProbability(when, probability)) {
+            setChanged();
+            // Broadcast the update
+            notifyObservers();
+            return true;
+        } else {
             return false;
         }
-
-        if (myStatus == InfectionStatus.INFECTED) {
-            return false;
-        }
-
-        // Include this update into the history
-        infectionHistory.write(Collections.singletonMap(new Date(), probability));
-
-        infectedWithProbability = probability;
-
-        return true;
     }
 
     @Override
@@ -150,5 +176,17 @@ public class Layman implements Carrier{
     // Upload
     public InfectionStatus getMyStatus() {
         return myStatus;
+    }
+
+    @Override
+    public void deleteLocalProbabilityHistory() {
+        setIllnessProbability(0f);
+        evolveInfection(InfectionStatus.HEALTHY);
+
+        // Delete current manager
+        infectionHistory.delete();
+
+        // Create a new one
+        infectionHistory = initStorageManager(uniqueID);
     }
 }

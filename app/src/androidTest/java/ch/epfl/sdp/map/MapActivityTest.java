@@ -1,11 +1,15 @@
 package ch.epfl.sdp.map;
 
 import androidx.test.rule.ActivityTestRule;
+import androidx.test.rule.GrantPermissionRule;
 
 
 import com.mapbox.mapboxsdk.style.layers.Layer;
 
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -13,6 +17,7 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.identity.fragment.AccountFragment;
 import ch.epfl.sdp.testActivities.MapActivity;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -32,6 +37,8 @@ public class MapActivityTest {
     private MapFragment mapFragment;
     private AtomicInteger sentinel;
 
+    @Rule
+    public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
 
     @Rule
     public final ActivityTestRule<MapActivity> activityRule =
@@ -43,6 +50,20 @@ public class MapActivityTest {
         sentinel = new AtomicInteger(0);
     }
 
+    @After
+    public void clean() {
+        sentinel = new AtomicInteger(0);
+    }
+
+    @BeforeClass
+    public static void preSetup(){
+        AccountFragment.IN_TEST = true;
+    }
+
+    @AfterClass
+    public static void postClean(){
+        AccountFragment.IN_TEST = false;
+    }
 
     @Test(timeout = 30000)
     public void testMapLoadCorrectly() throws Throwable {
@@ -71,8 +92,20 @@ public class MapActivityTest {
         sentinel.set(0);
     }
 
+    private void testLayerVisibility(String visibility) throws Throwable{
+        activityRule.runOnUiThread(() -> {
+            mapFragment.getMap().getStyle(style -> {
+                Layer layer = style.getLayer(HeatMapHandler.HEATMAP_LAYER_ID);
+                assertNotNull(layer);
+                assertEquals(visibility, layer.getVisibility().getValue());
+            });
+            sentinel.incrementAndGet();
+        });
+    }
+
     @Test(timeout = 50000)
     public void testHeatMapToggleButton() throws Throwable {
+
         testHeatMapLoadCorrectly();
 
         mapFragment.onMapVisible(() -> sentinel.incrementAndGet());
@@ -80,27 +113,13 @@ public class MapActivityTest {
         while (sentinel.get() == 0){sleep(300);}
         sentinel.set(0);
 
-        activityRule.runOnUiThread(() -> {
-            mapFragment.getMap().getStyle(style -> {
-                Layer layer = style.getLayer(HeatMapHandler.HEATMAP_LAYER_ID);
-                assertNotNull(layer);
-                assertEquals(VISIBLE, layer.getVisibility().getValue());
-            });
-            sentinel.incrementAndGet();
-        });
+        testLayerVisibility(VISIBLE);
 
         while (sentinel.get() == 0){sleep(300);}
         sentinel.set(0);
         onView(withId(R.id.heatMapToggle)).perform(click());
 
-        activityRule.runOnUiThread(() -> {
-            mapFragment.getMap().getStyle(style -> {
-                Layer layer = style.getLayer(HeatMapHandler.HEATMAP_LAYER_ID);
-                assertNotNull(layer);
-                assertEquals(NONE, layer.getVisibility().getValue());
-            });
-            sentinel.incrementAndGet();
-        });
+        testLayerVisibility(NONE);
 
         while (sentinel.get() == 0){sleep(300);}
         sentinel.set(0);

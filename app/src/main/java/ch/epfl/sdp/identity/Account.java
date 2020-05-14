@@ -13,6 +13,5 @@ public interface Account extends Serializable {
     String getEmail();
     Uri getPhotoUrl();
     Boolean isGoogle();
-    GoogleSignInAccount getAccount();
     String getId();
 }

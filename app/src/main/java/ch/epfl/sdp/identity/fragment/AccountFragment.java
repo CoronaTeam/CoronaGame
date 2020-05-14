@@ -97,12 +97,9 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
             name.setText(personName);
             email.setText(personEmail);
             userIdView.setText(getString(R.string.user_id, personId));
-//            playerIdView.setText(playerId);
-
             if (personPhoto != null) {
                 Glide.with(this).load(String.valueOf(personPhoto)).into(img);
             }
-
         }
     }
 

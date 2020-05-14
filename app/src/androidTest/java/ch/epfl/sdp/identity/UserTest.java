@@ -11,12 +11,10 @@ import ch.epfl.sdp.identity.fragment.AccountFragment;
 import static org.junit.Assert.assertEquals;
 
 public class UserTest {
-    //(String dName, String fName, String email, Uri photoUrl, String playerId,String userID){
     User u;
 
     @Before
     public void setup() {
-        AccountFragment.IN_TEST = true;
         u = new User("INFINITE", "LOOP", "TEST@USELESS",
                 Uri.parse("https://www.meme-arsenal.com/memes/783e18d7c7722bedc71b80ec5986b648.jpg"),
                  "9827545", User.DEFAULT_AGE, false);
@@ -52,8 +50,4 @@ public class UserTest {
         assertEquals("9827545", u.getId());
     }
 
-    @Test
-    public void getAccountIsNull() {
-        assertEquals(null, u.getAccount());
-    }
 }

@@ -61,11 +61,6 @@ public class AccountAdapterTest {
 
     }
 
-    @Test
-    public void testGetAccount() {
-        assertEquals(null, userAdapter.getAccount());
-
-    }
 
     @Test
     public void testGetId() {

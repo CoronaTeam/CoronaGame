@@ -64,10 +64,6 @@ public class User implements Account {
     public Boolean isGoogle() {
         return false;
     }
-    @Override
-    public GoogleSignInAccount getAccount() {
-        return null;
-    }
 
     @Override
     public String getId() {

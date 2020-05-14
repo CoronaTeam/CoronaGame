@@ -66,10 +66,6 @@ public class AccountAdapter implements Account {
         return googleSignInAccount !=null;
     }
 
-    @Override
-    public GoogleSignInAccount getAccount() {
-        return googleSignInAccount;
-    }
 
     @Override
     public String getId() {

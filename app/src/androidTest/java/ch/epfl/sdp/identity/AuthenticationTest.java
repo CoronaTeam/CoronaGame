@@ -32,8 +32,7 @@ public class AuthenticationTest {
     public void setUp() throws Exception {
         initSafeTest(activityRule, true);
         AuthenticationManager.signOut(activityRule.getActivity()); // fixes Auth skip to TabActivity
-        AccountFragment.IN_TEST = true;
-    }
+        }
 
     @Test(expected = Test.None.class) //expect no error
     public void signInButtonIsDisplayedAndClickable() {
@@ -45,7 +44,7 @@ public class AuthenticationTest {
 
     @Test(expected = IllegalStateException.class)
     public void onActivityResultThrowsExceptionOnWrongRequestCode() {
-        activityRule.getActivity().getFragment().onActivityResult(AuthenticationFragment.RC_SIGN_IN - 1, 0, null);
+        ((AuthenticationFragment)(activityRule.getActivity().getFragment())).onActivityResult(AuthenticationFragment.RC_SIGN_IN - 1, 0, null);
     }
 
     @Test(expected = Test.None.class)

@@ -36,7 +36,6 @@ public class AuthenticationManagerTest {
     @Before
     public void setUp() throws Exception{
         initSafeTest(activityRule,true);
-        AccountFragment.IN_TEST = true;
     }
     @Test
     public void nameIsDisplayed(){

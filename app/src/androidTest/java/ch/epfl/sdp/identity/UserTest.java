@@ -6,18 +6,18 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.epfl.sdp.identity.User;
+import ch.epfl.sdp.identity.fragment.AccountFragment;
 
 import static org.junit.Assert.assertEquals;
 
 public class UserTest {
-    //(String dName, String fName, String email, Uri photoUrl, String playerId,String userID){
     User u;
 
     @Before
     public void setup() {
         u = new User("INFINITE", "LOOP", "TEST@USELESS",
                 Uri.parse("https://www.meme-arsenal.com/memes/783e18d7c7722bedc71b80ec5986b648.jpg"),
-                "398R7MEWF", "9827545", User.DEFAULT_AGE, false);
+                 "9827545", User.DEFAULT_AGE, false);
     }
 
     @Test
@@ -46,17 +46,8 @@ public class UserTest {
     }
 
     @Test
-    public void playerIdIsOk() {
-        assertEquals("398R7MEWF", u.getPlayerId(null));
-    }
-
-    @Test
     public void userIdIsOk() {
         assertEquals("9827545", u.getId());
     }
 
-    @Test
-    public void getAccountIsNull() {
-        assertEquals(null, u.getAccount());
-    }
 }

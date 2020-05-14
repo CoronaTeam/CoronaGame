@@ -15,6 +15,7 @@ import java.util.Map;
 
 import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.IntroActivity;
+import ch.epfl.sdp.identity.fragment.AccountFragment;
 import ch.epfl.sdp.testActivities.Authentication;
 
 public interface DefaultAuthenticationManager {
@@ -50,7 +51,7 @@ public interface DefaultAuthenticationManager {
     }
 
     default Account getAccount(Context context) {
-        if (context == null){     //for tests
+        if (AccountFragment.IN_TEST || context == null){     //for tests
             return getNonNullAccount(null);
         }
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(context);
@@ -66,11 +67,11 @@ public interface DefaultAuthenticationManager {
     }
 
     default Account getNonNullAccount(GoogleSignInAccount acct) {
-        if (acct == null) {
+        if (AccountFragment.IN_TEST || acct == null) {
             User u = new User();//generic test user
-            return new AccountFactory(u);
+            return new AccountAdapter(u);
         } else {
-            return new AccountFactory(acct);
+            return new AccountAdapter(acct);
         }
     }
 

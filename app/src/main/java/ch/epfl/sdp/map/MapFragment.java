@@ -274,7 +274,6 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
     @Override
     public void onClick(View view) {
-        System.out.println(view.getId());
         if (view.getId() == R.id.heatMapToggle) {
             toggleHeatMap();
         }

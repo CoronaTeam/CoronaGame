@@ -110,8 +110,8 @@ public class PathsHandler extends Fragment {
         cal.add(Calendar.DAY_OF_MONTH, -1);
         Date bef = cal.getTime();
 
-        yesterdayString = "2020/05/13"; //this is for demo only, should be replaced by: dateToSimpleString(yes);
-        beforeYesterdayString = "2020/05/12";//this is for demo only, should be replaced by: dateToSimpleString(bef);
+        yesterdayString = dateToSimpleString(yes);//"2020/05/13"; //this is for demo only, should be replaced by: dateToSimpleString(yes);
+        beforeYesterdayString = dateToSimpleString(bef);//"2020/05/12";//this is for demo only, should be replaced by: dateToSimpleString(bef);
     }
 
     private String dateToSimpleString(Date date) {
@@ -266,7 +266,7 @@ public class PathsHandler extends Fragment {
     }
 
     private CompletableFuture<Iterator<QueryDocumentSnapshot>> initFirestorePathRetrieval() {
-        String userPath = "USER_ID_X42"; // should get path for current user: replace by getUserId() // coronaId: 109758096484534641167 //USER_ID_X42
+        String userPath = getUserId(); //"USER_ID_X42"; coronaId: 109758096484534641167
         return FirestoreInteractor.taskToFuture(
                 collectionReference("History/" + userPath + "/Positions")
                         .orderBy("Position" + ".timestamp").get())

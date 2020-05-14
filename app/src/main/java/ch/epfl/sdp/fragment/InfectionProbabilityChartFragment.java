@@ -49,6 +49,10 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     private LineChart chart;
     private LocationService service;
 
+    private static long DATA_TIME_SCALE_SHIFT = 29;
+    private static int DAY_IN_MILLISECONDS = 1000 * 60 * 60 * 24;
+    private static float DATA_TIME_GRANULARITY = (float)(DAY_IN_MILLISECONDS << DATA_TIME_SCALE_SHIFT);
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,7 +123,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
         };
         XAxis xAxis = chart.getXAxis();
         xAxis.setValueFormatter(xAxisFormatter);
-        xAxis.setGranularity(1000 * 60 * 60 * 24);
+        xAxis.setGranularity(DATA_TIME_GRANULARITY); // seconds in a day
         xAxis.setDrawGridLines(false);
 
         YAxis yAxis = chart.getAxisLeft();
@@ -170,7 +174,8 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
 
         Drawable drawable = getResources().getDrawable(R.drawable.ic_person, getContext().getTheme());
         for (Map.Entry<Date, Float> entry : infectionHistory.entrySet()) {
-            values.add(new Entry(entry.getKey().getTime(), entry.getValue(), drawable));
+            Log.e("CHART_DATA", "at ms=" + entry.getKey().getTime());
+            values.add(new Entry((float)(entry.getKey().getTime() << DATA_TIME_SCALE_SHIFT), entry.getValue(), drawable));
         }
 
         return values;
@@ -180,7 +185,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
 
         List<Entry> data = generateData();
 
-        if (chart.getData() != null && chart.getData().getDataSetCount() > 0) {
+        if (chart.getData() != null) {
             updateExistingDataSet(data);
         } else {
             createNewDataSet(data);
@@ -188,11 +193,14 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     }
 
     private void updateExistingDataSet(List<Entry> data) {
+        Log.e("DATA_UPDATE", "existing data set updated");
         LineDataSet set1 = (LineDataSet) chart.getData().getDataSetByIndex(0);
         set1.setValues(data);
         set1.notifyDataSetChanged();
+        Log.e("DATA_UPDATE", set1.getValues().toString());
         chart.getData().notifyDataChanged();
         chart.notifyDataSetChanged();
+        chart.invalidate(); // force redraw
     }
 
     private void createNewDataSet(List<Entry> data) {

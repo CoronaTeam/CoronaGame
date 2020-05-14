@@ -23,7 +23,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.SortedMap;
 
-import ch.epfl.sdp.AuthenticationManager;
+import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.CachingDataSender;
@@ -250,12 +250,29 @@ public class LocationService extends Service implements LocationListener {
         return analyst;
     }
 
+
+
     public CachingDataSender getSender() {
         return sender;
     }
 
     public DataReceiver getReceiver() {
         return receiver;
+    }
+
+    @VisibleForTesting
+    public void resetAnalyst(){
+        analyst = new ConcreteAnalysis(me, receiver, sender);
+    }
+
+    @VisibleForTesting
+    public void setCarrier(Carrier carrier){
+        me = carrier;
+    }
+
+    @VisibleForTesting
+    public void resetSender(){
+        sender = new ConcreteCachingDataSender(gridInteractor);
     }
 
     @VisibleForTesting

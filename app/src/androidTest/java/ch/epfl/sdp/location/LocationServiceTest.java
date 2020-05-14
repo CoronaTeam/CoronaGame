@@ -5,9 +5,12 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 
+import androidx.test.espresso.intent.Intents;
 import androidx.test.rule.ActivityTestRule;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -16,8 +19,9 @@ import java.util.Date;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.epfl.sdp.TestTools;
-import ch.epfl.sdp.contamination.DataExchangeActivity;
+import ch.epfl.sdp.testActivities.DataExchangeActivity;
 
+import static ch.epfl.sdp.TestTools.initSafeTest;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -34,10 +38,16 @@ public class LocationServiceTest {
     private Location beenThere = TestTools.newLoc(13, 78);
     private Date now = new Date();
 
-
     @Before
-    public void setupTestIndicator() {
+    public void setUp() {
+        initSafeTest(mActivityRule, true);
         registered = new AtomicBoolean(false);
+
+    }
+
+    @After
+    public void release(){
+        Intents.release();
     }
 
     private LocationListener listener = new LocationListener() {

@@ -1,5 +1,6 @@
 connected_check_task:
   name: Run Android instrumented tests
+  use_compute_credits: 'true'
   env:
     API_LEVEL: 24
     TARGET: default
@@ -8,8 +9,8 @@ connected_check_task:
   container:
     image: reactivecircus/android-emulator-24:latest
     kvm: true
-    cpu: 8
-    memory: 9G
+    cpu: 4
+    memory: 8G
   create_device_script:
     echo no | avdmanager create avd --force --name "api-${API_LEVEL}" --abi "${TARGET}/${ARCH}" --package "system-images;android-${API_LEVEL};${TARGET};${ARCH}"
   start_emulator_background_script:

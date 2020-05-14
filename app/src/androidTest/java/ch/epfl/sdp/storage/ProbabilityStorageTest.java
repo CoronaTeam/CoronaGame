@@ -16,7 +16,7 @@ import java.util.Date;
 import java.util.Map;
 
 import ch.epfl.sdp.CoronaGame;
-import ch.epfl.sdp.MainActivity;
+import ch.epfl.sdp.IntroActivity;
 import ch.epfl.sdp.TestTools;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -25,7 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class ProbabilityStorageTest {
 
     @Rule
-    public final ActivityTestRule<MainActivity> mActivityRule = new ActivityTestRule<>(MainActivity.class);
+    public final ActivityTestRule<IntroActivity> mActivityRule = new ActivityTestRule<>(IntroActivity.class);
 
     @Rule
     public ExpectedException testException = ExpectedException.none();

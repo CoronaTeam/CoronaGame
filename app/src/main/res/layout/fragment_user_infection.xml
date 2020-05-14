@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:gravity="center"
-    tools:context=".UserInfectionActivity">
+    tools:context=".testActivities.UserInfectionActivity">
 
     <Button
         android:id="@+id/infectionStatusButton"

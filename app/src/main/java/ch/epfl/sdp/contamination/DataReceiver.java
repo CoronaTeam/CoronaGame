@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-import ch.epfl.sdp.Account;
+import ch.epfl.sdp.identity.Account;
 
 public interface DataReceiver {
     /**

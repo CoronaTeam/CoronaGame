@@ -4,8 +4,10 @@ import android.location.Location;
 
 import androidx.test.rule.ActivityTestRule;
 
-import ch.epfl.sdp.Account;
+import ch.epfl.sdp.contamination.fragment.InfectionFragment;
+import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.testActivities.InfectionActivity;
 
 import org.junit.After;
 import org.junit.Before;

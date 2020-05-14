@@ -18,7 +18,10 @@ import java.util.Map;
 import ch.epfl.sdp.contamination.ConcreteCachingDataSender;
 import ch.epfl.sdp.contamination.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
+import ch.epfl.sdp.identity.fragment.AccountFragment;
 import ch.epfl.sdp.location.LocationService;
+import ch.epfl.sdp.identity.AuthenticationManager;
+import ch.epfl.sdp.identity.User;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -38,6 +41,7 @@ public interface TestTools {
      * @param <E>
      */
     static <E extends Activity> void initSafeTest(ActivityTestRule<E> activityTestRule, Boolean launchActivity) throws IllegalStateException {
+        AccountFragment.IN_TEST = true;
         try {
             Intents.init();
         } catch (IllegalStateException alreadyBeenInit) {
@@ -136,7 +140,7 @@ public interface TestTools {
     }
 
     static void resetSickCounter(){
-        DocumentReference ref = documentReference(privateUserFolder,User.DEFAULT_USERID);
+        DocumentReference ref = documentReference(privateUserFolder, User.DEFAULT_USERID);
         ref.update(privateRecoveryCounter, FieldValue.delete());
     }
     static void clickBack(){

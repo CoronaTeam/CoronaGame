@@ -20,6 +20,7 @@ import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.MultiPoint;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.style.layers.HeatmapLayer;
@@ -130,17 +131,18 @@ public class PathsHandler extends Fragment {
         return beforeYesterdayString;
     }
 
-    void setCameraPosition(String day) {
-        boolean pathLocationSet = day.equals("yesterday") ? pathLocationSet1 : pathLocationSet2;
+    void setCameraPosition(int day) {
+        boolean pathLocationSet = day == R.string.yesterday ? pathLocationSet1 : pathLocationSet2;
         if (pathLocationSet) {
-            double lat = day.equals("yesterday") ? latitudeYesterday : latitudeBefore;
-            double lon = day.equals("yesterday") ? longitudeYesterday : longitudeBefore;
+            double lat = day == R.string.yesterday ? latitudeYesterday : latitudeBefore;
+            double lon = day == R.string.yesterday ? longitudeYesterday : longitudeBefore;
             CameraPosition position = new CameraPosition.Builder()
                     .target(new LatLng(lat, lon))
                     .zoom(ZOOM)
                     .build();
             if (map != null) {
-                map.setCameraPosition(position);
+                //map.setCameraPosition(position);
+                map.easeCamera(CameraUpdateFactory.newCameraPosition(position), 1000);
             }
         }
     }

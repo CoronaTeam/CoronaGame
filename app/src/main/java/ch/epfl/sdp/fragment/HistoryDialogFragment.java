@@ -28,7 +28,7 @@ public class HistoryDialogFragment extends BottomSheetDialogFragment {
 
     private MapFragment parentFragment;
 
-    public /*static*/ HistoryDialogFragment(MapFragment mapFragment) {
+    public HistoryDialogFragment(MapFragment mapFragment) {
         parentFragment = mapFragment;
     }
 
@@ -36,12 +36,6 @@ public class HistoryDialogFragment extends BottomSheetDialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
-
-        Button button = view.findViewById(R.id.pathButton);
-        button.setOnClickListener(v -> parentFragment.togglePath("yesterday"));
-
-        Button button2 = view.findViewById(R.id.otherPathButton);
-        button2.setOnClickListener(v -> parentFragment.togglePath("before yesterday"));
 
         return view;
     }

@@ -45,9 +45,10 @@ public class MapActivityTest {
 
         activityRule.runOnUiThread(() -> {
             mapFragment.getMap().getStyle((s) -> sentinel.incrementAndGet());
-        });
+        }); // The sentinel value will only increase when the style has completely loaded
 
         while (sentinel.get() == 0){sleep(300);}
+        sentinel.set(0);
     }
 
 
@@ -59,9 +60,9 @@ public class MapActivityTest {
 
         activityRule.runOnUiThread(() -> {
             mapFragment.getHeatMapHandler().onHeatMapDataLoaded(() -> sentinel.incrementAndGet());
-        });
+        }); // The sentinel value will only increase when the heatmap has completely loaded
 
-        while (sentinel.get() == 1){sleep(300);}
+        while (sentinel.get() == 0){sleep(300);}
     }
 
     ////////////////////////////////// Tests for PathsHandler //////////////////////////////////////

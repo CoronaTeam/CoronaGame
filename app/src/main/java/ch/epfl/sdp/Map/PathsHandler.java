@@ -83,8 +83,8 @@ public class PathsHandler extends Fragment {
     private boolean pathLocationSet1 = false;
     private boolean pathLocationSet2 = false;
 
-    private String yesterdayString;
-    private String beforeYesterdayString;
+    public String yesterdayString;
+    public String beforeYesterdayString;
 
     private static final int ZOOM = 13;
     private MapboxMap map;
@@ -181,6 +181,11 @@ public class PathsHandler extends Fragment {
         Log.d("yesterday PATH COORD LENGTH: ", String.valueOf(yesterdayPathCoordinates.size()));
         Log.d("before PATH COORD LENGTH: ", String.valueOf(beforeYesterdayPathCoordinates.size()));
 
+        setLayers(beforeYesterdayPathCoordinates, yesterdayInfectedMet, beforeYesterdayInfectedMet);
+
+    }
+
+    private void setLayers(List<Point> beforeYesterdayPathCoordinates, List<Point> yesterdayInfectedMet, List<Point> beforeYesterdayInfectedMet) {
         if (!yesterdayInfectedMet.isEmpty()) {
             setInfectedPointsLayer(YESTERDAY_POINTS_LAYER_ID, YESTERDAY_POINTS_SOURCE_ID, yesterdayInfectedMet);
         }
@@ -199,7 +204,6 @@ public class PathsHandler extends Fragment {
             longitudeBefore = beforeYesterdayPathCoordinates.get(0).longitude();
             pathLocationSet2 = true;
         }
-
     }
 
     private void addInfectedMet(double lat, double lon, Timestamp timestamp, List<Point> infected) {

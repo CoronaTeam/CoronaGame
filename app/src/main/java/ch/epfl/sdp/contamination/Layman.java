@@ -63,11 +63,7 @@ public class Layman extends Observable implements Carrier {
     }
 
     private boolean validateAndSetProbability(Date when, float probability) {
-        if (probability < 0 || 1 <= probability) {
-            return false;
-        }
-
-        if (myStatus == InfectionStatus.INFECTED) {
+        if (probability < 0 || 1 < probability) {
             return false;
         }
 
@@ -95,12 +91,8 @@ public class Layman extends Observable implements Carrier {
 
     @Override
     public boolean evolveInfection(Date when, InfectionStatus newStatus) {
+
         myStatus = newStatus;
-        if (newStatus == InfectionStatus.INFECTED) {
-            validateAndSetProbability(when, 1);
-        }else if(newStatus == InfectionStatus.HEALTHY){
-            validateAndSetProbability(when, 0);
-        }
 
         // Broadcast the update
         setChanged();

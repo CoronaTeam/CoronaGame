@@ -30,14 +30,17 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.AuthenticationManager;
-import ch.epfl.sdp.Tools;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.Tools;
 import ch.epfl.sdp.contamination.Carrier;
+import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.location.LocationService;
@@ -47,10 +50,11 @@ import static ch.epfl.sdp.Tools.IS_ONLINE;
 import static ch.epfl.sdp.Tools.checkNetworkStatus;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
+import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.taskToFuture;
 
-public class UserInfectionFragment extends Fragment implements View.OnClickListener {
+public class UserInfectionFragment extends Fragment implements View.OnClickListener, Observer {
     private static final String TAG = "User Infection Activity";
     private Button infectionStatusButton;
     private TextView infectionStatusView;
@@ -64,6 +68,8 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
     private SharedPreferences sharedPref;
+
+    private TextView userInfectionProbability;
 
     @VisibleForTesting
     public boolean isImmediatelyNowIll() {
@@ -92,6 +98,8 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         infectionStatusButton = view.findViewById(R.id.infectionStatusButton);
         infectionStatusButton.setOnClickListener(this);
 
+        userInfectionProbability = view.findViewById(R.id.user_prob);
+
         checkOnline();
         getLoggedInUser();
         Executor executor = ContextCompat.getMainExecutor(requireActivity());
@@ -103,6 +111,8 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 UserInfectionFragment.this.service = ((LocationService.LocationBinder) service).getService();
+                ((Layman) UserInfectionFragment.this.service.getAnalyst().getCarrier()).addObserver(UserInfectionFragment.this);
+                UserInfectionFragment.this.update(null, null);
             }
 
             @Override
@@ -121,6 +131,16 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         requireActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
         sharedPref = requireActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE);
         return view;
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        Carrier me = service.getAnalyst().getCarrier();
+
+        modifyUserInfectionStatus(userName, me.getInfectionStatus() == INFECTED);
+
+        setInfectionColorAndMessage(me.getInfectionStatus() == INFECTED);
+        userInfectionProbability.setText(String.format("With probability: %f", me.getIllnessProbability()));
     }
 
     @Override
@@ -199,7 +219,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         boolean infected = buttonText.equals(getResources().getString(R.string.i_am_infected));
         if (infected) {
             //Tell the analyst we are now sick !
-            service.getAnalyst().updateStatus(Carrier.InfectionStatus.INFECTED);
+            service.getAnalyst().updateStatus(INFECTED);
             setInfectionColorAndMessage(true);
             modifyUserInfectionStatus(userName, true);
         } else {
@@ -216,6 +236,8 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         ref.update(privateRecoveryCounter, FieldValue.increment(1));
     }
 
+    // TODO: This function does not belong here!!!!!!!!!!!!!!!
+    // It should be moved to Layman
     private void modifyUserInfectionStatus(String userPath, Boolean infected) {
         Map<String, Object> user = new HashMap<>();
         user.put("Infected", infected);

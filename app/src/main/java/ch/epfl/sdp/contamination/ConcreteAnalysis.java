@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
 
+import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
+import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
@@ -86,6 +88,10 @@ public class ConcreteAnalysis implements InfectionAnalyst {
 
         assert aroundMe != null;
 
+        for (Carrier imThere : aroundMe.keySet()) {
+            Log.e("AROUND_ME", imThere.getInfectionStatus() + ", " + imThere.getIllnessProbability());
+        }
+
         Map<Carrier, Integer> contactsWithDuration = new HashMap<>();
 
         for (Map.Entry<? extends Carrier, Integer> person : aroundMe.entrySet()) {
@@ -114,7 +120,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
 
         // TODO: DISABLED this just for debug
-        /*
+
         CompletableFuture<Integer> recoveryCounter =
                 receiver.getRecoveryCounter(me.getUniqueId())
                         .thenApply(rc -> (int) (rc.getOrDefault(privateRecoveryCounter, 0)));
@@ -122,21 +128,23 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         CompletableFuture<Map<Carrier, Integer>> peopleAroundMe =
                 receiver.getUserNearbyDuring(location, startTime, endTime);
 
+        Log.e("PEOPLE_AROUND_ME", "Waiting...");
+        peopleAroundMe.join();
+        Log.e("PEOPLE_AROUND_ME", "Done [OK]");
+
         CompletableFuture<Float> badMeetingCoefficient =
                 receiver.getNumberOfSickNeighbors(me.getUniqueId())
                 .thenApply(res -> (float) (res.getOrDefault(publicAlertAttribute, 0)));
 
         return CompletableFuture.allOf(recoveryCounter, peopleAroundMe, badMeetingCoefficient)
-                .thenRun(() -> dispatchModelUpdates(recoveryCounter.join(), identifySuspectContacts(peopleAroundMe.join()), badMeetingCoefficient.join()))
+                .thenRun(() -> dispatchModelUpdates(endTime, recoveryCounter.join(), identifySuspectContacts(peopleAroundMe.join()), badMeetingCoefficient.join()))
                 .thenApply(v -> countMeetingsWithInfected(peopleAroundMe.join()));
 
-         */
-
+/*
         updateCarrierInfectionProbability(endTime, me.getIllnessProbability() + .1f);
-
-        Log.e("CARRIER_INFECTION_UPDATE", "Modified to: " + Float.toString(me.getIllnessProbability()));
-
         return CompletableFuture.completedFuture(0);
+
+ */
     }
 
     private void dispatchModelUpdates(Date when, int recoveryCounter, Map<Carrier, Integer> suspectContacts, float badMeetingsCoefficient) {

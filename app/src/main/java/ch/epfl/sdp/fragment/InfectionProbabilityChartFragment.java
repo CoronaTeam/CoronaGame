@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.TimeUnit;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.Layman;
@@ -168,7 +167,6 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
         Map<Date, Float> infectionHistory = service.getAnalyst().getCarrier().getIllnessProbabilityHistory(since);
 
         // TODO: Debug log
-        Log.e("CHART_DATA", "Receiving data...");
         infectionHistory.forEach((k, v) -> Log.e("CHART_DATA_PAYLOAD", k.toString() + ": " + v));
 
 
@@ -181,7 +179,6 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
                 referenceTime = entry.getKey().getTime();
                 first = false;
             }
-            Log.e("CHART_DATA", "at ms=" + entry.getKey().getTime());
             values.add(new Entry((float)(entry.getKey().getTime() - referenceTime) / DATA_TIME_SCALE, entry.getValue(), drawable));
         }
 

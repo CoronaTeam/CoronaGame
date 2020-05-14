@@ -50,6 +50,7 @@ public class MapActivityTest {
     // we hardcode dates w.r.t. the day on which this test is ran
     @Test
     public void datesFormattedAsYYYYmmDD() { // their expected format is defined as "yyyy/MM/dd"
+        sleep(15000);
         String expected_yesterday = "2020/05/13";
         String expected_before = "2020/05/12";
         assertEquals(expected_yesterday, mapFragment.getPathsHandler().getYesterdayDate());

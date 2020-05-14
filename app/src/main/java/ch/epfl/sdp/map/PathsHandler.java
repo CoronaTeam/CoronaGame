@@ -57,6 +57,8 @@ import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
 
 /**
  * This class is used to display the user's last positions as a line on the map,
@@ -110,8 +112,8 @@ public class PathsHandler extends Fragment {
         cal.add(Calendar.DAY_OF_MONTH, -1);
         Date bef = cal.getTime();
 
-        yesterdayString = dateToSimpleString(yes);//"2020/05/07"; //this is for demo only, should be replaced by: dateToSimpleString(yes);
-        beforeYesterdayString = dateToSimpleString(bef);//"2020/04/27";//this is for demo only, should be replaced by: dateToSimpleString(bef);
+        yesterdayString = "2020/05/13"; //this is for demo only, should be replaced by: dateToSimpleString(yes);
+        beforeYesterdayString = "2020/05/12";//this is for demo only, should be replaced by: dateToSimpleString(bef);
     }
 
     private String dateToSimpleString(Date date) {
@@ -144,8 +146,7 @@ public class PathsHandler extends Fragment {
                     .zoom(ZOOM)
                     .build();
             if (map != null) {
-                //map.setCameraPosition(position);
-                map.easeCamera(CameraUpdateFactory.newCameraPosition(position), 1000);
+                map.easeCamera(CameraUpdateFactory.newCameraPosition(position), 2000);
             }
         }
     }
@@ -165,10 +166,10 @@ public class PathsHandler extends Fragment {
 
                 if (pathLocalDate.equals(yesterdayString)) {
                     yesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
-                    addInfectedMet(lat, lon, timestamp, yesterdayInfectedMet);
+                    addInfectedMet(lat, lon, timestamp, yesterdayPathCoordinates);
                 } else if (pathLocalDate.equals(beforeYesterdayString)) {
                     beforeYesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
-                    addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
+                    addInfectedMet(lat, lon, timestamp, beforeYesterdayPathCoordinates);
                 }
             } catch (NullPointerException e) {
                 Log.d("ERROR ADDING POINT", String.valueOf(e));
@@ -261,13 +262,13 @@ public class PathsHandler extends Fragment {
         });
     }
 
-    private String getUserName() {
+    private String getUserId() {
         Account account = AuthenticationManager.getAccount(getActivity());
-        return account.getDisplayName();
+        return account.getId();
     }
 
     private CompletableFuture<Iterator<QueryDocumentSnapshot>> initFirestorePathRetrieval() {
-        String userPath = "USER_ID_X42"; // should get path for current user: replace by getUserName()
+        String userPath = "USER_ID_X42"; // should get path for current user: replace by getUserId() // corona: 109758096484534641167 //USER_ID_X42
         return FirestoreInteractor.taskToFuture(
                 collectionReference("History/" + userPath + "/Positions")
                         .orderBy("Position" + ".timestamp").get())
@@ -280,7 +281,7 @@ public class PathsHandler extends Fragment {
                 })
                 .exceptionally(e -> {
                     Toast.makeText(parentClass.getActivity(),
-                            R.string.cannot_retrieve_positions,
+                            "Cannot retrieve path from database",
                             Toast.LENGTH_LONG).show();
                     return Collections.emptyIterator();
                 });

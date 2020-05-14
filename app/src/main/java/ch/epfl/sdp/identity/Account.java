@@ -1,9 +1,6 @@
 package ch.epfl.sdp.identity;
 
-import android.app.Activity;
 import android.net.Uri;
-
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 import java.io.Serializable;
 

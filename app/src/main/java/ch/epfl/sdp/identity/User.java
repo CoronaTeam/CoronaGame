@@ -1,9 +1,7 @@
 package ch.epfl.sdp.identity;
 
-import android.app.Activity;
 import android.net.Uri;
 
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 /**
  * This class is there for testing purposes and for representing a user in UserInfectionActivity
@@ -14,7 +12,6 @@ public class User implements Account {
     public static String DEFAULT_EMAIL = "MyEmal@epfl.ch";
     public static int DEFAULT_AGE = 25;
     public static String DEFAULT_USERID = "USER_ID_X42";
-    // public static String url_string = "https://pbs.twimg.com/profile_images/1173987553885556736/WuLwZF3C_400x400.jpg";
     public static Uri DEFAULT_URI = Uri.parse("https://upload.wikimedia.org/wikipedia/commons/9/9a/Gull_portrait_ca_usa.jpg");
     private String displayName;
     private String familyName;

@@ -284,6 +284,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         HistoryDialogFragment dialog = new HistoryDialogFragment(this);
         dialog.show(getActivity().getSupportFragmentManager(), "history_dialog_fragment");
     }
+
     private void toggleHeatMap() {
         toggleLayer(HeatMapHandler.HEATMAP_LAYER_ID);
     }
@@ -320,7 +321,6 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         List<RFACLabelItem> items = new ArrayList<>();
         addItems(items, "Yesterday path", 0xff056f00, 0xff0d5302, 0xff056f00, 0);
         addItems(items, "Before yesterday path", 0xff283593, 0xff1a237e, 0xff283593, 1);
-        addItems(items, "History graph", 0xffd84315, 0xffbb3b14, 0xffd84315, 2);
 
         rfaContent
                 .setItems(items)
@@ -333,6 +333,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
                 rfaContent
         ).build();
     }
+
     private void addItems(List<RFACLabelItem> items, String label, int normalColor, int pressedColor, int labelColor, int position) {
         items.add(new RFACLabelItem<Integer>()
                 .setLabel(label)
@@ -343,6 +344,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
                 .setWrapper(position)
         );
     }
+
     @Override
     public void onRFACItemLabelClick(int position, RFACLabelItem item) {
         onRFACItemIconClick(position, item);
@@ -350,14 +352,11 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
     @Override
     public void onRFACItemIconClick(int position, RFACLabelItem item) {
-        if (position!=2) {
-            String day = position==0 ? getString(R.string.yesterday) : getString(R.string.before_yesterday);
-            int dayInt = position==0 ? R.string.yesterday : R.string.before_yesterday;
-            Toast.makeText(getContext(), "Toggle path from: " + day, Toast.LENGTH_SHORT).show();
-            togglePath(dayInt);
-        } else {
-            onClickHistory();
-        }
+        String day = position == 0 ? getString(R.string.yesterday) : getString(R.string.before_yesterday);
+        int dayInt = position == 0 ? R.string.yesterday : R.string.before_yesterday;
+        Toast.makeText(getContext(), "Toggle path from: " + day, Toast.LENGTH_SHORT).show();
+        togglePath(dayInt);
+
         rfabHelper.toggleContent();
     }
 

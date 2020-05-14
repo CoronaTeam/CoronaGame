@@ -1,23 +1,20 @@
 package ch.epfl.sdp.identity;
 
-//import Account;
-
-import android.app.Activity;
 import android.net.Uri;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
-public class AccountFactory implements Account {
+public class AccountAdapter implements Account {
     private GoogleSignInAccount googleSignInAccount = null;
     private User user = null;
-    public AccountFactory(GoogleSignInAccount googleAccount){
+    public AccountAdapter(GoogleSignInAccount googleAccount){
         if(googleAccount != null){
             this.googleSignInAccount = googleAccount;
         }else{
             throw new IllegalArgumentException("ERR: googleAccount or User should not be null");
         }
     }
-    public AccountFactory(User u){
+    public AccountAdapter(User u){
         if(u != null){
             this.user = u;
         }else {
@@ -66,21 +63,6 @@ public class AccountFactory implements Account {
         return googleSignInAccount !=null;
     }
 
-    @Override
-    public String getPlayerId(Activity activity) {
-        if(user != null){
-            return user.getPlayerId(activity);
-        }else{
-            return "TestPlayerId";
-            //PlayersClient pc = Games.getPlayersClient(activity, googleSignInAccount);
-            //return String.valueOf(pc.getCurrentPlayerId());
-        }
-    }
-
-    @Override
-    public GoogleSignInAccount getAccount() {
-        return googleSignInAccount;
-    }
 
     @Override
     public String getId() {

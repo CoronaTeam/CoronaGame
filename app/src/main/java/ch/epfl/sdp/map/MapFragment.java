@@ -70,6 +70,9 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         return map;
     }
 
+    @VisibleForTesting
+    HeatMapHandler getHeatMapHandler() {return heatMapHandler; }
+
     public PathsHandler getPathsHandler() {
         return pathsHandler;
     }

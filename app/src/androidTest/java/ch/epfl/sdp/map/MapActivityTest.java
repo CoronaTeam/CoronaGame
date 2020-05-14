@@ -8,6 +8,8 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.testActivities.MapActivity;
 
@@ -23,6 +25,8 @@ import static junit.framework.TestCase.assertNotNull;
 public class MapActivityTest {
 
     private MapFragment mapFragment;
+    private AtomicInteger sentinel;
+
 
     @Rule
     public final ActivityTestRule<MapActivity> activityRule =
@@ -31,10 +35,34 @@ public class MapActivityTest {
     @Before
     public void setUp() {
         mapFragment = (MapFragment) activityRule.getActivity().getFragment();
+        sentinel = new AtomicInteger(0);
     }
 
 
+    @Test(timeout = 30000)
+    public void testMapLoadCorrectly() throws Throwable {
+        while (mapFragment.getMap() == null){sleep(300);};
 
+        activityRule.runOnUiThread(() -> {
+            mapFragment.getMap().getStyle((s) -> sentinel.incrementAndGet());
+        });
+
+        while (sentinel.get() == 0){sleep(300);}
+    }
+
+
+    @Test(timeout = 30000)
+    public void testHeatMapLoadCorrectly() throws Throwable {
+        testMapLoadCorrectly();
+
+        while (mapFragment.getHeatMapHandler() == null){sleep(300);};
+
+        activityRule.runOnUiThread(() -> {
+            mapFragment.getHeatMapHandler().onHeatMapDataLoaded(() -> sentinel.incrementAndGet());
+        });
+
+        while (sentinel.get() == 1){sleep(300);}
+    }
 
     ////////////////////////////////// Tests for PathsHandler //////////////////////////////////////
     /*@Test

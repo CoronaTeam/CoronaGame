@@ -74,6 +74,9 @@ public class PathsHandler extends Fragment {
     static final String BEFORE_PATH_LAYER_ID = "linelayer-two";
 
     private List<Point> yesterdayPathCoordinates;
+    private List<Point> beforeYesterdayPathCoordinates;
+    private List<Point> yesterdayInfectedMet;
+    private List<Point> beforeYesterdayInfectedMet;
 
     private double latitudeYesterday;
     private double latitudeBefore;
@@ -148,10 +151,7 @@ public class PathsHandler extends Fragment {
     }
 
     private void getPathCoordinates(Iterator<QueryDocumentSnapshot> iterator) {
-        yesterdayPathCoordinates = new ArrayList<>();
-        List<Point> beforeYesterdayPathCoordinates = new ArrayList<>();
-        List<Point> yesterdayInfectedMet = new ArrayList<>();
-        List<Point> beforeYesterdayInfectedMet = new ArrayList<>();
+        initLists();
 
         for (; iterator.hasNext(); ) {
             QueryDocumentSnapshot qs = iterator.next();
@@ -161,15 +161,12 @@ public class PathsHandler extends Fragment {
                 double lon = geoPoint.getLongitude();
                 Timestamp timestamp = (Timestamp) ((Map) qs.get("Position")).get("timestamp");
 
-                Date date = timestamp.toDate();
-                String pathLocalDate = dateToSimpleString(date);
+                String pathLocalDate = dateToSimpleString(timestamp.toDate());
 
                 if (pathLocalDate.equals(yesterdayString)) {
-                    Log.d("(yesterday)DATE:", pathLocalDate);
                     yesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
                     addInfectedMet(lat, lon, timestamp, yesterdayInfectedMet);
                 } else if (pathLocalDate.equals(beforeYesterdayString)) {
-                    Log.d("(before)DATE:", pathLocalDate);
                     beforeYesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
                     addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
                 }
@@ -181,11 +178,18 @@ public class PathsHandler extends Fragment {
         Log.d("yesterday PATH COORD LENGTH: ", String.valueOf(yesterdayPathCoordinates.size()));
         Log.d("before PATH COORD LENGTH: ", String.valueOf(beforeYesterdayPathCoordinates.size()));
 
-        setLayers(beforeYesterdayPathCoordinates, yesterdayInfectedMet, beforeYesterdayInfectedMet);
+        setLayers();
 
     }
 
-    private void setLayers(List<Point> beforeYesterdayPathCoordinates, List<Point> yesterdayInfectedMet, List<Point> beforeYesterdayInfectedMet) {
+    private void initLists() {
+        yesterdayPathCoordinates = new ArrayList<>();
+        beforeYesterdayPathCoordinates = new ArrayList<>();
+        yesterdayInfectedMet = new ArrayList<>();
+        beforeYesterdayInfectedMet = new ArrayList<>();
+    }
+
+    private void setLayers() {
         if (!yesterdayInfectedMet.isEmpty()) {
             setInfectedPointsLayer(YESTERDAY_POINTS_LAYER_ID, YESTERDAY_POINTS_SOURCE_ID, yesterdayInfectedMet);
         }

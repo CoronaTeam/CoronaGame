@@ -3,6 +3,7 @@ package ch.epfl.sdp.map;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 
 import com.google.firebase.firestore.GeoPoint;
 import com.mapbox.geojson.Feature;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 
@@ -45,6 +47,7 @@ class HeatMapHandler {
     private MapFragment parentClass;
     private ConcreteFirestoreInteractor db;
     private MapboxMap map;
+    private Callable onHeatMapDataLoaded;
 
 
     HeatMapHandler(@NonNull MapFragment parentClass, @NonNull ConcreteFirestoreInteractor db,
@@ -106,6 +109,8 @@ class HeatMapHandler {
                 adjustHeatmapRadius()
         );
         map.getStyle(style -> style.addLayerAbove(layer, "waterway-label"));
+
+        callHeatmapDataLoaded();
     }
 
     @NotNull
@@ -161,5 +166,23 @@ class HeatMapHandler {
                         stop(18, 60)
                 )
         );
+    }
+
+    private void callHeatmapDataLoaded(){
+        try {
+            onHeatMapDataLoaded.call();
+            onHeatMapDataLoaded = null;
+        } catch (Exception ignored) {}
+    }
+
+    @VisibleForTesting
+    void onHeatMapDataLoaded(Callable func) {
+        onHeatMapDataLoaded = func;
+
+        map.getStyle(style -> {
+            if (style.getLayer(HEATMAP_LAYER_ID) != null){
+                callHeatmapDataLoaded();
+            }
+        });
     }
 }

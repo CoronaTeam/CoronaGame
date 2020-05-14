@@ -153,7 +153,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
 
         view.findViewById(R.id.heatMapToggle).setOnClickListener(this);
-        setRapidFloatingButton();
+        setHistoryRFAButton();
 
         return view;
     }
@@ -272,68 +272,22 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         mapView.onSaveInstanceState(outState);
     }
 
+    @Override
+    public void onClick(View view) {
+        System.out.println(view.getId());
+        if (view.getId() == R.id.heatMapToggle) {
+            toggleHeatMap();
+        }
+    }
+
     private void onClickHistory() {
         HistoryDialogFragment dialog = new HistoryDialogFragment(this);
         dialog.show(getActivity().getSupportFragmentManager(), "history_dialog_fragment");
     }
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////:
-    private void setRapidFloatingButton() {
-        RapidFloatingActionLayout rfaLayout = view.findViewById(R.id.history_rfal);
-        RapidFloatingActionButton rfaBtn = view.findViewById(R.id.history_rfab);
-
-        RapidFloatingActionContentLabelList rfaContent = new RapidFloatingActionContentLabelList(getContext());
-        rfaContent.setOnRapidFloatingActionContentLabelListListener(this);
-        List<RFACLabelItem> items = new ArrayList<>();
-        addItems(items, "Yesterday", 0xff056f00, 0xff0d5302, 0xff056f00, 0);
-        addItems(items, "Before yesterday", 0xff283593, 0xff1a237e, 0xff283593, 1);
-        addItems(items, "History graph", 0xffd84315, 0xd2491f, 0xb6411d, 2);
-
-        rfaContent
-                .setItems(items)
-                .setIconShadowColor(0xff888888)
-        ;
-        rfabHelper = new RapidFloatingActionHelper(
-                getContext(),
-                rfaLayout,
-                rfaBtn,
-                rfaContent
-        ).build();
-    }
-
-    private void addItems(List<RFACLabelItem> items, String label, int normalColor, int pressedColor, int labelColor, int position) {
-        items.add(new RFACLabelItem<Integer>()
-                .setLabel(label)
-                .setResId(R.drawable.fab_history)
-                .setIconNormalColor(normalColor)
-                .setIconPressedColor(pressedColor)
-                .setLabelColor(labelColor)
-                .setWrapper(position)
-        );
-    }
-
-    @Override
-    public void onRFACItemLabelClick(int position, RFACLabelItem item) {
-        Toast.makeText(getContext(), "clicked label: " + position, Toast.LENGTH_SHORT).show();
-        rfabHelper.toggleContent();
-    }
-    @Override
-    public void onRFACItemIconClick(int position, RFACLabelItem item) {
-        if (position!=2) {
-            String day = position==0 ? getString(R.string.yesterday) : getString(R.string.before_yesterday);
-            int dayInt = position==0 ? R.string.yesterday : R.string.before_yesterday;
-            Toast.makeText(getContext(), "Toggle path from: " + day, Toast.LENGTH_SHORT).show();
-            togglePath(dayInt);
-        } else {
-            onClickHistory();
-        }
-        rfabHelper.toggleContent();
-    }
-/////////////////////////////////////////////////////////////////////////////////////////////////////:
-
     private void toggleHeatMap() {
         toggleLayer(HeatMapHandler.HEATMAP_LAYER_ID);
     }
+
     private void toggleLayer(String layerId) {
         map.getStyle(style -> {
             Layer layer = style.getLayer(layerId);
@@ -355,16 +309,57 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         pathsHandler.setCameraPosition(day);
     }
 
-    @Override
-    public void onClick(View view) {
-        System.out.println(view.getId());
-        switch (view.getId()) {
-            case R.id.heatMapToggle: {
-                toggleHeatMap();
-            }
-            break;
-            default:
-                break;
-        }
+//////////////////////////////////////////History button/////////////////////////////////////////////
+
+    private void setHistoryRFAButton() {
+        RapidFloatingActionLayout rfaLayout = view.findViewById(R.id.history_rfal);
+        RapidFloatingActionButton rfaBtn = view.findViewById(R.id.history_rfab);
+
+        RapidFloatingActionContentLabelList rfaContent = new RapidFloatingActionContentLabelList(getContext());
+        rfaContent.setOnRapidFloatingActionContentLabelListListener(this);
+        List<RFACLabelItem> items = new ArrayList<>();
+        addItems(items, "Yesterday", 0xff056f00, 0xff0d5302, 0xff056f00, 0);
+        addItems(items, "Before yesterday", 0xff283593, 0xff1a237e, 0xff283593, 1);
+        addItems(items, "History graph", 0xffd84315, 0xd2491f, 0xb6411d, 2);
+
+        rfaContent
+                .setItems(items)
+                .setIconShadowColor(0xff888888)
+        ;
+        rfabHelper = new RapidFloatingActionHelper(
+                getContext(),
+                rfaLayout,
+                rfaBtn,
+                rfaContent
+        ).build();
     }
+    private void addItems(List<RFACLabelItem> items, String label, int normalColor, int pressedColor, int labelColor, int position) {
+        items.add(new RFACLabelItem<Integer>()
+                .setLabel(label)
+                .setResId(R.drawable.fab_history)
+                .setIconNormalColor(normalColor)
+                .setIconPressedColor(pressedColor)
+                .setLabelColor(labelColor)
+                .setWrapper(position)
+        );
+    }
+    @Override
+    public void onRFACItemLabelClick(int position, RFACLabelItem item) {
+        Toast.makeText(getContext(), "clicked label: " + position, Toast.LENGTH_SHORT).show();
+        rfabHelper.toggleContent();
+    }
+
+    @Override
+    public void onRFACItemIconClick(int position, RFACLabelItem item) {
+        if (position!=2) {
+            String day = position==0 ? getString(R.string.yesterday) : getString(R.string.before_yesterday);
+            int dayInt = position==0 ? R.string.yesterday : R.string.before_yesterday;
+            Toast.makeText(getContext(), "Toggle path from: " + day, Toast.LENGTH_SHORT).show();
+            togglePath(dayInt);
+        } else {
+            onClickHistory();
+        }
+        rfabHelper.toggleContent();
+    }
+
 }

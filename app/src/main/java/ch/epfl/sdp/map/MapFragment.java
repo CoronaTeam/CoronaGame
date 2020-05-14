@@ -49,10 +49,10 @@ import ch.epfl.sdp.toDelete.HistoryDialogFragment;
 import ch.epfl.sdp.location.LocationBroker;
 import ch.epfl.sdp.location.LocationService;
 
-import static ch.epfl.sdp.Map.PathsHandler.BEFORE_PATH_LAYER_ID;
-import static ch.epfl.sdp.Map.PathsHandler.BEFORE_POINTS_LAYER_ID;
-import static ch.epfl.sdp.Map.PathsHandler.YESTERDAY_PATH_LAYER_ID;
-import static ch.epfl.sdp.Map.PathsHandler.YESTERDAY_POINTS_LAYER_ID;
+import static ch.epfl.sdp.map.PathsHandler.BEFORE_PATH_LAYER_ID;
+import static ch.epfl.sdp.map.PathsHandler.BEFORE_POINTS_LAYER_ID;
+import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_PATH_LAYER_ID;
+import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_POINTS_LAYER_ID;
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
@@ -318,9 +318,9 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         RapidFloatingActionContentLabelList rfaContent = new RapidFloatingActionContentLabelList(getContext());
         rfaContent.setOnRapidFloatingActionContentLabelListListener(this);
         List<RFACLabelItem> items = new ArrayList<>();
-        addItems(items, "Yesterday", 0xff056f00, 0xff0d5302, 0xff056f00, 0);
-        addItems(items, "Before yesterday", 0xff283593, 0xff1a237e, 0xff283593, 1);
-        addItems(items, "History graph", 0xffd84315, 0xd2491f, 0xb6411d, 2);
+        addItems(items, "Yesterday path", 0xff056f00, 0xff0d5302, 0xff056f00, 0);
+        addItems(items, "Before yesterday path", 0xff283593, 0xff1a237e, 0xff283593, 1);
+        addItems(items, "History graph", 0xffd84315, 0xffbb3b14, 0xffd84315, 2);
 
         rfaContent
                 .setItems(items)
@@ -345,8 +345,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     }
     @Override
     public void onRFACItemLabelClick(int position, RFACLabelItem item) {
-        Toast.makeText(getContext(), "clicked label: " + position, Toast.LENGTH_SHORT).show();
-        rfabHelper.toggleContent();
+        onRFACItemIconClick(position, item);
     }
 
     @Override

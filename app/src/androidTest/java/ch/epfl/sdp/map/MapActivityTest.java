@@ -41,9 +41,9 @@ public class MapActivityTest {
     }
 
     @Test
-    public void pathButtonIsDisplayedInHistory() {
-        onView(withId(R.id.history_button)).perform(click());
-        onView(withId(R.id.pathButton)).check(matches(isDisplayed()));
+    public void historyOptionsAreDisplayedWhenPressButton() {
+        onView(withId(R.id.history_rfab)).perform(click());
+        onView(withId(R.id.history_rfal)).check(matches(isDisplayed()));
     }
 
     // Since we want to test functions dealing with Calendar,
@@ -51,16 +51,15 @@ public class MapActivityTest {
     // we hardcode dates w.r.t. the day on which this test is ran
     @Test
     public void datesFormattedAsYYYYmmDD() { // their expected format is defined as "yyyy/MM/dd"
-        String expected_yesterday = "2020/05/07";
-        String expected_before = "2020/04/27";
+        String expected_yesterday = "2020/05/13";
+        String expected_before = "2020/05/12";
         assertEquals(expected_yesterday, mapFragment.getPathsHandler().getYesterdayDate());
         assertEquals(expected_before, mapFragment.getPathsHandler().getBeforeYesterdayDate());
     }
 
     @Test @Ignore("Incomplete")
     public void togglePathMakesItVisible() {
-        onView(withId(R.id.history_button)).perform(click());
-        onView(withId(R.id.pathButton)).perform(click());
+        onView(withId(R.id.history_rfab)).perform(click());
         sleep(3000);
         //Layer layer = mapFragment.map.getStyle().getLayer(PATH_LAYER_ID);
         //assertEquals(VISIBLE, layer.getVisibility().getValue());

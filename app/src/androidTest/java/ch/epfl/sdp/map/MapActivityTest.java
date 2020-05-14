@@ -3,7 +3,6 @@ package ch.epfl.sdp.map;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
-
 import com.mapbox.mapboxsdk.style.layers.Layer;
 
 import org.junit.After;
@@ -26,9 +25,9 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static ch.epfl.sdp.TestTools.sleep;
+import static ch.epfl.sdp.location.LocationUtils.buildLocation;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
@@ -36,23 +35,27 @@ public class MapActivityTest {
 
     private MapFragment mapFragment;
     private AtomicInteger sentinel;
+    private MockLocationBroker mockLocationBroker;
 
     @Rule
     public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
 
     @Rule
-    public final ActivityTestRule<MapActivity> activityRule =
-            new ActivityTestRule<>(MapActivity.class);
+    public final ActivityTestRule<MapActivity> activityRule = new ActivityTestRule<>(MapActivity.class);
 
     @Before
-    public void setUp() {
+    public void setUp() throws Throwable{
+        mockLocationBroker = new MockLocationBroker(activityRule);
+        mockLocationBroker.setProviderStatus(true);
         mapFragment = (MapFragment) activityRule.getActivity().getFragment();
+        mapFragment.setLocationBroker(mockLocationBroker);
         sentinel = new AtomicInteger(0);
     }
 
     @After
     public void clean() {
         sentinel = new AtomicInteger(0);
+        //Intents.release();
     }
 
     @BeforeClass
@@ -67,13 +70,13 @@ public class MapActivityTest {
 
     @Test(timeout = 30000)
     public void testMapLoadCorrectly() throws Throwable {
-        while (mapFragment.getMap() == null){sleep(300);};
+        while (mapFragment.getMap() == null){sleep(500);};
 
         activityRule.runOnUiThread(() -> {
             mapFragment.getMap().getStyle((s) -> sentinel.incrementAndGet());
         }); // The sentinel value will only increase when the style has completely loaded
 
-        while (sentinel.get() == 0){sleep(300);}
+        while (sentinel.get() == 0){sleep(500);}
         sentinel.set(0);
     }
 
@@ -82,13 +85,13 @@ public class MapActivityTest {
     public void testHeatMapLoadCorrectly() throws Throwable {
         testMapLoadCorrectly();
 
-        while (mapFragment.getHeatMapHandler() == null){sleep(300);};
+        while (mapFragment.getHeatMapHandler() == null){sleep(500);};
 
         activityRule.runOnUiThread(() -> {
             mapFragment.getHeatMapHandler().onHeatMapDataLoaded(() -> sentinel.incrementAndGet());
         }); // The sentinel value will only increase when the heatmap has completely loaded
 
-        while (sentinel.get() == 0){sleep(300);}
+        while (sentinel.get() == 0){sleep(500);}
         sentinel.set(0);
     }
 
@@ -108,20 +111,22 @@ public class MapActivityTest {
 
         testHeatMapLoadCorrectly();
 
+        mockLocationBroker.setFakeLocation(buildLocation(46, 55));
+
         mapFragment.onMapVisible(() -> sentinel.incrementAndGet());
 
-        while (sentinel.get() == 0){sleep(300);}
+        while (sentinel.get() == 0){sleep(500);}
         sentinel.set(0);
 
         testLayerVisibility(VISIBLE);
 
-        while (sentinel.get() == 0){sleep(300);}
+        while (sentinel.get() == 0){sleep(500);}
         sentinel.set(0);
         onView(withId(R.id.heatMapToggle)).perform(click());
 
         testLayerVisibility(NONE);
 
-        while (sentinel.get() == 0){sleep(300);}
+        while (sentinel.get() == 0){sleep(500);}
         sentinel.set(0);
     }
 

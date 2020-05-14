@@ -57,6 +57,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private MapView mapView;
     private MapboxMap map;
     private LocationBroker locationBroker;
+    private ServiceConnection locationBrokerConn;
     private LatLng prevLocation = new LatLng(0, 0);
     private ConcreteFirestoreInteractor db;
     private CircleManager positionMarkerManager;
@@ -68,12 +69,22 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
     private View view;
 
+    @VisibleForTesting
+    void setLocationBroker(LocationBroker locationBroker){
+        if (locationBroker != null){
+            getActivity().unbindService(locationBrokerConn);
+            getActivity().stopService(new Intent(getContext(), LocationService.class));
+        }
+        this.locationBroker = locationBroker;
+        goOnline();
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         classPointer = this;
 
-        ServiceConnection conn = new ServiceConnection() {
+        locationBrokerConn = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 locationBroker = ((LocationService.LocationBinder) service).getService().getBroker();
@@ -92,7 +103,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         // it requires the service to remain running until stopService(Intent) is called,
         // regardless of whether any clients are connected to it.
         ComponentName myService = getActivity().startService(new Intent(getContext(), LocationService.class));
-        getActivity().bindService(new Intent(getContext(), LocationService.class), conn, Context.BIND_AUTO_CREATE);
+        getActivity().bindService(new Intent(getContext(), LocationService.class), locationBrokerConn, Context.BIND_AUTO_CREATE);
 
         userAccount = AccountFragment.getAccount(getActivity());
 

@@ -46,11 +46,6 @@ public class UserTest {
     }
 
     @Test
-    public void playerIdIsOk() {
-        assertEquals("398R7MEWF", u.getPlayerId(null));
-    }
-
-    @Test
     public void userIdIsOk() {
         assertEquals("9827545", u.getId());
     }

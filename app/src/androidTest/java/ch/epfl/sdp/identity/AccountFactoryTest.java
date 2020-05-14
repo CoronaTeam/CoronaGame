@@ -62,12 +62,6 @@ public class AccountFactoryTest {
     }
 
     @Test
-    public void testGetPlayerId() {
-        assertEquals(User.DEFAULT_PLAYERID, userFactory.getPlayerId(null));
-
-    }
-
-    @Test
     public void testGetAccount() {
         assertEquals(null, userFactory.getAccount());
 

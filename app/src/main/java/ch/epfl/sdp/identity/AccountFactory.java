@@ -67,17 +67,6 @@ public class AccountFactory implements Account {
     }
 
     @Override
-    public String getPlayerId(Activity activity) {
-        if(user != null){
-            return user.getPlayerId(activity);
-        }else{
-            return "TestPlayerId";
-            //PlayersClient pc = Games.getPlayersClient(activity, googleSignInAccount);
-            //return String.valueOf(pc.getCurrentPlayerId());
-        }
-    }
-
-    @Override
     public GoogleSignInAccount getAccount() {
         return googleSignInAccount;
     }

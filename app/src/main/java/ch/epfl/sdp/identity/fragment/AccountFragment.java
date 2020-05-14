@@ -112,9 +112,6 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
             String personEmail = acct.getEmail();
             String personId = acct.getId(); // Use this in order to uniquely identify people
             Uri personPhoto = acct.getPhotoUrl();
-            //PlayersClient pc = Games.getPlayersClient(this, acct.getAccount());
-            //String playerId = String.valueOf(pc.getCurrentPlayerId());
-            //String playerId = acct.getPlayerId(this);
 
             name.setText(personName);
             email.setText(personEmail);

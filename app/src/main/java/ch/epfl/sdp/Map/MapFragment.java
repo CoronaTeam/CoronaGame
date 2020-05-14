@@ -285,29 +285,10 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         RapidFloatingActionContentLabelList rfaContent = new RapidFloatingActionContentLabelList(getContext());
         rfaContent.setOnRapidFloatingActionContentLabelListListener(this);
         List<RFACLabelItem> items = new ArrayList<>();
-        items.add(new RFACLabelItem<Integer>()
-                .setLabel("Yesterday")
-                .setResId(R.drawable.fab_history)
-                .setIconNormalColor(0xff056f00)
-                .setIconPressedColor(0xff0d5302)
-                .setLabelColor(0xff056f00)
-                .setWrapper(0)
-        );
-        items.add(new RFACLabelItem<Integer>()
-                .setLabel("Before yesterday")
-                .setResId(R.drawable.fab_history)
-                .setIconNormalColor(0xff283593)
-                .setIconPressedColor(0xff1a237e)
-                .setLabelColor(0xff283593)
-                .setWrapper(1)
-        );
-        items.add(new RFACLabelItem<Integer>()
-                .setLabel("History graph")
-                .setResId(R.drawable.fab_history)
-                .setIconNormalColor(0xffd84315)
-                .setIconPressedColor(0xffbf360c)
-                .setWrapper(2)
-        );
+        addItems(items, "Yesterday", 0xff056f00, 0xff0d5302, 0xff056f00, 0);
+        addItems(items, "Before yesterday", 0xff283593, 0xff1a237e, 0xff283593, 1);
+        addItems(items, "History graph", 0xffd84315, 0xd2491f, 0xb6411d, 2);
+
         rfaContent
                 .setItems(items)
                 .setIconShadowColor(0xff888888)
@@ -318,6 +299,17 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
                 rfaBtn,
                 rfaContent
         ).build();
+    }
+
+    private void addItems(List<RFACLabelItem> items, String label, int normalColor, int pressedColor, int labelColor, int position) {
+        items.add(new RFACLabelItem<Integer>()
+                .setLabel(label)
+                .setResId(R.drawable.fab_history)
+                .setIconNormalColor(normalColor)
+                .setIconPressedColor(pressedColor)
+                .setLabelColor(labelColor)
+                .setWrapper(position)
+        );
     }
 
     @Override

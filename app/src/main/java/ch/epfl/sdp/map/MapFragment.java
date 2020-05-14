@@ -32,6 +32,8 @@ import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions;
 import com.mapbox.mapboxsdk.style.layers.Layer;
 
+import java.util.concurrent.Callable;
+
 import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.BuildConfig;
 import ch.epfl.sdp.R;
@@ -62,20 +64,9 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private HeatMapHandler heatMapHandler;
     private Account userAccount;
     private MapFragment classPointer;
+    private Callable onMapVisible;
 
     private View view;
-
-    @VisibleForTesting
-    public MapboxMap getMap() {
-        return map;
-    }
-
-    @VisibleForTesting
-    HeatMapHandler getHeatMapHandler() {return heatMapHandler; }
-
-    public PathsHandler getPathsHandler() {
-        return pathsHandler;
-    }
 
     @Nullable
     @Override
@@ -152,10 +143,12 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         if (locationBroker.hasPermissions(GPS)) {
             prevLocation = new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
             updateUserMarkerPosition(prevLocation);
+
             view.findViewById(R.id.mapFragment).setVisibility(View.VISIBLE);
             view.findViewById(R.id.heatMapToggle).setVisibility(View.VISIBLE);
             view.findViewById(R.id.heapMapLoadingSpinner).setVisibility(View.GONE);
 
+            callOnMapVisible();
         } else {
             Toast.makeText(getActivity(), "Missing permission", Toast.LENGTH_LONG).show();
         }
@@ -303,5 +296,36 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             default:
                 break;
         }
+    }
+
+
+    private void callOnMapVisible(){
+
+        try {
+            onMapVisible.call();
+            onMapVisible = null;
+        } catch (Exception ignored) {}
+    }
+
+    @VisibleForTesting
+    void onMapVisible(Callable func) {
+        onMapVisible = func;
+
+        if(view.findViewById(R.id.mapFragment).getVisibility() == View.VISIBLE){
+            callOnMapVisible();
+        }
+    }
+
+    @VisibleForTesting
+    public MapboxMap getMap() {
+        return map;
+    }
+
+    @VisibleForTesting
+    HeatMapHandler getHeatMapHandler() {return heatMapHandler; }
+
+    @VisibleForTesting
+    PathsHandler getPathsHandler() {
+        return pathsHandler;
     }
 }

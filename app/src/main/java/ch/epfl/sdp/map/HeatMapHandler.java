@@ -110,9 +110,7 @@ class HeatMapHandler {
         );
         map.getStyle(style -> style.addLayerAbove(layer, "waterway-label"));
 
-        try { // used for testing
-            onHeatMapDataLoaded.call();
-        }catch (Exception ignored){}
+        callHeatmapDataLoaded();
     }
 
     @NotNull
@@ -170,8 +168,21 @@ class HeatMapHandler {
         );
     }
 
+    private void callHeatmapDataLoaded(){
+        try {
+            onHeatMapDataLoaded.call();
+            onHeatMapDataLoaded = null;
+        } catch (Exception ignored) {}
+    }
+
     @VisibleForTesting
     void onHeatMapDataLoaded(Callable func) {
         onHeatMapDataLoaded = func;
+
+        map.getStyle(style -> {
+            if (style.getLayer(HEATMAP_LAYER_ID) != null){
+                callHeatmapDataLoaded();
+            }
+        });
     }
 }

@@ -3,6 +3,8 @@ package ch.epfl.sdp.map;
 import androidx.test.rule.ActivityTestRule;
 
 
+import com.mapbox.mapboxsdk.style.layers.Layer;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -19,6 +21,9 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static ch.epfl.sdp.TestTools.sleep;
+import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
+import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
@@ -63,6 +68,42 @@ public class MapActivityTest {
         }); // The sentinel value will only increase when the heatmap has completely loaded
 
         while (sentinel.get() == 0){sleep(300);}
+        sentinel.set(0);
+    }
+
+    @Test(timeout = 50000)
+    public void testHeatMapToggleButton() throws Throwable {
+        testHeatMapLoadCorrectly();
+
+        mapFragment.onMapVisible(() -> sentinel.incrementAndGet());
+
+        while (sentinel.get() == 0){sleep(300);}
+        sentinel.set(0);
+
+        activityRule.runOnUiThread(() -> {
+            mapFragment.getMap().getStyle(style -> {
+                Layer layer = style.getLayer(HeatMapHandler.HEATMAP_LAYER_ID);
+                assertNotNull(layer);
+                assertEquals(VISIBLE, layer.getVisibility().getValue());
+            });
+            sentinel.incrementAndGet();
+        });
+
+        while (sentinel.get() == 0){sleep(300);}
+        sentinel.set(0);
+        onView(withId(R.id.heatMapToggle)).perform(click());
+
+        activityRule.runOnUiThread(() -> {
+            mapFragment.getMap().getStyle(style -> {
+                Layer layer = style.getLayer(HeatMapHandler.HEATMAP_LAYER_ID);
+                assertNotNull(layer);
+                assertEquals(NONE, layer.getVisibility().getValue());
+            });
+            sentinel.incrementAndGet();
+        });
+
+        while (sentinel.get() == 0){sleep(300);}
+        sentinel.set(0);
     }
 
     ////////////////////////////////// Tests for PathsHandler //////////////////////////////////////

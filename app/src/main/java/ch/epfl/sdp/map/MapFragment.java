@@ -32,6 +32,8 @@ import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions;
 import com.mapbox.mapboxsdk.style.layers.Layer;
 
+import java.util.concurrent.Callable;
+
 import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.BuildConfig;
 import ch.epfl.sdp.R;
@@ -55,6 +57,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private MapView mapView;
     private MapboxMap map;
     private LocationBroker locationBroker;
+    private ServiceConnection locationBrokerConn;
     private LatLng prevLocation = new LatLng(0, 0);
     private ConcreteFirestoreInteractor db;
     private CircleManager positionMarkerManager;
@@ -62,16 +65,18 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private HeatMapHandler heatMapHandler;
     private Account userAccount;
     private MapFragment classPointer;
+    private Callable onMapVisible;
 
     private View view;
 
     @VisibleForTesting
-    public MapboxMap getMap() {
-        return map;
-    }
-
-    public PathsHandler getPathsHandler() {
-        return pathsHandler;
+    void setLocationBroker(LocationBroker locationBroker){
+        if (locationBroker != null){
+            getActivity().unbindService(locationBrokerConn);
+            getActivity().stopService(new Intent(getContext(), LocationService.class));
+        }
+        this.locationBroker = locationBroker;
+        goOnline();
     }
 
     @Nullable
@@ -79,7 +84,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         classPointer = this;
 
-        ServiceConnection conn = new ServiceConnection() {
+        locationBrokerConn = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 locationBroker = ((LocationService.LocationBinder) service).getService().getBroker();
@@ -98,7 +103,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         // it requires the service to remain running until stopService(Intent) is called,
         // regardless of whether any clients are connected to it.
         ComponentName myService = getActivity().startService(new Intent(getContext(), LocationService.class));
-        getActivity().bindService(new Intent(getContext(), LocationService.class), conn, Context.BIND_AUTO_CREATE);
+        getActivity().bindService(new Intent(getContext(), LocationService.class), locationBrokerConn, Context.BIND_AUTO_CREATE);
 
         userAccount = AccountFragment.getAccount(getActivity());
 
@@ -149,10 +154,12 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         if (locationBroker.hasPermissions(GPS)) {
             prevLocation = new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
             updateUserMarkerPosition(prevLocation);
+
             view.findViewById(R.id.mapFragment).setVisibility(View.VISIBLE);
             view.findViewById(R.id.heatMapToggle).setVisibility(View.VISIBLE);
             view.findViewById(R.id.heapMapLoadingSpinner).setVisibility(View.GONE);
 
+            callOnMapVisible();
         } else {
             Toast.makeText(getActivity(), "Missing permission", Toast.LENGTH_LONG).show();
         }
@@ -300,5 +307,36 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             default:
                 break;
         }
+    }
+
+
+    private void callOnMapVisible(){
+
+        try {
+            onMapVisible.call();
+            onMapVisible = null;
+        } catch (Exception ignored) {}
+    }
+
+    @VisibleForTesting
+    void onMapVisible(Callable func) {
+        onMapVisible = func;
+
+        if(view.findViewById(R.id.mapFragment).getVisibility() == View.VISIBLE){
+            callOnMapVisible();
+        }
+    }
+
+    @VisibleForTesting
+    public MapboxMap getMap() {
+        return map;
+    }
+
+    @VisibleForTesting
+    HeatMapHandler getHeatMapHandler() {return heatMapHandler; }
+
+    @VisibleForTesting
+    PathsHandler getPathsHandler() {
+        return pathsHandler;
     }
 }

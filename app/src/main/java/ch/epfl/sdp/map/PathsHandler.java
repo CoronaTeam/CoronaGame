@@ -57,8 +57,6 @@ import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
-import static java.lang.Math.pow;
-import static java.lang.Math.sqrt;
 
 /**
  * This class is used to display the user's last positions as a line on the map,
@@ -166,10 +164,10 @@ public class PathsHandler extends Fragment {
 
                 if (pathLocalDate.equals(yesterdayString)) {
                     yesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
-                    addInfectedMet(lat, lon, timestamp, yesterdayPathCoordinates);
+                    addInfectedMet(lat, lon, timestamp, yesterdayInfectedMet);
                 } else if (pathLocalDate.equals(beforeYesterdayString)) {
                     beforeYesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
-                    addInfectedMet(lat, lon, timestamp, beforeYesterdayPathCoordinates);
+                    addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
                 }
             } catch (NullPointerException e) {
                 Log.d("ERROR ADDING POINT", String.valueOf(e));
@@ -268,7 +266,7 @@ public class PathsHandler extends Fragment {
     }
 
     private CompletableFuture<Iterator<QueryDocumentSnapshot>> initFirestorePathRetrieval() {
-        String userPath = "USER_ID_X42"; // should get path for current user: replace by getUserId() // corona: 109758096484534641167 //USER_ID_X42
+        String userPath = "USER_ID_X42"; // should get path for current user: replace by getUserId() // coronaId: 109758096484534641167 //USER_ID_X42
         return FirestoreInteractor.taskToFuture(
                 collectionReference("History/" + userPath + "/Positions")
                         .orderBy("Position" + ".timestamp").get())

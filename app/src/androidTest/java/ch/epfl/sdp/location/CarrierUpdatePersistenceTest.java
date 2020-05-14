@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 
+import androidx.test.espresso.intent.Intents;
 import androidx.test.rule.ActivityTestRule;
 
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -17,18 +19,19 @@ import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import ch.epfl.sdp.AuthenticationManager;
+import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.CoronaGame;
-import ch.epfl.sdp.DefaultAuthenticationManager;
+import ch.epfl.sdp.identity.DefaultAuthenticationManager;
 import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.contamination.CachingDataSender;
 import ch.epfl.sdp.contamination.Carrier;
-import ch.epfl.sdp.contamination.DataExchangeActivity;
+import ch.epfl.sdp.testActivities.DataExchangeActivity;
 import ch.epfl.sdp.contamination.FakeAnalyst;
 import ch.epfl.sdp.contamination.FakeCachingDataSender;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
 import ch.epfl.sdp.contamination.Layman;
 
+import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -41,42 +44,6 @@ public class CarrierUpdatePersistenceTest {
 
     private Carrier iAmBob = new Layman(HEALTHY);
     private AtomicInteger sentinel;
-
-    private static String fakeUserID = "THIS_IS_A_FAKE_ID";
-
-    @BeforeClass
-    public static void mockUserId() {
-        // To not pollute application status, make AuthenticationManager return a mock UserID
-        AuthenticationManager.defaultManager = new DefaultAuthenticationManager() {
-            @Override
-            public String getUserId() {
-                return fakeUserID;
-            }
-        };
-    }
-
-    @AfterClass
-    public static void restoreUserId() {
-        // Restore real UserID
-        AuthenticationManager.defaultManager = new DefaultAuthenticationManager() {};
-    }
-
-    @Before
-    public void resetSentinel() {
-        sentinel = new AtomicInteger(0);
-    }
-
-    @AfterClass
-    public static void resetFakeCarrierStatus() {
-        SharedPreferences sharedPreferences = CoronaGame.getContext().getSharedPreferences(CoronaGame.SHARED_PREF_FILENAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        editor.remove(LocationService.INFECTION_STATUS_TAG)
-                .remove(LocationService.INFECTION_PROBABILITY_TAG)
-                .remove(LocationService.LAST_UPDATED_TAG)
-                .commit();
-    }
-
     private InfectionAnalyst analystWithSentinel = new InfectionAnalyst() {
         @Override
         public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
@@ -94,14 +61,60 @@ public class CarrierUpdatePersistenceTest {
             return false;
         }
     };
+    private InfectionAnalyst realAnalyst;
+    Intent locaIntentWithAlarm;
 
-    private void startLocationServiceWithAlarm() {
-        Intent intentWithAlarm = new Intent(mActivityRule.getActivity(), LocationService.class);
-        intentWithAlarm.putExtra(LocationService.ALARM_GOES_OFF,true);
-        mActivityRule.getActivity().startService(intentWithAlarm);
+    private static String fakeUserID = "THIS_IS_A_FAKE_ID";
+
+    @BeforeClass
+    public static void mockUserId() {
+        // To not pollute application status, make AuthenticationManager return a mock UserID
+        AuthenticationManager.defaultManager = new DefaultAuthenticationManager() {
+            @Override
+            public String getUserId() {
+                return fakeUserID;
+            }
+        };
+
     }
 
-    private InfectionAnalyst realAnalyst;
+    @AfterClass
+    public static void restoreUserId() {
+        // Restore real UserID
+        AuthenticationManager.defaultManager = new DefaultAuthenticationManager() {};
+    }
+
+    @Before
+    public void before() {
+        initSafeTest(mActivityRule, true);
+
+        iAmBob = new Layman(HEALTHY);
+        mActivityRule.getActivity().getService().setCarrier(iAmBob);
+        mActivityRule.getActivity().getService().resetAnalyst();
+        sentinel = new AtomicInteger(0);
+    }
+
+    @After
+    public void release(){
+        Intents.release();
+    }
+
+    @AfterClass
+    public static void resetFakeCarrierStatus() {
+        SharedPreferences sharedPreferences = CoronaGame.getContext().getSharedPreferences(CoronaGame.SHARED_PREF_FILENAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.remove(LocationService.INFECTION_STATUS_TAG)
+                .remove(LocationService.INFECTION_PROBABILITY_TAG)
+                .remove(LocationService.LAST_UPDATED_TAG)
+                .commit();
+    }
+
+    private void startLocationServiceWithAlarm() {
+        locaIntentWithAlarm = new Intent(mActivityRule.getActivity(), LocationService.class);
+        locaIntentWithAlarm.putExtra(LocationService.ALARM_GOES_OFF,true);
+        mActivityRule.getActivity().startService(locaIntentWithAlarm);
+    }
 
     private void useAnalystWithSentinel() {
         realAnalyst = mActivityRule.getActivity().getService().getAnalyst();
@@ -150,7 +163,7 @@ public class CarrierUpdatePersistenceTest {
         restoreRealAnalyst();
     }
 
-    @Test(timeout = 10000)
+    @Test(timeout = 30000)
     public void alarmSetByServiceIsSuccessful() {
 
         useAnalystWithSentinel();

@@ -32,7 +32,7 @@
             android:textStyle="italic" />
 
         <fragment
-            android:name="ch.epfl.sdp.fragment.InfectionProbabilityChartFragment"
+            android:name="ch.epfl.sdp.contamination.fragment.InfectionProbabilityChartFragment"
             android:id="@+id/infectionProbabilityChartFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
@@ -40,7 +40,7 @@
     </LinearLayout>
 
     <fragment
-        android:name="ch.epfl.sdp.fragment.UserInfectionFragment"
+        android:name="ch.epfl.sdp.testActivities.UserInfectionFragment"
         android:id="@+id/userInfectionFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

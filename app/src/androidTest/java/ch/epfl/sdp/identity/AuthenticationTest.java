@@ -6,6 +6,7 @@ import androidx.test.rule.ActivityTestRule;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.TestTools;
+import ch.epfl.sdp.identity.fragment.AccountFragment;
 import ch.epfl.sdp.identity.fragment.AuthenticationFragment;
 import ch.epfl.sdp.testActivities.Authentication;
 import ch.epfl.sdp.identity.AuthenticationManager;
@@ -31,6 +32,7 @@ public class AuthenticationTest {
     public void setUp() throws Exception {
         initSafeTest(activityRule, true);
         AuthenticationManager.signOut(activityRule.getActivity()); // fixes Auth skip to TabActivity
+        AccountFragment.IN_TEST = true;
     }
 
     @Test(expected = Test.None.class) //expect no error

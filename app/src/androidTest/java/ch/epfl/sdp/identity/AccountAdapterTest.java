@@ -5,70 +5,70 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.epfl.sdp.identity.AccountFactory;
-import ch.epfl.sdp.identity.User;
+import ch.epfl.sdp.identity.fragment.AccountFragment;
 
 import static org.junit.Assert.assertEquals;
 
-public class AccountFactoryTest {
-    AccountFactory userFactory;
+public class AccountAdapterTest {
+    AccountAdapter userAdapter;
 
     //    AccountFactory googleFactory;  NOT TESTABLE (sorry)
     @Before
     public void setup() {
-        userFactory = new AccountFactory(new User());
+        userAdapter = new AccountAdapter(new User());
+        AccountFragment.IN_TEST = true;
         //  googleFactory = new AccountFactory() NOT TESTABLE
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void throwsExceptionIfUserIsNullForCreation() {
         User nullUser = null;
-        new AccountFactory(nullUser);
+        new AccountAdapter(nullUser);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void throwsExceptionIfgoogleAccountIsNullForCreation() {
         GoogleSignInAccount nullUser = null;
-        new AccountFactory(nullUser);
+        new AccountAdapter(nullUser);
     }
 
     @Test
     public void testGetDisplayName() {
-        assertEquals(User.DEFAULT_DISPLAY_NAME, userFactory.getDisplayName());
+        assertEquals(User.DEFAULT_DISPLAY_NAME, userAdapter.getDisplayName());
     }
 
     @Test
     public void testGetFamilyName() {
-        assertEquals(User.DEFAULT_FAMILY_NAME, userFactory.getFamilyName());
+        assertEquals(User.DEFAULT_FAMILY_NAME, userAdapter.getFamilyName());
 
     }
 
     @Test
     public void testGetEmail() {
-        assertEquals(User.DEFAULT_EMAIL, userFactory.getEmail());
+        assertEquals(User.DEFAULT_EMAIL, userAdapter.getEmail());
 
     }
 
     @Test
     public void testGetPhotoUrl() {
-        assertEquals(User.DEFAULT_URI, userFactory.getPhotoUrl());
+        assertEquals(User.DEFAULT_URI, userAdapter.getPhotoUrl());
 
     }
 
     @Test
     public void testIsGoogle() {
-        assertEquals(false, userFactory.isGoogle());
+        assertEquals(false, userAdapter.isGoogle());
 
     }
 
     @Test
     public void testGetAccount() {
-        assertEquals(null, userFactory.getAccount());
+        assertEquals(null, userAdapter.getAccount());
 
     }
 
     @Test
     public void testGetId() {
-        assertEquals(User.DEFAULT_USERID, userFactory.getId());
+        assertEquals(User.DEFAULT_USERID, userAdapter.getId());
     }
 }

@@ -7,17 +7,17 @@ import android.net.Uri;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
-public class AccountFactory implements Account {
+public class AccountAdapter implements Account {
     private GoogleSignInAccount googleSignInAccount = null;
     private User user = null;
-    public AccountFactory(GoogleSignInAccount googleAccount){
+    public AccountAdapter(GoogleSignInAccount googleAccount){
         if(googleAccount != null){
             this.googleSignInAccount = googleAccount;
         }else{
             throw new IllegalArgumentException("ERR: googleAccount or User should not be null");
         }
     }
-    public AccountFactory(User u){
+    public AccountAdapter(User u){
         if(u != null){
             this.user = u;
         }else {

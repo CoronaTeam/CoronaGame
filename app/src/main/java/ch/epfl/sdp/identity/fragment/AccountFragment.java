@@ -22,13 +22,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import ch.epfl.sdp.identity.Account;
-import ch.epfl.sdp.identity.AccountFactory;
+import ch.epfl.sdp.identity.AccountAdapter;
 import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.identity.User;
 
 public class AccountFragment extends Fragment implements View.OnClickListener, MenuItem.OnMenuItemClickListener {
-
+    public static boolean IN_TEST = false;
     private TextView name;
     private TextView email;
     private TextView userIdView;
@@ -56,29 +56,10 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
     }
 
     public static Account getAccount(Activity activity) {
-        GoogleSignInAccount acct;
-        try{
-            acct = GoogleSignIn.getLastSignedInAccount(activity);
-        }catch (NullPointerException e){
-            acct = null;
-        }
-
-        return getNonNullAccount(acct);
-    }
-
-    private static GoogleSignInClient getGoogleClient(Activity activity) {
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
-        // Build a GoogleSignInClient with the options specified by gso.
-        return GoogleSignIn.getClient(activity, gso);
-    }
-
-    private static Account getNonNullAccount(GoogleSignInAccount acct) {
-        if (acct == null) {
-            User u = new User();//generic test user
-            return new AccountFactory(u);
-
-        } else {
-            return new AccountFactory(acct);
+        if( ! IN_TEST){
+            return new AccountAdapter(GoogleSignIn.getLastSignedInAccount(activity));
+        }else{
+            return new AccountAdapter(new User());
         }
     }
 

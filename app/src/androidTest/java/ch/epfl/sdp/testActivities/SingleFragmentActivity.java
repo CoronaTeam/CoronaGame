@@ -1,4 +1,4 @@
-package ch.epfl.sdp.utilities;
+package ch.epfl.sdp.testActivities;
 
 import android.os.Bundle;
 

@@ -7,6 +7,7 @@ import androidx.test.rule.ActivityTestRule;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.identity.fragment.AuthenticationFragment;
+import ch.epfl.sdp.testActivities.Authentication;
 
 import org.junit.After;
 import org.junit.Before;

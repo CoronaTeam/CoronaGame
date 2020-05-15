@@ -1,8 +1,5 @@
 /**
- * Domain classes used to produce .....
- * <p>
- * These classes contain the ......
- *
+ * Implements a basic Key Value storage
  *
  * @since 0.1
  * @author CoronaTeam

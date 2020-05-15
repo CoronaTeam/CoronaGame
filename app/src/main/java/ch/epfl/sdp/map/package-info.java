@@ -1,8 +1,5 @@
 /**
- * Theses classes are used
- * <p>
- * These classes contain the ......
- *
+ * Resources for the map
  *
  * @since 0.1
  * @author CoronaTeam

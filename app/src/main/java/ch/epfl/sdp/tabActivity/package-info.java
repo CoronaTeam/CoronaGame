@@ -1,8 +1,5 @@
 /**
- * Domain classes used to produce .....
- * <p>
- * These classes contain the ......
- *
+ * Contains tabs and tabs accessories
  *
  * @since 0.1
  * @author CoronaTeam

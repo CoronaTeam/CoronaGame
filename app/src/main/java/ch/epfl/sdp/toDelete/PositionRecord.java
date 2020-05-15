@@ -1,4 +1,4 @@
-package ch.epfl.sdp.utilities;
+package ch.epfl.sdp.toDelete;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;

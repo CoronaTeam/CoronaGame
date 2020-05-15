@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
  * utilities.
  */
 public abstract class FirestoreInteractor {
-    private static FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    public static final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
     /**
      * Convert a task into a completableFuture
@@ -24,6 +24,7 @@ public abstract class FirestoreInteractor {
      * @return a future behaving as the original task
      */
     public static <T> CompletableFuture<T> taskToFuture(Task<T> task) {
+
         if (task.isComplete()) {
             if (task.isSuccessful()) {
                 return CompletableFuture.completedFuture(task.getResult());

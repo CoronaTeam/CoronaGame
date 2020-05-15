@@ -6,13 +6,13 @@ import androidx.annotation.VisibleForTesting;
 
 import com.google.firebase.firestore.GeoPoint;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.epfl.sdp.fragment.AccountFragment;
 
@@ -27,6 +27,10 @@ public class ConcreteCachingDataSender implements CachingDataSender {
 
     SortedMap<Date, Location> lastPositions;
     private GridFirestoreInteractor gridInteractor;
+
+    // TODO: Required to avoid synchronization errors, Need to refactor that!!
+    // (only 1 alarm executing everything)
+    private AtomicBoolean executingOperation = new AtomicBoolean(false);
 
     public ConcreteCachingDataSender(GridFirestoreInteractor interactor) {
         this.gridInteractor = interactor;
@@ -44,8 +48,8 @@ public class ConcreteCachingDataSender implements CachingDataSender {
 
         Map<String, Object> element = new HashMap<>();
         element.put(GEOPOINT_TAG, new GeoPoint(
-                location.getLatitude()/CachingDataSender.EXPAND_FACTOR,
-                location.getLongitude()/CachingDataSender.EXPAND_FACTOR
+                location.getLatitude(),
+                location.getLongitude()
         ));
         element.put(TIMESTAMP_TAG, time.getTime());
         element.put(INFECTION_STATUS_TAG, carrier.getInfectionStatus());
@@ -61,6 +65,7 @@ public class ConcreteCachingDataSender implements CachingDataSender {
      * removes every locations older than UNINTENTIONAL_CONTAGION_TIME ms and adds a new position
      */
     private void refreshLastPositions(Date time, Location location) {
+
         Date oldestDate = new Date(time.getTime() - MAX_CACHE_ENTRY_AGE);
         lastPositions.headMap(oldestDate).clear();
         if (location != null) {
@@ -70,7 +75,17 @@ public class ConcreteCachingDataSender implements CachingDataSender {
 
     @Override
     public SortedMap<Date, Location> getLastPositions() {
-        refreshLastPositions(new Date(System.currentTimeMillis()), null);
-        return Collections.unmodifiableSortedMap(lastPositions);
+        // TODO: Work on a copy of the map (to avoid synchronization conflicts)
+
+        SortedMap<Date, Location> copyOfLastPositions =new TreeMap<>(lastPositions);
+
+        copyOfLastPositions.headMap(new Date(System.currentTimeMillis() - MAX_CACHE_ENTRY_AGE)).clear();
+
+        return copyOfLastPositions;
+    }
+
+    // TODO: Must get rid of this function
+    public void endOperation() {
+        executingOperation.set(false);
     }
 }

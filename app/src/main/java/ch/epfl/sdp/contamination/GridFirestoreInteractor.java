@@ -1,6 +1,7 @@
 package ch.epfl.sdp.contamination;
 
 import android.location.Location;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,6 +49,9 @@ public class GridFirestoreInteractor extends ConcreteFirestoreInteractor {
     public CompletableFuture<Void> gridWrite(Location location, String time, Carrier carrier) {
         Map<String, Object> timeMap = new HashMap<>();
         timeMap.put("Time", time);
+
+        // TODO: Debug logging
+        Log.e("POSITION_UPLOAD", getGridId(location));
 
         return writeDocumentWithID(
                     documentReference("LiveGrid/" + getGridId(location) + "/Times", time), timeMap)

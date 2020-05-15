@@ -143,7 +143,7 @@ public class PathsHandler extends Fragment {
         concreteDataReceiver
                 .getUserNearbyDuring(location, timestamp.toDate(), timestamp.toDate())
                 .thenAccept(carrierIntegerMap -> {
-                    Log.d("ADD INFECTED", "got future value");
+                    //Log.d("ADD INFECTED", "got future value");
                     Carrier carrier;
                     Point point;
                     for (Map.Entry<Carrier, Integer> entry : carrierIntegerMap.entrySet()) {

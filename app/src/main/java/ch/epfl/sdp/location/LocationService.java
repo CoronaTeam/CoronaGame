@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -20,11 +21,15 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.SortedMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.CoronaGame;
@@ -70,6 +75,8 @@ public class LocationService extends Service implements LocationListener, Observ
     private CachingDataSender sender;
 
     private boolean isAlarmSet = false;
+    // TODO: Improve code to do without that
+    private AtomicBoolean isExecutingUpdate = new AtomicBoolean(false);
 
     private Date lastUpdated;
     private InfectionAnalyst analyst;
@@ -147,18 +154,35 @@ public class LocationService extends Service implements LocationListener, Observ
     private void updateInfectionModel() {
         SortedMap<Date, Location> locations = sender.getLastPositions().tailMap(lastUpdated);
 
+        // TODO: Debug
+        Log.e("POSITION_ITERATOR", Integer.toString(locations.size()));
+        List<CompletableFuture<Integer>> operationFutures = new ArrayList<>();
+
         for (Map.Entry<Date, Location> l : locations.entrySet()) {
-            analyst.updateInfectionPredictions(l.getValue(), lastUpdated, l.getKey());
+            operationFutures.add(analyst.updateInfectionPredictions(l.getValue(), lastUpdated, l.getKey()));
             lastUpdated = l.getKey();
         }
+
+        operationFutures.forEach(CompletableFuture::join);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.hasExtra(ALARM_GOES_OFF)) {
             isAlarmSet = false;
+
+            // Wait that previous updates are concluded
+            while (!isExecutingUpdate.compareAndSet(false, true)) {
+                while (isExecutingUpdate.get()) {
+
+                }
+            }
+
             // It's time to run the model, starting from time 'lastUpdated';
-            updateInfectionModel();
+            AsyncTask.execute(() -> {
+                updateInfectionModel();
+                isExecutingUpdate.set(false);
+            });
         }
 
         if (!isAlarmSet) {

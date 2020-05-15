@@ -16,7 +16,7 @@ public interface InfectionAnalyst {
     float ABSENCE_APPROXIMATION_THRESHOLD = 0.1f;
 
     // MODEL: This parameter models the contagiousness of the disease
-    float TRANSMISSION_FACTOR = 0.05f;
+    float TRANSMISSION_FACTOR = .5f;
 
     //MODEL: This parameters models how long we are contagious before we remark our illness
     int UNINTENTIONAL_CONTAGION_TIME = 86400000; //[ms] actual : 24 hours

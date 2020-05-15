@@ -2,6 +2,7 @@ package ch.epfl.sdp.contamination;
 
 import android.location.Location;
 import android.location.LocationManager;
+import android.util.Log;
 
 import androidx.annotation.VisibleForTesting;
 
@@ -43,6 +44,8 @@ public class ConcreteDataReceiver implements DataReceiver {
     @Override
     public CompletableFuture<Set<Carrier>> getUserNearby(Location location, Date date) {
 
+        // TODO: In this function, use Neighbor instead than Carrier and set uniqueId too
+
         return interactor.gridRead(location, date.getTime()).thenApply(stringMapMap -> {
             Set<Carrier> carriers = new HashSet<>();
             for (Map.Entry<String, Map<String, Object>> doc : stringMapMap.entrySet()) {
@@ -72,8 +75,19 @@ public class ConcreteDataReceiver implements DataReceiver {
                                                                        Date startDate, Date endDate) {
         return interactor.getTimes(location)
                 .thenApply(stringMapMap -> filterValidTimes(startDate.getTime(), endDate.getTime(), stringMapMap))
+                .thenApply(filtered -> {
+                    // TODO: Debug code
+                    if (filtered.size() > 0) {
+                        Log.e("FILTERED_TIMES", Long.toString(filtered.iterator().next()));
+                    } else {
+
+                    }
+                    return filtered;
+                })
                 .thenCompose(validTimes -> {
                     List<CompletableFuture<Map<String, Map<String, Object>>>> metDuringSlices = new ArrayList<>();
+
+                    validTimes.forEach(tm -> metDuringSlices.add(interactor.gridRead(location, tm)));
 
                     return CompletableFuture.allOf(metDuringSlices.toArray(new CompletableFuture[metDuringSlices.size()]))
                             .thenApply(ignoredVoid -> {
@@ -83,10 +97,16 @@ public class ConcreteDataReceiver implements DataReceiver {
 
                                 results.forEach(res -> {
                                     for (Map.Entry<String, Map<String, Object>> doc : res.entrySet()) {
-                                        Carrier c = new Layman(
+                                        Carrier c = new Neighbor(
                                                 Enum.valueOf(Carrier.InfectionStatus.class,
                                                         (String) doc.getValue().get("infectionStatus")),
-                                                ((float) ((double) doc.getValue().get("illnessProbability"))));
+                                                ((float) ((double) doc.getValue().get("illnessProbability"))),
+                                                (String) doc.getValue().get("uniqueId"));
+
+                                        // TODO: Use Neighbor when appropriate
+
+                                        // TODO: Debug log
+                                        Log.e("MET_DURING_INTERVAL", c.getInfectionStatus() + ", " + c.getIllnessProbability());
 
                                         int numberOfMeetings = 1;
                                         if (metDuringInterval.containsKey(c)) {

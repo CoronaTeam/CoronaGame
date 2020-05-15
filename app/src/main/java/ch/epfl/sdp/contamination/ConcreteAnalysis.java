@@ -1,6 +1,7 @@
 package ch.epfl.sdp.contamination;
 
 import android.location.Location;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import java.util.Date;
@@ -15,7 +16,6 @@ import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter
 import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
-import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
 
 public class ConcreteAnalysis implements InfectionAnalyst {
 
@@ -71,13 +71,36 @@ public class ConcreteAnalysis implements InfectionAnalyst {
                 break;
             } else {
 
+                float newWeight = c.getValue().floatValue() / cumulativeSocialTime;
+                float oldWeight = .5f;
+
                 // Calculate new weights for probabilities
-                float newWeight = c.getValue() / cumulativeSocialTime;
-                float oldWeight = 1 - newWeight;
+
+                // MODEL: Bias probability towards newer values
+                // newWeight *= 4f;
+
+                Log.e("INFECTION_PROCESS", Float.toString(oldWeight) + ", " + Float.toString(newWeight));
+
+                Log.e("INFECTION_PROCESS", "oldContribution:" + Float.toString(oldWeight * updatedProbability) + ", newContribution:" + Float.toString(newWeight * c.getKey().getIllnessProbability() * TRANSMISSION_FACTOR));
 
                 // Updates the probability given the new contribution by Carrier c.getKey()
                 updatedProbability = oldWeight * updatedProbability +
+                        newWeight * c.getKey().getIllnessProbability() * TRANSMISSION_FACTOR;
+
+                updatedProbability = Math.min(updatedProbability, 1f);
+                 /*
+
+                float inversePoint = 0;
+
+                if (updatedProbability > 0f) {
+                    inversePoint = - 1f / TRANSMISSION_FACTOR * (float) log(1 - updatedProbability) / updatedProbability;
+                }
+
+                inversePoint = oldWeight * inversePoint +
                         newWeight * c.getKey().getIllnessProbability();
+
+                updatedProbability = 1f / (1 + (float) exp(- TRANSMISSION_FACTOR * inversePoint));
+                 */
             }
         }
 
@@ -89,18 +112,22 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         assert aroundMe != null;
 
         for (Carrier imThere : aroundMe.keySet()) {
-            Log.e("AROUND_ME", imThere.getInfectionStatus() + ", " + imThere.getIllnessProbability());
+            Log.e("AROUND_ME", imThere.getUniqueId() + ": " + imThere.getInfectionStatus() + ", " + imThere.getIllnessProbability());
         }
 
         Map<Carrier, Integer> contactsWithDuration = new HashMap<>();
 
+
+        // TODO: Exclude Me from dangerous people
         for (Map.Entry<? extends Carrier, Integer> person : aroundMe.entrySet()) {
-            if (person.getKey().getInfectionStatus() == UNKNOWN) {
+            if (!person.getKey().getUniqueId().equals(me.getUniqueId())) {
                 // MODEL: Each meeting is assumed to last for a fixed amount of time
                 int timeCloseBy = person.getValue() * PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION;
                 contactsWithDuration.put(person.getKey(), timeCloseBy);
             }
         }
+
+        Log.e("IDENTIFY_SUSPECTS", Integer.toString(contactsWithDuration.size()) + " suspects");
 
         return contactsWithDuration;
     }
@@ -125,26 +152,28 @@ public class ConcreteAnalysis implements InfectionAnalyst {
                 receiver.getRecoveryCounter(me.getUniqueId())
                         .thenApply(rc -> (int) (rc.getOrDefault(privateRecoveryCounter, 0)));
 
+        // TODO: Remove these, DEBUG only !!!!!!!!
+        Date fakeStartTime = new Date(startTime.getTime() - 40000);
+        Date fakeEndTime = new Date(endTime.getTime() + 4000);
         CompletableFuture<Map<Carrier, Integer>> peopleAroundMe =
                 receiver.getUserNearbyDuring(location, startTime, endTime);
 
-        Log.e("PEOPLE_AROUND_ME", "Waiting...");
-        peopleAroundMe.join();
-        Log.e("PEOPLE_AROUND_ME", "Done [OK]");
+        Log.e("PEOPLE_AROUND_ME", "Searching for neighbors...");
+        Log.e("PEOPLE_AROUND_ME", "Neighbours found (" + peopleAroundMe.join().size() + ")");
 
         CompletableFuture<Float> badMeetingCoefficient =
                 receiver.getNumberOfSickNeighbors(me.getUniqueId())
-                .thenApply(res -> (float) (res.getOrDefault(publicAlertAttribute, 0)));
+                .thenApply(res -> (float) (res.getOrDefault(publicAlertAttribute, 0f)));
 
         return CompletableFuture.allOf(recoveryCounter, peopleAroundMe, badMeetingCoefficient)
                 .thenRun(() -> dispatchModelUpdates(endTime, recoveryCounter.join(), identifySuspectContacts(peopleAroundMe.join()), badMeetingCoefficient.join()))
                 .thenApply(v -> countMeetingsWithInfected(peopleAroundMe.join()));
 
 /*
-        updateCarrierInfectionProbability(endTime, me.getIllnessProbability() + .1f);
+        updateCarrierInfectionProbability(endTime, 1f);
         return CompletableFuture.completedFuture(0);
-
  */
+
     }
 
     private void dispatchModelUpdates(Date when, int recoveryCounter, Map<Carrier, Integer> suspectContacts, float badMeetingsCoefficient) {
@@ -171,21 +200,25 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         me.evolveInfection(newStatus);
 
         if (newStatus == INFECTED) {
-            //1: retrieve your own last positions
-            SortedMap<Date, Location> lastPositions = cachedSender.getLastPositions();
+            // TODO: Do we really need AsyncTask
+            AsyncTask.execute(() -> {
+                //1: retrieve your own last positions
+                SortedMap<Date, Location> lastPositions = cachedSender.getLastPositions();
 
-            //2: Ask firebase who was there
-            Set<String> userIds = new HashSet<>();
-            lastPositions.forEach((date, location) -> receiver.getUserNearby(location, date).thenAccept(around -> {
-                around.forEach(neighbor -> {
-                    if (neighbor.getInfectionStatus() != INFECTED) { // only non-infected users need to be informed
-                        userIds.add(neighbor.getUniqueId()); //won't add someone already in the set
-                    }
-                });
-            }));
-            //Tell those user that they have been close to you
-            //TODO: discuss whether considering only the previous Illness probability is good
-            userIds.forEach(u -> cachedSender.sendAlert(u, previousIllnessProbability));
+                //2: Ask firebase who was there
+                Set<String> userIds = new HashSet<>();
+                lastPositions.forEach((date, location) -> receiver.getUserNearby(location, date).thenAccept(around -> {
+                    around.forEach(neighbor -> {
+                        if (neighbor.getInfectionStatus() != INFECTED) { // only non-infected users need to be informed
+                            userIds.add(neighbor.getUniqueId()); //won't add someone already in the set
+                        }
+                    });
+                }));
+
+                //Tell those user that they have been close to you
+                //TODO: discuss whether considering only the previous Illness probability is good
+                userIds.forEach(u -> cachedSender.sendAlert(u, previousIllnessProbability));
+            });
         }
 
         return true;

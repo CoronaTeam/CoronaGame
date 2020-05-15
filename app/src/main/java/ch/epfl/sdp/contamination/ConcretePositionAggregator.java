@@ -1,6 +1,8 @@
 package ch.epfl.sdp.contamination;
 
 import android.location.Location;
+import android.os.AsyncTask;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -108,10 +110,13 @@ public final class ConcretePositionAggregator extends Observable implements Posi
         if(lastDate != null){
             List<Location> targetLocations = buffer.remove(lastDate.getTime());
             Location meanLocation = getMean(targetLocations);
-            Location expandedLocation = CachingDataSender.RoundAndExpandLocation(meanLocation);
-//            System.out.println("----SENDING-----"+expandedLocation.toString() + " with date : "+lastDate.toString());
-            cachingDataSender.registerLocation(carrier,expandedLocation,lastDate);
 
+            AsyncTask.execute(() -> {
+                // TODO: Debug logging + .join()
+                Log.e("POSITION_AGGREGATOR", meanLocation.toString() + " with date : " + lastDate.getTime());
+                cachingDataSender.registerLocation(carrier, meanLocation, lastDate).join();
+                Log.e("POSITION_AGGREGATOR", "Upload performed");
+            });
         }
     }
 

@@ -139,8 +139,10 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
 
         modifyUserInfectionStatus(userName, me.getInfectionStatus() == INFECTED);
 
-        setInfectionColorAndMessage(me.getInfectionStatus() == INFECTED);
-        userInfectionProbability.setText(String.format("With probability: %f", me.getIllnessProbability()));
+        getActivity().runOnUiThread(() -> {
+            setInfectionColorAndMessage(me.getInfectionStatus() == INFECTED);
+            userInfectionProbability.setText(String.format("%s With probability: %f", me.getUniqueId(), me.getIllnessProbability()));
+        });
     }
 
     @Override

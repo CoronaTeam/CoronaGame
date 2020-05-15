@@ -22,13 +22,6 @@ public interface CachingDataSender {
 
     int MAX_CACHE_ENTRY_AGE = InfectionAnalyst.UNINTENTIONAL_CONTAGION_TIME;
 
-    static Location RoundAndExpandLocation(Location l){
-        int a = (int)(0.5 + l.getLatitude()*EXPAND_FACTOR);
-        int b = (int)(0.5 + l.getLongitude()*EXPAND_FACTOR);
-        l.setLongitude(b);
-        l.setLatitude(a);
-        return l;
-    }
     /**
      *   Sends the location and date to firebase, along with the userID of the user using the app.
      *   Operation depending on the result of the operation can be chained to the returned future

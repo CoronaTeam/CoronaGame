@@ -189,11 +189,13 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
 
         List<Entry> data = generateData();
 
-        if (chart.getData() != null) {
-            updateExistingDataSet(data);
-        } else {
-            createNewDataSet(data);
-        }
+        getActivity().runOnUiThread(() -> {
+            if (chart.getData() != null) {
+                updateExistingDataSet(data);
+            } else {
+                createNewDataSet(data);
+            }
+        });
     }
 
     private void updateExistingDataSet(List<Entry> data) {

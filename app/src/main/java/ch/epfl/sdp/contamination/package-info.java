@@ -1,8 +1,5 @@
 /**
- * Domain classes used to produce .....
- * <p>
- * These classes contain the ......
- *
+ * Handle the contamination process between sick and infected people
  *
  * @since 0.1
  * @author CoronaTeam

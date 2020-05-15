@@ -1,8 +1,5 @@
 /**
- * Domain classes used to produce .....
- * <p>
- * These classes contain the ......
- *
+ * Handle actual document commits / retrieval on firestore
  *
  * @since 0.1
  * @author CoronaTeam

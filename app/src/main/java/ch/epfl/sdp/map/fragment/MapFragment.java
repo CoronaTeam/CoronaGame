@@ -241,7 +241,9 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     @Override
     public void onDestroy() {
         mapView.onDestroy();
-        getActivity().unbindService(locationBrokerConn);
+        if (locationBrokerConn != null){
+            getActivity().unbindService(locationBrokerConn);
+        }
         super.onDestroy();
 
     }
@@ -316,9 +318,10 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
     @VisibleForTesting
     void setLocationBroker(LocationBroker locationBroker){
-        if (locationBroker != null){
+        if (locationBroker != null && locationBrokerConn != null){
             getActivity().unbindService(locationBrokerConn);
             getActivity().stopService(new Intent(getContext(), LocationService.class));
+            locationBrokerConn = null;
         }
         this.locationBroker = locationBroker;
         goOnline();

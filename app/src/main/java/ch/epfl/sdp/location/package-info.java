@@ -1,8 +1,6 @@
 /**
- * Domain classes used to produce .....
- * <p>
- * These classes contain the ......
- *
+ * Abstract the location provider
+ * Useful for testing the classes that depend on location and location updates
  *
  * @since 0.1
  * @author CoronaTeam

@@ -62,6 +62,14 @@ public class IntroActivity extends AppIntro {
                     BG_COLOR,
                     TITLE_COLOR,
                     DESC_COLOR
+            ),
+            new Slide(
+                    R.string.intro_page4_title,
+                    R.string.intro_page4_description,
+                    R.drawable.lock,
+                    BG_COLOR,
+                    TITLE_COLOR,
+                    DESC_COLOR
             )
     };
 

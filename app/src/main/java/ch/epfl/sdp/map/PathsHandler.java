@@ -37,8 +37,8 @@ import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.Carrier;
-import ch.epfl.sdp.contamination.ConcreteDataReceiver;
-import ch.epfl.sdp.contamination.GridFirestoreInteractor;
+import ch.epfl.sdp.contamination.databaseIO.ConcreteDataReceiver;
+import ch.epfl.sdp.contamination.databaseIO.GridFirestoreInteractor;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.location.LocationUtils;

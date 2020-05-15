@@ -18,10 +18,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.epfl.sdp.contamination.CachingDataSender;
+import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
 import ch.epfl.sdp.contamination.Carrier;
-import ch.epfl.sdp.contamination.ConcreteCachingDataSender;
-import ch.epfl.sdp.contamination.GridFirestoreInteractor;
+import ch.epfl.sdp.contamination.databaseIO.ConcreteCachingDataSender;
+import ch.epfl.sdp.contamination.databaseIO.GridFirestoreInteractor;
 import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.location.LocationUtils;

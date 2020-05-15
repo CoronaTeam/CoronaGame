@@ -12,8 +12,11 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
 
-import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
-import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
+import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
+import ch.epfl.sdp.contamination.databaseIO.DataReceiver;
+
+import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.privateRecoveryCounter;
+import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
 
 public class ConcreteAnalysis implements InfectionAnalyst {

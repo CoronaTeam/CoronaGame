@@ -40,7 +40,7 @@
     </LinearLayout>
 
     <fragment
-        android:name="ch.epfl.sdp.testActivities.UserInfectionFragment"
+        android:name="ch.epfl.sdp.contamination.fragment.UserInfectionFragment"
         android:id="@+id/userInfectionFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

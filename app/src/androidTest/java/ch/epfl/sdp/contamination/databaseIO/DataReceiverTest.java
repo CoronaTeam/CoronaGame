@@ -1,4 +1,4 @@
-package ch.epfl.sdp.contamination;
+package ch.epfl.sdp.contamination.databaseIO;
 
 import android.location.Location;
 
@@ -9,11 +9,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.identity.User;
 
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
-import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
+import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.publicAlertAttribute;
 import static org.junit.Assert.assertEquals;
 
 public class DataReceiverTest {

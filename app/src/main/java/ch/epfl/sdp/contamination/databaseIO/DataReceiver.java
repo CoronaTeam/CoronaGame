@@ -1,4 +1,4 @@
-package ch.epfl.sdp.contamination;
+package ch.epfl.sdp.contamination.databaseIO;
 
 import android.location.Location;
 
@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.identity.Account;
 
 public interface DataReceiver {

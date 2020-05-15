@@ -1,4 +1,4 @@
-package ch.epfl.sdp.contamination;
+package ch.epfl.sdp.contamination.databaseIO;
 
 import android.location.Location;
 import android.location.LocationManager;
@@ -19,10 +19,12 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
+import ch.epfl.sdp.contamination.Carrier;
+import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.identity.Account;
 
-import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
-import static ch.epfl.sdp.contamination.CachingDataSender.publicUserFolder;
+import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.privateUserFolder;
+import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.publicUserFolder;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 
 public class ConcreteDataReceiver implements DataReceiver {

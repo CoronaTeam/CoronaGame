@@ -1,8 +1,5 @@
 /**
- * Domain classes used to produce .....
- * <p>
- * These classes contain the ......
- *
+ * Fragments used to show and change the infection risk / status
  *
  * @since 0.1
  * @author CoronaTeam

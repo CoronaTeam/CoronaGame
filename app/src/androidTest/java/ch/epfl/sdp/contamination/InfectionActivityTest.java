@@ -4,6 +4,7 @@ import android.location.Location;
 
 import androidx.test.rule.ActivityTestRule;
 
+import ch.epfl.sdp.contamination.databaseIO.DataReceiver;
 import ch.epfl.sdp.contamination.fragment.InfectionFragment;
 import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.R;

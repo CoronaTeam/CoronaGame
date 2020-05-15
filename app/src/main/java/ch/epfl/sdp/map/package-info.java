@@ -1,5 +1,5 @@
 /**
- * Domain classes used to produce .....
+ * Theses classes are used
  * <p>
  * These classes contain the ......
  *

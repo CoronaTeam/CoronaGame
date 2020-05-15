@@ -1,4 +1,4 @@
-package ch.epfl.sdp.map;
+package ch.epfl.sdp.map.fragment;
 
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
@@ -17,6 +17,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
+import ch.epfl.sdp.map.HeatMapHandler;
+import ch.epfl.sdp.map.MockLocationBroker;
 import ch.epfl.sdp.testActivities.MapActivity;
 
 import static androidx.test.espresso.Espresso.onView;

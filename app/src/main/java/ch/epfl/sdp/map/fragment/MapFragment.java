@@ -1,4 +1,4 @@
-package ch.epfl.sdp.map;
+package ch.epfl.sdp.map.fragment;
 
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
@@ -39,6 +39,8 @@ import ch.epfl.sdp.BuildConfig;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
+import ch.epfl.sdp.map.HeatMapHandler;
+import ch.epfl.sdp.map.PathsHandler;
 import ch.epfl.sdp.toDelete.HistoryDialogFragment;
 import ch.epfl.sdp.location.LocationBroker;
 import ch.epfl.sdp.location.LocationService;

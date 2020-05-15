@@ -13,7 +13,7 @@ import ch.epfl.sdp.testActivities.MapActivity;
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 
 
-class MockLocationBroker implements LocationBroker {
+public class MockLocationBroker implements LocationBroker {
     private LocationListener listener = null;
 
     private Location fakeLocation;
@@ -21,17 +21,17 @@ class MockLocationBroker implements LocationBroker {
 
     private ActivityTestRule<MapActivity> mActivityRule;
 
-    MockLocationBroker(ActivityTestRule<MapActivity> activity) {
+    public MockLocationBroker(ActivityTestRule<MapActivity> activity) {
         mActivityRule = activity;
     }
 
 
-    void setFakeLocation(Location location) throws Throwable {
+    public void setFakeLocation(Location location) throws Throwable {
         fakeLocation = location;
         mActivityRule.runOnUiThread(() -> listener.onLocationChanged(location));
     }
 
-    void setProviderStatus(boolean status) throws Throwable {
+    public void setProviderStatus(boolean status) throws Throwable {
         fakeStatus = status;
         if (listener != null) {
             if (fakeStatus) {

@@ -18,7 +18,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import ch.epfl.sdp.map.MapFragment;
+import ch.epfl.sdp.map.fragment.MapFragment;
 import ch.epfl.sdp.R;
 
 public class HistoryDialogFragment extends BottomSheetDialogFragment {

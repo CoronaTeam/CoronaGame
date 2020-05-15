@@ -1,4 +1,4 @@
-package ch.epfl.sdp.testActivities;
+package ch.epfl.sdp.identity;
 
 import androidx.fragment.app.Fragment;
 

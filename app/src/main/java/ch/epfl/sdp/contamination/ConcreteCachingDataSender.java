@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.locks.ReentrantLock;
 
 import ch.epfl.sdp.fragment.AccountFragment;
 
@@ -22,14 +23,21 @@ import static ch.epfl.sdp.firestore.FirestoreLabels.INFECTION_STATUS_TAG;
 import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_DOC;
 import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
 
+/**
+ * Thread-safe implementation of a DataSender with a cache
+ */
 public class ConcreteCachingDataSender implements CachingDataSender {
 
     SortedMap<Date, Location> lastPositions;
     private GridFirestoreInteractor gridInteractor;
 
+    private ReentrantLock lock;
+
     public ConcreteCachingDataSender(GridFirestoreInteractor interactor) {
         this.gridInteractor = interactor;
         this.lastPositions = new TreeMap<>();
+
+        lock = new ReentrantLock();
     }
 
     @VisibleForTesting
@@ -39,26 +47,34 @@ public class ConcreteCachingDataSender implements CachingDataSender {
 
     @Override
     public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
-        refreshLastPositions(time, location);
 
-        Map<String, Object> element = new HashMap<>();
-        element.put(GEOPOINT_TAG, new GeoPoint(
-                location.getLatitude(),
-                location.getLongitude()
-        ));
-        element.put(TIMESTAMP_TAG, time.getTime());
-        element.put(INFECTION_STATUS_TAG, carrier.getInfectionStatus());
+        lock.lock();
 
-        CompletableFuture<Void> lastPositionsFuture = gridInteractor.writeDocumentWithID(
-                documentReference(LAST_POSITIONS_DOC, AccountFragment.getAccount(getActivity()).getId()), element);
-        CompletableFuture<Void> gridWriteFuture = gridInteractor.gridWrite(location, String.valueOf(time.getTime()), carrier);
+        CompletableFuture<Void> lastPositionsFuture, gridWriteFuture;
+
+        try {
+            refreshLastPositions(time, location);
+
+            Map<String, Object> element = new HashMap<>();
+            element.put(GEOPOINT_TAG, new GeoPoint(
+                    location.getLatitude(),
+                    location.getLongitude()
+            ));
+            element.put(TIMESTAMP_TAG, time.getTime());
+            element.put(INFECTION_STATUS_TAG, carrier.getInfectionStatus());
+
+            lastPositionsFuture = gridInteractor.writeDocumentWithID(
+                    documentReference(LAST_POSITIONS_DOC, AccountFragment.getAccount(getActivity()).getId()), element);
+
+            gridWriteFuture = gridInteractor.gridWrite(location, String.valueOf(time.getTime()), carrier);
+        } finally {
+            lock.unlock();
+        }
 
         return CompletableFuture.allOf(lastPositionsFuture, gridWriteFuture);
     }
 
-    /**
-     * removes every locations older than UNINTENTIONAL_CONTAGION_TIME ms and adds a new position
-     */
+    // Removes every locations older than UNINTENTIONAL_CONTAGION_TIME ms and adds a new position
     private void refreshLastPositions(Date time, Location location) {
 
         Date oldestDate = new Date(time.getTime() - MAX_CACHE_ENTRY_AGE);
@@ -70,12 +86,16 @@ public class ConcreteCachingDataSender implements CachingDataSender {
 
     @Override
     public SortedMap<Date, Location> getLastPositions() {
-        // TODO: Work on a copy of the map (to avoid synchronization conflicts)
 
-        SortedMap<Date, Location> copyOfLastPositions =new TreeMap<>(lastPositions);
+        lock.lock();
 
-        copyOfLastPositions.headMap(new Date(System.currentTimeMillis() - MAX_CACHE_ENTRY_AGE)).clear();
-
+        SortedMap<Date, Location> copyOfLastPositions;
+        try {
+            // Return a copy of the cache to avoid conflicts
+            copyOfLastPositions = new TreeMap<>(lastPositions.tailMap(new Date(System.currentTimeMillis() - MAX_CACHE_ENTRY_AGE)));
+        } finally {
+            lock.unlock();
+        }
         return copyOfLastPositions;
     }
 }

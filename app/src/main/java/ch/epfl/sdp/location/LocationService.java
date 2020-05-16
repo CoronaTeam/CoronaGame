@@ -21,8 +21,12 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.SetOptions;
+
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -44,9 +48,13 @@ import ch.epfl.sdp.contamination.DataReceiver;
 import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
 import ch.epfl.sdp.contamination.Layman;
+import ch.epfl.sdp.contamination.ObservableCarrier;
 import ch.epfl.sdp.contamination.PositionAggregator;
 
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
+import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.taskToFuture;
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 
 public class LocationService extends Service implements LocationListener, Observer {
@@ -101,7 +109,7 @@ public class LocationService extends Service implements LocationListener, Observ
         isAlarmSet = true;
     }
 
-    private Carrier locallyLoadCarrier() {
+    private ObservableCarrier locallyLoadCarrier() {
         lastUpdated = new Date(sharedPref.getLong(LAST_UPDATED_PREF, System.currentTimeMillis()));
 
         float infectionProbability = sharedPref.getFloat(INFECTION_PROBABILITY_PREF, 0);
@@ -137,7 +145,7 @@ public class LocationService extends Service implements LocationListener, Observ
 
         sharedPref = this.getSharedPreferences(CoronaGame.SHARED_PREF_FILENAME, Context.MODE_PRIVATE);
 
-        Carrier me = locallyLoadCarrier();
+        ObservableCarrier me = locallyLoadCarrier();
 
         analyst = new ConcreteAnalysis(me, receiver, sender);
         aggregator = new ConcretePositionAggregator(sender, me);
@@ -154,7 +162,7 @@ public class LocationService extends Service implements LocationListener, Observ
     private void updateInfectionModel() {
         SortedMap<Date, Location> locations = sender.getLastPositions().tailMap(lastUpdated);
 
-        // TODO: Debug
+        // TODO: [LOG]
         Log.e("POSITION_ITERATOR", Integer.toString(locations.size()));
         List<CompletableFuture<Integer>> operationFutures = new ArrayList<>();
 
@@ -193,10 +201,30 @@ public class LocationService extends Service implements LocationListener, Observ
         return START_STICKY;
     }
 
+    private CompletableFuture<Void> remotelyStoreCarrierStatus(InfectionStatus status) {
+        boolean isInfected = status == INFECTED;
+
+        Map<String, Object> userPayload = new HashMap<>();
+        userPayload.put("Infected", isInfected);
+
+        // TODO: @Lucie is displayName the right one to use here?
+        String username = AuthenticationManager.getAccount(CoronaGame.getContext()).getDisplayName();
+
+        // TODO: [LOG]
+        Log.e("ACCOUNT_NAME", username);
+
+        DocumentReference userRef = documentReference("Users", username);
+        CompletableFuture<Void> future1 = taskToFuture(userRef.set(userPayload, SetOptions.merge()));
+        CompletableFuture<Void> future2 = taskToFuture(userRef.update("Infected", isInfected));
+
+        return CompletableFuture.allOf(future1, future2);
+    }
+
     @Override
     public void update(Observable o, Object arg) {
-        // React to changes to carrier status
+        // Store updates to Carrier
         locallyStoreCarrier();
+        AsyncTask.execute(() -> remotelyStoreCarrierStatus(analyst.getCarrier().getInfectionStatus()));
     }
 
     public class LocationBinder extends android.os.Binder {

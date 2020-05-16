@@ -166,9 +166,8 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
         Date since = calendar.getTime();
         Map<Date, Float> infectionHistory = service.getAnalyst().getCarrier().getIllnessProbabilityHistory(since);
 
-        // TODO: Debug log
+        // TODO: [LOG]
         infectionHistory.forEach((k, v) -> Log.e("CHART_DATA_PAYLOAD", k.toString() + ": " + v));
-
 
         ArrayList<Entry> values = new ArrayList<>();
 
@@ -250,7 +249,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     @Override
     public void update(Observable o, Object arg) {
 
-        //TODO: Debug log
+        //TODO: [LOG]
         Log.e("CHART_UPDATE", "New data available! Regenerating view");
 
         updateData();

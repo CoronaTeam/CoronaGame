@@ -8,13 +8,23 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Observable;
+import java.util.Optional;
 
 import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.storage.ConcreteManager;
 import ch.epfl.sdp.storage.StorageManager;
 
-public class Layman extends Observable implements Carrier {
+import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
+
+/**
+ * Concrete instance of ObservableCarrier.
+ * Laymen can locally store and retrieve the history of their infection probabilities
+ * They are also able to notify Observers about probability or status transitions.
+ * In case of a transition, Observers receive as argument of update() an Optional<Float> that:
+ *   - if the STATUS changed, contains the previous infection probability
+ *   - if only the PROBABILITY changed, is None
+ */
+public class Layman extends ObservableCarrier {
 
     private InfectionStatus myStatus;
     // Every update of infectedWithProbability must happen through setInfectionProbability()
@@ -79,54 +89,50 @@ public class Layman extends Observable implements Carrier {
         return myStatus;
     }
 
-    /**
-     * This method should only be called by someone 100% sure about the actual status.
-     * @param newStatus
-     * @return
-     */
     @Override
-    public boolean evolveInfection(InfectionStatus newStatus) {
-        return evolveInfection(new Date(), newStatus);
-    }
+    public boolean evolveInfection(Date when, InfectionStatus newStatus, float newProbability) {
 
-    @Override
-    public boolean evolveInfection(Date when, InfectionStatus newStatus) {
+        Optional<Float> previousProbability;
 
-        myStatus = newStatus;
+        // Detect status transition and save previous probability
+        if (newStatus != myStatus) {
+            previousProbability = Optional.of(infectedWithProbability);
+        } else {
+            previousProbability = Optional.empty();
+        }
 
-        // Broadcast the update
-        setChanged();
-        notifyObservers();
+        // If the probability is valid, update it and the status and notify observers
+        if (validateAndSetProbability(when, newProbability)) {
 
-        return true;
+            myStatus = newStatus;
+
+            // Broadcast the update
+            setChanged();
+
+            notifyObservers(previousProbability);
+
+            return true;
+        }
+
+        return false;
     }
 
     @Override
     public float getIllnessProbability() {
-        switch (myStatus) {
-            case INFECTED:
-                return 1;
-            default:
-                // Only useful case: the infection hits the 10% of the population overall
-                return infectedWithProbability;
-        }
-    }
-
-    @Override
-    public boolean setIllnessProbability(float probability) {
-        return setIllnessProbability(new Date(), probability);
+        return infectedWithProbability;
     }
 
     @Override
     public boolean setIllnessProbability(Date when, float probability) {
         if (validateAndSetProbability(when, probability)) {
             setChanged();
-            // Broadcast the update
-            notifyObservers();
+
+            // Broadcast the update (status has NOT changed)
+            notifyObservers(Optional.empty());
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     @Override
@@ -164,16 +170,9 @@ public class Layman extends Observable implements Carrier {
         infectionHistory.close();
     }
 
-    ///Getters Needed for the conversion from Object to Map<String, Object> during the Fierbase
-    // Upload
-    public InfectionStatus getMyStatus() {
-        return myStatus;
-    }
-
     @Override
     public void deleteLocalProbabilityHistory() {
-        setIllnessProbability(0f);
-        evolveInfection(InfectionStatus.HEALTHY);
+        evolveInfection(new Date(), HEALTHY, 0f);
 
         // Delete current manager
         infectionHistory.delete();

@@ -209,9 +209,9 @@ public class ConcreteAnalysisTest {
     @Test
     public void noEvolutionWithInfection() {
 
-        Carrier me = new Layman(INFECTED);
+        ObservableCarrier me = new Layman(INFECTED);
 
-        assertThat(me.setIllnessProbability(.5f), equalTo(false));
+        assertThat(me.setIllnessProbability(new Date(), .5f), equalTo(false));
 
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
         analyst.updateInfectionPredictions(testLocation, new Date(1585223373980L), new Date());
@@ -222,7 +222,7 @@ public class ConcreteAnalysisTest {
     @Test
     public void probabilityIsUpdatedAfterContactWithInfected() {
 
-        Carrier me = new Layman(HEALTHY);
+        ObservableCarrier me = new Layman(HEALTHY);
 
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
         analyst.updateInfectionPredictions(testLocation, new Date(1585220363913L), new Date()).thenRun(()->{
@@ -312,7 +312,7 @@ public class ConcreteAnalysisTest {
     public void infectionProbabilityIsUpdated() throws Throwable {
         recoveryCounter = 0;
         CityDataReceiver cityReceiver = new CityDataReceiver();
-        Carrier me = new Layman(HEALTHY);
+        ObservableCarrier me = new Layman(HEALTHY);
 
         InfectionFragment fragment = ((InfectionFragment)mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
 
@@ -422,23 +422,22 @@ public class ConcreteAnalysisTest {
 
     @Test
     public void getCarrierReturnsTheSameCarrier(){
-        Carrier me = new Layman(HEALTHY);
+        ObservableCarrier me = new Layman(HEALTHY);
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
         assertNotNull(analyst.getCarrier());
         assertSame(me,analyst.getCarrier());
     }
     @Test
     public void updateStatusMakesNothingIfStatusRemainsTheSame(){
-        Carrier me = new Layman(HEALTHY);
-        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
-        assertFalse(analyst.updateStatus(HEALTHY));
+        ObservableCarrier me = new Layman(HEALTHY);
+        assertFalse(me.evolveInfection(new Date(), HEALTHY, me.getIllnessProbability()));
     }
 
     @Test
     public void notifiesSickNeighborsWhenYouGetSick(){
-        Carrier me = new Layman(HEALTHY);
+        ObservableCarrier me = new Layman(HEALTHY);
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
-        analyst.updateStatus(INFECTED);
+        me.evolveInfection(new Date(), INFECTED, 1f);
         mockReceiver.getNumberOfSickNeighbors("Man1").thenAccept(res ->
                 assertTrue(res.isEmpty()));
         mockReceiver.getNumberOfSickNeighbors("Man2").thenAccept(res ->
@@ -451,7 +450,7 @@ public class ConcreteAnalysisTest {
     @Test
     public void adaptYourProbabilityOfInfectionAccordingToSickMeetingsAndThenResetItsCounter(){
         recoveryCounter = 0;
-        Carrier me = new Layman(HEALTHY);
+        ObservableCarrier me = new Layman(HEALTHY);
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
         sender.sendAlert(me.getUniqueId());
         sender.sendAlert(me.getUniqueId(),0.4f);
@@ -464,16 +463,16 @@ public class ConcreteAnalysisTest {
     public void doesUpdateCorrectlySicknessState(){
         InfectionFragment fragment = ((InfectionFragment)mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
         LocationService service = fragment.getLocationService().join();
-        Carrier me = new Layman(HEALTHY);
+        ObservableCarrier me = new Layman(HEALTHY);
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
-        analyst.updateStatus(INFECTED);
+        me.evolveInfection(new Date(), INFECTED, 1f);
         assertSame(INFECTED,analyst.getCarrier().getInfectionStatus());
     }
 
     @Test
     public void adaptInfectionProbabilityOfBadMeetingsIfRecovered(){
         recoveryCounter = 1;
-        Carrier me = new Layman(HEALTHY);
+        ObservableCarrier me = new Layman(HEALTHY);
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
         sender.sendAlert(me.getUniqueId());
         sender.sendAlert(me.getUniqueId(),0.4f);
@@ -486,7 +485,7 @@ public class ConcreteAnalysisTest {
     public void decreaseSickProbaWhenRecovered(){
         recoveryCounter = 2;
         CityDataReceiver cityReceiver = new CityDataReceiver();
-        Carrier me = new Layman(HEALTHY);
+        ObservableCarrier me = new Layman(HEALTHY);
 
         InfectionFragment fragment = ((InfectionFragment)mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
         LocationService service = fragment.getLocationService().join();

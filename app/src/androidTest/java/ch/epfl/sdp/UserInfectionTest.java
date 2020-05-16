@@ -22,6 +22,7 @@ import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.DataReceiver;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
 import ch.epfl.sdp.contamination.Layman;
+import ch.epfl.sdp.contamination.ObservableCarrier;
 import ch.epfl.sdp.fragment.UserInfectionFragment;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -29,12 +30,12 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static ch.epfl.sdp.Tools.IS_NETWORK_DEBUG;
-import static ch.epfl.sdp.Tools.IS_ONLINE;
 import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.resetSickCounter;
 import static ch.epfl.sdp.TestTools.sleep;
+import static ch.epfl.sdp.Tools.IS_NETWORK_DEBUG;
+import static ch.epfl.sdp.Tools.IS_ONLINE;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static junit.framework.TestCase.assertSame;
@@ -46,7 +47,7 @@ public class UserInfectionTest {
     private InfectionAnalyst analyst;
     private DataReceiver receiver;
     private UserInfectionFragment fragment;
-    private static Carrier me;
+    private static ObservableCarrier me;
     @Rule
     public final ActivityTestRule<UserInfectionActivity> activityRule =
             new ActivityTestRule<>(UserInfectionActivity.class);
@@ -71,14 +72,8 @@ public class UserInfectionTest {
             }
 
             @Override
-            public Carrier getCarrier() {
+            public ObservableCarrier getCarrier() {
                 return me;
-            }
-
-            @Override
-            public boolean updateStatus(Carrier.InfectionStatus stat) {
-                me.evolveInfection(stat);
-                return true;
             }
         };
         fragment.getLocationService().setAnalyst(analyst);
@@ -129,7 +124,7 @@ public class UserInfectionTest {
     @Test
     public void sendsNotificationToFirebaseAndAnalystOnRecovery(){
         setIllnessToHealthy();
-        analyst.updateStatus(HEALTHY);
+        analyst.getCarrier().evolveInfection(new Date(), HEALTHY, 0f);
 //        IS_NETWORK_DEBUG = false;
 //        IS_ONLINE = true;
         sleep(1000);
@@ -166,7 +161,7 @@ public class UserInfectionTest {
     @Test
     public void sendsNotificationToAnalystOnInfection(){
         setIllnessToHealthy();
-        analyst.updateStatus(HEALTHY);
+        analyst.getCarrier().evolveInfection(new Date(), HEALTHY, 0f);
         sleep(2000);
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(2000);

@@ -4,10 +4,9 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * Neighbor is a simple type of Carrier, without the ability to be observed or
- * to retain its infection history
+ * Neighbor is a simple type of Carrier, who has a FIXED status (hence also without status history)
  *
- * It's useful to represent neighbors downloaded from Firestore
+ * It's useful to represent the information on people I met, downloaded from Firestore
  */
 public class Neighbor implements Carrier {
 
@@ -32,37 +31,27 @@ public class Neighbor implements Carrier {
     }
 
     @Override
-    public boolean evolveInfection(InfectionStatus newStatus) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean evolveInfection(Date when, InfectionStatus newStatus) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public float getIllnessProbability() {
         return infectionProbability;
     }
 
     @Override
-    public boolean setIllnessProbability(float probability) {
-        throw new UnsupportedOperationException();
+    public boolean evolveInfection(Date when, InfectionStatus newStatus, float newProbability) {
+        throw new UnsupportedOperationException("I am a simple Neighbor, my status cannot be modified");
     }
 
     @Override
     public boolean setIllnessProbability(Date when, float probability) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("I am a simple Neighbor, my status cannot be modified");
     }
 
     @Override
     public Map<Date, Float> getIllnessProbabilityHistory(Date since) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("I am a simple Neighbor, I don't keep the history of my status");
     }
 
     @Override
     public void deleteLocalProbabilityHistory() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("I am a simple Neighbor, I don't keep the history of my status");
     }
 }

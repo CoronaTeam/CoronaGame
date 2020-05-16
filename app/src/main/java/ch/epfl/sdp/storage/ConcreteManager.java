@@ -18,8 +18,8 @@ import java.util.function.Function;
 
 /**
  * Implements a StorageManager with cache (asynchronously preloaded)
- * @param <A>
- * @param <B>
+ * @param <A> The type of the keys
+ * @param <B> The type of the values
  */
 public class ConcreteManager<A extends Comparable<A>, B> implements StorageManager<A, B> {
 

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.util.Log;
 
 import androidx.test.rule.ActivityTestRule;
 
@@ -31,6 +32,7 @@ import ch.epfl.sdp.contamination.FakeAnalyst;
 import ch.epfl.sdp.contamination.FakeCachingDataSender;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
 import ch.epfl.sdp.contamination.Layman;
+import ch.epfl.sdp.contamination.ObservableCarrier;
 import ch.epfl.sdp.storage.ConcreteManager;
 import ch.epfl.sdp.storage.StorageManager;
 
@@ -47,7 +49,7 @@ public class CarrierUpdatePersistenceTest {
 
     private static String fakeUserID = "THIS_IS_A_FAKE_ID";
 
-    private Carrier iAmBob;
+    private ObservableCarrier iAmBob;
     private AtomicInteger sentinel;
 
     @BeforeClass
@@ -77,21 +79,30 @@ public class CarrierUpdatePersistenceTest {
         sentinel = new AtomicInteger(0);
     }
 
-    // TODO: Should convert it to @After
-    @Before
-    public void resetFakeUserHistory() {
+    private void cleanFakeUserHistory() {
         // Delete existing file
         initStorageManager().delete();
 
         LocationService service = mActivityRule.getActivity().getService();
 
-        Carrier newCarrier = new Layman(
+        ObservableCarrier newCarrier = new Layman(
                 service.getAnalyst().getCarrier().getInfectionStatus(),
                 service.getAnalyst().getCarrier().getIllnessProbability(),
                 AuthenticationManager.getUserId()
         );
 
         service.setAnalyst(new ConcreteAnalysis(newCarrier, service.getReceiver(), service.getSender()));
+    }
+
+    @Before
+    public void resetHistoryBeforeTest() {
+        // Clean in case there is something left from previous tests
+        cleanFakeUserHistory();
+    }
+
+    @After
+    public void resetHistoryAfterTest() {
+        cleanFakeUserHistory();
     }
 
     @After
@@ -118,13 +129,8 @@ public class CarrierUpdatePersistenceTest {
         }
 
         @Override
-        public Carrier getCarrier() {
+        public ObservableCarrier getCarrier() {
             return iAmBob;
-        }
-
-        @Override
-        public boolean updateStatus(Carrier.InfectionStatus stat) {
-            return false;
         }
     };
 
@@ -152,6 +158,7 @@ public class CarrierUpdatePersistenceTest {
 
     @Test
     public void updateNotDoneWithoutNewLocations() {
+
         useAnalystWithSentinel();
         startLocationServiceWithAlarm();
 
@@ -230,10 +237,7 @@ public class CarrierUpdatePersistenceTest {
         assertThat(fakeAnalyst.getCarrier().getIllnessProbability(), equalTo(0f));
         assertThat(fakeAnalyst.getCarrier().getInfectionStatus(), equalTo(HEALTHY));
 
-        fakeAnalyst.updateStatus(UNKNOWN);
-        TestTools.sleep();
-
-        assertThat(fakeAnalyst.getCarrier().setIllnessProbability(.3f), equalTo(true));
+        assertThat(fakeAnalyst.getCarrier().evolveInfection(new Date(), UNKNOWN, .3f), equalTo(true));
         TestTools.sleep();
 
         Date aDate = new Date();
@@ -262,8 +266,7 @@ public class CarrierUpdatePersistenceTest {
         serviceBefore.setSender(new FakeCachingDataSender());
 
         // Modify carrier status
-        fakeAnalyst.updateStatus(UNKNOWN);
-        assertThat(fakeAnalyst.getCarrier().setIllnessProbability(.45f), equalTo(true));
+        assertThat(fakeAnalyst.getCarrier().evolveInfection(new Date(), UNKNOWN, .45f), equalTo(true));
 
         // Stop LocationService
         mActivityRule.getActivity().unbindService(mActivityRule.getActivity().serviceConnection);
@@ -301,15 +304,19 @@ public class CarrierUpdatePersistenceTest {
     public void carrierHistoryTest() {
         LocationService service = mActivityRule.getActivity().getService();
 
-        service.getAnalyst().getCarrier().setIllnessProbability(.1f);
+        service.getAnalyst().getCarrier().setIllnessProbability(new Date(), .1f);
         TestTools.sleep();
-        service.getAnalyst().getCarrier().setIllnessProbability(.2f);
+        service.getAnalyst().getCarrier().setIllnessProbability(new Date(), .2f);
         TestTools.sleep();
-        service.getAnalyst().getCarrier().setIllnessProbability(.6f);
+        service.getAnalyst().getCarrier().evolveInfection(new Date(), INFECTED, .6f);
         TestTools.sleep();
-        service.getAnalyst().updateStatus(INFECTED);
 
         StorageManager<Date, Float> manager = initStorageManager();
+
+        for (Float f : manager.read().values()) {
+            Log.e("MNG", f.toString());
+        }
+
         assertThat(manager.read().size(), equalTo(3));
 
         service.getAnalyst().getCarrier().deleteLocalProbabilityHistory();

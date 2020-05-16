@@ -8,38 +8,46 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
 
 import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
 import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
-import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
+import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
+import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
 
-public class ConcreteAnalysis implements InfectionAnalyst {
+public class ConcreteAnalysis implements InfectionAnalyst, Observer {
 
-    private final Carrier me;
+    private final ObservableCarrier me;
     private final DataReceiver receiver;
     private final CachingDataSender cachedSender;
 
-    public ConcreteAnalysis(Carrier me, DataReceiver receiver, CachingDataSender dataSender) {
-        this.me = me;
+    public ConcreteAnalysis(ObservableCarrier carrier, DataReceiver receiver, CachingDataSender dataSender) {
+        this.me = carrier;
         this.receiver = receiver;
         this.cachedSender = dataSender;
+
+        // Register as Carrier observer
+        this.me.addObserver(this);
     }
 
-    private void updateCarrierInfectionProbability(Date when, float updatedProbability) {
+    private void evolveCarrierStatus(Date when, float updatedProbability) {
         if (updatedProbability > CERTAINTY_APPROXIMATION_THRESHOLD) {
             // MODEL: If I'm almost certainly ill, then I will be marked as INFECTED
-            me.evolveInfection(when, INFECTED);
+            me.evolveInfection(when, INFECTED, updatedProbability);
+
         } else if (updatedProbability < ABSENCE_APPROXIMATION_THRESHOLD) {
             // MODEL: If I'm almost certainly healthy, then I will be marked as HEALTHY
-            me.evolveInfection(when, InfectionStatus.HEALTHY);
+            me.evolveInfection(when, HEALTHY, updatedProbability);
+
         } else {
-            me.evolveInfection(when, InfectionStatus.UNKNOWN);
+            me.evolveInfection(when, UNKNOWN, updatedProbability);
         }
-        me.setIllnessProbability(when, updatedProbability);
     }
 
     private int countMeetingsWithInfected(Map<? extends Carrier, Integer> aroundMe) {
@@ -54,55 +62,43 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         return infectedMet;
     }
 
-    private float calculateCarrierInfectionProbability(Date when, Map<Carrier, Integer> suspectedContacts) {
-        int cumulativeSocialTime = 0;
+    private float determineUpdatedInfectionProbability(Date when, Map<Carrier, Integer> suspectedContacts) {
 
+        // MODEL: If the Carrier is INFECTED, his/her probability & status should NOT be changed
+        if (me.getInfectionStatus() == INFECTED) {
+            return me.getIllnessProbability();
+        }
+
+        int cumulativeSocialTime = 0;
         for (Integer meetingLength : suspectedContacts.values()) {
             cumulativeSocialTime += meetingLength;
         }
 
-        float updatedProbability = me.getIllnessProbability();
+        float increaseInProbability = 0f;
 
         for (Map.Entry<Carrier, Integer> c : suspectedContacts.entrySet()) {
-            // MODEL: Being close to a person for more than WINDOW_FOR_INFECTION_DETECTION implies becoming infected
-            if (c.getValue() > WINDOW_FOR_INFECTION_DETECTION) {
-                me.evolveInfection(when, InfectionStatus.INFECTED);
-                updatedProbability = 1;
-                break;
+            if (c.getKey().getInfectionStatus() == INFECTED && c.getValue() > WINDOW_FOR_INFECTION_DETECTION) {
+                // MODEL: Being close to a person for more than WINDOW_FOR_INFECTION_DETECTION implies becoming infected
+                return 1f;
+
             } else {
-
+                // Weight the addition of infection probability according to the relative
                 float newWeight = c.getValue().floatValue() / cumulativeSocialTime;
-                float oldWeight = .5f;
 
-                // Calculate new weights for probabilities
-
-                // MODEL: Bias probability towards newer values
-                // newWeight *= 4f;
-
-                Log.e("INFECTION_PROCESS", Float.toString(oldWeight) + ", " + Float.toString(newWeight));
-
-                Log.e("INFECTION_PROCESS", "oldContribution:" + Float.toString(oldWeight * updatedProbability) + ", newContribution:" + Float.toString(newWeight * c.getKey().getIllnessProbability() * TRANSMISSION_FACTOR));
+                // TODO: [LOG]
+                Log.e("INFECTION_PROCESS", "newWeight: " + newWeight);
+                Log.e("INFECTION_PROCESS", "newContribution:" + newWeight * c.getKey().getIllnessProbability() * TRANSMISSION_FACTOR);
 
                 // Updates the probability given the new contribution by Carrier c.getKey()
-                updatedProbability = oldWeight * updatedProbability +
-                        newWeight * c.getKey().getIllnessProbability() * TRANSMISSION_FACTOR;
+                increaseInProbability += newWeight * c.getKey().getIllnessProbability() * TRANSMISSION_FACTOR;
 
-                updatedProbability = Math.min(updatedProbability, 1f);
-                 /*
-
-                float inversePoint = 0;
-
-                if (updatedProbability > 0f) {
-                    inversePoint = - 1f / TRANSMISSION_FACTOR * (float) log(1 - updatedProbability) / updatedProbability;
-                }
-
-                inversePoint = oldWeight * inversePoint +
-                        newWeight * c.getKey().getIllnessProbability();
-
-                updatedProbability = 1f / (1 + (float) exp(- TRANSMISSION_FACTOR * inversePoint));
-                 */
             }
         }
+
+        float oldWeight = PROBABILITY_HISTORY_RETENTION_FACTOR;
+
+        float updatedProbability = oldWeight * me.getIllnessProbability() + increaseInProbability;
+        updatedProbability = Math.min(updatedProbability, 1f);
 
         return updatedProbability;
     }
@@ -112,6 +108,7 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         assert aroundMe != null;
 
         for (Carrier imThere : aroundMe.keySet()) {
+            // TODO: [LOG]
             Log.e("AROUND_ME", imThere.getUniqueId() + ": " + imThere.getInfectionStatus() + ", " + imThere.getIllnessProbability());
         }
 
@@ -121,13 +118,14 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         // TODO: Exclude Me from dangerous people
         for (Map.Entry<? extends Carrier, Integer> person : aroundMe.entrySet()) {
             if (!person.getKey().getUniqueId().equals(me.getUniqueId())) {
-                // MODEL: Each meeting is assumed to last for a fixed amount of time
+                // MODEL: Meeting periods are considered to be multiples of WINDOW_FOR_LOCATION_AGGREGATION
                 int timeCloseBy = person.getValue() * PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION;
                 contactsWithDuration.put(person.getKey(), timeCloseBy);
             }
         }
 
-        Log.e("IDENTIFY_SUSPECTS", Integer.toString(contactsWithDuration.size()) + " suspects");
+        // TODO: [LOG]
+        Log.e("IDENTIFY_SUSPECTS", contactsWithDuration.size() + " suspects");
 
         return contactsWithDuration;
     }
@@ -146,18 +144,14 @@ public class ConcreteAnalysis implements InfectionAnalyst {
     @Override
     public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
 
-        // TODO: DISABLED this just for debug
-
         CompletableFuture<Integer> recoveryCounter =
                 receiver.getRecoveryCounter(me.getUniqueId())
                         .thenApply(rc -> (int) (rc.getOrDefault(privateRecoveryCounter, 0)));
 
-        // TODO: Remove these, DEBUG only !!!!!!!!
-        Date fakeStartTime = new Date(startTime.getTime() - 40000);
-        Date fakeEndTime = new Date(endTime.getTime() + 4000);
         CompletableFuture<Map<Carrier, Integer>> peopleAroundMe =
                 receiver.getUserNearbyDuring(location, startTime, endTime);
 
+        // TODO: [LOG]
         Log.e("PEOPLE_AROUND_ME", "Searching for neighbors...");
         Log.e("PEOPLE_AROUND_ME", "Neighbours found (" + peopleAroundMe.join().size() + ")");
 
@@ -168,60 +162,53 @@ public class ConcreteAnalysis implements InfectionAnalyst {
         return CompletableFuture.allOf(recoveryCounter, peopleAroundMe, badMeetingCoefficient)
                 .thenRun(() -> dispatchModelUpdates(endTime, recoveryCounter.join(), identifySuspectContacts(peopleAroundMe.join()), badMeetingCoefficient.join()))
                 .thenApply(v -> countMeetingsWithInfected(peopleAroundMe.join()));
-
-/*
-        updateCarrierInfectionProbability(endTime, 1f);
-        return CompletableFuture.completedFuture(0);
- */
-
     }
 
     private void dispatchModelUpdates(Date when, int recoveryCounter, Map<Carrier, Integer> suspectContacts, float badMeetingsCoefficient) {
-        updateCarrierInfectionProbability(
+        evolveCarrierStatus(
                 when,
-                Math.min(calculateCarrierInfectionProbability(when, suspectContacts) + badMeetingsCoefficient * getFactor(recoveryCounter), 1f)
+                Math.min(determineUpdatedInfectionProbability(when, suspectContacts) + badMeetingsCoefficient * getFactor(recoveryCounter), 1f)
         );
         cachedSender.resetSickAlerts(me.getUniqueId());
     }
 
     @Override
-    public Carrier getCarrier() {
+    public ObservableCarrier getCarrier() {
         return me;
     }
 
-    @Override
-    public boolean updateStatus(InfectionStatus newStatus) {
+    private void notifyNeighborsOfInfection(float previousIllnessProbability) {
+        //1: retrieve your own last positions
+        SortedMap<Date, Location> lastPositions = cachedSender.getLastPositions();
 
-        if (newStatus == me.getInfectionStatus()) {
-            return false;
-        }
-
-        float previousIllnessProbability = me.getIllnessProbability();
-        me.evolveInfection(newStatus);
-
-        if (newStatus == INFECTED) {
-            // TODO: Do we really need AsyncTask
-            AsyncTask.execute(() -> {
-                //1: retrieve your own last positions
-                SortedMap<Date, Location> lastPositions = cachedSender.getLastPositions();
-
-                //2: Ask firebase who was there
-                Set<String> userIds = new HashSet<>();
-                lastPositions.forEach((date, location) -> receiver.getUserNearby(location, date).thenAccept(around -> {
-                    around.forEach(neighbor -> {
-                        if (neighbor.getInfectionStatus() != INFECTED) { // only non-infected users need to be informed
-                            userIds.add(neighbor.getUniqueId()); //won't add someone already in the set
-                        }
-                    });
-                }));
-
-                //Tell those user that they have been close to you
-                //TODO: discuss whether considering only the previous Illness probability is good
-                userIds.forEach(u -> cachedSender.sendAlert(u, previousIllnessProbability));
+        //2: Ask firebase who was there
+        Set<String> userIds = new HashSet<>();
+        lastPositions.forEach((date, location) -> receiver.getUserNearby(location, date).thenAccept(around -> {
+            around.forEach(neighbor -> {
+                // Inform once only non-INFECTED users
+                if (neighbor.getInfectionStatus() != INFECTED) {
+                    userIds.add(neighbor.getUniqueId());
+                }
             });
-        }
+        }));
 
-        return true;
+        // Tell those user that they have been close to you
+        // TODO: @Lucas discuss whether considering only the previous Illness probability is good
+        userIds.forEach(u -> cachedSender.sendAlert(u, previousIllnessProbability));
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        Optional<Float> probabilityIfStatusChanged = (Optional<Float>) arg;
+
+        // TODO: @Lucas, before alerts where sent when updateStatus() was called. That missed
+        // changes made directly to the Carrier. Hence, now the Carrier notify ConcreteAnalysis (calls update())
+        // when its status change. To adapt tests, you have then to directly modify 'me' status
+
+        if (probabilityIfStatusChanged.isPresent() && me.getInfectionStatus() == INFECTED) {
+            // If there was a STATUS TRANSITION and the user is now INFECTED, then send alerts
+            AsyncTask.execute(() -> notifyNeighborsOfInfection(probabilityIfStatusChanged.get()));
+        }
     }
 }
    

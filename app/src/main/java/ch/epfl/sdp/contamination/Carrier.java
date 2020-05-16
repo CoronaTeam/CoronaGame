@@ -3,6 +3,9 @@ package ch.epfl.sdp.contamination;
 import java.util.Date;
 import java.util.Map;
 
+/**
+ * A Carrier is an entity with a modifiable health status
+ */
 public interface Carrier {
 
     /**
@@ -33,19 +36,14 @@ public interface Carrier {
     InfectionStatus getInfectionStatus();
 
     /**
-     * Modify the infection status
+     * Modify the status and the probability of infection of the carrier, at the time 'when'
+     * If the change is successful, Observers are notified
+     * @param when
      * @param newStatus
-     * @return
+     * @return the outcome of the transition. If false, the old status & probability are kept
+     * (and Observers are NOT notified)
      */
-    boolean evolveInfection(InfectionStatus newStatus);
-
-    /**
-     * Modify the infection status,
-     * for a past time 'when'
-     * @param newStatus
-     * @return
-     */
-    boolean evolveInfection(Date when, InfectionStatus newStatus);
+    boolean evolveInfection(Date when, InfectionStatus newStatus, float newProbability);
 
 
     /**
@@ -54,19 +52,12 @@ public interface Carrier {
     float getIllnessProbability();
 
     /**
-     * Updates the probability that the Carrier is ill
-     * Returns false if:
-     *  - probability < 0 or >= 1
+     * Updates the probability of infection (without changing the status) of the carrier, at the time 'when'
+     * @param newProbability
+     * @return the outcome of the transition. If false, nothing is changed and Observers are NOT
+     * notified
      */
-    boolean setIllnessProbability(float probability);
-
-    /**
-     * Updates the probability that the Carrier is ill
-     * for a past time 'when'
-     * Returns false if:
-     *  - probability < 0 or >= 1
-     */
-    boolean setIllnessProbability(Date when, float probability);
+    boolean setIllnessProbability(Date when, float newProbability);
 
     /**
      * Retrieves the evolution of infection probability for the carrier,

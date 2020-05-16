@@ -24,12 +24,8 @@ import androidx.fragment.app.Fragment;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.SetOptions;
 
-import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.concurrent.CompletableFuture;
@@ -50,9 +46,9 @@ import static ch.epfl.sdp.Tools.IS_ONLINE;
 import static ch.epfl.sdp.Tools.checkNetworkStatus;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
 import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
+import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
-import static ch.epfl.sdp.firestore.FirestoreInteractor.taskToFuture;
 
 public class UserInfectionFragment extends Fragment implements View.OnClickListener, Observer {
     private static final String TAG = "User Infection Activity";
@@ -137,8 +133,6 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     public void update(Observable o, Object arg) {
         Carrier me = service.getAnalyst().getCarrier();
 
-        modifyUserInfectionStatus(userName, me.getInfectionStatus() == INFECTED);
-
         getActivity().runOnUiThread(() -> {
             setInfectionColorAndMessage(me.getInfectionStatus() == INFECTED);
             userInfectionProbability.setText(String.format("%s With probability: %f", me.getUniqueId(), me.getIllnessProbability()));
@@ -164,6 +158,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
             if (checkElapsedTimeSinceLastChange()) {
                 if (Tools.canAuthenticate(getActivity())) {
                     biometricPrompt.authenticate(promptInfo);
+                    // TODO: @Lucie, after authentication when is executeHealthStatusChange called?
                 } else {
                     executeHealthStatusChange();
                 }
@@ -202,53 +197,51 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         retrieveUserInfectionStatus().thenAccept(this::setInfectionColorAndMessage);
     }
 
+    // TODO: @Lucie, why does this method return TRUE when the time is not elapsed?
     private boolean checkElapsedTimeSinceLastChange() {
+
+        // TODO: @Lucie TEMPORARILY DISABLED !!!!!!!!! Re-enable
+        return true;
+
+        /*
         Date currentTime = Calendar.getInstance().getTime();
         //TODO: what does this means?
         /* get 1 jan 1970 by default. It's definitely wrong but works as we want t check that
          * the status has not been updated less than a day ago.
-         */
+
         Date lastStatusChange = new Date(sharedPref.getLong("lastStatusChange", 0));
         long difference = Math.abs(currentTime.getTime() - lastStatusChange.getTime());
         long differenceDays = difference / (24 * 60 * 60 * 1000);
 
         sharedPref.edit().putLong("lastStatusChange", currentTime.getTime()).apply();
         return differenceDays > 1;
+        */
     }
 
     private void executeHealthStatusChange() {
         CharSequence buttonText = infectionStatusButton.getText();
         boolean infected = buttonText.equals(getResources().getString(R.string.i_am_infected));
         if (infected) {
-            //Tell the analyst we are now sick !
-            service.getAnalyst().updateStatus(INFECTED);
+            service.getAnalyst().getCarrier().evolveInfection(new Date(), INFECTED, 1f);
             setInfectionColorAndMessage(true);
-            modifyUserInfectionStatus(userName, true);
         } else {
-            //Tell analyst we are now healthy !
-            service.getAnalyst().updateStatus(Carrier.InfectionStatus.HEALTHY);
+            service.getAnalyst().getCarrier().evolveInfection(new Date(), HEALTHY, 1f);
             sendRecoveryToFirebase();
             setInfectionColorAndMessage(false);
-            modifyUserInfectionStatus(userName, false);
         }
     }
 
     private void sendRecoveryToFirebase() {
+        // TODO: @Lucie I think that doesn't upload anything to Firestore
+        // TODO: [LOG]
+        Log.e("RECOVERY_SENDER", account.getId());
         DocumentReference ref = documentReference(privateUserFolder, account.getId());
         ref.update(privateRecoveryCounter, FieldValue.increment(1));
     }
 
     // TODO: This function does not belong here!!!!!!!!!!!!!!!
     // It should be moved to Layman
-    private void modifyUserInfectionStatus(String userPath, Boolean infected) {
-        Map<String, Object> user = new HashMap<>();
-        user.put("Infected", infected);
 
-        DocumentReference userRef = documentReference("Users", userPath);
-        CompletableFuture<Void> future1 = taskToFuture(userRef.set(user, SetOptions.merge()));
-        CompletableFuture<Void> future2 = taskToFuture(userRef.update("Infected", infected));
-        future1.thenCompose(v -> future2);
-    }
 
     private CompletableFuture<Boolean> retrieveUserInfectionStatus() {
         return fsi.readDocument(documentReference("Users", userName))

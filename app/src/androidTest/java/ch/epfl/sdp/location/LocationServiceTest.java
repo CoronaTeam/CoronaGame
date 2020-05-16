@@ -23,6 +23,8 @@ import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.DataExchangeActivity;
 
+import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
+import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -147,20 +149,19 @@ public class LocationServiceTest {
     public void changesToCarrierAreSavedLocally() {
         LocationService service = mActivityRule.getActivity().getService();
 
-        service.getAnalyst().updateStatus(Carrier.InfectionStatus.INFECTED);
+        service.getAnalyst().getCarrier().evolveInfection(new Date(), INFECTED, 1);
 
         TestTools.sleep();
 
         SharedPreferences sharedPrefs = mActivityRule.getActivity().getSharedPreferences(CoronaGame.SHARED_PREF_FILENAME, Context.MODE_PRIVATE);
 
         assertThat(sharedPrefs.getFloat(LocationService.INFECTION_PROBABILITY_PREF, 0f), equalTo(1f));
-        assertThat(sharedPrefs.getInt(LocationService.INFECTION_STATUS_PREF, 0), equalTo(Carrier.InfectionStatus.INFECTED.ordinal()));
+        assertThat(sharedPrefs.getInt(LocationService.INFECTION_STATUS_PREF, 0), equalTo(INFECTED.ordinal()));
 
-        service.getAnalyst().updateStatus(Carrier.InfectionStatus.HEALTHY);
-
+        service.getAnalyst().getCarrier().evolveInfection(new Date(), HEALTHY, 0f);
         TestTools.sleep();
 
         assertThat(sharedPrefs.getFloat(LocationService.INFECTION_PROBABILITY_PREF, 0f), equalTo(0f));
-        assertThat(sharedPrefs.getInt(LocationService.INFECTION_STATUS_PREF, 0), equalTo(Carrier.InfectionStatus.HEALTHY.ordinal()));
+        assertThat(sharedPrefs.getInt(LocationService.INFECTION_STATUS_PREF, 0), equalTo(HEALTHY.ordinal()));
     }
 }

@@ -33,7 +33,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.CoronaGame;
@@ -60,7 +59,7 @@ import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 public class LocationService extends Service implements LocationListener, Observer {
 
     public final static int LOCATION_PERMISSION_REQUEST = 20201;
-    private static final int MIN_UP_INTERVAL_MILLISECS = 1000;
+    private static final int MIN_UP_INTERVAL_MILLIS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
 
     public static final String ALARM_GOES_OFF = "beeep!";
@@ -83,8 +82,6 @@ public class LocationService extends Service implements LocationListener, Observ
     private CachingDataSender sender;
 
     private boolean isAlarmSet = false;
-    // TODO: Improve code to do without that
-    private AtomicBoolean isExecutingUpdate = new AtomicBoolean(false);
 
     private Date lastUpdated;
     private InfectionAnalyst analyst;
@@ -155,9 +152,10 @@ public class LocationService extends Service implements LocationListener, Observ
         }
     }
 
-    /** Updates the infection probability by running the model
+    /**
+     * Updates the infection probability by running the model
      * WARNING: Cannot be called after a period longer than MAX_CACHE_ENTRY_AGE
-     * Since DataSender cache would have been partially emptied already
+     *          since DataSender cache would have been partially emptied already
      */
     private void updateInfectionModel() {
         SortedMap<Date, Location> locations = sender.getLastPositions().tailMap(lastUpdated);
@@ -179,21 +177,14 @@ public class LocationService extends Service implements LocationListener, Observ
         if (intent != null && intent.hasExtra(ALARM_GOES_OFF)) {
             isAlarmSet = false;
 
-            // Wait that previous updates are concluded
-            while (!isExecutingUpdate.compareAndSet(false, true)) {
-                while (isExecutingUpdate.get()) {
-
-                }
-            }
-
             // It's time to run the model, starting from time 'lastUpdated';
             AsyncTask.execute(() -> {
                 updateInfectionModel();
-                isExecutingUpdate.set(false);
             });
         }
 
         if (!isAlarmSet) {
+            // TODO: [LOG]
             Log.e("LOCATION_SERVICE", "Setting alarm");
             // Create next alarm
             setModelUpdateAlarm();
@@ -276,7 +267,7 @@ public class LocationService extends Service implements LocationListener, Observ
     }
 
     private boolean startAggregator() {
-        if (broker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, this)) {
+        if (broker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLIS, MIN_UP_INTERVAL_METERS, this)) {
             displayToast(getString(R.string.aggregator_status_on));
             aggregator.updateToOnline();
             return true;

@@ -14,8 +14,8 @@ import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_DOC;
 
 public class GridFirestoreInteractor extends ConcreteFirestoreInteractor {
 
-    // MODEL: Round the location to the 5th decimal digit
-    public static final int COORDINATE_PRECISION = 100000;
+    // MODEL: Round the location to the 3th decimal digit
+    public static final int COORDINATE_PRECISION = 1000;
 
     public GridFirestoreInteractor() {
         super();
@@ -25,8 +25,8 @@ public class GridFirestoreInteractor extends ConcreteFirestoreInteractor {
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
 
-        int idLatitude = (int) latitude * COORDINATE_PRECISION;
-        int idLongitude = (int) longitude * COORDINATE_PRECISION;
+        int idLatitude = (int) (latitude * COORDINATE_PRECISION);
+        int idLongitude = (int) (longitude * COORDINATE_PRECISION);
 
         return String.format("Grid#%d#%d", idLatitude, idLongitude);
     }

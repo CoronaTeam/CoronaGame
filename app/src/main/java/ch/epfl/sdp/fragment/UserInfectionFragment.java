@@ -225,7 +225,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
             service.getAnalyst().getCarrier().evolveInfection(new Date(), INFECTED, 1f);
             setInfectionColorAndMessage(true);
         } else {
-            service.getAnalyst().getCarrier().evolveInfection(new Date(), HEALTHY, 1f);
+            service.getAnalyst().getCarrier().evolveInfection(new Date(), HEALTHY, 0f);
             sendRecoveryToFirebase();
             setInfectionColorAndMessage(false);
         }

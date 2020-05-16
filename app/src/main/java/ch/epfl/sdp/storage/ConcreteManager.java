@@ -143,7 +143,7 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
                 return new TreeMap<>();
             }
         }
-        return Collections.unmodifiableSortedMap(cache);
+        return Collections.unmodifiableSortedMap(new TreeMap<>(cache));
     }
 
     @Override

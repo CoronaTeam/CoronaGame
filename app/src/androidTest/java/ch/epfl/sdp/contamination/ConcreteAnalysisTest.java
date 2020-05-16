@@ -19,10 +19,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Observer;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.Account;
 import ch.epfl.sdp.R;
@@ -52,7 +55,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
@@ -207,15 +209,15 @@ public class ConcreteAnalysisTest {
     };
 
     @Test
-    public void noEvolutionWithInfection() {
+    public void canEvolveIfInfected() {
 
-        ObservableCarrier me = new Layman(INFECTED);
+        ObservableCarrier me = new Layman(HEALTHY);
 
-        assertThat(me.setIllnessProbability(new Date(), .5f), equalTo(false));
+        assertThat(me.setIllnessProbability(new Date(), .5f), equalTo(true));
 
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
         analyst.updateInfectionPredictions(testLocation, new Date(1585223373980L), new Date());
-        assertThat(me.getInfectionStatus(), equalTo(INFECTED));
+        assertThat(me.getInfectionStatus(), equalTo(UNKNOWN));
 
     }
 
@@ -428,9 +430,27 @@ public class ConcreteAnalysisTest {
         assertSame(me,analyst.getCarrier());
     }
     @Test
-    public void updateStatusMakesNothingIfStatusRemainsTheSame(){
+    public void observersKnowIfStatusChanged(){
+        AtomicInteger counter = new AtomicInteger(0);
+
+        Observer fakeOserver = (o, arg) -> {
+            if (((Optional<Float>)arg).isPresent()) {
+                counter.incrementAndGet();
+            }
+        };
+
         ObservableCarrier me = new Layman(HEALTHY);
-        assertFalse(me.evolveInfection(new Date(), HEALTHY, me.getIllnessProbability()));
+        me.addObserver(fakeOserver);
+
+        // No status change
+        assertTrue(me.evolveInfection(new Date(), HEALTHY, me.getIllnessProbability()));
+        sleep();
+        assertThat(counter.get(), equalTo(0));
+
+        // With status change
+        assertTrue(me.evolveInfection(new Date(), UNKNOWN, me.getIllnessProbability()));
+        sleep();
+        assertThat(counter.get(), equalTo(1));
     }
 
     @Test

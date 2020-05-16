@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.epfl.sdp.fragment.AccountFragment;
 
@@ -27,10 +26,6 @@ public class ConcreteCachingDataSender implements CachingDataSender {
 
     SortedMap<Date, Location> lastPositions;
     private GridFirestoreInteractor gridInteractor;
-
-    // TODO: Required to avoid synchronization errors, Need to refactor that!!
-    // (only 1 alarm executing everything)
-    private AtomicBoolean executingOperation = new AtomicBoolean(false);
 
     public ConcreteCachingDataSender(GridFirestoreInteractor interactor) {
         this.gridInteractor = interactor;
@@ -82,10 +77,5 @@ public class ConcreteCachingDataSender implements CachingDataSender {
         copyOfLastPositions.headMap(new Date(System.currentTimeMillis() - MAX_CACHE_ENTRY_AGE)).clear();
 
         return copyOfLastPositions;
-    }
-
-    // TODO: Must get rid of this function
-    public void endOperation() {
-        executingOperation.set(false);
     }
 }

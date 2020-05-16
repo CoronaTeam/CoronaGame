@@ -153,7 +153,7 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
 
         // TODO: [LOG]
         Log.e("PEOPLE_AROUND_ME", "Searching for neighbors...");
-        Log.e("PEOPLE_AROUND_ME", "Neighbours found (" + peopleAroundMe.join().size() + ")");
+        //Log.e("PEOPLE_AROUND_ME", "Neighbours found (" + peopleAroundMe.join().size() + ")");
 
         CompletableFuture<Float> badMeetingCoefficient =
                 receiver.getNumberOfSickNeighbors(me.getUniqueId())

@@ -25,6 +25,9 @@ public final class ConcretePositionAggregator implements PositionAggregator {
     private Timer updatePosTimer;
     HashMap<Long, List<Location>> buffer;
 
+    // TODO: @Lucas, position aggregator doesn't send positions if the user is not moving (if
+    // LocationService doesn't call registerPosition())
+
     public ConcretePositionAggregator(CachingDataSender cachingDataSender, Carrier carrier, int maxLocationsPerAggregation) {
         if (cachingDataSender == null || carrier == null) {
             throw new IllegalArgumentException("DataSender and Carrier should not be null");
@@ -104,6 +107,10 @@ public final class ConcretePositionAggregator implements PositionAggregator {
             List<Location> targetLocations = buffer.remove(lastDate.getTime());
             Location meanLocation = getMean(targetLocations);
 
+            // TODO: [LOG]
+            Log.e("POSITION_AGGREGATOR", "New position committed");
+
+            // Perform potentially long-running operation on a different thread
             AsyncTask.execute(() -> {
                 cachingDataSender.registerLocation(carrier, meanLocation, lastDate).join();
 

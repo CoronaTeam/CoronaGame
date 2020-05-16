@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.locks.ReentrantLock;
 
 import ch.epfl.sdp.fragment.AccountFragment;
 
@@ -24,20 +23,16 @@ import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_DOC;
 import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
 
 /**
- * Thread-safe implementation of a DataSender with a cache
+ * Implementation of a DataSender with a cache
  */
 public class ConcreteCachingDataSender implements CachingDataSender {
 
     SortedMap<Date, Location> lastPositions;
     private GridFirestoreInteractor gridInteractor;
 
-    private ReentrantLock lock;
-
     public ConcreteCachingDataSender(GridFirestoreInteractor interactor) {
         this.gridInteractor = interactor;
         this.lastPositions = new TreeMap<>();
-
-        lock = new ReentrantLock();
     }
 
     @VisibleForTesting
@@ -48,28 +43,23 @@ public class ConcreteCachingDataSender implements CachingDataSender {
     @Override
     public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
 
-        lock.lock();
-
         CompletableFuture<Void> lastPositionsFuture, gridWriteFuture;
 
-        try {
-            refreshLastPositions(time, location);
 
-            Map<String, Object> element = new HashMap<>();
-            element.put(GEOPOINT_TAG, new GeoPoint(
-                    location.getLatitude(),
-                    location.getLongitude()
-            ));
-            element.put(TIMESTAMP_TAG, time.getTime());
-            element.put(INFECTION_STATUS_TAG, carrier.getInfectionStatus());
+        refreshLastPositions(time, location);
 
-            lastPositionsFuture = gridInteractor.writeDocumentWithID(
-                    documentReference(LAST_POSITIONS_DOC, AccountFragment.getAccount(getActivity()).getId()), element);
+        Map<String, Object> element = new HashMap<>();
+        element.put(GEOPOINT_TAG, new GeoPoint(
+                location.getLatitude(),
+                location.getLongitude()
+        ));
+        element.put(TIMESTAMP_TAG, time.getTime());
+        element.put(INFECTION_STATUS_TAG, carrier.getInfectionStatus());
 
-            gridWriteFuture = gridInteractor.gridWrite(location, String.valueOf(time.getTime()), carrier);
-        } finally {
-            lock.unlock();
-        }
+        lastPositionsFuture = gridInteractor.writeDocumentWithID(
+                documentReference(LAST_POSITIONS_DOC, AccountFragment.getAccount(getActivity()).getId()), element);
+
+        gridWriteFuture = gridInteractor.gridWrite(location, String.valueOf(time.getTime()), carrier);
 
         return CompletableFuture.allOf(lastPositionsFuture, gridWriteFuture);
     }
@@ -87,15 +77,9 @@ public class ConcreteCachingDataSender implements CachingDataSender {
     @Override
     public SortedMap<Date, Location> getLastPositions() {
 
-        lock.lock();
+        // Return a copy of the cache to avoid conflicts
+        SortedMap<Date, Location> copyOfLastPositions = new TreeMap<>(lastPositions.tailMap(new Date(System.currentTimeMillis() - MAX_CACHE_ENTRY_AGE)));
 
-        SortedMap<Date, Location> copyOfLastPositions;
-        try {
-            // Return a copy of the cache to avoid conflicts
-            copyOfLastPositions = new TreeMap<>(lastPositions.tailMap(new Date(System.currentTimeMillis() - MAX_CACHE_ENTRY_AGE)));
-        } finally {
-            lock.unlock();
-        }
         return copyOfLastPositions;
     }
 }

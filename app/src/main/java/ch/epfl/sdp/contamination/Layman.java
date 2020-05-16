@@ -258,6 +258,8 @@ public class Layman extends ObservableCarrier {
 
             // Create a new one
             infectionHistory = initStorageManager(uniqueID);
+
+            infectionHistory.read();
         } finally {
             lock.unlock();
         }

@@ -33,6 +33,9 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.CoronaGame;
@@ -169,7 +172,19 @@ public class LocationService extends Service implements LocationListener, Observ
             lastUpdated = l.getKey();
         }
 
-        operationFutures.forEach(CompletableFuture::join);
+        // TODO: @Matteo decide how to treat timed-out requests
+        // TODO: Understant why, after history deletion, some position upload requests timeout
+        //operationFutures.forEach(CompletableFuture::join);
+        for (CompletableFuture<Integer> future : operationFutures) {
+            try {
+                future.get(1500, TimeUnit.MILLISECONDS);
+            } catch (TimeoutException e) {
+                // TODO: [LOG]
+                Log.e("MODEL_UPDATE", "Request timed out");
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override

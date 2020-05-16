@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import java.util.TreeMap;
 
 import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.MainActivity;
@@ -69,7 +70,7 @@ public class ProbabilityStorageTest {
     @Test
     public void fileCanBeSuccessfullyDeleted() {
         StorageManager<Integer, Double> manager = getIntDoubleManager();
-        manager.write(Collections.singletonMap(1, 60.3));
+        manager.write(new TreeMap<>(Collections.singletonMap(1, 60.3)));
         manager.delete();
     }
 
@@ -90,7 +91,7 @@ public class ProbabilityStorageTest {
         StorageManager<Integer, Double> manager = getIntDoubleManager();
         manager.delete();
 
-        manager.write(Collections.emptyMap());
+        manager.write(new TreeMap<>());
     }
 
     @Test
@@ -111,7 +112,7 @@ public class ProbabilityStorageTest {
                 Integer::valueOf,
                 Double::valueOf);
 
-        boolean insertionSuccess = manager.write(Collections.singletonMap(4, 53.4));
+        boolean insertionSuccess = manager.write(new TreeMap<>(Collections.singletonMap(4, 53.4)));
 
         assertThat(insertionSuccess, equalTo(true));
 
@@ -127,13 +128,13 @@ public class ProbabilityStorageTest {
     public void cacheIsKeptInSync() {
         StorageManager<Integer, Double> manager = getIntDoubleManager();
 
-        boolean insertionSuccess = manager.write(Collections.singletonMap(4, 53.4));
+        boolean insertionSuccess = manager.write(new TreeMap<>(Collections.singletonMap(4, 53.4)));
         assertThat(insertionSuccess, equalTo(true));
 
         Map<Integer, Double> content = manager.read();
         assertThat(content.size(), equalTo(1));
 
-        insertionSuccess = manager.write(Collections.singletonMap(5, 10.));
+        insertionSuccess = manager.write(new TreeMap<>(Collections.singletonMap(5, 10.)));
         assertThat(insertionSuccess, equalTo(true));
         assertThat(content.size(), equalTo(2));
 
@@ -144,9 +145,9 @@ public class ProbabilityStorageTest {
     public void filterExcludesNonMatchingElements() {
         StorageManager<Integer, Double> manager = getIntDoubleManager();
 
-        boolean insertionSuccess = manager.write(Collections.singletonMap(2, .4));
+        boolean insertionSuccess = manager.write(new TreeMap<>(Collections.singletonMap(2, .4)));
         assertThat(insertionSuccess, equalTo(true));
-        insertionSuccess = manager.write(Collections.singletonMap(6, .6));
+        insertionSuccess = manager.write(new TreeMap<>(Collections.singletonMap(6, .6)));
         assertThat(insertionSuccess, equalTo(true));
 
         Map<Integer, Double> res1 = manager.filter((k, v) -> k < 2);
@@ -163,7 +164,7 @@ public class ProbabilityStorageTest {
     public void readReturnsUnmodifiableMap() {
         StorageManager<Integer, Double> manager = getIntDoubleManager();
 
-        boolean insertionSuccess = manager.write(Collections.singletonMap(2, .4));
+        boolean insertionSuccess = manager.write(new TreeMap<>(Collections.singletonMap(2, .4)));
         assertThat(insertionSuccess, equalTo(true));
 
         Map<Integer, Double> res1 = manager.read();
@@ -181,7 +182,7 @@ public class ProbabilityStorageTest {
 
         Date before = new Date();
 
-        boolean insertionSuccess = createFile.write(Collections.singletonMap(before, .4));
+        boolean insertionSuccess = createFile.write(new TreeMap<>(Collections.singletonMap(before, .4)));
         assertThat(insertionSuccess, equalTo(true));
 
         createFile.close();
@@ -194,7 +195,7 @@ public class ProbabilityStorageTest {
 
         Date now = new Date();
 
-        insertionSuccess = addSomething.write(Collections.singletonMap(now, 1.4));
+        insertionSuccess = addSomething.write(new TreeMap<>(Collections.singletonMap(now, 1.4)));
         assertThat(insertionSuccess, equalTo(true));
 
         assertThat(addSomething.read().size(), equalTo(2));

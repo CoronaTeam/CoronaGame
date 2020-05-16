@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.TreeMap;
 
 import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.storage.ConcreteManager;
@@ -78,7 +79,7 @@ public class Layman extends ObservableCarrier {
         }
 
         // Include this update into the history
-        infectionHistory.write(Collections.singletonMap(when, probability));
+        infectionHistory.write(new TreeMap<>(Collections.singletonMap(when, probability)));
 
         infectedWithProbability = probability;
         return true;

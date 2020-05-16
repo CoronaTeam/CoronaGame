@@ -1,7 +1,7 @@
 package ch.epfl.sdp.storage;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.SortedMap;
 import java.util.function.BiFunction;
 
 /**
@@ -10,9 +10,9 @@ import java.util.function.BiFunction;
  */
 public interface StorageManager<A extends Comparable<A>, B> {
 
-    boolean write(Map<A, B> payload);
-    Map<A, B> read();
-    Map<A, B> filter(BiFunction<A, B, Boolean> rule);
+    boolean write(SortedMap<A, B> payload);
+    SortedMap<A, B> read();
+    SortedMap<A, B> filter(BiFunction<A, B, Boolean> rule);
     void close() throws IOException;
     void delete();
 }

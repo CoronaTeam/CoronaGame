@@ -24,7 +24,7 @@ import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.identity.DefaultAuthenticationManager;
 import ch.epfl.sdp.TestTools;
-import ch.epfl.sdp.contamination.CachingDataSender;
+import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.testActivities.DataExchangeActivity;
 import ch.epfl.sdp.contamination.FakeAnalyst;

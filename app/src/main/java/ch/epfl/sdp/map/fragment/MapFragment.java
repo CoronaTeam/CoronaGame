@@ -1,4 +1,4 @@
-package ch.epfl.sdp.map;
+package ch.epfl.sdp.map.fragment;
 
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
@@ -34,11 +34,11 @@ import com.mapbox.mapboxsdk.style.layers.Layer;
 
 import java.util.concurrent.Callable;
 
-import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.BuildConfig;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
-import ch.epfl.sdp.identity.fragment.AccountFragment;
+import ch.epfl.sdp.map.HeatMapHandler;
+import ch.epfl.sdp.map.PathsHandler;
 import ch.epfl.sdp.toDelete.HistoryDialogFragment;
 import ch.epfl.sdp.location.LocationBroker;
 import ch.epfl.sdp.location.LocationService;
@@ -48,6 +48,11 @@ import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
+/**
+ * Instantiate one instance of MapBox
+ *  Used to display the pathLayers and heatMapLayer
+ *  Add listeners to update the user's position on the map and react on floating button click
+ */
 public class MapFragment extends Fragment implements LocationListener, View.OnClickListener {
 
     public final static int LOCATION_PERMISSION_REQUEST = 20201;
@@ -63,21 +68,10 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private CircleManager positionMarkerManager;
     private Circle userLocation;
     private HeatMapHandler heatMapHandler;
-    private Account userAccount;
     private MapFragment classPointer;
     private Callable onMapVisible;
 
     private View view;
-
-    @VisibleForTesting
-    void setLocationBroker(LocationBroker locationBroker){
-        if (locationBroker != null){
-            getActivity().unbindService(locationBrokerConn);
-            getActivity().stopService(new Intent(getContext(), LocationService.class));
-        }
-        this.locationBroker = locationBroker;
-        goOnline();
-    }
 
     @Nullable
     @Override
@@ -104,8 +98,6 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         // regardless of whether any clients are connected to it.
         ComponentName myService = getActivity().startService(new Intent(getContext(), LocationService.class));
         getActivity().bindService(new Intent(getContext(), LocationService.class), locationBrokerConn, Context.BIND_AUTO_CREATE);
-
-        userAccount = AccountFragment.getAccount(getActivity());
 
         db = new ConcreteFirestoreInteractor();
 
@@ -224,7 +216,6 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     @Override
     public void onStop() {
         super.onStop();
-        System.err.println("stop");
         mapView.onStop();
     }
 
@@ -232,14 +223,12 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     @Override
     public void onResume() {
         super.onResume();
-        System.err.println("resume");
         mapView.onResume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        System.err.println("pause");
         mapView.onPause();
     }
 
@@ -247,13 +236,14 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     public void onLowMemory() {
         mapView.onLowMemory();
         super.onLowMemory();
-        System.err.println("lowmem");
     }
 
     @Override
     public void onDestroy() {
-        System.err.println("destroy");
         mapView.onDestroy();
+        if (locationBrokerConn != null){
+            getActivity().unbindService(locationBrokerConn);
+        }
         super.onDestroy();
 
     }
@@ -261,7 +251,6 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        System.err.println("sis");
         mapView.onSaveInstanceState(outState);
     }
 
@@ -325,6 +314,17 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         if(view.findViewById(R.id.mapFragment).getVisibility() == View.VISIBLE){
             callOnMapVisible();
         }
+    }
+
+    @VisibleForTesting
+    void setLocationBroker(LocationBroker locationBroker){
+        if (locationBroker != null && locationBrokerConn != null){
+            getActivity().unbindService(locationBrokerConn);
+            getActivity().stopService(new Intent(getContext(), LocationService.class));
+            locationBrokerConn = null;
+        }
+        this.locationBroker = locationBroker;
+        goOnline();
     }
 
     @VisibleForTesting

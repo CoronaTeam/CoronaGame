@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
+import ch.epfl.sdp.map.fragment.MapFragment;
 
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
@@ -40,8 +41,11 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.heatmapIntensity
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.heatmapRadius;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.heatmapWeight;
 
-class HeatMapHandler {
-    static final String HEATMAP_LAYER_ID = "lastPositions-heat";
+/**
+ * Is used to display the sick users last's positions on a heat map
+ */
+public class HeatMapHandler {
+    public static final String HEATMAP_LAYER_ID = "lastPositions-heat";
     private static final String LASTPOSITIONS_SOURCE_ID = "lastPositions";
     private static final String HEATMAP_LAYER_SOURCE = "lastPositions";
     private MapFragment parentClass;
@@ -50,7 +54,7 @@ class HeatMapHandler {
     private Callable onHeatMapDataLoaded;
 
 
-    HeatMapHandler(@NonNull MapFragment parentClass, @NonNull ConcreteFirestoreInteractor db,
+    public HeatMapHandler(@NonNull MapFragment parentClass, @NonNull ConcreteFirestoreInteractor db,
                    @NonNull MapboxMap map) {
         this.parentClass = parentClass;
         this.db = db;
@@ -176,7 +180,7 @@ class HeatMapHandler {
     }
 
     @VisibleForTesting
-    void onHeatMapDataLoaded(Callable func) {
+    public void onHeatMapDataLoaded(Callable func) {
         onHeatMapDataLoaded = func;
 
         map.getStyle(style -> {

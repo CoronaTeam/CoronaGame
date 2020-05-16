@@ -10,6 +10,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import ch.epfl.sdp.R;
 
+/**
+ * Main fragment, handle the display of the infection status / probability and allow the user to change
+ * its infection status
+ */
 public class StatusFragment extends Fragment {
 
     @Override

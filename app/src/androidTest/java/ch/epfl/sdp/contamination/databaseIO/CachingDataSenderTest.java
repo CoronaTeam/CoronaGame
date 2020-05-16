@@ -1,4 +1,4 @@
-package ch.epfl.sdp.contamination;
+package ch.epfl.sdp.contamination.databaseIO;
 
 import android.location.Location;
 
@@ -11,11 +11,13 @@ import java.util.Iterator;
 import java.util.SortedMap;
 
 import ch.epfl.sdp.TestTools;
+import ch.epfl.sdp.contamination.Carrier;
+import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.identity.User;
 
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
-import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
+import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.contamination.InfectionAnalyst.UNINTENTIONAL_CONTAGION_TIME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

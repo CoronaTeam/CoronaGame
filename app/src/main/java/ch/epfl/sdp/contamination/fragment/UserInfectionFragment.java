@@ -1,4 +1,4 @@
-package ch.epfl.sdp.testActivities;
+package ch.epfl.sdp.contamination.fragment;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -45,11 +45,14 @@ import ch.epfl.sdp.location.LocationService;
 import static android.content.Context.BIND_AUTO_CREATE;
 import static ch.epfl.sdp.utilities.Tools.IS_ONLINE;
 import static ch.epfl.sdp.utilities.Tools.checkNetworkStatus;
-import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
-import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
+import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.privateRecoveryCounter;
+import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.privateUserFolder;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.taskToFuture;
 
+/**
+ * Allow the user to change its sickness status (infected / cured)
+ */
 public class UserInfectionFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "User Infection Activity";
     private Button infectionStatusButton;

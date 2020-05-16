@@ -37,11 +37,12 @@ import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.Carrier;
-import ch.epfl.sdp.contamination.ConcreteDataReceiver;
-import ch.epfl.sdp.contamination.GridFirestoreInteractor;
+import ch.epfl.sdp.contamination.databaseIO.ConcreteDataReceiver;
+import ch.epfl.sdp.contamination.databaseIO.GridFirestoreInteractor;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.location.LocationUtils;
+import ch.epfl.sdp.map.fragment.MapFragment;
 
 import static ch.epfl.sdp.map.HeatMapHandler.adjustHeatMapColorRange;
 import static ch.epfl.sdp.map.HeatMapHandler.adjustHeatMapWeight;
@@ -61,7 +62,7 @@ public class PathsHandler extends Fragment {
     static final String POINTS_LAYER_ID = "pointslayer";
     static final String PATH_SOURCE_ID = "line-source";
     private static final int ZOOM = 7;
-    static final String PATH_LAYER_ID = "linelayer"; // public for testing
+    public static final String PATH_LAYER_ID = "linelayer"; // public for testing
     public List<Point> pathCoordinates;
     public List<Point> infected_met;
     private MapboxMap map;
@@ -71,7 +72,7 @@ public class PathsHandler extends Fragment {
     private double longitude;
 
 
-    PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
+    public PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
         this.parentClass = parentClass;
         this.map = map;
         initFirestorePathRetrieval().thenAccept(this::getPathCoordinates);

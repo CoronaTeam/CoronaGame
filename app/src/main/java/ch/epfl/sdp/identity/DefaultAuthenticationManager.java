@@ -16,7 +16,7 @@ import java.util.Map;
 import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.IntroActivity;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
-import ch.epfl.sdp.testActivities.Authentication;
+import ch.epfl.sdp.identity.Authentication;
 
 public interface DefaultAuthenticationManager {
 

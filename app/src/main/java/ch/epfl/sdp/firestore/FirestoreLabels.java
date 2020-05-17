@@ -3,7 +3,8 @@ package ch.epfl.sdp.firestore;
 public interface FirestoreLabels {
 
     // TODO: @Ulysse, @Adrien, @Kevin, @Lucas, @Lucie only use Firestore attribute names that are
-    // written here too
+    // written here too (we have to progressively get rid of random Strings with Firestore paths
+    // in the rest of the code)
 
     // LastPositions collection
     String LAST_POSITIONS_COLL = "LastPositions";

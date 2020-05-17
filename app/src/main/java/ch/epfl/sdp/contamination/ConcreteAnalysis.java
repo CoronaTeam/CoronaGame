@@ -79,6 +79,26 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
         return infectedMet;
     }
 
+    private int calculateCumulativeSocialTime(Map<Carrier, Integer> suspectedContacts) {
+        int cumulativeSocialTime = 0;
+        for (Integer meetingLength : suspectedContacts.values()) {
+            cumulativeSocialTime += meetingLength;
+        }
+
+        return cumulativeSocialTime;
+    }
+
+    private float calculateIncreaseAfterMeeting(int cumulativeSocialTime, Map.Entry<Carrier, Integer> meeting) {
+        // Weight the addition of infection probability according to the relative
+        float newWeight = meeting.getValue().floatValue() / cumulativeSocialTime;
+
+        // TODO: [LOG]
+        Log.e("INFECTION_PROCESS", "newWeight: " + newWeight);
+        Log.e("INFECTION_PROCESS", "newContribution:" + newWeight * meeting.getKey().getIllnessProbability() * TRANSMISSION_FACTOR);
+
+        return newWeight * meeting.getKey().getIllnessProbability() * TRANSMISSION_FACTOR;
+    }
+
     private float determineUpdatedInfectionProbability(Date when, Map<Carrier, Integer> suspectedContacts) {
 
         // MODEL: If the Carrier is INFECTED, his/her probability & status should NOT be changed
@@ -86,10 +106,7 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
             return me.getIllnessProbability();
         }
 
-        int cumulativeSocialTime = 0;
-        for (Integer meetingLength : suspectedContacts.values()) {
-            cumulativeSocialTime += meetingLength;
-        }
+        int cumulativeSocialTime = calculateCumulativeSocialTime(suspectedContacts);
 
         float increaseInProbability = 0f;
 
@@ -99,16 +116,8 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
                 return 1f;
 
             } else {
-                // Weight the addition of infection probability according to the relative
-                float newWeight = c.getValue().floatValue() / cumulativeSocialTime;
-
-                // TODO: [LOG]
-                Log.e("INFECTION_PROCESS", "newWeight: " + newWeight);
-                Log.e("INFECTION_PROCESS", "newContribution:" + newWeight * c.getKey().getIllnessProbability() * TRANSMISSION_FACTOR);
-
                 // Updates the probability given the new contribution by Carrier c.getKey()
-                increaseInProbability += newWeight * c.getKey().getIllnessProbability() * TRANSMISSION_FACTOR;
-
+                increaseInProbability += calculateIncreaseAfterMeeting(cumulativeSocialTime, c);
             }
         }
 

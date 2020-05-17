@@ -136,7 +136,18 @@ public class ProbabilityStorageTest {
 
         insertionSuccess = manager.write(new TreeMap<>(Collections.singletonMap(5, 10.)));
         assertThat(insertionSuccess, equalTo(true));
-        assertThat(content.size(), equalTo(2));
+
+        TreeMap<Integer, Double> check = new TreeMap<>();
+        check.put(4, 53.4);
+        check.put(5, 10.);
+
+        content = manager.read();
+        assertThat(content, equalTo(Collections.unmodifiableSortedMap(check)));
+
+        manager = getIntDoubleManager();
+        content = manager.read(); // reload data from disk
+        assertThat(content, equalTo(Collections.unmodifiableSortedMap(check)));
+
 
         manager.delete();
     }

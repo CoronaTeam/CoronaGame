@@ -8,7 +8,7 @@ import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.identity.Account;
 
 import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
-import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_DOC;
+import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_COLL;
 import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
 
 public class HistoryFirestoreInteractor extends ConcreteFirestoreInteractor {
@@ -37,6 +37,6 @@ public class HistoryFirestoreInteractor extends ConcreteFirestoreInteractor {
         lastPos.put(TIMESTAMP_TAG, posRec.getTimestamp());
 
         return writeDocumentWithID(documentReference(historyPositionsPath(), posRec.calculateID()), content).thenRun(() ->
-                writeDocumentWithID(documentReference(LAST_POSITIONS_DOC, user.getId()), lastPos));
+                writeDocumentWithID(documentReference(LAST_POSITIONS_COLL, user.getId()), lastPos));
     }
 }

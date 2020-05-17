@@ -19,7 +19,7 @@ import ch.epfl.sdp.identity.fragment.AccountFragment;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
 import static ch.epfl.sdp.firestore.FirestoreLabels.INFECTION_STATUS_TAG;
-import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_DOC;
+import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_COLL;
 import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
 import static ch.epfl.sdp.identity.AuthenticationManager.getActivity;
 
@@ -58,7 +58,7 @@ public class ConcreteCachingDataSender implements CachingDataSender {
         element.put(INFECTION_STATUS_TAG, carrier.getInfectionStatus());
 
         lastPositionsFuture = gridInteractor.writeDocumentWithID(
-                documentReference(LAST_POSITIONS_DOC, AccountFragment.getAccount(getActivity()).getId()), element);
+                documentReference(LAST_POSITIONS_COLL, AccountFragment.getAccount(getActivity()).getId()), element);
 
         gridWriteFuture = gridInteractor.gridWrite(location, String.valueOf(time.getTime()), carrier);
 

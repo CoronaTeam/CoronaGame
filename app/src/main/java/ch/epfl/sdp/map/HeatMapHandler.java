@@ -29,7 +29,7 @@ import ch.epfl.sdp.map.fragment.MapFragment;
 
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
-import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_DOC;
+import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_COLL;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.heatmapDensity;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.interpolate;
@@ -65,7 +65,7 @@ public class HeatMapHandler {
     }
 
     private void initQuery() {
-        db.readCollection(collectionReference(LAST_POSITIONS_DOC))
+        db.readCollection(collectionReference(LAST_POSITIONS_COLL))
                 .thenAccept(this::createGeoJson)
                 .exceptionally(e -> {
                     Toast.makeText(parentClass.getActivity(), "Cannot retrieve " +

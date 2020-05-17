@@ -32,7 +32,7 @@ import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
 import static ch.epfl.sdp.firestore.FirestoreLabels.INFECTION_STATUS_TAG;
-import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_DOC;
+import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_COLL;
 import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
 
 /**
@@ -127,7 +127,7 @@ public class DataForDemo {
                 element.put(TIMESTAMP_TAG, Timestamp.now());
                 // db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
 
-                gridFirestoreInteractor.writeDocument(collectionReference(LAST_POSITIONS_DOC), element);
+                gridFirestoreInteractor.writeDocument(collectionReference(LAST_POSITIONS_COLL), element);
             }
         }
 
@@ -193,7 +193,7 @@ public class DataForDemo {
                 element.put(INFECTION_STATUS_TAG, carrier.getInfectionStatus());
                 //db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
 
-                gridFirestoreInteractor.writeDocument(collectionReference(LAST_POSITIONS_DOC), element);
+                gridFirestoreInteractor.writeDocument(collectionReference(LAST_POSITIONS_COLL), element);
             }
         }
     }
@@ -210,7 +210,7 @@ public class DataForDemo {
         element.put(TIMESTAMP_TAG, Timestamp.now());
         // db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
 
-        gridFirestoreInteractor.writeDocument(collectionReference(LAST_POSITIONS_DOC), element);
+        gridFirestoreInteractor.writeDocument(collectionReference(LAST_POSITIONS_COLL), element);
     }
 
     // write in History Collection on Firestore, user with ID USER_PATH_DEMO

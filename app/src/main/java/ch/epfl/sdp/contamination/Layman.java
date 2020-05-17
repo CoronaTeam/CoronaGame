@@ -61,7 +61,7 @@ public class Layman extends ObservableCarrier {
                     try {
                         return CoronaGame.dateFormat.parse(date);
                     } catch (ParseException e) {
-                        throw new IllegalArgumentException("The file specified has wrong format: field 'date'");
+                        throw new IllegalArgumentException("The file specified has wrong format: field 'date'. Example of data found: " + date);
                     }
                 },
                 Float::valueOf

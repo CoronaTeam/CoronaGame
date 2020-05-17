@@ -5,7 +5,7 @@
     <string name="aggregator_status_off">Zut! Vous êtes hors ligne</string>
     <string name="aggregator_status_on">Vous êtes maintenant en ligne</string>
 
-    <string name="app_name">CoronaGame</string>
+    <string name="app_name">Virus Tracker</string>
 
     <string name="authentication_failed">Échec de l\'authentification</string>
 
@@ -48,6 +48,8 @@
     <string name="intro_page2_title">&#127777;️ Indiquez votre état d\'infection</string>
     <string name="intro_page3_description">En temps réel, calculée à partir de vos interactions géolocalisées avec d\'autres utilisateurs</string>
     <string name="intro_page3_title">&#128200; Obtenez votre probabilité d\'infection</string>
+    <string name="intro_page4_title">🔑 Gardez vos informations secrètes</string>
+    <string name="intro_page4_description">Vous seul pouvez accéder à vos informations, grâce à notre système d\'authentification biométrique</string>
 
     <string name="latitude">Latitude</string>
 

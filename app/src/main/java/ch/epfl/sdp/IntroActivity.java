@@ -2,19 +2,17 @@ package ch.epfl.sdp;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.github.paolorotolo.appintro.AppIntro;
-import com.github.paolorotolo.appintro.AppIntro2;
-import com.github.paolorotolo.appintro.AppIntro2Fragment;
 import com.github.paolorotolo.appintro.AppIntroFragment;
 import com.github.paolorotolo.appintro.model.SliderPage;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import ch.epfl.sdp.fragment.AuthenticationFragment;
+import ch.epfl.sdp.identity.fragment.AuthenticationFragment;
 
 public class IntroActivity extends AppIntro {
 
@@ -62,6 +60,14 @@ public class IntroActivity extends AppIntro {
                     R.string.intro_page3_title,
                     R.string.intro_page3_description,
                     R.drawable.infection_probability_curve,
+                    BG_COLOR,
+                    TITLE_COLOR,
+                    DESC_COLOR
+            ),
+            new Slide(
+                    R.string.intro_page4_title,
+                    R.string.intro_page4_description,
+                    R.drawable.lock,
                     BG_COLOR,
                     TITLE_COLOR,
                     DESC_COLOR

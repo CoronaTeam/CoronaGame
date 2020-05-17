@@ -37,21 +37,21 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.contamination.CachingDataSender;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.ConcreteAnalysis;
-import ch.epfl.sdp.contamination.ConcreteCachingDataSender;
-import ch.epfl.sdp.contamination.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.ConcretePositionAggregator;
-import ch.epfl.sdp.contamination.DataReceiver;
-import ch.epfl.sdp.contamination.GridFirestoreInteractor;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
 import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.contamination.ObservableCarrier;
 import ch.epfl.sdp.contamination.PositionAggregator;
+import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
+import ch.epfl.sdp.contamination.databaseIO.ConcreteCachingDataSender;
+import ch.epfl.sdp.contamination.databaseIO.ConcreteDataReceiver;
+import ch.epfl.sdp.contamination.databaseIO.DataReceiver;
+import ch.epfl.sdp.contamination.databaseIO.GridFirestoreInteractor;
+import ch.epfl.sdp.identity.AuthenticationManager;
 
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
@@ -322,6 +322,8 @@ public class LocationService extends Service implements LocationListener, Observ
         return analyst;
     }
 
+
+
     public CachingDataSender getSender() {
         return sender;
     }
@@ -329,6 +331,9 @@ public class LocationService extends Service implements LocationListener, Observ
     public DataReceiver getReceiver() {
         return receiver;
     }
+
+    // TODO: @Adrien, to reduce the number of VisibleForTesting functions, reset....() can be
+    // moved to tests files (and they can just use set...())
 
     @VisibleForTesting
     public void setReceiver(DataReceiver receiver) {

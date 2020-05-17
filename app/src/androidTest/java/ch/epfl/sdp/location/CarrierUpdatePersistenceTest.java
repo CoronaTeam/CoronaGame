@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.util.Log;
 
+import androidx.test.espresso.intent.Intents;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
@@ -20,22 +21,23 @@ import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import ch.epfl.sdp.AuthenticationManager;
 import ch.epfl.sdp.CoronaGame;
-import ch.epfl.sdp.DefaultAuthenticationManager;
 import ch.epfl.sdp.TestTools;
-import ch.epfl.sdp.contamination.CachingDataSender;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.ConcreteAnalysis;
-import ch.epfl.sdp.contamination.DataExchangeActivity;
 import ch.epfl.sdp.contamination.FakeAnalyst;
 import ch.epfl.sdp.contamination.FakeCachingDataSender;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
 import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.contamination.ObservableCarrier;
+import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
+import ch.epfl.sdp.identity.AuthenticationManager;
+import ch.epfl.sdp.identity.DefaultAuthenticationManager;
 import ch.epfl.sdp.storage.ConcreteManager;
 import ch.epfl.sdp.storage.StorageManager;
+import ch.epfl.sdp.testActivities.DataExchangeActivity;
 
+import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
@@ -47,10 +49,26 @@ public class CarrierUpdatePersistenceTest {
     @Rule
     public final ActivityTestRule<DataExchangeActivity> mActivityRule = new ActivityTestRule<>(DataExchangeActivity.class);
 
-    private static String fakeUserID = "THIS_IS_A_FAKE_ID";
-
-    private ObservableCarrier iAmBob;
+    private ObservableCarrier iAmBob = new Layman(HEALTHY);
     private AtomicInteger sentinel;
+
+    private InfectionAnalyst analystWithSentinel = new InfectionAnalyst() {
+        @Override
+        public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
+            sentinel.incrementAndGet();
+            return CompletableFuture.completedFuture(0);
+        }
+
+        @Override
+        public ObservableCarrier getCarrier() {
+            return iAmBob;
+        }
+    };
+
+    private InfectionAnalyst realAnalyst;
+    Intent locaIntentWithAlarm;
+
+    private static String fakeUserID = "THIS_IS_A_FAKE_ID";
 
     @BeforeClass
     public static void mockUserId() {
@@ -61,6 +79,7 @@ public class CarrierUpdatePersistenceTest {
                 return fakeUserID;
             }
         };
+
     }
 
     @AfterClass
@@ -69,14 +88,32 @@ public class CarrierUpdatePersistenceTest {
         AuthenticationManager.defaultManager = new DefaultAuthenticationManager() {};
     }
 
-    @Before
-    public void initBob() {
-        iAmBob = new Layman(HEALTHY, fakeUserID);
-    }
+    private InfectionAnalyst originalAnalyst;
 
     @Before
-    public void resetSentinel() {
+    public void before() {
+        initSafeTest(mActivityRule, true);
+
+        iAmBob = new Layman(HEALTHY);
+
+        LocationService service = mActivityRule.getActivity().getService();
+        originalAnalyst = service.getAnalyst();
+        InfectionAnalyst fakeAnalyst = new ConcreteAnalysis(iAmBob, service.getReceiver(), service.getSender());
+        service.setAnalyst(fakeAnalyst);
+
         sentinel = new AtomicInteger(0);
+    }
+
+    @After
+    public void resetAnalyst() {
+        // TODO: @Adrien this mechanism can be refactored into a new method resetAnalysts() to
+        // be placed in some test file
+        mActivityRule.getActivity().getService().setAnalyst(originalAnalyst);
+    }
+
+    @After
+    public void release(){
+        Intents.release();
     }
 
     private void cleanFakeUserHistory() {
@@ -121,26 +158,11 @@ public class CarrierUpdatePersistenceTest {
                 .commit();
     }
 
-    private InfectionAnalyst analystWithSentinel = new InfectionAnalyst() {
-        @Override
-        public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
-            sentinel.incrementAndGet();
-            return CompletableFuture.completedFuture(0);
-        }
-
-        @Override
-        public ObservableCarrier getCarrier() {
-            return iAmBob;
-        }
-    };
-
     private void startLocationServiceWithAlarm() {
-        Intent intentWithAlarm = new Intent(mActivityRule.getActivity(), LocationService.class);
-        intentWithAlarm.putExtra(LocationService.ALARM_GOES_OFF,true);
-        mActivityRule.getActivity().startService(intentWithAlarm);
+        locaIntentWithAlarm = new Intent(mActivityRule.getActivity(), LocationService.class);
+        locaIntentWithAlarm.putExtra(LocationService.ALARM_GOES_OFF,true);
+        mActivityRule.getActivity().startService(locaIntentWithAlarm);
     }
-
-    private InfectionAnalyst realAnalyst;
 
     private void useAnalystWithSentinel() {
         realAnalyst = mActivityRule.getActivity().getService().getAnalyst();
@@ -230,7 +252,7 @@ public class CarrierUpdatePersistenceTest {
         service.setAnalyst(fakeAnalyst);
         service.setSender(fakeSender);
 
-        ((Layman)service.getAnalyst().getCarrier()).addObserver(service);
+        service.getAnalyst().getCarrier().addObserver(service);
 
         startLocationServiceWithAlarm();
 

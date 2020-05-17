@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
+
 /**
  * @author lucas
  */

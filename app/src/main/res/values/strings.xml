@@ -6,7 +6,7 @@
     <string name="aggregator_status_on">You are online now</string>
 
     <string name="app_id" translatable="false">807375232223</string>
-    <string name="app_name">CoronaGame</string>
+    <string name="app_name">Virus Tracker</string>
 
     <string name="authentication_failed">Authentication failed</string>
 
@@ -22,8 +22,6 @@
     <string name="cannot_retrieve_positions">Cannot retrieve positions from database</string>
 
     <string name="connection_error" translatable="false">CONNECTION ERROR</string>
-
-    <string name="coronagame" translatable="false">CoronaGame</string>
 
     <string name="docSnap_success_upload" translatable="false">Document snapshot successfully added to firestore.</string>
 
@@ -58,6 +56,8 @@
     <string name="intro_page2_title">&#127777;️ Indicate your infection status</string>
     <string name="intro_page3_description">In real-time, computed from your geolocated interactions with other users</string>
     <string name="intro_page3_title">&#128200; Get your infection probability</string>
+    <string name="intro_page4_title">🔑 Keep your information safe</string>
+    <string name="intro_page4_description">Only you can access your data and make sensible changes, using our biometric authentication</string>
 
     <string name="latitude">Latitude</string>
 

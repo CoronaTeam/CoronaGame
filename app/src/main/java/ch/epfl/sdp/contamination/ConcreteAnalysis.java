@@ -15,12 +15,29 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
 
-import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
-import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
+import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
+import ch.epfl.sdp.contamination.databaseIO.DataReceiver;
+
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
+import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.privateRecoveryCounter;
+import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.publicAlertAttribute;
 
+
+// TODO: @Ulysse, @Adrien, @Kevin, @Lucas, @Lucie: general info on ConcreteAnalysis
+/**
+ * Concrete implementation of InfectionAnalyst, which can be observed
+ * It models the evolution of the disease.
+ * A few general remarks about it:
+ *   - The distance between 2 Carriers is the main parameter that determines how infection probabilities
+ *     are updated
+ *   - If the Carrier does not meet anyone, his probability of being infected slowly decreases over
+ *     time
+ *   - The only exception to the above rule is when the Carrier is marked as infected (because of
+ *     infection probability exceeding a certain threshold or because he declares his infection)
+ *     Then, his status does NOT evolve until he marks himself as healthy
+ */
 public class ConcreteAnalysis implements InfectionAnalyst, Observer {
 
     private final ObservableCarrier me;
@@ -135,8 +152,7 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
     }
 
     /**
-     * this Method will now return the number of 100% sick person we met
-     *
+     * Recalculate the probability that the Carrier is infected
      * @param location
      * @param startTime
      * @return

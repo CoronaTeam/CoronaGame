@@ -14,7 +14,7 @@ public class Neighbor implements Carrier {
     private InfectionStatus infectionStatus;
     private String uniqueId;
 
-    Neighbor(InfectionStatus st, float prob, String uid) {
+    public Neighbor(InfectionStatus st, float prob, String uid) {
         infectionStatus = st;
         infectionProbability = prob;
         uniqueId = uid;

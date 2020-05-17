@@ -18,15 +18,19 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".Authentication">
+
+        <activity android:name=".testActivities.UserInfectionActivity">
+            <intent-filter>
+                <action android:name="applicationB.intent.action.Launch" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
-        <activity android:name=".UserInfectionActivity"
-            android:parentActivityName=".MainActivity">
-        </activity>
-
-        <activity android:name=".Map.MapActivity"
-            android:parentActivityName=".MainActivity">
+        <activity android:name=".testActivities.MapActivity">
+            <intent-filter>
+                <action android:name="applicationB.intent.action.Launch" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <meta-data
@@ -49,51 +53,69 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".GpsActivity"
-            android:parentActivityName=".MainActivity" >
+        <activity android:name=".toDelete.GpsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".firestore.FirebaseActivity"
-            android:parentActivityName=".MainActivity">
-        </activity>
-
-        <activity
-            android:name=".AccountActivity"
-            android:parentActivityName=".MainActivity">
+        <activity android:name=".testActivities.FirebaseActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="applicationB.intent.action.Launch" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".testActivities.DataExchangeActivity">
+            <intent-filter>
+                <action android:name="applicationB.intent.action.Launch" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
         <activity
-            android:name=".HistoryActivity"
-            android:parentActivityName=".MainActivity" >
+            android:name=".testActivities.AccountActivity">
             <intent-filter>
-                <action android:name="android.intent.action.DEFAULT" />
+                <action android:name="applicationB.intent.action.Launch" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
         <activity
-            android:name=".contamination.InfectionActivity"
-            android:parentActivityName=".MainActivity">
+            android:name=".testActivities.InfectionActivity">
             <intent-filter>
-                <action android:name="android.intent.action.DEFAULT" />
+                <action android:name="applicationB.intent.action.Launch" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".TabActivity"
-            android:parentActivityName=".MainActivity"
+        <activity android:name=".toDelete.HistoryActivity" >
+            <intent-filter>
+                <action android:name="applicationB.intent.action.Launch" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".tabActivity.TabActivity"
             android:theme="@style/AppTheme.NoActionBar">
+
+            <intent-filter>
+                <action android:name="applicationB.intent.action.Launch" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
-        <service android:name=".location.LocationService">
+        <activity android:name=".identity.Authentication" >
+            <intent-filter>
+                <action android:name="applicationB.intent.action.Launch" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".location.LocationService">
         </service>
 
     </application>

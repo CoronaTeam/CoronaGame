@@ -8,8 +8,10 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.test.espresso.intent.Intents;
 import androidx.test.rule.ActivityTestRule;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -21,8 +23,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.contamination.Carrier;
-import ch.epfl.sdp.contamination.DataExchangeActivity;
+import ch.epfl.sdp.testActivities.DataExchangeActivity;
 
+import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -41,10 +44,16 @@ public class LocationServiceTest {
     private Location beenThere = TestTools.newLoc(13, 78);
     private Date now = new Date();
 
-
     @Before
-    public void setupTestIndicator() {
+    public void setUp() {
+        initSafeTest(mActivityRule, true);
         registered = new AtomicBoolean(false);
+
+    }
+
+    @After
+    public void release(){
+        Intents.release();
     }
 
     private LocationListener listener = new LocationListener() {

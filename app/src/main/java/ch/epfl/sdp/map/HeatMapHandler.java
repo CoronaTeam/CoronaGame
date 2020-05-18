@@ -41,8 +41,8 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.heatmapIntensity
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.heatmapRadius;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.heatmapWeight;
 
-class HeatMapHandler {
-    static final String HEATMAP_LAYER_ID = "lastPositions-heat";
+public class HeatMapHandler {
+    public static final String HEATMAP_LAYER_ID = "lastPositions-heat";
     private static final String LASTPOSITIONS_SOURCE_ID = "lastPositions";
     private static final String HEATMAP_LAYER_SOURCE = "lastPositions";
     private MapFragment parentClass;

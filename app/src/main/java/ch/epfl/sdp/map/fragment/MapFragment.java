@@ -91,17 +91,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     static boolean TESTING_MODE;
 
     @VisibleForTesting
-    void setLocationBroker(LocationBroker locationBroker){
-        if (locationBroker != null){
-            getActivity().unbindService(locationBrokerConn);
-            getActivity().stopService(new Intent(getContext(), LocationService.class));
-        }
-        this.locationBroker = locationBroker;
-        goOnline();
-    }
-
-    @VisibleForTesting
-    void onLayerLoaded(Callable func, String layerId) {
+    public void onLayerLoaded(Callable func, String layerId) {
         map.getStyle(style -> {
             if (style.getLayer(layerId) != null){
                 callDataLoaded(func);

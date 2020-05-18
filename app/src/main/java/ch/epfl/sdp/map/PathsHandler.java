@@ -64,16 +64,16 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
  * This class is used to display the user's last positions as a line on the map,
  * as well as points of met infected users.
  */
-class PathsHandler extends Fragment {
+public class PathsHandler extends Fragment {
     private static final String YESTERDAY_INFECTED_SOURCE_ID = "points-source-one";
     private static final String BEFORE_INFECTED_SOURCE_ID = "points-source-two";
-    static final String YESTERDAY_INFECTED_LAYER_ID = "pointslayer-one";
-    static final String BEFORE_INFECTED_LAYER_ID = "pointslayer-two";
+    public static final String YESTERDAY_INFECTED_LAYER_ID = "pointslayer-one";
+    public static final String BEFORE_INFECTED_LAYER_ID = "pointslayer-two";
 
     private static final String YESTERDAY_PATH_SOURCE_ID = "line-source-one";
     private static final String BEFORE_PATH_SOURCE_ID = "line-source-two";
-    static final String YESTERDAY_PATH_LAYER_ID = "linelayer-one";
-    static final String BEFORE_PATH_LAYER_ID = "linelayer-two";
+    public static final String YESTERDAY_PATH_LAYER_ID = "linelayer-one";
+    public static final String BEFORE_PATH_LAYER_ID = "linelayer-two";
 
     private List<Point> yesterdayPathCoordinates;
     private List<Point> beforeYesterdayPathCoordinates;
@@ -99,7 +99,7 @@ class PathsHandler extends Fragment {
     static boolean TEST_NON_EMPTY_LIST;
 
 
-    PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
+    public PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
         this.parentClass = parentClass;
         this.map = map;
         setCalendar();
@@ -154,7 +154,7 @@ class PathsHandler extends Fragment {
         return dateToSimpleString(date);
     }
 
-    void setCameraPosition(int day) {
+    public void setCameraPosition(int day) {
         boolean pathLocationSet = day == R.string.yesterday ? pathLocationSet1 : pathLocationSet2;
         if (pathLocationSet) {
             double lat = day == R.string.yesterday ? latitudeYesterday : latitudeBefore;

@@ -9,6 +9,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
+import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
+
 import static ch.epfl.sdp.TestTools.expandedLocEquals;
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;

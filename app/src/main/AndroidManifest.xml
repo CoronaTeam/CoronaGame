@@ -18,12 +18,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".testActivities.Authentication">
-            <intent-filter>
-                <action android:name="applicationB.intent.action.Launch" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
 
         <activity android:name=".testActivities.UserInfectionActivity">
             <intent-filter>
@@ -66,7 +60,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".firestore.FirebaseActivity">
+        <activity android:name=".testActivities.FirebaseActivity">
             <intent-filter>
                 <action android:name="applicationB.intent.action.Launch" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -107,6 +101,13 @@
             android:name=".tabActivity.TabActivity"
             android:theme="@style/AppTheme.NoActionBar">
 
+            <intent-filter>
+                <action android:name="applicationB.intent.action.Launch" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".identity.Authentication" >
             <intent-filter>
                 <action android:name="applicationB.intent.action.Launch" />
                 <category android:name="android.intent.category.DEFAULT" />

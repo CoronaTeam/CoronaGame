@@ -28,6 +28,9 @@ import ch.epfl.sdp.location.LocationService;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 
+/**
+ * View displaying the probability of infection of the user
+ */
 public class InfectionFragment extends Fragment implements View.OnClickListener {
 
     private TextView infectionStatus;

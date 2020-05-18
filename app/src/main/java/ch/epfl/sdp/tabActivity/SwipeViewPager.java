@@ -6,6 +6,10 @@ import android.view.MotionEvent;
 
 import androidx.viewpager.widget.ViewPager;
 
+/**
+ * Special viewPager that disable swipe motion to navigate between tabs
+ * Especially useful for the map as it uses swipe motion to navigate
+ */
 public class SwipeViewPager extends ViewPager {
 
     private boolean swipeEnabled;

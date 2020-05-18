@@ -18,7 +18,8 @@ import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.testActivities.UserInfectionFragment;
+import ch.epfl.sdp.contamination.databaseIO.DataReceiver;
+import ch.epfl.sdp.contamination.fragment.UserInfectionFragment;
 import ch.epfl.sdp.testActivities.UserInfectionActivity;
 import ch.epfl.sdp.identity.User;
 
@@ -33,7 +34,7 @@ import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.resetSickCounter;
 import static ch.epfl.sdp.TestTools.sleep;
-import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
+import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.privateRecoveryCounter;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static junit.framework.TestCase.assertSame;
 import static org.junit.Assert.assertEquals;

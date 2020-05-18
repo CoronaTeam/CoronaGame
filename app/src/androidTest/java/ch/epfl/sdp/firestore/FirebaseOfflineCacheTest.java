@@ -9,14 +9,13 @@ import androidx.test.rule.GrantPermissionRule;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SnapshotMetadata;
-import com.google.firebase.firestore.Source;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import ch.epfl.sdp.TestTools;
-import ch.epfl.sdp.firestore.FirebaseActivity;
+import ch.epfl.sdp.testActivities.FirebaseActivity;
 
 /*
       Run tests in debug mode to see logs & values prints

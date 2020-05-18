@@ -12,11 +12,14 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import ch.epfl.sdp.map.MapFragment;
+import ch.epfl.sdp.map.fragment.MapFragment;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
 import ch.epfl.sdp.contamination.fragment.StatusFragment;
 
+/**
+ * Contains fragments as Tabs, use special ViewPager to disable swipe motions
+ */
 public class TabActivity extends AppCompatActivity {
 
     private static class Tab {

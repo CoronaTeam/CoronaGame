@@ -1,4 +1,4 @@
-package ch.epfl.sdp.firestore;
+package ch.epfl.sdp.testActivities;
 
 import android.os.Bundle;
 import android.view.View;
@@ -17,6 +17,8 @@ import java.util.Random;
 import java.util.function.BiConsumer;
 
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
+import ch.epfl.sdp.firestore.FirestoreInteractor;
 
 import static ch.epfl.sdp.utilities.Tools.IS_ONLINE;
 import static ch.epfl.sdp.utilities.Tools.checkNetworkStatus;

@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
+import ch.epfl.sdp.map.fragment.MapFragment;
 
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
@@ -50,7 +51,7 @@ class HeatMapHandler {
     private Callable onHeatMapDataLoaded;
 
 
-    HeatMapHandler(@NonNull MapFragment parentClass, @NonNull ConcreteFirestoreInteractor db,
+    public HeatMapHandler(@NonNull MapFragment parentClass, @NonNull ConcreteFirestoreInteractor db,
                    @NonNull MapboxMap map) {
         this.parentClass = parentClass;
         this.db = db;

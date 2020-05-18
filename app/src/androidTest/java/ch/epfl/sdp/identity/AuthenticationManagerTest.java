@@ -8,11 +8,7 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
 
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.identity.fragment.AccountFragment;
 import ch.epfl.sdp.testActivities.AccountActivity;
-import ch.epfl.sdp.testActivities.Authentication;
-import ch.epfl.sdp.identity.AuthenticationManager;
-import ch.epfl.sdp.identity.User;
 
 import org.junit.After;
 import org.junit.Before;

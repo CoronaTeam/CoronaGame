@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.identity.Account;
-import ch.epfl.sdp.utilities.PositionRecord;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 
 public class HistoryFirestoreInteractor extends ConcreteFirestoreInteractor {

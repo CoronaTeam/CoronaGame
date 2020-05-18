@@ -15,9 +15,9 @@ import com.google.firebase.firestore.FieldValue;
 
 import java.util.Map;
 
-import ch.epfl.sdp.contamination.ConcreteCachingDataSender;
-import ch.epfl.sdp.contamination.ConcreteDataReceiver;
-import ch.epfl.sdp.contamination.GridFirestoreInteractor;
+import ch.epfl.sdp.contamination.databaseIO.ConcreteCachingDataSender;
+import ch.epfl.sdp.contamination.databaseIO.ConcreteDataReceiver;
+import ch.epfl.sdp.contamination.databaseIO.GridFirestoreInteractor;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
 import ch.epfl.sdp.location.LocationService;
 import ch.epfl.sdp.identity.AuthenticationManager;
@@ -28,9 +28,9 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static ch.epfl.sdp.contamination.CachingDataSender.privateRecoveryCounter;
-import static ch.epfl.sdp.contamination.CachingDataSender.privateUserFolder;
-import static ch.epfl.sdp.contamination.CachingDataSender.publicAlertAttribute;
+import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.privateRecoveryCounter;
+import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.privateUserFolder;
+import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 
 public interface TestTools {

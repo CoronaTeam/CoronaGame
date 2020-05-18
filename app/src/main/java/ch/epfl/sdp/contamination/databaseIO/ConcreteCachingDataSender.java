@@ -1,4 +1,4 @@
-package ch.epfl.sdp.contamination;
+package ch.epfl.sdp.contamination.databaseIO;
 
 import android.location.Location;
 
@@ -14,6 +14,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
+import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
 
 import static ch.epfl.sdp.identity.AuthenticationManager.getActivity;

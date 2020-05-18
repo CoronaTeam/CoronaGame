@@ -177,12 +177,7 @@ class HeatMapHandler {
 
     @VisibleForTesting
     void onHeatMapDataLoaded(Callable func) {
-        onHeatMapDataLoaded = func;
-
-        map.getStyle(style -> {
-            if (style.getLayer(HEATMAP_LAYER_ID) != null){
-                callHeatmapDataLoaded();
-            }
-        });
+       onHeatMapDataLoaded = func;
+       parentClass.onLayerLoaded(func, HEATMAP_LAYER_ID);
     }
 }

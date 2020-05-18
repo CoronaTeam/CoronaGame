@@ -38,7 +38,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.identity.Account;
@@ -64,10 +63,10 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
  * as well as points of met infected users.
  */
 class PathsHandler extends Fragment {
-    private static final String YESTERDAY_POINTS_SOURCE_ID = "points-source-one";
-    private static final String BEFORE_POINTS_SOURCE_ID = "points-source-two";
-    static final String YESTERDAY_POINTS_LAYER_ID = "pointslayer-one";
-    static final String BEFORE_POINTS_LAYER_ID = "pointslayer-two";
+    private static final String YESTERDAY_INFECTED_SOURCE_ID = "points-source-one";
+    private static final String BEFORE_INFECTED_SOURCE_ID = "points-source-two";
+    static final String YESTERDAY_INFECTED_LAYER_ID = "pointslayer-one";
+    static final String BEFORE_INFECTED_LAYER_ID = "pointslayer-two";
 
     private static final String YESTERDAY_PATH_SOURCE_ID = "line-source-one";
     private static final String BEFORE_PATH_SOURCE_ID = "line-source-two";
@@ -93,6 +92,9 @@ class PathsHandler extends Fragment {
     private static final int ZOOM = 13;
     private MapboxMap map;
     private MapFragment parentClass;
+
+    @VisibleForTesting
+    static boolean TEST_NON_EMPTY_LIST;
 
 
     PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
@@ -126,13 +128,8 @@ class PathsHandler extends Fragment {
     }
 
     @VisibleForTesting
-    String getYesterdayDate() {
-        return yesterdayString;
-    }
-
-    @VisibleForTesting
-    String getBeforeYesterdayDate() {
-        return beforeYesterdayString;
+    List<Point> getYesterdayInfectedMet() {
+        return yesterdayInfectedMet;
     }
 
     @VisibleForTesting
@@ -151,17 +148,9 @@ class PathsHandler extends Fragment {
     }
 
     @VisibleForTesting
-    void onLayerLoaded(Callable func, String layerId) {
-        map.getStyle(style -> {
-            if (style.getLayer(layerId) != null){
-                try {
-                    func.call();
-                }  catch (Exception ignored) {}
-            }
-        });
+    String getSimpleDateFormat(Date date) {
+        return dateToSimpleString(date);
     }
-
-
 
     void setCameraPosition(int day) {
         boolean pathLocationSet = day == R.string.yesterday ? pathLocationSet1 : pathLocationSet2;
@@ -180,6 +169,10 @@ class PathsHandler extends Fragment {
 
     private void getPathCoordinates(Iterator<QueryDocumentSnapshot> iterator) {
         initLists();
+
+        if (TEST_NON_EMPTY_LIST) {
+            fakeInitialization();
+        }
 
         for (; iterator.hasNext(); ) {
             QueryDocumentSnapshot qs = iterator.next();
@@ -210,6 +203,15 @@ class PathsHandler extends Fragment {
 
     }
 
+    private void fakeInitialization() {
+        for (double i = 0; i<10; ++i) {
+            yesterdayPathCoordinates.add(Point.fromLngLat(i, i));
+            if (i%3==0) {
+                yesterdayInfectedMet.add(Point.fromLngLat(i, i));
+            }
+        }
+    }
+
     private void initLists() {
         yesterdayPathCoordinates = new ArrayList<>();
         beforeYesterdayPathCoordinates = new ArrayList<>();
@@ -219,10 +221,10 @@ class PathsHandler extends Fragment {
 
     private void setLayers() {
         if (!yesterdayInfectedMet.isEmpty()) {
-            setInfectedPointsLayer(YESTERDAY_POINTS_LAYER_ID, YESTERDAY_POINTS_SOURCE_ID, yesterdayInfectedMet);
+            setInfectedPointsLayer(YESTERDAY_INFECTED_LAYER_ID, YESTERDAY_INFECTED_SOURCE_ID, yesterdayInfectedMet);
         }
         if (!beforeYesterdayInfectedMet.isEmpty()) {
-            setInfectedPointsLayer(BEFORE_POINTS_LAYER_ID, BEFORE_POINTS_SOURCE_ID, beforeYesterdayInfectedMet);
+            setInfectedPointsLayer(BEFORE_INFECTED_LAYER_ID, BEFORE_INFECTED_SOURCE_ID, beforeYesterdayInfectedMet);
         }
         if (!yesterdayPathCoordinates.isEmpty()) {
             setPathLayer(YESTERDAY_PATH_LAYER_ID, YESTERDAY_PATH_SOURCE_ID, yesterdayPathCoordinates);

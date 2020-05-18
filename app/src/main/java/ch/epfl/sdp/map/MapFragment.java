@@ -52,9 +52,9 @@ import ch.epfl.sdp.location.LocationBroker;
 import ch.epfl.sdp.location.LocationService;
 
 import static ch.epfl.sdp.map.PathsHandler.BEFORE_PATH_LAYER_ID;
-import static ch.epfl.sdp.map.PathsHandler.BEFORE_POINTS_LAYER_ID;
+import static ch.epfl.sdp.map.PathsHandler.BEFORE_INFECTED_LAYER_ID;
 import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_PATH_LAYER_ID;
-import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_POINTS_LAYER_ID;
+import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_INFECTED_LAYER_ID;
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
@@ -94,6 +94,21 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         }
         this.locationBroker = locationBroker;
         goOnline();
+    }
+
+    @VisibleForTesting
+    void onLayerLoaded(Callable func, String layerId) {
+        map.getStyle(style -> {
+            if (style.getLayer(layerId) != null){
+                callDataLoaded(func);
+            }
+        });
+    }
+
+    private void callDataLoaded(Callable func){
+        try {
+            func.call();
+        } catch (Exception ignored) {}
     }
 
     @Nullable
@@ -313,7 +328,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
     private void togglePath(int day) {
         String pathLayerId = day == R.string.yesterday ? YESTERDAY_PATH_LAYER_ID : BEFORE_PATH_LAYER_ID;
-        String infectedLayerId = day == R.string.yesterday ? YESTERDAY_POINTS_LAYER_ID : BEFORE_POINTS_LAYER_ID;
+        String infectedLayerId = day == R.string.yesterday ? YESTERDAY_INFECTED_LAYER_ID : BEFORE_INFECTED_LAYER_ID;
         toggleLayer(pathLayerId);
         toggleLayer(infectedLayerId);
         pathsHandler.setCameraPosition(day);

@@ -38,6 +38,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.identity.Account;
@@ -62,7 +63,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
  * This class is used to display the user's last positions as a line on the map,
  * as well as points of met infected users.
  */
-public class PathsHandler extends Fragment {
+class PathsHandler extends Fragment {
     private static final String YESTERDAY_POINTS_SOURCE_ID = "points-source-one";
     private static final String BEFORE_POINTS_SOURCE_ID = "points-source-two";
     static final String YESTERDAY_POINTS_LAYER_ID = "pointslayer-one";
@@ -83,11 +84,11 @@ public class PathsHandler extends Fragment {
     private double longitudeYesterday;
     private double longitudeBefore;
 
-    private boolean pathLocationSet1 = false;
-    private boolean pathLocationSet2 = false;
+    private boolean pathLocationSet1; // yesterday
+    private boolean pathLocationSet2; // before yesterday
 
-    public String yesterdayString;
-    public String beforeYesterdayString;
+    private String yesterdayString;
+    private String beforeYesterdayString;
 
     private static final int ZOOM = 13;
     private MapboxMap map;
@@ -120,19 +121,47 @@ public class PathsHandler extends Fragment {
     }
 
     @VisibleForTesting
-    public List<Point> getYesterdayPathCoordinatesAttribute() {
+    List<Point> getYesterdayPathCoordinates() {
         return yesterdayPathCoordinates;
     }
 
     @VisibleForTesting
-    public String getYesterdayDate() {
+    String getYesterdayDate() {
         return yesterdayString;
     }
 
     @VisibleForTesting
-    public String getBeforeYesterdayDate() {
+    String getBeforeYesterdayDate() {
         return beforeYesterdayString;
     }
+
+    @VisibleForTesting
+    double getLatitudeYesterday() {
+        return latitudeYesterday;
+    }
+
+    @VisibleForTesting
+    double getLongitudeYesterday() {
+        return longitudeYesterday;
+    }
+
+    @VisibleForTesting
+    boolean isPathLocationSet1() {
+        return pathLocationSet1;
+    }
+
+    @VisibleForTesting
+    void onLayerLoaded(Callable func, String layerId) {
+        map.getStyle(style -> {
+            if (style.getLayer(layerId) != null){
+                try {
+                    func.call();
+                }  catch (Exception ignored) {}
+            }
+        });
+    }
+
+
 
     void setCameraPosition(int day) {
         boolean pathLocationSet = day == R.string.yesterday ? pathLocationSet1 : pathLocationSet2;

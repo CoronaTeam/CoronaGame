@@ -4,6 +4,8 @@ import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
 import com.mapbox.mapboxsdk.style.layers.Layer;
+import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RFACLabelItem;
+import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RapidFloatingActionContentLabelList;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -13,6 +15,7 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.R;
@@ -26,6 +29,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.location.LocationUtils.buildLocation;
+import static ch.epfl.sdp.map.MapFragment.TESTING_MODE;
+import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_PATH_LAYER_ID;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
 import static junit.framework.TestCase.assertEquals;
@@ -36,6 +41,7 @@ public class MapActivityTest {
     private MapFragment mapFragment;
     private AtomicInteger sentinel;
     private MockLocationBroker mockLocationBroker;
+    private int pathCoordIsEmpty; // 0 if empty, 1 otherwise
 
     @Rule
     public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
@@ -70,7 +76,7 @@ public class MapActivityTest {
 
     @Test(timeout = 30000)
     public void testMapLoadCorrectly() throws Throwable {
-        while (mapFragment.getMap() == null){sleep(500);};
+        while (mapFragment.getMap() == null){sleep(500);}
 
         activityRule.runOnUiThread(() -> {
             mapFragment.getMap().getStyle((s) -> sentinel.incrementAndGet());
@@ -85,7 +91,7 @@ public class MapActivityTest {
     public void testHeatMapLoadCorrectly() throws Throwable {
         testMapLoadCorrectly();
 
-        while (mapFragment.getHeatMapHandler() == null){sleep(500);};
+        while (mapFragment.getHeatMapHandler() == null){sleep(500);}
 
         activityRule.runOnUiThread(() -> {
             mapFragment.getHeatMapHandler().onHeatMapDataLoaded(() -> sentinel.incrementAndGet());
@@ -95,10 +101,10 @@ public class MapActivityTest {
         sentinel.set(0);
     }
 
-    private void testLayerVisibility(String visibility) throws Throwable{
+    private void testLayerVisibility(String visibility, String layerId) throws Throwable{
         activityRule.runOnUiThread(() -> {
             mapFragment.getMap().getStyle(style -> {
-                Layer layer = style.getLayer(HeatMapHandler.HEATMAP_LAYER_ID);
+                Layer layer = style.getLayer(layerId);
                 assertNotNull(layer);
                 assertEquals(visibility, layer.getVisibility().getValue());
             });
@@ -118,41 +124,45 @@ public class MapActivityTest {
         while (sentinel.get() == 0){sleep(500);}
         sentinel.set(0);
 
-        testLayerVisibility(VISIBLE);
+        testLayerVisibility(VISIBLE, HeatMapHandler.HEATMAP_LAYER_ID);
 
         while (sentinel.get() == 0){sleep(500);}
         sentinel.set(0);
         onView(withId(R.id.heatMapToggle)).perform(click());
 
-        testLayerVisibility(NONE);
+        testLayerVisibility(NONE, HeatMapHandler.HEATMAP_LAYER_ID);
 
         while (sentinel.get() == 0){sleep(500);}
         sentinel.set(0);
     }
 
     ////////////////////////////////// Tests for PathsHandler //////////////////////////////////////
-    /*@Test
-    public void setCameraTargetToPath() {
-        mapFragment.pathsHandler.latitude = 12.0;
-        mapFragment.pathsHandler.longitude = 12.0;
 
-        mapFragment.pathsHandler.setCameraPosition();
+    @Test(timeout = 50000)
+    public void yesterdayPathLayerIsSetWhenNotEmpty() throws Throwable {
+        testMapLoadCorrectly();
 
-        double camLat = mapFragment.map.getCameraPosition().target.getLatitude();
-        double camLon = mapFragment.map.getCameraPosition().target.getLongitude();
+        pathGetsInstantiated();
 
-        assertEquals(12.0, camLat);
-        assertEquals(12.0, camLon);
-    }*/ // DON'T KNOW HOW TO TEST THIS YET: DOES NOT PASS THE CIRRUS BUILD -->> "Map interactions should happen on the UI thread. Method invoked from wrong thread is cancelTransitions."
+        if (!mapFragment.getPathsHandler().getYesterdayPathCoordinates().isEmpty()) {
+            activityRule.runOnUiThread(() -> mapFragment.getPathsHandler().onLayerLoaded(() -> sentinel.incrementAndGet(),
+                    YESTERDAY_PATH_LAYER_ID)); // The sentinel value will only increase if the layer on the map is not null
 
-    @Test
+            while (sentinel.get() == 0){sleep(500);}
+            pathCoordIsEmpty = 1;
+        }
+
+        sentinel.set(0);
+    }
+
+    @Test(timeout = 30000)
     public void pathGetsInstantiated() {
-        sleep(15000);
-        assertNotNull(mapFragment.getPathsHandler().getYesterdayPathCoordinatesAttribute());
+        while (mapFragment.getPathsHandler() == null){sleep(500);}
+        while (mapFragment.getPathsHandler().getYesterdayPathCoordinates() == null){sleep(500);}
     }
 
     @Test
-    public void historyOptionsAreDisplayedWhenPressButton() {
+    public void pathsButtonLayoutIsDisplayedWhenPressed() {
         onView(withId(R.id.history_rfab)).perform(click());
         onView(withId(R.id.history_rfal)).check(matches(isDisplayed()));
     }
@@ -169,35 +179,53 @@ public class MapActivityTest {
         assertEquals(expected_before, mapFragment.getPathsHandler().getBeforeYesterdayDate());
     }
 
-    @Test @Ignore("Incomplete")
-    public void togglePathMakesItVisible() {
+    @Test(timeout = 100000)
+    public void toggleYesterdayPathChangesVisibilityWhenNotEmpty() throws Throwable {
+        testMapLoadCorrectly();
+        mapFragment.onMapVisible(() -> sentinel.incrementAndGet());
+
+        while (sentinel.get() == 0){sleep(500);}
+        sentinel.set(0);
+
+        if (pathCoordIsEmpty == 1) {
+            testLayerVisibility(NONE, YESTERDAY_PATH_LAYER_ID);
+
+            while (sentinel.get() == 0){sleep(500);}
+            sentinel.set(0);
+
+            onView(withId(R.id.history_rfab)).perform(click());
+            List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList)mapFragment.getRfabHelper().obtainRFAContent()).getItems();
+            mapFragment.onRFACItemIconClick(0, pathItems.get(0));
+
+            testLayerVisibility(VISIBLE, YESTERDAY_PATH_LAYER_ID);
+
+            while (sentinel.get() == 0){sleep(500);}
+            sentinel.set(0);
+        }
+    }
+
+    @Test
+    public void cameraTargetsPathWhenToggle() throws Throwable {
+        TESTING_MODE = true;
+
         onView(withId(R.id.history_rfab)).perform(click());
-        sleep(3000);
-        //Layer layer = mapFragment.map.getStyle().getLayer(PATH_LAYER_ID);
-        //assertEquals(VISIBLE, layer.getVisibility().getValue());
-    }
+        List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList)mapFragment.getRfabHelper().obtainRFAContent()).getItems();
 
-    //"Map interactions should happen on the UI thread. Method invoked from wrong thread is getLayer.")
-    @Test @Ignore("Incomplete")
-    public void pathNotVisibleByDefault() {
-        /*onView(withId(R.id.history_button)).perform(click());
-        onView(withId(R.id.pathButton)).perform(click());
-        sleep(3000);
-        Layer layer = mapFragment.map.getStyle().getLayer(PATH_LAYER_ID);
-        assertNotEquals(VISIBLE, layer.getVisibility().getValue());*/
-    }
+        if (mapFragment.getPathsHandler().isPathLocationSet1()) {
 
-    //"need to be able to click back on the map to make the history dialog fragment disappear")
-    @Test @Ignore("Incomplete")
-    public void cameraTargetsPathWhenToggle() {
-        /*sleep(15000);
-        onView(withId(R.id.history_button)).perform(click());
-        onView(withId(R.id.pathButton)).perform(click());
-        double exp_lat = mapFragment.pathsHandler.latitude;
-        double exp_lon = mapFragment.pathsHandler.longitude;
-        double act_lat = mapFragment.getMap().getCameraPosition().target.getLatitude();
-        double act_lon = mapFragment.getMap().getCameraPosition().target.getLongitude();
-        assertEquals(exp_lat, act_lat);
-        assertEquals(exp_lon, act_lon);*/
+            activityRule.runOnUiThread(() -> {
+                mapFragment.onRFACItemIconClick(0, pathItems.get(0));
+
+                double exp_lat = mapFragment.getPathsHandler().getLatitudeYesterday();
+                double exp_lon = mapFragment.getPathsHandler().getLongitudeYesterday();
+                double act_lat = mapFragment.getMap().getCameraPosition().target.getLatitude();
+                double act_lon = mapFragment.getMap().getCameraPosition().target.getLongitude();
+
+                assertEquals(exp_lat, act_lat);
+                assertEquals(exp_lon, act_lon);
+            });
+        }
+
+        TESTING_MODE = false;
     }
 }

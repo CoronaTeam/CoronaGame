@@ -84,6 +84,9 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private View view;
 
     @VisibleForTesting
+    static boolean TESTING_MODE;
+
+    @VisibleForTesting
     void setLocationBroker(LocationBroker locationBroker){
         if (locationBroker != null){
             getActivity().unbindService(locationBrokerConn);
@@ -308,7 +311,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         });
     }
 
-    public void togglePath(int day) {
+    private void togglePath(int day) {
         String pathLayerId = day == R.string.yesterday ? YESTERDAY_PATH_LAYER_ID : BEFORE_PATH_LAYER_ID;
         String infectedLayerId = day == R.string.yesterday ? YESTERDAY_POINTS_LAYER_ID : BEFORE_POINTS_LAYER_ID;
         toggleLayer(pathLayerId);
@@ -316,7 +319,6 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         pathsHandler.setCameraPosition(day);
     }
 
-//////////////////////////////////////////History button/////////////////////////////////////////////
 
     private void setHistoryRFAButton() {
         RapidFloatingActionLayout rfaLayout = view.findViewById(R.id.history_rfal);
@@ -360,7 +362,9 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     public void onRFACItemIconClick(int position, RFACLabelItem item) {
         String day = position == 0 ? getString(R.string.yesterday) : getString(R.string.before_yesterday);
         int dayInt = position == 0 ? R.string.yesterday : R.string.before_yesterday;
-        Toast.makeText(getContext(), "Toggle path from: " + day, Toast.LENGTH_SHORT).show();
+        if (!TESTING_MODE) {
+            Toast.makeText(getContext(), "Toggle path from: " + day, Toast.LENGTH_SHORT).show();
+        }
         togglePath(dayInt);
 
         rfabHelper.toggleContent();
@@ -395,5 +399,10 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     @VisibleForTesting
     PathsHandler getPathsHandler() {
         return pathsHandler;
+    }
+
+    @VisibleForTesting
+    RapidFloatingActionHelper getRfabHelper() {
+        return rfabHelper;
     }
 }

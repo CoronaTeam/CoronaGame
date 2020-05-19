@@ -21,8 +21,8 @@ import ch.epfl.sdp.contamination.databaseIO.DataReceiver;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
-import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.privateRecoveryCounter;
-import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.publicAlertAttribute;
+import static ch.epfl.sdp.firestore.FirestoreLabels.privateRecoveryCounter;
+import static ch.epfl.sdp.firestore.FirestoreLabels.publicAlertAttribute;
 
 
 // TODO: @Ulysse, @Adrien, @Kevin, @Lucas, @Lucie: general info on ConcreteAnalysis

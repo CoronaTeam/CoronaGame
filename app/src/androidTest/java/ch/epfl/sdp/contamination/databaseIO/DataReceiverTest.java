@@ -14,7 +14,7 @@ import ch.epfl.sdp.identity.User;
 
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
-import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.publicAlertAttribute;
+import static ch.epfl.sdp.firestore.FirestoreLabels.publicAlertAttribute;
 import static org.junit.Assert.assertEquals;
 
 public class DataReceiverTest {

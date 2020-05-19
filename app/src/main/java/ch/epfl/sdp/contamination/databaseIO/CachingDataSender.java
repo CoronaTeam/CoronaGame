@@ -15,13 +15,12 @@ import ch.epfl.sdp.contamination.InfectionAnalyst;
 
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.taskToFuture;
+import static ch.epfl.sdp.firestore.FirestoreLabels.publicAlertAttribute;
+import static ch.epfl.sdp.firestore.FirestoreLabels.publicUserFolder;
 
 public interface CachingDataSender {
     int ROUNDING_FACTOR = 100000; //determines the GPS coordinates precision
-    String publicUserFolder = "publicUser/";
-    String publicAlertAttribute = "recentlySickMeetingCounter";
-    String privateUserFolder = "privateUser/";
-    String privateRecoveryCounter = "recoveryCounter";
+
 
     int MAX_CACHE_ENTRY_AGE = InfectionAnalyst.UNINTENTIONAL_CONTAGION_TIME;
 

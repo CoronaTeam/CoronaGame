@@ -28,10 +28,10 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.privateRecoveryCounter;
-import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.privateUserFolder;
-import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.publicAlertAttribute;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
+import static ch.epfl.sdp.firestore.FirestoreLabels.privateRecoveryCounter;
+import static ch.epfl.sdp.firestore.FirestoreLabels.privateUserFolder;
+import static ch.epfl.sdp.firestore.FirestoreLabels.publicAlertAttribute;
 
 public interface TestTools {
     /**
@@ -85,7 +85,7 @@ public interface TestTools {
     }
     /**
      * Rounds a double to 5 digits after the comma
-     * @param coor
+     * @param
      * @return
      */
 

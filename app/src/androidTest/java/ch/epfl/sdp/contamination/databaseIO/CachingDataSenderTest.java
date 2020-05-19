@@ -3,7 +3,6 @@ package ch.epfl.sdp.contamination.databaseIO;
 import android.location.Location;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -11,7 +10,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.SortedMap;
 
-import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.identity.User;
@@ -19,7 +17,7 @@ import ch.epfl.sdp.identity.User;
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.contamination.InfectionAnalyst.UNINTENTIONAL_CONTAGION_TIME;
-import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.publicAlertAttribute;
+import static ch.epfl.sdp.firestore.FirestoreLabels.publicAlertAttribute;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

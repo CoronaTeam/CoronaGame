@@ -33,7 +33,7 @@ import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.resetSickCounter;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
-import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.privateRecoveryCounter;
+import static ch.epfl.sdp.firestore.FirestoreLabels.privateRecoveryCounter;
 import static ch.epfl.sdp.utilities.Tools.IS_NETWORK_DEBUG;
 import static ch.epfl.sdp.utilities.Tools.IS_ONLINE;
 import static junit.framework.TestCase.assertSame;

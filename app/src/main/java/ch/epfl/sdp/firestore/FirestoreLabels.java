@@ -26,4 +26,9 @@ public interface FirestoreLabels {
 
     // LiveGrid/Grid#[lat]#[long]/Times/[unixTime]
     String UNIXTIME_TAG = "Time";
+
+    String publicUserFolder = "publicUser/";
+    String publicAlertAttribute = "recentlySickMeetingCounter";
+    String privateUserFolder = "privateUser/";
+    String privateRecoveryCounter = "recoveryCounter";
 }

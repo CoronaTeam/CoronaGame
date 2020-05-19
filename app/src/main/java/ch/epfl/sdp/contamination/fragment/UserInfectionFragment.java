@@ -41,9 +41,9 @@ import ch.epfl.sdp.utilities.Tools;
 import static android.content.Context.BIND_AUTO_CREATE;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
-import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.privateRecoveryCounter;
-import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.privateUserFolder;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
+import static ch.epfl.sdp.firestore.FirestoreLabels.privateRecoveryCounter;
+import static ch.epfl.sdp.firestore.FirestoreLabels.privateUserFolder;
 import static ch.epfl.sdp.utilities.Tools.IS_ONLINE;
 import static ch.epfl.sdp.utilities.Tools.checkNetworkStatus;
 

@@ -24,8 +24,8 @@ import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.Neighbor;
 import ch.epfl.sdp.identity.Account;
 
-import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.privateUserFolder;
-import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.publicUserFolder;
+import static ch.epfl.sdp.firestore.FirestoreLabels.privateUserFolder;
+import static ch.epfl.sdp.firestore.FirestoreLabels.publicUserFolder;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.getTag;
 import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;

@@ -317,7 +317,7 @@ public class ConcreteAnalysisTest {
     public void infectionProbabilityIsUpdated() throws Throwable {
         recoveryCounter = 0;
         CityDataReceiver cityReceiver = new CityDataReceiver();
-        ObservableCarrier me = new Layman(HEALTHY);
+        ObservableCarrier me = new Layman(HEALTHY,"TESTUSER");
 
         InfectionFragment fragment = ((InfectionFragment)mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
 
@@ -394,23 +394,17 @@ public class ConcreteAnalysisTest {
         city.get(badLocation).put(nowMillis+11,Collections.singleton((new Layman(INFECTED,"Amélie Poulain"))));
         city.get(badLocation).put(nowMillis+10,Collections.singleton((new Layman(INFECTED,"Jean-Yves le Boudecque"))));
 
-        Thread.sleep(5000);
+        sleep(5000);
 
         // I go to the bad location
         cityReceiver.setMyCurrentLocation(buildLocation(40, 113.4));
 
         mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
-        Thread.sleep(10);
-        sleep(5000);
-        clickBack();
-        sleep(10000);
+        clickBack(2500);
         // Now there should be some risk that I was infected
         onView(withId(R.id.my_infection_refresh)).perform(click());
-        sleep(5000);
-        // TODO: @Matteo still not working
-        /*clickBack();
-        sleep(10000);*/
-        //onView(withId(R.id.my_infection_status)).check(matches(withText("UNKNOWN")));
+        clickBack(2500);
+        onView(withId(R.id.my_infection_status)).check(matches(withText("UNKNOWN")));
 
         // TODO: Restore original components
         service.setReceiver(originalReceiver);

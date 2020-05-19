@@ -212,7 +212,8 @@ public class MapActivityTest {
 
     @Test(timeout = 100000)
     public void toggleYesterdayPathChangesVisibilityWhenNotEmpty() throws Throwable {
-        testMapLoadCorrectly();
+        yesterdayPathLayerIsSetWhenNotEmpty();
+        yesterdayInfectedLayerIsSetWhenNotEmpty();
         mapFragment.onMapVisible(() -> sentinel.incrementAndGet());
 
         waitForSentinelAndSetToZero();

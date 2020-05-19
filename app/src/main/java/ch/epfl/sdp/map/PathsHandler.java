@@ -126,6 +126,8 @@ public class PathsHandler extends Fragment {
 
         if (TEST_NON_EMPTY_LIST) {
             fakeInitialization();
+            setLayers();
+            return;
         }
 
         for (; iterator.hasNext(); ) {
@@ -185,15 +187,6 @@ public class PathsHandler extends Fragment {
         }
     }
 
-    private void fakeInitialization() {
-        for (double i = 0; i < 10; ++i) {
-            yesterdayPathCoordinates.add(Point.fromLngLat(i, i));
-            if (i % 3 == 0) {
-                yesterdayInfectedMet.add(Point.fromLngLat(i, i));
-            }
-        }
-    }
-
     private void initLists() {
         yesterdayPathCoordinates = new ArrayList<>();
         beforeYesterdayPathCoordinates = new ArrayList<>();
@@ -202,14 +195,9 @@ public class PathsHandler extends Fragment {
     }
 
     private void setLayers() {
-        if (!yesterdayInfectedMet.isEmpty()) {
-            setInfectedPointsLayer(YESTERDAY_INFECTED_LAYER_ID, YESTERDAY_INFECTED_SOURCE_ID,
-                    yesterdayInfectedMet);
-        }
-        if (!beforeYesterdayInfectedMet.isEmpty()) {
-            setInfectedPointsLayer(BEFORE_INFECTED_LAYER_ID, BEFORE_INFECTED_SOURCE_ID,
-                    beforeYesterdayInfectedMet);
-        }
+        setInfectedLayerIfNotEmpty(yesterdayInfectedMet, YESTERDAY_INFECTED_LAYER_ID, YESTERDAY_INFECTED_SOURCE_ID);
+        setInfectedLayerIfNotEmpty(beforeYesterdayInfectedMet, BEFORE_INFECTED_LAYER_ID, BEFORE_INFECTED_SOURCE_ID);
+
         if (!yesterdayPathCoordinates.isEmpty()) {
             setPathLayer(YESTERDAY_PATH_LAYER_ID, YESTERDAY_PATH_SOURCE_ID, yesterdayPathCoordinates);
             latitudeYesterday = yesterdayPathCoordinates.get(0).latitude();
@@ -221,6 +209,13 @@ public class PathsHandler extends Fragment {
             latitudeBefore = beforeYesterdayPathCoordinates.get(0).latitude();
             longitudeBefore = beforeYesterdayPathCoordinates.get(0).longitude();
             pathLocationSet2 = true;
+        }
+    }
+
+    private void setInfectedLayerIfNotEmpty(List<Point> infectedMet, String infectedLayerId, String infectedSourceId) {
+        if (!infectedMet.isEmpty()) {
+            setInfectedPointsLayer(infectedLayerId, infectedSourceId,
+                    infectedMet);
         }
     }
 
@@ -279,6 +274,15 @@ public class PathsHandler extends Fragment {
     private String getUserId() {
         Account account = AuthenticationManager.getAccount(getActivity());
         return account.getId();
+    }
+
+    private void fakeInitialization() {
+        for (double i = 0; i < 10; ++i) {
+            yesterdayPathCoordinates.add(Point.fromLngLat(i, i));
+            if (i % 3 == 0) {
+                yesterdayInfectedMet.add(Point.fromLngLat(i, i));
+            }
+        }
     }
 
     @VisibleForTesting

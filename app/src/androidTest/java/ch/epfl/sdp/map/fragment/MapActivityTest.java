@@ -22,7 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
-import ch.epfl.sdp.map.HeatMapHandler;
 import ch.epfl.sdp.map.MockLocationBroker;
 import ch.epfl.sdp.map.PathsHandler;
 import ch.epfl.sdp.testActivities.MapActivity;
@@ -48,14 +47,16 @@ public class MapActivityTest {
     private MapFragment mapFragment;
     private AtomicInteger sentinel;
     private MockLocationBroker mockLocationBroker;
-    private int pathCoordIsEmpty = 1; // 1 if empty, 0 otherwise
-    private int infectedCoordIsEmpty = 1; // 1 if empty, 0 otherwise
+    private boolean pathCoordIsEmpty;
+    private boolean infectedCoordIsEmpty;
 
     @Rule
-    public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
+    public GrantPermissionRule locationPermissionRule =
+            GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
 
     @Rule
-    public final ActivityTestRule<MapActivity> activityRule = new ActivityTestRule<>(MapActivity.class);
+    public final ActivityTestRule<MapActivity> activityRule =
+            new ActivityTestRule<>(MapActivity.class);
 
     @Before
     public void setUp() throws Throwable {
@@ -88,14 +89,11 @@ public class MapActivityTest {
             sleep(500);
         }
 
-        activityRule.runOnUiThread(() -> {
-            mapFragment.getMap().getStyle((s) -> sentinel.incrementAndGet());
-        }); // The sentinel value will only increase when the style has completely loaded
+        activityRule.runOnUiThread(() -> mapFragment.getMap().getStyle((s)
+                -> sentinel.incrementAndGet()));
+        // The sentinel value will only increase when the style has completely loaded
 
-        while (sentinel.get() == 0) {
-            sleep(500);
-        }
-        sentinel.set(0);
+        waitForSentinelAndSetToZero();
     }
 
 
@@ -107,14 +105,11 @@ public class MapActivityTest {
             sleep(500);
         }
 
-        activityRule.runOnUiThread(() -> {
-            mapFragment.getHeatMapHandler().onHeatMapDataLoaded(() -> sentinel.incrementAndGet());
-        }); // The sentinel value will only increase when the heatmap has completely loaded
+        activityRule.runOnUiThread(() -> mapFragment.getHeatMapHandler().onHeatMapDataLoaded(()
+                -> sentinel.incrementAndGet()));
+        // The sentinel value will only increase when the heatmap has completely loaded
 
-        while (sentinel.get() == 0) {
-            sleep(500);
-        }
-        sentinel.set(0);
+        waitForSentinelAndSetToZero();
     }
 
     private void testLayerVisibility(String visibility, String layerId) throws Throwable {
@@ -137,25 +132,16 @@ public class MapActivityTest {
 
         mapFragment.onMapVisible(() -> sentinel.incrementAndGet());
 
-        while (sentinel.get() == 0) {
-            sleep(500);
-        }
-        sentinel.set(0);
+        waitForSentinelAndSetToZero();
 
         testLayerVisibility(VISIBLE, HEATMAP_LAYER_ID);
 
-        while (sentinel.get() == 0) {
-            sleep(500);
-        }
-        sentinel.set(0);
+        waitForSentinelAndSetToZero();
         onView(withId(R.id.heatMapToggle)).perform(click());
 
         testLayerVisibility(NONE, HEATMAP_LAYER_ID);
 
-        while (sentinel.get() == 0) {
-            sleep(500);
-        }
-        sentinel.set(0);
+        waitForSentinelAndSetToZero();
     }
 
     ////////////////////////////////// Tests for PathsHandler //////////////////////////////////////
@@ -167,16 +153,11 @@ public class MapActivityTest {
         pathGetsInstantiated();
 
         if (!mapFragment.getPathsHandler().getYesterdayPathCoordinates().isEmpty()) {
-            activityRule.runOnUiThread(() -> mapFragment.onLayerLoaded(() -> sentinel.incrementAndGet(),
-                    YESTERDAY_PATH_LAYER_ID)); // The sentinel value will only increase if the layer on the map is not null
-
-            while (sentinel.get() == 0) {
-                sleep(500);
-            }
-            pathCoordIsEmpty = 0;
+            testLayerIsSet(YESTERDAY_PATH_LAYER_ID);
+            pathCoordIsEmpty = false;
+        } else {
+            pathCoordIsEmpty = true;
         }
-
-        sentinel.set(0);
     }
 
     @Test(timeout = 50000)
@@ -186,16 +167,19 @@ public class MapActivityTest {
         pathGetsInstantiated();
 
         if (!mapFragment.getPathsHandler().getYesterdayInfectedMet().isEmpty()) {
-            activityRule.runOnUiThread(() -> mapFragment.onLayerLoaded(() -> sentinel.incrementAndGet(),
-                    YESTERDAY_INFECTED_LAYER_ID)); // The sentinel value will only increase if the layer on the map is not null
-
-            while (sentinel.get() == 0) {
-                sleep(500);
-            }
-            infectedCoordIsEmpty = 0;
+            testLayerIsSet(YESTERDAY_INFECTED_LAYER_ID);
+            infectedCoordIsEmpty = false;
+        } else {
+            infectedCoordIsEmpty = true;
         }
+    }
 
-        sentinel.set(0);
+    private void testLayerIsSet(String layerId) throws Throwable {
+        activityRule.runOnUiThread(() -> mapFragment.onLayerLoaded(()
+                        -> sentinel.incrementAndGet(), layerId));
+        // The sentinel value will only increase if the layer on the map is not null
+
+        waitForSentinelAndSetToZero();
     }
 
     @Test(timeout = 30000)
@@ -214,11 +198,8 @@ public class MapActivityTest {
         onView(withId(R.id.history_rfal)).check(matches(isDisplayed()));
     }
 
-    // Since we want to test functions dealing with Calendar,
-    // we don't use calendar for a more objective test:
-    // we hardcode dates w.r.t. the day on which this test is ran
     @Test(timeout = 20000)
-    public void datesFormattedAsYYYYmmDD() { // their expected format is defined as "yyyy/MM/dd"
+    public void datesFormattedAsYYYYmmDD() {
         while (mapFragment.getPathsHandler() == null) {
             sleep(500);
         }
@@ -234,48 +215,42 @@ public class MapActivityTest {
         testMapLoadCorrectly();
         mapFragment.onMapVisible(() -> sentinel.incrementAndGet());
 
+        waitForSentinelAndSetToZero();
+
+        if (!pathCoordIsEmpty) {
+            testLayerVisibility(NONE, YESTERDAY_PATH_LAYER_ID);
+
+            waitForSentinelAndSetToZero();
+
+            testInfectedLayerVisibilityIfNotEmpty(NONE);
+
+            onView(withId(R.id.history_rfab)).perform(click());
+            List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList)
+                    mapFragment.getRfabHelper().obtainRFAContent()).getItems();
+            activityRule.runOnUiThread(() ->
+                    mapFragment.onRFACItemIconClick(0, pathItems.get(0)));
+
+            testLayerVisibility(VISIBLE, YESTERDAY_PATH_LAYER_ID);
+
+            waitForSentinelAndSetToZero();
+
+            testInfectedLayerVisibilityIfNotEmpty(VISIBLE);
+        }
+    }
+
+    private void testInfectedLayerVisibilityIfNotEmpty(String visibility) throws Throwable {
+        if (!infectedCoordIsEmpty) {
+            testLayerVisibility(visibility, YESTERDAY_INFECTED_LAYER_ID);
+
+            waitForSentinelAndSetToZero();
+        }
+    }
+
+    private void waitForSentinelAndSetToZero() {
         while (sentinel.get() == 0) {
             sleep(500);
         }
         sentinel.set(0);
-
-        if (pathCoordIsEmpty == 0) {
-            testLayerVisibility(NONE, YESTERDAY_PATH_LAYER_ID);
-
-            while (sentinel.get() == 0) {
-                sleep(500);
-            }
-            sentinel.set(0);
-
-            if (infectedCoordIsEmpty == 0) {
-                testLayerVisibility(NONE, YESTERDAY_INFECTED_LAYER_ID);
-
-                while (sentinel.get() == 0) {
-                    sleep(500);
-                }
-                sentinel.set(0);
-            }
-
-            onView(withId(R.id.history_rfab)).perform(click());
-            List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList) mapFragment.getRfabHelper().obtainRFAContent()).getItems();
-            activityRule.runOnUiThread(() -> mapFragment.onRFACItemIconClick(0, pathItems.get(0)));
-
-            testLayerVisibility(VISIBLE, YESTERDAY_PATH_LAYER_ID);
-
-            while (sentinel.get() == 0) {
-                sleep(500);
-            }
-            sentinel.set(0);
-
-            if (infectedCoordIsEmpty == 0) {
-                testLayerVisibility(VISIBLE, YESTERDAY_INFECTED_LAYER_ID);
-
-                while (sentinel.get() == 0) {
-                    sleep(500);
-                }
-                sentinel.set(0);
-            }
-        }
     }
 
     @Test
@@ -287,7 +262,8 @@ public class MapActivityTest {
         mockLocationBroker.setFakeLocation(buildLocation(46, 55));
 
         onView(withId(R.id.history_rfab)).perform(click());
-        List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList) mapFragment.getRfabHelper().obtainRFAContent()).getItems();
+        List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList)
+                mapFragment.getRfabHelper().obtainRFAContent()).getItems();
 
         activityRule.runOnUiThread(() -> mapFragment.onRFACItemIconClick(0, pathItems.get(0)));
         sleep(5000);

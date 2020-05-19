@@ -96,7 +96,7 @@ public class PathsHandler extends Fragment {
     private MapFragment parentClass;
 
     @VisibleForTesting
-    static boolean TEST_NON_EMPTY_LIST;
+    public static boolean TEST_NON_EMPTY_LIST;
 
 
     public PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
@@ -125,32 +125,32 @@ public class PathsHandler extends Fragment {
     }
 
     @VisibleForTesting
-    List<Point> getYesterdayPathCoordinates() {
+    public List<Point> getYesterdayPathCoordinates() {
         return yesterdayPathCoordinates;
     }
 
     @VisibleForTesting
-    List<Point> getYesterdayInfectedMet() {
+    public List<Point> getYesterdayInfectedMet() {
         return yesterdayInfectedMet;
     }
 
     @VisibleForTesting
-    double getLatitudeYesterday() {
+    public double getLatitudeYesterday() {
         return latitudeYesterday;
     }
 
     @VisibleForTesting
-    double getLongitudeYesterday() {
+    public double getLongitudeYesterday() {
         return longitudeYesterday;
     }
 
     @VisibleForTesting
-    boolean isPathLocationSet1() {
+    public boolean isPathLocationSet1() {
         return pathLocationSet1;
     }
 
     @VisibleForTesting
-    String getSimpleDateFormat(Date date) {
+    public String getSimpleDateFormat(Date date) {
         return dateToSimpleString(date);
     }
 

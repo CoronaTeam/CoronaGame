@@ -24,6 +24,7 @@ import ch.epfl.sdp.R;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
 import ch.epfl.sdp.map.HeatMapHandler;
 import ch.epfl.sdp.map.MockLocationBroker;
+import ch.epfl.sdp.map.PathsHandler;
 import ch.epfl.sdp.testActivities.MapActivity;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -34,7 +35,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.location.LocationUtils.buildLocation;
 import static ch.epfl.sdp.map.HeatMapHandler.HEATMAP_LAYER_ID;
-import static ch.epfl.sdp.map.MapFragment.TESTING_MODE;
+import static ch.epfl.sdp.map.fragment.MapFragment.TESTING_MODE;
 import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_INFECTED_LAYER_ID;
 import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_PATH_LAYER_ID;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;

@@ -88,27 +88,7 @@ public interface TestTools {
      * @param coor
      * @return
      */
-    static double roundCoordinate(double coor){
-        return (double)Math.round(coor * 100000d) / 100000d;//fast rounding to 5 digits
-    }
 
-    /**
-     * Rounds a location to 5 digits after the comma
-     * @param l
-     * @return
-     */
-    static Location roundLocation(Location l){
-        if(l == null){
-            throw new IllegalArgumentException("Location can't be null");
-        }
-        double latitude = l.getLatitude();
-        double longitude = l.getLongitude();
-        latitude = roundCoordinate(latitude);
-        longitude = roundCoordinate(longitude);
-        l.setLatitude(latitude);
-        l.setLongitude(longitude);
-        return l;
-    }
 
     static Location newLoc(double lati,double longi){
         Location res =  new Location("provider");

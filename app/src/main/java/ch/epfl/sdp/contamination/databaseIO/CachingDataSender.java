@@ -17,7 +17,7 @@ import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.taskToFuture;
 
 public interface CachingDataSender {
-    int EXPAND_FACTOR = 100000; //determines the GPS coordinates precision
+    int ROUNDING_FACTOR = 100000; //determines the GPS coordinates precision
     String publicUserFolder = "publicUser/";
     String publicAlertAttribute = "recentlySickMeetingCounter";
     String privateUserFolder = "privateUser/";
@@ -67,4 +67,27 @@ public interface CachingDataSender {
      * @return:  positions send to firebase during the last UNINTENTIONAL_CONTAGION_TIME time.
      */
     SortedMap<Date, Location> getLastPositions();
+
+
+    static double roundCoordinate(double coor){
+        return (double)Math.round(coor * 100000d) / 100000d;//fast rounding to 5 digits
+    }
+
+    /**
+     * Rounds a location to 5 digits after the comma
+     * @param l
+     * @return
+     */
+    static Location roundLocation(Location l){
+        if(l == null){
+            throw new IllegalArgumentException("Location can't be null");
+        }
+        double latitude = l.getLatitude();
+        double longitude = l.getLongitude();
+        latitude = roundCoordinate(latitude);
+        longitude = roundCoordinate(longitude);
+        l.setLatitude(latitude);
+        l.setLongitude(longitude);
+        return l;
+    }
 }

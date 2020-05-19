@@ -35,18 +35,17 @@ public class CachingDataSenderTest {
     }
 
     @Test
-    @Ignore
     public void RoundAndExpandLocationIsCorrect() {
         Location location = new Location("provider");
         location.setLatitude(12.1234567);
         location.setLongitude(134.9876543);
 
         // TODO: @Lucas, now locations are rounded when they are stored on Firestore
-        //CachingDataSender.RoundAndExpandLocation(location);
+        CachingDataSender.roundLocation(location);
 
         Location manuallyRoundedLocation = new Location("provider");
-        manuallyRoundedLocation.setLongitude(13498765);
-        manuallyRoundedLocation.setLatitude(1212346);
+        manuallyRoundedLocation.setLongitude(13.498765);
+        manuallyRoundedLocation.setLatitude(12.12346);
         assertTrue(TestTools.expandedLocEquals(manuallyRoundedLocation, location));
 //        assertEquals(manuallyRoundedLocation.getLongitude(),location.getLongitude(),0);
 //        assertEquals(manuallyRoundedLocation.getLatitude(),location.getLatitude(),0);

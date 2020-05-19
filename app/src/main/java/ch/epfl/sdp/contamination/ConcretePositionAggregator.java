@@ -4,6 +4,8 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import androidx.annotation.VisibleForTesting;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -108,18 +110,14 @@ public final class ConcretePositionAggregator implements PositionAggregator {
         if (lastDate != null) {
             List<Location> targetLocations = buffer.remove(lastDate.getTime());
             Location meanLocation = getMean(targetLocations);
-
             // TODO: [LOG]
             Log.e("POSITION_AGGREGATOR", "New position committed");
-
             // Perform potentially long-running operation on a different thread
-            AsyncTask.execute(() -> {
-                cachingDataSender.registerLocation(carrier, meanLocation, lastDate).join();
+            cachingDataSender.registerLocation(carrier, meanLocation, lastDate);
+            // TODO: [LOG]
+            Log.e("POSITION_AGGREGATOR", meanLocation.toString() + " with date : " + lastDate.getTime());
+            Log.e("POSITION_AGGREGATOR", "Upload performed");
 
-                // TODO: [LOG]
-                Log.e("POSITION_AGGREGATOR", meanLocation.toString() + " with date : " + lastDate.getTime());
-                Log.e("POSITION_AGGREGATOR", "Upload performed");
-            });
         }
     }
 

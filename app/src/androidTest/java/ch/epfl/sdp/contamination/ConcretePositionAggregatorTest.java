@@ -99,16 +99,16 @@ public class ConcretePositionAggregatorTest {
         //TEST 1
         Map<Date,Location> firebaseLoc = sender.getMap();
         assertNotNull(firebaseLoc);
-        Location res = newLoc(5* CachingDataSender.EXPAND_FACTOR,5* CachingDataSender.EXPAND_FACTOR);
+        Location res = newLoc(5 ,5 );
         assertTrue(firebaseLoc.containsKey(now));
         assertTrue(expandedLocEquals(firebaseLoc.get(now),res));
 
         // TEST 2
-        Location res2 = newLoc(5.75* CachingDataSender.EXPAND_FACTOR,4.5* CachingDataSender.EXPAND_FACTOR);
+        Location res2 = newLoc(5.75 ,4.5 );
         assertTrue(firebaseLoc.containsKey(now1));
         assertTrue(expandedLocEquals(firebaseLoc.get(now1),res2));
         // TEST 3
-        Location res3 = newLoc(7* CachingDataSender.EXPAND_FACTOR,4* CachingDataSender.EXPAND_FACTOR);
+        Location res3 = newLoc(7 ,4 );
         assertTrue(firebaseLoc.containsKey(now1));
         assertTrue(expandedLocEquals(firebaseLoc.get(now2),res3));
     }

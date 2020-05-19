@@ -43,7 +43,7 @@ public class ConcreteCachingDataSender implements CachingDataSender {
 
     @Override
     public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
-
+        location = CachingDataSender.roundLocation(location);
         CompletableFuture<Void> lastPositionsFuture, gridWriteFuture;
 
 

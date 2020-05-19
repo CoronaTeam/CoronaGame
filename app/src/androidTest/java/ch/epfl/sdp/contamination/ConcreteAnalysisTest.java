@@ -166,7 +166,7 @@ public class ConcreteAnalysisTest {
 
         @Override
         public CompletableFuture<Map<String, Object>> getRecoveryCounter(String userId) {
-            return CompletableFuture.completedFuture(getSickCount());
+            return CompletableFuture.completedFuture(getRecoveryCount());
         }
 
         @Override
@@ -197,8 +197,7 @@ public class ConcreteAnalysisTest {
         }
         @Override
         public CompletableFuture<Void> sendAlert(String userId){
-            sendAlert(userId,0);
-            return CompletableFuture.completedFuture(null);
+            return sendAlert(userId,0);
         }
         @Override
         public CompletableFuture<Void> resetSickAlerts(String userId){
@@ -238,7 +237,7 @@ public class ConcreteAnalysisTest {
 
     }
 
-    private static Map<String,Object> getSickCount(){
+    private static Map<String,Object> getRecoveryCount(){
     Map<String,Object> map = new HashMap<>();
     if(recoveryCounter !=0){
         map.put(privateRecoveryCounter, recoveryCounter);
@@ -310,7 +309,7 @@ public class ConcreteAnalysisTest {
             return CompletableFuture.completedFuture(Collections.emptyMap());
         }
         public CompletableFuture<Map<String, Object>> getRecoveryCounter(String userId) {
-            return CompletableFuture.completedFuture(getSickCount());
+            return CompletableFuture.completedFuture(getRecoveryCount());
         }
     }
 
@@ -474,11 +473,12 @@ public class ConcreteAnalysisTest {
     @Test
     public void adaptYourProbabilityOfInfectionAccordingToSickMeetingsAndThenResetItsCounter(){
         recoveryCounter = 0;
-        ObservableCarrier me = new Layman(HEALTHY);
+        ObservableCarrier me = new Layman(HEALTHY,"TESTUSER");
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
         sender.sendAlert(me.getUniqueId());
         sender.sendAlert(me.getUniqueId(),0.4f);
         analyst.updateInfectionPredictions(null,null, null);
+        System.out.println(me.toString());
         assertEquals(TRANSMISSION_FACTOR* (1+ (1-0.4)),me.getIllnessProbability(),0.00001f);
         mockReceiver.getNumberOfSickNeighbors(me.getUniqueId()).thenAccept(res -> assertTrue((res).isEmpty()));
     }

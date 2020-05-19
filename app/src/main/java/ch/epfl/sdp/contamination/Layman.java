@@ -75,16 +75,24 @@ public class Layman extends ObservableCarrier {
         lock = new ReentrantLock();
 
         this.infectionHistory = initStorageManager(uniqueID);
+        lock.lock();
         validateAndSetProbability(new Date(), infectedWithProbability);
+        lock.unlock();
     }
 
     private boolean validateAndSetProbability(Date when, float probability) {
         if (probability < 0 || 1 < probability) {
             return false;
         }
-
         // Include this update into the history
-        infectionHistory.write(new TreeMap<>(Collections.singletonMap(when, probability)));
+//        infectionHistory.write(new TreeMap<>(Collections.singletonMap(when, probability)))
+        //TODO: @Matteo : The writting makes a nullPointer Exception :
+        // Attempt to invoke interface method 'int java.lang.Comparable.compareTo(java.lang.Object)' on a null object reference
+        try{
+            infectionHistory.write(new TreeMap<>(Collections.singletonMap(when, probability)));
+        }catch (NullPointerException e){
+            System.out.println(probability+"User "+uniqueID+" has write result : "+e);
+        }
 
         infectedWithProbability = probability;
         return true;

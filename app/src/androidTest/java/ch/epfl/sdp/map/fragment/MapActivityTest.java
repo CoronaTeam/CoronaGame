@@ -35,7 +35,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.location.LocationUtils.buildLocation;
 import static ch.epfl.sdp.map.HeatMapHandler.HEATMAP_LAYER_ID;
-import static ch.epfl.sdp.map.fragment.MapFragment.TESTING_MODE;
 import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_INFECTED_LAYER_ID;
 import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_PATH_LAYER_ID;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
@@ -77,11 +76,13 @@ public class MapActivityTest {
     @BeforeClass
     public static void preSetup() {
         AccountFragment.IN_TEST = true;
+        MapFragment.TESTING_MODE = true;
     }
 
     @AfterClass
     public static void postClean() {
         AccountFragment.IN_TEST = false;
+        MapFragment.TESTING_MODE = false;
     }
 
     @Test(timeout = 30000)
@@ -147,10 +148,9 @@ public class MapActivityTest {
 
     ////////////////////////////////// Tests for PathsHandler //////////////////////////////////////
 
-    @Test(timeout = 50000)
+    @Test(timeout = 20000)
     public void yesterdayPathLayerIsSetWhenNotEmpty() throws Throwable {
         testMapLoadCorrectly();
-
         pathGetsInstantiated();
 
         if (!mapFragment.getPathsHandler().getYesterdayPathCoordinates().isEmpty()) {
@@ -161,7 +161,7 @@ public class MapActivityTest {
         }
     }
 
-    @Test(timeout = 50000)
+    @Test(timeout = 20000)
     public void yesterdayInfectedLayerIsSetWhenNotEmpty() throws Throwable {
         testMapLoadCorrectly();
 
@@ -175,7 +175,7 @@ public class MapActivityTest {
         }
     }
 
-    @Test(timeout = 30000)
+    @Test(timeout = 8000)
     public void pathGetsInstantiated() {
         while (mapFragment.getPathsHandler() == null) {
             sleep(500);
@@ -191,7 +191,7 @@ public class MapActivityTest {
         onView(withId(R.id.history_rfal)).check(matches(isDisplayed()));
     }
 
-    @Test(timeout = 20000)
+    @Test(timeout = 8000)
     public void datesFormattedAsYYYYmmDD() {
         while (mapFragment.getPathsHandler() == null) {
             sleep(500);
@@ -203,7 +203,7 @@ public class MapActivityTest {
         assertEquals(expected, actual);
     }
 
-    @Test(timeout = 100000)@Ignore
+    @Test(timeout = 30000)
     public void toggleYesterdayPathChangesVisibilityWhenNotEmpty() throws Throwable {
         yesterdayPathLayerIsSetWhenNotEmpty();
 
@@ -211,7 +211,7 @@ public class MapActivityTest {
 
     }
 
-    @Test(timeout = 100000)@Ignore
+    @Test(timeout = 30000)
     public void infectedLayerVisibilityChangesWhenNotEmpty() throws Throwable {
         yesterdayInfectedLayerIsSetWhenNotEmpty();
 
@@ -221,8 +221,6 @@ public class MapActivityTest {
     @Test
     public void cameraTargetsPathWhenToggle() throws Throwable {
         testHeatMapLoadCorrectly();
-
-        TESTING_MODE = true;
 
         mockLocationBroker.setFakeLocation(buildLocation(46, 55));
 
@@ -246,11 +244,9 @@ public class MapActivityTest {
 
         assertEquals(exp_lat, act_lat, precision);
         assertEquals(exp_lon, act_lon, precision);
-
-        TESTING_MODE = false;
     }
 
-    @Test
+    @Test(timeout = 100000)
     public void testsForNonEmptyPathAndInfected() throws Throwable {
         PathsHandler.TEST_NON_EMPTY_LIST = true;
 

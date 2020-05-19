@@ -11,6 +11,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -174,14 +175,6 @@ public class MapActivityTest {
         }
     }
 
-    private void testLayerIsSet(String layerId) throws Throwable {
-        activityRule.runOnUiThread(() -> mapFragment.onLayerLoaded(()
-                -> sentinel.incrementAndGet(), layerId));
-        // The sentinel value will only increase if the layer on the map is not null
-
-        waitForSentinelAndSetToZero();
-    }
-
     @Test(timeout = 30000)
     public void pathGetsInstantiated() {
         while (mapFragment.getPathsHandler() == null) {
@@ -210,7 +203,7 @@ public class MapActivityTest {
         assertEquals(expected, actual);
     }
 
-    @Test(timeout = 100000)
+    @Test(timeout = 100000)@Ignore
     public void toggleYesterdayPathChangesVisibilityWhenNotEmpty() throws Throwable {
         yesterdayPathLayerIsSetWhenNotEmpty();
 
@@ -218,40 +211,11 @@ public class MapActivityTest {
 
     }
 
-    @Test(timeout = 100000)
+    @Test(timeout = 100000)@Ignore
     public void infectedLayerVisibilityChangesWhenNotEmpty() throws Throwable {
         yesterdayInfectedLayerIsSetWhenNotEmpty();
 
         testClickChangesVisibility(infectedCoordIsEmpty, YESTERDAY_INFECTED_LAYER_ID);
-    }
-
-    private void testClickChangesVisibility(boolean infectedCoordIsEmpty, String layerId) throws Throwable {
-        mapFragment.onMapVisible(() -> sentinel.incrementAndGet());
-        waitForSentinelAndSetToZero();
-
-        testLayerVisibilityIfNotEmpty(NONE, infectedCoordIsEmpty, layerId);
-
-        onView(withId(R.id.history_rfab)).perform(click());
-        List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList)
-                mapFragment.getRfabHelper().obtainRFAContent()).getItems();
-        activityRule.runOnUiThread(() ->
-                mapFragment.onRFACItemIconClick(0, pathItems.get(0)));
-
-        testLayerVisibilityIfNotEmpty(VISIBLE, infectedCoordIsEmpty, layerId);
-    }
-
-    private void testLayerVisibilityIfNotEmpty(String visibility, boolean listIsEmpty, String layerId) throws Throwable {
-        if (!listIsEmpty) {
-            testLayerVisibility(visibility, layerId);
-            waitForSentinelAndSetToZero();
-        }
-    }
-
-    private void waitForSentinelAndSetToZero() {
-        while (sentinel.get() == 0) {
-            sleep(500);
-        }
-        sentinel.set(0);
     }
 
     @Test
@@ -293,9 +257,47 @@ public class MapActivityTest {
         yesterdayPathLayerIsSetWhenNotEmpty();
         yesterdayInfectedLayerIsSetWhenNotEmpty();
         toggleYesterdayPathChangesVisibilityWhenNotEmpty();
+        infectedLayerVisibilityChangesWhenNotEmpty();
         cameraTargetsPathWhenToggle();
 
         PathsHandler.TEST_NON_EMPTY_LIST = false;
+    }
+
+    private void testLayerIsSet(String layerId) throws Throwable {
+        activityRule.runOnUiThread(() -> mapFragment.onLayerLoaded(()
+                -> sentinel.incrementAndGet(), layerId));
+        // The sentinel value will only increase if the layer on the map is not null
+
+        waitForSentinelAndSetToZero();
+    }
+
+    private void testClickChangesVisibility(boolean coordListIsEmpty, String layerId) throws Throwable {
+        mapFragment.onMapVisible(() -> sentinel.incrementAndGet());
+        waitForSentinelAndSetToZero();
+
+        testLayerVisibilityIfNotEmpty(NONE, coordListIsEmpty, layerId);
+
+        onView(withId(R.id.history_rfab)).perform(click());
+        List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList)
+                mapFragment.getRfabHelper().obtainRFAContent()).getItems();
+        activityRule.runOnUiThread(() ->
+                mapFragment.onRFACItemIconClick(0, pathItems.get(0)));
+
+        testLayerVisibilityIfNotEmpty(VISIBLE, coordListIsEmpty, layerId);
+    }
+
+    private void testLayerVisibilityIfNotEmpty(String visibility, boolean listIsEmpty, String layerId) throws Throwable {
+        if (!listIsEmpty) {
+            testLayerVisibility(visibility, layerId);
+            waitForSentinelAndSetToZero();
+        }
+    }
+
+    private void waitForSentinelAndSetToZero() {
+        while (sentinel.get() == 0) {
+            sleep(500);
+        }
+        sentinel.set(0);
     }
 
 }

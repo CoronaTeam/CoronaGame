@@ -247,7 +247,6 @@ public class PathsHandler extends Fragment {
         );
         LineString geometry = LineString.fromLngLats(path);
         mapStyle(layer, geometry, sourceId);
-        layer.setProperties(visibility(NONE));
     }
 
     private void setInfectedPointsLayer(String layerId, String sourceId, List<Point> infected) {
@@ -260,10 +259,10 @@ public class PathsHandler extends Fragment {
         );
         MultiPoint geometry = MultiPoint.fromLngLats(infected);
         mapStyle(layer, geometry, sourceId);
-        layer.setProperties(visibility(NONE));
     }
 
     private void mapStyle(Layer layer, Geometry geometry, String sourceId) {
+        layer.setProperties(visibility(NONE));
         map.getStyle(style -> {
             style.addSource(new GeoJsonSource(sourceId,
                     FeatureCollection.fromFeatures(new Feature[]{Feature.fromGeometry(geometry)})));

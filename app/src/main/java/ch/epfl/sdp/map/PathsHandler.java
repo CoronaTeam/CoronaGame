@@ -3,7 +3,6 @@ package ch.epfl.sdp.map;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.location.Location;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -46,7 +45,6 @@ import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.databaseIO.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.databaseIO.GridFirestoreInteractor;
-import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.location.LocationUtils;
 import ch.epfl.sdp.map.fragment.MapFragment;
@@ -95,9 +93,6 @@ public class PathsHandler extends Fragment {
     private MapboxMap map;
     private MapFragment parentClass;
 
-    @VisibleForTesting
-    public static boolean TEST_NON_EMPTY_LIST;
-
 
     public PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
         this.parentClass = parentClass;
@@ -106,67 +101,24 @@ public class PathsHandler extends Fragment {
         initFirestorePathRetrieval().thenAccept(this::getPathCoordinates);
     }
 
-    private void setCalendar() {
-        Date rightNow = new Date(System.currentTimeMillis());
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(rightNow);
-        cal.add(Calendar.DAY_OF_MONTH, -1);
-        Date yes = cal.getTime();
-        cal.add(Calendar.DAY_OF_MONTH, -1);
-        Date bef = cal.getTime();
-
-        yesterdayString = dateToSimpleString(yes);//"2020/05/13"; //this is for demo only, should be replaced by: dateToSimpleString(yes);
-        beforeYesterdayString = dateToSimpleString(bef);//"2020/05/12";//this is for demo only, should be replaced by: dateToSimpleString(bef);
-    }
-
-    private String dateToSimpleString(Date date) {
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
-        return sdf.format(date);
-    }
-
-    @VisibleForTesting
-    public List<Point> getYesterdayPathCoordinates() {
-        return yesterdayPathCoordinates;
-    }
-
-    @VisibleForTesting
-    public List<Point> getYesterdayInfectedMet() {
-        return yesterdayInfectedMet;
-    }
-
-    @VisibleForTesting
-    public double getLatitudeYesterday() {
-        return latitudeYesterday;
-    }
-
-    @VisibleForTesting
-    public double getLongitudeYesterday() {
-        return longitudeYesterday;
-    }
-
-    @VisibleForTesting
-    public boolean isPathLocationSet1() {
-        return pathLocationSet1;
-    }
-
-    @VisibleForTesting
-    public String getSimpleDateFormat(Date date) {
-        return dateToSimpleString(date);
-    }
-
-    public void setCameraPosition(int day) {
-        boolean pathLocationSet = day == R.string.yesterday ? pathLocationSet1 : pathLocationSet2;
-        if (pathLocationSet) {
-            double lat = day == R.string.yesterday ? latitudeYesterday : latitudeBefore;
-            double lon = day == R.string.yesterday ? longitudeYesterday : longitudeBefore;
-            CameraPosition position = new CameraPosition.Builder()
-                    .target(new LatLng(lat, lon))
-                    .zoom(ZOOM)
-                    .build();
-            if (map != null) {
-                map.easeCamera(CameraUpdateFactory.newCameraPosition(position), 2000);
-            }
-        }
+    private CompletableFuture<Iterator<QueryDocumentSnapshot>> initFirestorePathRetrieval() {
+        String userPath = getUserId(); //"USER_ID_X42"; coronaId: 109758096484534641167
+        return FirestoreInteractor.taskToFuture(
+                collectionReference("History/" + userPath + "/Positions")
+                        .orderBy("Position" + ".timestamp").get())
+                .thenApply(collection -> {
+                    if (collection.isEmpty()) {
+                        throw new RuntimeException("Collection doesn't contain any document");
+                    } else {
+                        return collection.iterator();
+                    }
+                })
+                .exceptionally(e -> {
+                    Toast.makeText(parentClass.getActivity(),
+                            "Cannot retrieve path from database",
+                            Toast.LENGTH_LONG).show();
+                    return Collections.emptyIterator();
+                });
     }
 
     private void getPathCoordinates(Iterator<QueryDocumentSnapshot> iterator) {
@@ -193,22 +145,50 @@ public class PathsHandler extends Fragment {
                     beforeYesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
                     addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
                 }
-            } catch (NullPointerException e) {
-                Log.d("ERROR ADDING POINT", String.valueOf(e));
+            } catch (NullPointerException ignored) {
             }
         }
-
-        Log.d("yesterday PATH COORD LENGTH: ", String.valueOf(yesterdayPathCoordinates.size()));
-        Log.d("before PATH COORD LENGTH: ", String.valueOf(beforeYesterdayPathCoordinates.size()));
-
         setLayers();
+    }
 
+    private void setCalendar() {
+        Date rightNow = new Date(System.currentTimeMillis());
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(rightNow);
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        Date yes = cal.getTime();
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        Date bef = cal.getTime();
+
+        yesterdayString = dateToSimpleString(yes);//"2020/05/13"; //this is for demo only, should be replaced by: dateToSimpleString(yes);
+        beforeYesterdayString = dateToSimpleString(bef);//"2020/05/12";//this is for demo only, should be replaced by: dateToSimpleString(bef);
+    }
+
+    private String dateToSimpleString(Date date) {
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf =
+                new SimpleDateFormat("yyyy/MM/dd");
+        return sdf.format(date);
+    }
+
+    public void setCameraPosition(int day) {
+        boolean pathLocationSet = day == R.string.yesterday ? pathLocationSet1 : pathLocationSet2;
+        if (pathLocationSet) {
+            double lat = day == R.string.yesterday ? latitudeYesterday : latitudeBefore;
+            double lon = day == R.string.yesterday ? longitudeYesterday : longitudeBefore;
+            CameraPosition position = new CameraPosition.Builder()
+                    .target(new LatLng(lat, lon))
+                    .zoom(ZOOM)
+                    .build();
+            if (map != null) {
+                map.easeCamera(CameraUpdateFactory.newCameraPosition(position), 2000);
+            }
+        }
     }
 
     private void fakeInitialization() {
-        for (double i = 0; i<10; ++i) {
+        for (double i = 0; i < 10; ++i) {
             yesterdayPathCoordinates.add(Point.fromLngLat(i, i));
-            if (i%3==0) {
+            if (i % 3 == 0) {
                 yesterdayInfectedMet.add(Point.fromLngLat(i, i));
             }
         }
@@ -223,10 +203,12 @@ public class PathsHandler extends Fragment {
 
     private void setLayers() {
         if (!yesterdayInfectedMet.isEmpty()) {
-            setInfectedPointsLayer(YESTERDAY_INFECTED_LAYER_ID, YESTERDAY_INFECTED_SOURCE_ID, yesterdayInfectedMet);
+            setInfectedPointsLayer(YESTERDAY_INFECTED_LAYER_ID, YESTERDAY_INFECTED_SOURCE_ID,
+                    yesterdayInfectedMet);
         }
         if (!beforeYesterdayInfectedMet.isEmpty()) {
-            setInfectedPointsLayer(BEFORE_INFECTED_LAYER_ID, BEFORE_INFECTED_SOURCE_ID, beforeYesterdayInfectedMet);
+            setInfectedPointsLayer(BEFORE_INFECTED_LAYER_ID, BEFORE_INFECTED_SOURCE_ID,
+                    beforeYesterdayInfectedMet);
         }
         if (!yesterdayPathCoordinates.isEmpty()) {
             setPathLayer(YESTERDAY_PATH_LAYER_ID, YESTERDAY_PATH_SOURCE_ID, yesterdayPathCoordinates);
@@ -243,7 +225,8 @@ public class PathsHandler extends Fragment {
     }
 
     private void addInfectedMet(double lat, double lon, Timestamp timestamp, List<Point> infected) {
-        ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
+        ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(
+                new GridFirestoreInteractor());
         Location location = LocationUtils.buildLocation(lat, lon);
         concreteDataReceiver
                 .getUserNearbyDuring(location, timestamp.toDate(), timestamp.toDate())
@@ -298,23 +281,37 @@ public class PathsHandler extends Fragment {
         return account.getId();
     }
 
-    private CompletableFuture<Iterator<QueryDocumentSnapshot>> initFirestorePathRetrieval() {
-        String userPath = getUserId(); //"USER_ID_X42"; coronaId: 109758096484534641167
-        return FirestoreInteractor.taskToFuture(
-                collectionReference("History/" + userPath + "/Positions")
-                        .orderBy("Position" + ".timestamp").get())
-                .thenApply(collection -> {
-                    if (collection.isEmpty()) {
-                        throw new RuntimeException("Collection doesn't contain any document");
-                    } else {
-                        return collection.iterator();
-                    }
-                })
-                .exceptionally(e -> {
-                    Toast.makeText(parentClass.getActivity(),
-                            "Cannot retrieve path from database",
-                            Toast.LENGTH_LONG).show();
-                    return Collections.emptyIterator();
-                });
+    @VisibleForTesting
+    public static boolean TEST_NON_EMPTY_LIST;
+
+    @VisibleForTesting
+    public List<Point> getYesterdayPathCoordinates() {
+        return yesterdayPathCoordinates;
     }
+
+    @VisibleForTesting
+    public List<Point> getYesterdayInfectedMet() {
+        return yesterdayInfectedMet;
+    }
+
+    @VisibleForTesting
+    public double getLatitudeYesterday() {
+        return latitudeYesterday;
+    }
+
+    @VisibleForTesting
+    public double getLongitudeYesterday() {
+        return longitudeYesterday;
+    }
+
+    @VisibleForTesting
+    public boolean isPathLocationSet1() {
+        return pathLocationSet1;
+    }
+
+    @VisibleForTesting
+    public String getSimpleDateFormat(Date date) {
+        return dateToSimpleString(date);
+    }
+
 }

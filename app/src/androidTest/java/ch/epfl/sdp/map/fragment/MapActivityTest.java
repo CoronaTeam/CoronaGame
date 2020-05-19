@@ -176,7 +176,7 @@ public class MapActivityTest {
 
     private void testLayerIsSet(String layerId) throws Throwable {
         activityRule.runOnUiThread(() -> mapFragment.onLayerLoaded(()
-                        -> sentinel.incrementAndGet(), layerId));
+                -> sentinel.incrementAndGet(), layerId));
         // The sentinel value will only increase if the layer on the map is not null
 
         waitForSentinelAndSetToZero();
@@ -210,39 +210,39 @@ public class MapActivityTest {
         assertEquals(expected, actual);
     }
 
-    @Test(timeout = 150000)
+    @Test(timeout = 100000)
     public void toggleYesterdayPathChangesVisibilityWhenNotEmpty() throws Throwable {
         yesterdayPathLayerIsSetWhenNotEmpty();
-        yesterdayInfectedLayerIsSetWhenNotEmpty();
-        mapFragment.onMapVisible(() -> sentinel.incrementAndGet());
 
-        waitForSentinelAndSetToZero();
+        testClickChangesVisibility(pathCoordIsEmpty, YESTERDAY_PATH_LAYER_ID);
 
-        if (!pathCoordIsEmpty) {
-            testLayerVisibility(NONE, YESTERDAY_PATH_LAYER_ID);
-
-            waitForSentinelAndSetToZero();
-
-            testInfectedLayerVisibilityIfNotEmpty(NONE);
-
-            onView(withId(R.id.history_rfab)).perform(click());
-            List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList)
-                    mapFragment.getRfabHelper().obtainRFAContent()).getItems();
-            activityRule.runOnUiThread(() ->
-                    mapFragment.onRFACItemIconClick(0, pathItems.get(0)));
-
-            testLayerVisibility(VISIBLE, YESTERDAY_PATH_LAYER_ID);
-
-            waitForSentinelAndSetToZero();
-
-            testInfectedLayerVisibilityIfNotEmpty(VISIBLE);
-        }
     }
 
-    private void testInfectedLayerVisibilityIfNotEmpty(String visibility) throws Throwable {
-        if (!infectedCoordIsEmpty) {
-            testLayerVisibility(visibility, YESTERDAY_INFECTED_LAYER_ID);
+    @Test(timeout = 100000)
+    public void infectedLayerVisibilityChangesWhenNotEmpty() throws Throwable {
+        yesterdayInfectedLayerIsSetWhenNotEmpty();
 
+        testClickChangesVisibility(infectedCoordIsEmpty, YESTERDAY_INFECTED_LAYER_ID);
+    }
+
+    private void testClickChangesVisibility(boolean infectedCoordIsEmpty, String layerId) throws Throwable {
+        mapFragment.onMapVisible(() -> sentinel.incrementAndGet());
+        waitForSentinelAndSetToZero();
+
+        testLayerVisibilityIfNotEmpty(NONE, infectedCoordIsEmpty, layerId);
+
+        onView(withId(R.id.history_rfab)).perform(click());
+        List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList)
+                mapFragment.getRfabHelper().obtainRFAContent()).getItems();
+        activityRule.runOnUiThread(() ->
+                mapFragment.onRFACItemIconClick(0, pathItems.get(0)));
+
+        testLayerVisibilityIfNotEmpty(VISIBLE, infectedCoordIsEmpty, layerId);
+    }
+
+    private void testLayerVisibilityIfNotEmpty(String visibility, boolean listIsEmpty, String layerId) throws Throwable {
+        if (!listIsEmpty) {
+            testLayerVisibility(visibility, layerId);
             waitForSentinelAndSetToZero();
         }
     }

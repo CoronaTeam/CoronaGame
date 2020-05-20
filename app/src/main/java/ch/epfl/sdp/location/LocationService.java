@@ -213,13 +213,12 @@ public class LocationService extends Service implements LocationListener, Observ
         Map<String, Object> userPayload = new HashMap<>();
         userPayload.put("Infected", isInfected);
 
-        // TODO: @Lucie is displayName the right one to use here?
-        String username = AuthenticationManager.getAccount(CoronaGame.getContext()).getDisplayName();
+        String userId = AuthenticationManager.getAccount(CoronaGame.getContext()).getId();
 
         // TODO: [LOG]
-        Log.e("ACCOUNT_NAME", username);
+        Log.e("ACCOUNT_NAME", userId);
 
-        DocumentReference userRef = documentReference("Users", username);
+        DocumentReference userRef = documentReference("Users", userId);
         CompletableFuture<Void> future1 = taskToFuture(userRef.set(userPayload, SetOptions.merge()));
         CompletableFuture<Void> future2 = taskToFuture(userRef.update("Infected", isInfected));
 

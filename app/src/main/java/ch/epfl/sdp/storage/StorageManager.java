@@ -13,6 +13,7 @@ public interface StorageManager<A extends Comparable<A>, B> {
     boolean write(SortedMap<A, B> payload);
     SortedMap<A, B> read();
     SortedMap<A, B> filter(BiFunction<A, B, Boolean> rule);
+    boolean isReadable();
     void close() throws IOException;
     void delete();
 }

@@ -76,12 +76,9 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
     }
 
     private void checkCacheStatus() {
-        if (loadingCache.get() && !cacheOk.get()) {
+        if (!isReadable()) {
             throw new IllegalStateException("Could not perform initial cache loading");
         }
-
-        // Block to wait cache loading
-        while (!loadingCache.get()) { }
     }
 
     @Override
@@ -126,7 +123,20 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
             return true;
         } catch (IOException e) {
             return false;
+        } catch (Exception e) {
+            return false;
         }
+    }
+
+    @Override
+    public boolean isReadable() {
+        while (!loadingCache.get()) { }
+
+        if (!cacheOk.get()) {
+            return false;
+        }
+
+        return true;
     }
 
     @Override

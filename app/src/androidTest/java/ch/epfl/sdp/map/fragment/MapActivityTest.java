@@ -203,7 +203,7 @@ public class MapActivityTest {
         assertEquals(expected, actual);
     }
 
-    @Test(timeout = 200000)
+    @Test(timeout = 300000)
     public void toggleYesterdayPathChangesVisibilityWhenNotEmpty() throws Throwable {
         yesterdayPathLayerIsSetWhenNotEmpty();
 
@@ -211,7 +211,7 @@ public class MapActivityTest {
 
     }
 
-    @Test(timeout = 200000)
+    @Test(timeout = 300000)
     public void infectedLayerVisibilityChangesWhenNotEmpty() throws Throwable {
         yesterdayInfectedLayerIsSetWhenNotEmpty();
 
@@ -246,18 +246,18 @@ public class MapActivityTest {
         assertEquals(exp_lon, act_lon, precision);
     }
 
-    @Test(timeout = 400000)
+    @Test(timeout = 600000)
     public void testsForNonEmptyPathAndInfected() throws Throwable {
         PathsHandler.TEST_NON_EMPTY_LIST = true;
 
+        yesterdayPathLayerIsSetWhenNotEmpty();
         if (pathCoordIsEmpty) {
-            yesterdayPathLayerIsSetWhenNotEmpty();
             toggleYesterdayPathChangesVisibilityWhenNotEmpty();
-            yesterdayInfectedLayerIsSetWhenNotEmpty();
+            cameraTargetsPathWhenToggle();
         }
 
+        yesterdayInfectedLayerIsSetWhenNotEmpty();
         if (infectedCoordIsEmpty) {
-            cameraTargetsPathWhenToggle();
             infectedLayerVisibilityChangesWhenNotEmpty();
         }
 

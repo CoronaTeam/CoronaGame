@@ -202,7 +202,7 @@ public class MapActivityTest {
         assertEquals(expected, actual);
     }
 
-    @Test(timeout = 300000)
+    @Test(timeout = 100000)
     public void toggleYesterdayPathChangesVisibilityWhenNotEmpty() throws Throwable {
         yesterdayPathLayerIsSetWhenNotEmpty();
 
@@ -210,7 +210,7 @@ public class MapActivityTest {
 
     }
 
-    @Test(timeout = 300000)
+    @Test(timeout = 100000)
     public void infectedLayerVisibilityChangesWhenNotEmpty() throws Throwable {
         yesterdayInfectedLayerIsSetWhenNotEmpty();
 
@@ -228,7 +228,7 @@ public class MapActivityTest {
                 mapFragment.getRfabHelper().obtainRFAContent()).getItems();
 
         activityRule.runOnUiThread(() -> mapFragment.onRFACItemIconClick(0, pathItems.get(0)));
-        sleep(5000);
+        sleep(10000);
         double act_lat = mapFragment.getMap().getCameraPosition().target.getLatitude();
         double act_lon = mapFragment.getMap().getCameraPosition().target.getLongitude();
 
@@ -245,7 +245,7 @@ public class MapActivityTest {
         assertEquals(exp_lon, act_lon, precision);
     }
 
-    @Test(timeout = 600000)
+    @Test(timeout = 200000)
     public void testsForNonEmptyPathAndInfected() throws Throwable {
         PathsHandler.TEST_NON_EMPTY_LIST = true;
 
@@ -272,6 +272,8 @@ public class MapActivityTest {
     }
 
     private void testClickChangesVisibility(boolean coordListIsEmpty, String layerId) throws Throwable {
+        mockLocationBroker.setFakeLocation(buildLocation(46, 55));
+
         mapFragment.onMapVisible(() -> sentinel.incrementAndGet());
         waitForSentinelAndSetToZero();
 

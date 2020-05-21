@@ -1,4 +1,4 @@
-package ch.epfl.sdp.testActivities;
+package ch.epfl.sdp.firestore;
 
 import android.os.Bundle;
 import android.view.View;
@@ -34,6 +34,8 @@ public class FirebaseActivity extends AppCompatActivity {
         setContentView(R.layout.activity_firebase);
         fs = new ConcreteFirestoreInteractor();
     }
+
+
 
     public void addUser1(View view) {
         Map<String, Object> user = new HashMap<>();
@@ -82,6 +84,7 @@ public class FirebaseActivity extends AppCompatActivity {
             outputView.setText(R.string.can_t_Download_Offline);
         }
     }
+
 
     public void readData2(View view) {
         DocumentReference documentReference = documentReference("Tests/FirebaseActivity" +

@@ -14,7 +14,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.testActivities.FirebaseActivity;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;

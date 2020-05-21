@@ -27,11 +27,6 @@ public class InfectionProbabilityChartFragmentTest {
     @Rule
     public final ActivityTestRule<InfectionProbabilityChartFragmentActivity> activityRule =
             new ActivityTestRule<>(InfectionProbabilityChartFragmentActivity.class);
-    @Rule
-    public GrantPermissionRule fingerprintPermissionRule =
-            GrantPermissionRule.grant(Manifest.permission.USE_FINGERPRINT);
-    @Rule
-    public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
 
     @Before
     public void setUp() {

@@ -22,7 +22,7 @@ import ch.epfl.sdp.firestore.FirestoreInteractor;
 
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
-import static ch.epfl.sdp.utilities.Tools.IS_ONLINE;
+import static ch.epfl.sdp.CoronaGame.IS_ONLINE;
 import static ch.epfl.sdp.utilities.Tools.checkNetworkStatus;
 
 public class FirebaseActivity extends AppCompatActivity {

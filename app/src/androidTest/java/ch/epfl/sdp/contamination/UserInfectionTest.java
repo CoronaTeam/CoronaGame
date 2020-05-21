@@ -1,11 +1,9 @@
 package ch.epfl.sdp.contamination;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
 
-import androidx.fragment.app.Fragment;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
@@ -36,19 +34,15 @@ import static ch.epfl.sdp.TestTools.resetSickCounter;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static ch.epfl.sdp.firestore.FirestoreLabels.privateRecoveryCounter;
-import static ch.epfl.sdp.utilities.Tools.IS_NETWORK_DEBUG;
-import static ch.epfl.sdp.utilities.Tools.IS_ONLINE;
+import static ch.epfl.sdp.CoronaGame.IS_NETWORK_DEBUG;
+import static ch.epfl.sdp.CoronaGame.IS_ONLINE;
 import static junit.framework.TestCase.assertSame;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 
 public class UserInfectionTest {
-    private InfectionAnalyst analyst;
-    private DataReceiver receiver;
-    private UserInfectionFragment fragment;
     private static ObservableCarrier me;
-
     @Rule
     public final ActivityTestRule<UserInfectionActivity> activityRule =
             new ActivityTestRule<>(UserInfectionActivity.class);
@@ -57,15 +51,18 @@ public class UserInfectionTest {
             GrantPermissionRule.grant(Manifest.permission.USE_FINGERPRINT);
     @Rule
     public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
+    private InfectionAnalyst analyst;
+    private DataReceiver receiver;
+    private UserInfectionFragment fragment;
 
     @Before
     public void setUp() {
         initSafeTest(activityRule, true);
         sleep(1001);
-        fragment = ((UserInfectionFragment)activityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
+        fragment = ((UserInfectionFragment) activityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
         sleep(1000);
         me = new Layman(HEALTHY);
-        analyst =  new InfectionAnalyst() {
+        analyst = new InfectionAnalyst() {
 
             @Override
             public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
@@ -92,7 +89,7 @@ public class UserInfectionTest {
     }
 
     @After
-    public void release(){
+    public void release() {
         Intents.release();
         analyst = null;
         receiver = null;
@@ -120,7 +117,7 @@ public class UserInfectionTest {
     }
 
     @Test
-    public void sendsNotificationToFirebaseAndAnalystOnRecovery(){
+    public void sendsNotificationToFirebaseAndAnalystOnRecovery() {
         setIllnessToHealthy();
         analyst.getCarrier().evolveInfection(new Date(), HEALTHY, 0f);
 //        IS_NETWORK_DEBUG = false;
@@ -136,20 +133,22 @@ public class UserInfectionTest {
         sleep(5000);
         receiver.getRecoveryCounter(User.DEFAULT_USERID).thenAccept(res -> {
             assertFalse(res.isEmpty());
-            assertEquals(1l,res.get(privateRecoveryCounter));
-            assertSame(HEALTHY,analyst.getCarrier().getInfectionStatus());
+            assertEquals(1l, res.get(privateRecoveryCounter));
+            assertSame(HEALTHY, analyst.getCarrier().getInfectionStatus());
         });
         sleep(2000);
 
     }
-    private void resetLastChangeDate(){
-        /*fragment.*/getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE)
+
+    private void resetLastChangeDate() {
+        /*fragment.*/
+        getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE)
                 .edit().putLong("lastStatusChange", 0).apply();
     }
 
-    private void setIllnessToHealthy(){
+    private void setIllnessToHealthy() {
         sleep(5000);
-        if(fragment.isImmediatelyNowIll()){
+        if (fragment.isImmediatelyNowIll()) {
             onView(withId(R.id.infectionStatusButton)).perform(click());
 
         }
@@ -157,17 +156,17 @@ public class UserInfectionTest {
     }
 
     @Test
-    public void sendsNotificationToAnalystOnInfection(){
+    public void sendsNotificationToAnalystOnInfection() {
         setIllnessToHealthy();
         analyst.getCarrier().evolveInfection(new Date(), HEALTHY, 0f);
         sleep(2000);
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(2000);
-        assertSame(Carrier.InfectionStatus.INFECTED,analyst.getCarrier().getInfectionStatus());
+        assertSame(Carrier.InfectionStatus.INFECTED, analyst.getCarrier().getInfectionStatus());
     }
 
     @Test
-    public void checkStatusChangeRateLimit(){
+    public void checkStatusChangeRateLimit() {
         setIllnessToHealthy();
         Carrier.InfectionStatus initial = analyst.getCarrier().getInfectionStatus();
         sleep(1000);
@@ -175,6 +174,6 @@ public class UserInfectionTest {
         sleep(1000);
         onView(withId(R.id.infectionStatusButton)).perform(click());
         sleep(1000);
-        assertNotSame(initial,analyst.getCarrier().getInfectionStatus());
+        assertNotSame(initial, analyst.getCarrier().getInfectionStatus());
     }
 }

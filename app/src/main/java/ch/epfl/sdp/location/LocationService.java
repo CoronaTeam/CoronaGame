@@ -53,7 +53,7 @@ import ch.epfl.sdp.contamination.databaseIO.DataReceiver;
 import ch.epfl.sdp.contamination.databaseIO.GridFirestoreInteractor;
 import ch.epfl.sdp.identity.AuthenticationManager;
 
-import static ch.epfl.sdp.CoronaGame.DEMO_SPEEDUP;
+import static ch.epfl.sdp.CoronaGame.getDemoSpeedup;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
@@ -74,7 +74,7 @@ public class LocationService extends Service implements LocationListener, Observ
     public static final String LAST_UPDATED_PREF = "lastUpdated";
 
     // This correspond to 6h divided by the DEMO_SPEEDUP constant
-    private static long alarmDelayMillis = 21_600_000 / DEMO_SPEEDUP;
+    private static long alarmDelayMillis = 21_600_000 / getDemoSpeedup();
 
     private LocationBroker broker;
     private PositionAggregator aggregator;

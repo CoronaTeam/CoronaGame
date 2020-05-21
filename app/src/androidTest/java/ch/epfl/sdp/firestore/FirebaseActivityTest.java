@@ -21,8 +21,8 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static ch.epfl.sdp.utilities.Tools.IS_NETWORK_DEBUG;
-import static ch.epfl.sdp.utilities.Tools.IS_ONLINE;
+import static ch.epfl.sdp.CoronaGame.IS_NETWORK_DEBUG;
+import static ch.epfl.sdp.CoronaGame.IS_ONLINE;
 
 
 public class FirebaseActivityTest {

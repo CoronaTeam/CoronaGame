@@ -7,20 +7,17 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
-import android.util.Pair;
 
 import androidx.biometric.BiometricManager;
 import androidx.core.app.ActivityCompat;
 
-import com.google.firebase.firestore.GeoPoint;
+import static ch.epfl.sdp.CoronaGame.IS_NETWORK_DEBUG;
+import static ch.epfl.sdp.CoronaGame.IS_ONLINE;
 
 /**
  * This class includes some utilities used when dealing with biometric authentication
  */
 public class Tools {
-
-    public static boolean IS_ONLINE = true;
-    public static boolean IS_NETWORK_DEBUG = false;
 
     /**
      * Check if biometric authentication is available and can be used by the app

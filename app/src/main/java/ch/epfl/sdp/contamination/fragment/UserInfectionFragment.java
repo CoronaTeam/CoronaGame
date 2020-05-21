@@ -1,8 +1,10 @@
 package ch.epfl.sdp.contamination.fragment;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -23,6 +25,7 @@ import androidx.fragment.app.Fragment;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
@@ -39,12 +42,13 @@ import ch.epfl.sdp.location.LocationService;
 import ch.epfl.sdp.utilities.Tools;
 
 import static android.content.Context.BIND_AUTO_CREATE;
+import static ch.epfl.sdp.CoronaGame.IS_DEMO;
+import static ch.epfl.sdp.CoronaGame.IS_ONLINE;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 import static ch.epfl.sdp.firestore.FirestoreLabels.privateRecoveryCounter;
 import static ch.epfl.sdp.firestore.FirestoreLabels.privateUserFolder;
-import static ch.epfl.sdp.utilities.Tools.IS_ONLINE;
 import static ch.epfl.sdp.utilities.Tools.checkNetworkStatus;
 
 /**
@@ -63,6 +67,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     private LocationService service;
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
+    private SharedPreferences sharedPref;
 
     private TextView userInfectionProbability;
 
@@ -100,7 +105,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         account = AuthenticationManager.getAccount(getActivity());
         userName = account.getDisplayName();
 
-        Executor executor = ContextCompat.getMainExecutor(requireActivity());
+        Executor executor = ContextCompat.getMainExecutor(getActivity());
         if (Tools.canAuthenticate(getActivity())) {
             this.biometricPrompt = biometricPromptBuilder(executor);
             this.promptInfo = promptInfoBuilder();
@@ -125,8 +130,10 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
          * stopService(Intent) is called, regardless of whether any clients are connected to it.
          */
         //TODO: @Lucie do we need this ComponentName?
-        ComponentName myService = requireActivity().startService(new Intent(getContext(), LocationService.class));
-        requireActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
+        ComponentName myService = getActivity().startService(new Intent(getContext(), LocationService.class));
+        sharedPref = getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE);
+
+        getActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
         return view;
     }
 
@@ -193,25 +200,22 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     }
 
 
-    // TODO: @Lucie, why does this method return TRUE when the time is not elapsed?
     private boolean checkElapsedTimeSinceLastChange() {
+        if (IS_DEMO) {
+            return true;
+        } else {
+            Date currentTime = Calendar.getInstance().getTime();
+            //TODO: what does this means?
+            //get 1 jan 1970 by default. It's definitely wrong but works as we want t check that
+            //the status has not been updated less than a day ago.
 
-        // TODO: @Lucie TEMPORARILY DISABLED !!!!!!!!! Re-enable
-        return true;
+            Date lastStatusChange = new Date(sharedPref.getLong("lastStatusChange", 0));
+            long difference = Math.abs(currentTime.getTime() - lastStatusChange.getTime());
+            long differenceDays = difference / (24 * 60 * 60 * 1000);
 
-        /*
-        Date currentTime = Calendar.getInstance().getTime();
-        //TODO: what does this means?
-        /* get 1 jan 1970 by default. It's definitely wrong but works as we want t check that
-         * the status has not been updated less than a day ago.
-
-        Date lastStatusChange = new Date(sharedPref.getLong("lastStatusChange", 0));
-        long difference = Math.abs(currentTime.getTime() - lastStatusChange.getTime());
-        long differenceDays = difference / (24 * 60 * 60 * 1000);
-
-        sharedPref.edit().putLong("lastStatusChange", currentTime.getTime()).apply();
-        return differenceDays > 1;
-        */
+            sharedPref.edit().putLong("lastStatusChange", currentTime.getTime()).apply();
+            return differenceDays > 1;
+        }
     }
 
     private void executeHealthStatusChange() {
@@ -259,7 +263,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
 
     private void clickAction(Button button, TextView textView, int buttonText, int textViewText, int textColor) {
         button.setText(buttonText);
-        textView.setTextColor(getResources().getColorStateList(textColor, requireActivity().getTheme()));
+        textView.setTextColor(getResources().getColorStateList(textColor, getActivity().getTheme()));
         textView.setText(textViewText);
     }
 
@@ -289,21 +293,21 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     }
 
     private void displayAuthFailedToast() {
-        Toast.makeText(requireActivity().getApplicationContext(), R.string.authentication_failed,
+        Toast.makeText(getActivity().getApplicationContext(), R.string.authentication_failed,
                 Toast.LENGTH_SHORT)
                 .show();
     }
 
     private void displayNegativeButtonToast(int errorCode) {
         if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
-            Toast.makeText(requireActivity().getApplicationContext(),
+            Toast.makeText(getActivity().getApplicationContext(),
                     R.string.bio_auth_negative_button_toast, Toast.LENGTH_LONG)
                     .show();
         }
     }
 
     private void executeAndDisplayAuthSuccessToast() {
-        Toast.makeText(requireActivity().getApplicationContext(),
+        Toast.makeText(getActivity().getApplicationContext(),
                 R.string.bio_auth_success_toast, Toast.LENGTH_SHORT).show();
         executeHealthStatusChange();
     }

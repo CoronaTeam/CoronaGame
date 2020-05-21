@@ -43,6 +43,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     private View view;
     private LineChart chart;
     private LocationService service;
+    private ServiceConnection serviceConnection;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,7 +66,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     }
 
     private void connectService() {
-        ServiceConnection conn = new ServiceConnection() {
+        serviceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 InfectionProbabilityChartFragment.this.service = ((LocationService.LocationBinder)service).getService();
@@ -74,7 +75,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
             @Override
             public void onServiceDisconnected(ComponentName name) { service = null; }
         };
-        getActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
+        getActivity().bindService(new Intent(getActivity(), LocationService.class), serviceConnection, BIND_AUTO_CREATE);
     }
 
     private void initializeChart() {
@@ -220,5 +221,14 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     @Override
     public void onNothingSelected() {
 
+    }
+
+    @Override
+    public void onDestroy() {
+        if (serviceConnection != null) {
+            getActivity().unbindService(serviceConnection);
+        }
+        service.onDestroy();
+        super.onDestroy();
     }
 }

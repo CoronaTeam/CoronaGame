@@ -1,4 +1,3 @@
-
 package ch.epfl.sdp;
 
 import android.app.Activity;
@@ -55,7 +54,6 @@ public interface TestTools {
     }
 
 
-
     /*
         This method was found on the internet for getting the current activity
      */
@@ -83,34 +81,40 @@ public interface TestTools {
     static void sleep() {
         sleep(2000);
     }
+
     /**
      * Rounds a double to 5 digits after the comma
+     *
      * @param
      * @return
      */
 
 
-    static Location newLoc(double lati,double longi){
-        Location res =  new Location("provider");
+    static Location newLoc(double lati, double longi) {
+        Location res = new Location("provider");
         res.reset();
         res.setLatitude(lati);
         res.setLongitude(longi);
         return res;
     }
-    static boolean expandedLocEquals(Location loc1, Location loc2){
+
+    static boolean expandedLocEquals(Location loc1, Location loc2) {
         return loc1.getLatitude() == loc2.getLatitude() && loc1.getLongitude() == loc2.getLongitude();
     }
+
     /**
      * Use with parcymony !
+     *
      * @param res
      * @return
      */
-    static float getMapValue(Object res){
-        return  ((float) (((Map) (res)).get(publicAlertAttribute)));
+    static float getMapValue(Object res) {
+        return ((float) (((Map) (res)).get(publicAlertAttribute)));
     }
 
     /**
      * Reset the correct status of LocationService
+     *
      * @param service
      */
     static void resetLocationServiceStatus(LocationService service) {
@@ -119,19 +123,21 @@ public interface TestTools {
         service.setSender(new ConcreteCachingDataSender(gridInteractor));
     }
 
-    static void resetSickCounter(){
+    static void resetSickCounter() {
         DocumentReference ref = documentReference(privateUserFolder, User.DEFAULT_USERID);
         ref.update(privateRecoveryCounter, FieldValue.delete());
     }
-    static void clickBack(){
+
+    static void clickBack() {
         clickBack(1000);
     }
 
     /**
      * Will click on the back button of the phone and wait before and after
+     *
      * @param waitTime
      */
-    static void clickBack(int waitTime){
+    static void clickBack(int waitTime) {
         UiDevice mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
         sleep(waitTime);
         mDevice.pressBack();

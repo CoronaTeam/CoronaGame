@@ -41,13 +41,17 @@ import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
  * DEMO FOR USERS LOCATED ON MAP:
  * Create a grid with lots of users at some place and less at some other place.
  * These places are located around EPFL.
- *
+ * <p>
  * DEMO FOR USER PATH ON MAP:
  * Create 2 different paths on 2 different days of the same user.
  * Create infected people met on these paths.
  */
 @Ignore("This is not a proper test, it is used for testing and demos, but it does not test anything, only generates data.")
 public class DataForDemo {
+    private static double DENSE_INITIAL_EPFL_LATITUDE = 46.51800;
+    private static double DENSE_INITIAL_EPFL_LONGITUDE = 6.56600;
+    private static double SPARSE_INITIAL_EPFL_LATITUDE = 46.51900;
+    private static double SPARSE_INITIAL_EPFL_LONGITUDE = 6.56700;
     private Random r = new Random();
     private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
     private CachingDataSender dataSender = new ConcreteCachingDataSender(gridFirestoreInteractor) {
@@ -55,10 +59,10 @@ public class DataForDemo {
         public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
             return gridFirestoreInteractor.gridWrite(location, String.valueOf(time.getTime()),
                     carrier)
-                    .whenComplete((res, thr) ->{
-                        if (thr == null){
+                    .whenComplete((res, thr) -> {
+                        if (thr == null) {
                             System.out.println("location successfully added to firestore");
-                        }else{
+                        } else {
                             System.out.println("location could not be uploaded to firestore");
                         }
                     });
@@ -87,18 +91,13 @@ public class DataForDemo {
             return null;
         }
     };
-
-    private static double DENSE_INITIAL_EPFL_LATITUDE = 46.51800;
-    private static double DENSE_INITIAL_EPFL_LONGITUDE = 6.56600;
-    private static double SPARSE_INITIAL_EPFL_LATITUDE = 46.51900;
-    private static double SPARSE_INITIAL_EPFL_LONGITUDE = 6.56700;
     private Date rightNow = new Date(System.currentTimeMillis());
 
     private List<Point> routeCoordinates;
     private int[] infectedOnRoute;
 
-    double getRandomNumberBetweenBounds(double lower, double upper){
-        return r.nextDouble() * (upper-lower) + lower;
+    double getRandomNumberBetweenBounds(double lower, double upper) {
+        return r.nextDouble() * (upper - lower) + lower;
     }
 
     /**
@@ -220,7 +219,7 @@ public class DataForDemo {
         final boolean[] pathLoaded = new boolean[1];
         double lat = 50.0;//33.39767645465177;
         double longi = -73.0;//-118.39439114221236;
-        for (double i=0; i<50*0.001; i=i+0.001) {
+        for (double i = 0; i < 50 * 0.001; i = i + 0.001) {
             Location location = LocationUtils.buildLocation(lat + i, longi + i);
             Map<String, Object> position = new HashMap();
             position.put("Position", new PositionRecord(Timestamp.now(),
@@ -242,7 +241,7 @@ public class DataForDemo {
         initInfectedOnRoute();
         int i = 0;
         Log.d("ROUTE SIZE: ", String.valueOf(routeCoordinates.size()));
-        for (Point point: routeCoordinates) {
+        for (Point point : routeCoordinates) {
             double lat = point.latitude();
             double lon = point.longitude();
             //Location location = LocationUtils.buildLocation(lat, lon);
@@ -259,7 +258,7 @@ public class DataForDemo {
             if (infectedOnRoute[i] == 1) {
                 carrierAndPositionCreationUpload(Carrier.InfectionStatus.INFECTED, 1f, lat, lon, timestamp.toDate());
             }
-            i+=1;
+            i += 1;
         }
         Log.d("LOOPINDEX: ", String.valueOf(i));
     }

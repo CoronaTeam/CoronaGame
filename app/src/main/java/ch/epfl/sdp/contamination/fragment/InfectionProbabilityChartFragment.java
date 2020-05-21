@@ -45,23 +45,21 @@ import static android.content.Context.BIND_AUTO_CREATE;
 
 public class InfectionProbabilityChartFragment extends Fragment implements OnChartValueSelectedListener, Observer {
 
+    private static long DATA_TIME_SCALE = 1000L;
+    private static float DATA_TIME_GRANULARITY = (float) (1000L * 60L * 60L * 24L) / DATA_TIME_SCALE; // one day in ms
     private View view;
     private LineChart chart;
     private LocationService service;
-
-    private static long DATA_TIME_SCALE = 1000L;
-    private static float DATA_TIME_GRANULARITY = (float)(1000L * 60L * 60L * 24L) / DATA_TIME_SCALE; // one day in ms
+    private long referenceTime = 0L;
     private final ValueFormatter DATA_TIME_FORMATTER = new ValueFormatter() {
         @Override
         public String getFormattedValue(float value) {
             Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(referenceTime + (long)(value * DATA_TIME_SCALE));
+            cal.setTimeInMillis(referenceTime + (long) (value * DATA_TIME_SCALE));
             int month = cal.get(Calendar.MONTH) + 1;
             return cal.get(Calendar.DAY_OF_MONTH) + "/" + (month < 10 ? "0" : "") + month;
         }
     };
-
-    private long referenceTime = 0L;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -87,12 +85,15 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
         ServiceConnection conn = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                InfectionProbabilityChartFragment.this.service = ((LocationService.LocationBinder)service).getService();
+                InfectionProbabilityChartFragment.this.service = ((LocationService.LocationBinder) service).getService();
                 ((Layman) InfectionProbabilityChartFragment.this.service.getAnalyst().getCarrier()).addObserver(InfectionProbabilityChartFragment.this);
                 updateData();
             }
+
             @Override
-            public void onServiceDisconnected(ComponentName name) { service = null; }
+            public void onServiceDisconnected(ComponentName name) {
+                service = null;
+            }
         };
         getActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
     }
@@ -178,7 +179,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
                 referenceTime = entry.getKey().getTime();
                 first = false;
             }
-            values.add(new Entry((float)(entry.getKey().getTime() - referenceTime) / DATA_TIME_SCALE, entry.getValue(), drawable));
+            values.add(new Entry((float) (entry.getKey().getTime() - referenceTime) / DATA_TIME_SCALE, entry.getValue(), drawable));
         }
 
         return values;
@@ -233,7 +234,6 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
         chart.setData(new LineData(dataSets));
         chart.invalidate();
     }
-
 
 
     @Override

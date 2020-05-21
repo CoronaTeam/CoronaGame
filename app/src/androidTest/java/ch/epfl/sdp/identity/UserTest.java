@@ -14,7 +14,7 @@ public class UserTest {
     public void setup() {
         u = new User("INFINITE", "LOOP", "TEST@USELESS",
                 Uri.parse("https://www.meme-arsenal.com/memes/783e18d7c7722bedc71b80ec5986b648.jpg"),
-                 "9827545", User.DEFAULT_AGE, false);
+                "9827545", User.DEFAULT_AGE, false);
     }
 
     @Test

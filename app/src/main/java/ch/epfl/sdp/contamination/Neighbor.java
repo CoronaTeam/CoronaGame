@@ -5,7 +5,7 @@ import java.util.Map;
 
 /**
  * Neighbor is a simple type of Carrier, who has a FIXED status (hence also without status history)
- *
+ * <p>
  * It's useful to represent the information on people I met, downloaded from Firestore
  */
 public class Neighbor implements Carrier {

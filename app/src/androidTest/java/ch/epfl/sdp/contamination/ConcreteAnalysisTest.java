@@ -64,66 +64,25 @@ import static org.junit.Assert.assertSame;
 
 public class ConcreteAnalysisTest {
 
-    Location testLocation = buildLocation(65, 63);
-    Date testDate = new Date(System.currentTimeMillis());
-    static HashMap<String,Float> recentSickMeetingCounter = new HashMap<>();
-    static Layman man1 ;
-    static Layman man2 ;
-    static Layman man3 ;
+    static HashMap<String, Float> recentSickMeetingCounter = new HashMap<>();
+    static Layman man1;
+    static Layman man2;
+    static Layman man3;
     static Layman man4;
     static SortedMap<Date, Location> lastPositions;
     static Set<Carrier> peopleAround;
-
     static Map<Long, Carrier> rangePeople;
-
     static Map<GeoPoint, Map<Long, Set<Carrier>>> city = new HashMap<>();
-
     static int recoveryCounter;
-
     @Rule
     public final ActivityTestRule<InfectionActivity> mActivityRule = new ActivityTestRule<>(InfectionActivity.class);
-
-    @Before
-    public void init(){
-        initSafeTest(mActivityRule,false);
-    }
-    @After
-    public void release(){
-        Intents.release();
-    }
-    @BeforeClass
-    public static void initiateData() {
-        recoveryCounter = 0 ;
-
-        lastPositions = new TreeMap<>();
-        lastPositions.put(PositionAggregator.getWindowForDate(Calendar.getInstance().getTime()),newLoc(20,20));
-        lastPositions.put(PositionAggregator.getWindowForDate(new Date(System.currentTimeMillis()-PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION)),newLoc(10,10));
-        lastPositions.put(PositionAggregator.getWindowForDate(new Date(System.currentTimeMillis()-2*PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION)),newLoc(40,40));
-        lastPositions.put(PositionAggregator.getWindowForDate(new Date(System.currentTimeMillis()-3*PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION)),newLoc(30,30));
-
-
-        peopleAround = new HashSet<>();
-        peopleAround.add(new Layman(HEALTHY,"Woman1"));
-        peopleAround.add(new Layman(INFECTED,"Woman2"));
-        peopleAround.add(new Layman(UNKNOWN,"Woman3"));
-
-        rangePeople = new HashMap<>();
-        man1 =new Layman(Carrier.InfectionStatus.INFECTED,"Man1");
-        man2 =new Layman(HEALTHY,"Man2");
-        man3 =new Layman(Carrier.InfectionStatus.UNKNOWN,0.3f,"Man3");
-        man4= new Layman(HEALTHY,"Man4");
-
-        rangePeople.put(1585223363913L,man1 );
-        rangePeople.put(1585223373883L, man2);
-        rangePeople.put(1585223373893L, man3);
-        rangePeople.put(1585223373903L, man4);
-    }
-
+    Location testLocation = buildLocation(65, 63);
+    Date testDate = new Date(System.currentTimeMillis());
     DataReceiver mockReceiver = new DataReceiver() {
         @Override
         public CompletableFuture<Set<Carrier>> getUserNearby(Location location, Date date) {
             HashSet<Carrier> res = new HashSet<>();
-            switch((int)(location.getLatitude())){
+            switch ((int) (location.getLatitude())) {
                 case 20:
                     res.add(man2);
                     break;
@@ -146,9 +105,9 @@ public class ConcreteAnalysisTest {
 
         @Override
         public CompletableFuture<Map<Carrier, Integer>> getUserNearbyDuring(Location location, Date startDate, Date endDate) {
-            if(location==null){
+            if (location == null) {
                 return CompletableFuture.completedFuture(Collections.emptyMap());
-            }else{
+            } else {
                 Map<Carrier, Integer> met = new HashMap<>();
                 for (long t : rangePeople.keySet()) {
                     if (startDate.getTime() <= t && t <= endDate.getTime()) {
@@ -171,36 +130,38 @@ public class ConcreteAnalysisTest {
 
         @Override
         public CompletableFuture<Map<String, Object>> getNumberOfSickNeighbors(String userId) {
-            if(recentSickMeetingCounter.containsKey(userId)) {
-                HashMap<String,Object> res = new HashMap<>();
+            if (recentSickMeetingCounter.containsKey(userId)) {
+                HashMap<String, Object> res = new HashMap<>();
                 recentSickMeetingCounter.get(userId);
                 res.put(publicAlertAttribute, recentSickMeetingCounter.get(userId));
                 return CompletableFuture.completedFuture(res);
-            }else{
+            } else {
                 return CompletableFuture.completedFuture(Collections.emptyMap());
             }
         }
     };
-    
-    CachingDataSender sender = new FakeCachingDataSender(){
+    CachingDataSender sender = new FakeCachingDataSender() {
         @Override
         public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
             fakeFirebaseStore.put(time, location);
             return CompletableFuture.completedFuture(null);
         }
+
         @Override
-        public CompletableFuture<Void> sendAlert(String userId, float previousIllnessProbability){
+        public CompletableFuture<Void> sendAlert(String userId, float previousIllnessProbability) {
             recentSickMeetingCounter.computeIfPresent(userId,
                     (k, v) -> v + 1 - previousIllnessProbability);
-            recentSickMeetingCounter.computeIfAbsent(userId, k->1-previousIllnessProbability);
+            recentSickMeetingCounter.computeIfAbsent(userId, k -> 1 - previousIllnessProbability);
             return CompletableFuture.completedFuture(null);
         }
+
         @Override
-        public CompletableFuture<Void> sendAlert(String userId){
-            return sendAlert(userId,0);
+        public CompletableFuture<Void> sendAlert(String userId) {
+            return sendAlert(userId, 0);
         }
+
         @Override
-        public CompletableFuture<Void> resetSickAlerts(String userId){
+        public CompletableFuture<Void> resetSickAlerts(String userId) {
             recentSickMeetingCounter.remove(userId);
             return CompletableFuture.completedFuture(null);
         }
@@ -211,6 +172,55 @@ public class ConcreteAnalysisTest {
         }
     };
 
+    @BeforeClass
+    public static void initiateData() {
+        recoveryCounter = 0;
+
+        lastPositions = new TreeMap<>();
+        lastPositions.put(PositionAggregator.getWindowForDate(Calendar.getInstance().getTime()), newLoc(20, 20));
+        lastPositions.put(PositionAggregator.getWindowForDate(new Date(System.currentTimeMillis() - PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION)), newLoc(10, 10));
+        lastPositions.put(PositionAggregator.getWindowForDate(new Date(System.currentTimeMillis() - 2 * PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION)), newLoc(40, 40));
+        lastPositions.put(PositionAggregator.getWindowForDate(new Date(System.currentTimeMillis() - 3 * PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION)), newLoc(30, 30));
+
+
+        peopleAround = new HashSet<>();
+        peopleAround.add(new Layman(HEALTHY, "Woman1"));
+        peopleAround.add(new Layman(INFECTED, "Woman2"));
+        peopleAround.add(new Layman(UNKNOWN, "Woman3"));
+
+        rangePeople = new HashMap<>();
+        man1 = new Layman(Carrier.InfectionStatus.INFECTED, "Man1");
+        man2 = new Layman(HEALTHY, "Man2");
+        man3 = new Layman(Carrier.InfectionStatus.UNKNOWN, 0.3f, "Man3");
+        man4 = new Layman(HEALTHY, "Man4");
+
+        rangePeople.put(1585223363913L, man1);
+        rangePeople.put(1585223373883L, man2);
+        rangePeople.put(1585223373893L, man3);
+        rangePeople.put(1585223373903L, man4);
+    }
+
+    private static Map<String, Object> getRecoveryCount() {
+        Map<String, Object> map = new HashMap<>();
+        if (recoveryCounter != 0) {
+            map.put(privateRecoveryCounter, recoveryCounter);
+        } else {
+            map = Collections.emptyMap();
+        }
+        return map;
+
+    }
+
+    @Before
+    public void init() {
+        initSafeTest(mActivityRule, false);
+    }
+
+    @After
+    public void release() {
+        Intents.release();
+    }
+
     @Test
     public void canEvolveIfInfected() {
 
@@ -218,7 +228,7 @@ public class ConcreteAnalysisTest {
 
         assertThat(me.setIllnessProbability(new Date(), .5f), equalTo(true));
 
-        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver, sender);
         analyst.updateInfectionPredictions(testLocation, new Date(1585223373980L), new Date());
         assertThat(me.getInfectionStatus(), equalTo(UNKNOWN));
 
@@ -229,25 +239,245 @@ public class ConcreteAnalysisTest {
 
         ObservableCarrier me = new Layman(HEALTHY);
 
-        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
-        analyst.updateInfectionPredictions(testLocation, new Date(1585220363913L), new Date()).thenRun(()->{
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver, sender);
+        analyst.updateInfectionPredictions(testLocation, new Date(1585220363913L), new Date()).thenRun(() -> {
             assertThat(me.getInfectionStatus(), equalTo(HEALTHY));
-            assertThat(me.getIllnessProbability(),greaterThan(0.f));
+            assertThat(me.getIllnessProbability(), greaterThan(0.f));
         });
 
     }
 
-    private static Map<String,Object> getRecoveryCount(){
-    Map<String,Object> map = new HashMap<>();
-    if(recoveryCounter !=0){
-        map.put(privateRecoveryCounter, recoveryCounter);
-    }else{
-        map = Collections.emptyMap();
-    }
-    return map;
+    @Test
+    public void infectionProbabilityIsUpdated() throws Throwable {
+        recoveryCounter = 0;
+        CityDataReceiver cityReceiver = new CityDataReceiver();
+        ObservableCarrier me = new Layman(HEALTHY, "TESTUSER");
 
-}
+        InfectionFragment fragment = ((InfectionFragment) mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
+
+        LocationService service = fragment.getLocationService().join();
+
+        DataReceiver originalReceiver = service.getReceiver();
+        service.setReceiver(cityReceiver);
+        service.setSender(sender);
+        InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver, sender);
+        InfectionAnalyst originalAnalyst = service.getAnalyst();
+
+        service.setAnalyst(analysis);
+
+
+        cityReceiver.setMyCurrentLocation(buildLocation(0, 0));
+
+        //fragment.onModelRefresh(null);
+        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
+
+        TestTools.sleep();
+        clickBack();
+        onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
+
+        // I'm going to a healthy location
+        GeoPoint healthyLocation = new GeoPoint(12, 13);
+        cityReceiver.setMyCurrentLocation(buildLocation(12, 13));
+
+        Thread.sleep(10);
+
+        city.put(healthyLocation, new HashMap<>());
+        city.get(healthyLocation).put(System.currentTimeMillis(), Collections.singleton(new Layman(UNKNOWN, .89f)));
+        city.get(healthyLocation).put(System.currentTimeMillis() + 1, Collections.singleton(new Layman(UNKNOWN, .91f)));
+        city.get(healthyLocation).put(System.currentTimeMillis() + 2, Collections.singleton(new Layman(UNKNOWN, .90f)));
+        city.get(healthyLocation).put(System.currentTimeMillis() + 3, Collections.singleton(new Layman(UNKNOWN, .92f)));
+
+        Thread.sleep(10);
+
+        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
+        Thread.sleep(10);
+        clickBack();
+
+        onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
+        Thread.sleep(3000);
+        // This location is full of ill people
+        GeoPoint badLocation = new GeoPoint(40, 113.4);
+        city.put(badLocation, new HashMap<>());
+        long nowMillis = System.currentTimeMillis();
+        for (int i = 0; i < 30; i++) {
+//            city.get(badLocation).put(nowMillis+i+14, Collections.singleton(new Layman(INFECTED)));
+        }
+
+        city.get(badLocation).put(nowMillis + 13, Collections.singleton((new Layman(INFECTED))));
+        city.get(badLocation).put(nowMillis + 14, Collections.singleton(man1));
+        Thread.sleep(30);
+        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
+
+        clickBack();
+
+        // I was still on healthyLocation
+        onView(withId(R.id.my_infection_refresh)).perform(click());
+        sleep(5000);
+        clickBack();
+        onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
+
+        Thread.sleep(1500);
+
+        nowMillis = System.currentTimeMillis();
+        for (int i = 0; i < 5; i++) {
+            city.get(badLocation).put(nowMillis + i * 1000, Collections.singleton(new Layman(UNKNOWN, .99f + i)));
+        }
+        city.get(badLocation).put(nowMillis + 13, Collections.singleton((new Layman(INFECTED))));
+        city.get(badLocation).put(nowMillis + 14, Collections.singleton(man1));
+        city.get(badLocation).put(nowMillis + 12, Collections.singleton((new Layman(INFECTED, "Joseph"))));
+        city.get(badLocation).put(nowMillis + 11, Collections.singleton((new Layman(INFECTED, "Amélie Poulain"))));
+        city.get(badLocation).put(nowMillis + 10, Collections.singleton((new Layman(INFECTED, "Jean-Yves le Boudecque"))));
+
+        sleep(5000);
+
+        // I go to the bad location
+        cityReceiver.setMyCurrentLocation(buildLocation(40, 113.4));
+
+        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
+        clickBack(2500);
+        // Now there should be some risk that I was infected
+        onView(withId(R.id.my_infection_refresh)).perform(click());
+        clickBack(2500);
+        onView(withId(R.id.my_infection_status)).check(matches(withText("UNKNOWN")));
+
+        // TODO: Restore original components
+        service.setReceiver(originalReceiver);
+        service.setAnalyst(originalAnalyst);
+
+    }
+
+    @Test
+    public void locationEqualityTest() {
+        GeoPoint a = new GeoPoint(12, 13.24);
+        GeoPoint b = new GeoPoint(12, 13.24);
+        assertThat(a.equals(b), equalTo(true));
+    }
+
+    @Test
+    public void getCarrierReturnsTheSameCarrier() {
+        ObservableCarrier me = new Layman(HEALTHY);
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver, sender);
+        assertNotNull(analyst.getCarrier());
+        assertSame(me, analyst.getCarrier());
+    }
+
+    @Test
+    public void observersKnowIfStatusChanged() {
+        AtomicInteger counter = new AtomicInteger(0);
+
+        Observer fakeOserver = (o, arg) -> {
+            if (((Optional<Float>) arg).isPresent()) {
+                counter.incrementAndGet();
+            }
+        };
+
+        ObservableCarrier me = new Layman(HEALTHY);
+        me.addObserver(fakeOserver);
+
+        // No status change
+        assertTrue(me.evolveInfection(new Date(), HEALTHY, me.getIllnessProbability()));
+        sleep();
+        assertThat(counter.get(), equalTo(0));
+
+        // With status change
+        assertTrue(me.evolveInfection(new Date(), UNKNOWN, me.getIllnessProbability()));
+        sleep();
+        assertThat(counter.get(), equalTo(1));
+    }
+
+    @Test
+    public void notifiesSickNeighborsWhenYouGetSick() {
+        ObservableCarrier me = new Layman(HEALTHY);
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver, sender);
+        me.evolveInfection(new Date(), INFECTED, 1f);
+        mockReceiver.getNumberOfSickNeighbors("Man1").thenAccept(res ->
+                assertTrue(res.isEmpty()));
+        mockReceiver.getNumberOfSickNeighbors("Man2").thenAccept(res ->
+                assertEquals(1f, getMapValue(res), 0.0001));
+        mockReceiver.getNumberOfSickNeighbors("Man3").thenAccept(res ->
+                assertEquals(1f, getMapValue(res), 0.0001));
+        mockReceiver.getNumberOfSickNeighbors("Man4").thenAccept(res ->
+                assertEquals(1f, getMapValue(res), 0.0001));
+    }
+
+    @Test
+    public void adaptYourProbabilityOfInfectionAccordingToSickMeetingsAndThenResetItsCounter() {
+        recoveryCounter = 0;
+        ObservableCarrier me = new Layman(HEALTHY, "TESTUSER");
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver, sender);
+        sender.sendAlert(me.getUniqueId());
+        sender.sendAlert(me.getUniqueId(), 0.4f);
+        analyst.updateInfectionPredictions(null, null, null);
+        System.out.println(me.toString());
+        assertEquals(TRANSMISSION_FACTOR * (1 + (1 - 0.4)), me.getIllnessProbability(), 0.00001f);
+        mockReceiver.getNumberOfSickNeighbors(me.getUniqueId()).thenAccept(res -> assertTrue((res).isEmpty()));
+    }
+
+    @Test
+    public void doesUpdateCorrectlySicknessState() {
+        InfectionFragment fragment = ((InfectionFragment) mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
+        LocationService service = fragment.getLocationService().join();
+        ObservableCarrier me = new Layman(HEALTHY);
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver, sender);
+        me.evolveInfection(new Date(), INFECTED, 1f);
+        assertSame(INFECTED, analyst.getCarrier().getInfectionStatus());
+    }
+
+    @Test
+    public void adaptInfectionProbabilityOfBadMeetingsIfRecovered() {
+        recoveryCounter = 1;
+        ObservableCarrier me = new Layman(HEALTHY);
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver, sender);
+        sender.sendAlert(me.getUniqueId());
+        sender.sendAlert(me.getUniqueId(), 0.4f);
+        analyst.updateInfectionPredictions(null, null, null).thenAccept(res -> {
+            assertEquals(1.6 * Math.pow(IMMUNITY_FACTOR, recoveryCounter) * TRANSMISSION_FACTOR, me.getIllnessProbability(), 0.00001f);
+        });
+    }
+
+    @Test
+    public void decreaseSickProbaWhenRecovered() {
+        recoveryCounter = 2;
+        CityDataReceiver cityReceiver = new CityDataReceiver();
+        ObservableCarrier me = new Layman(HEALTHY);
+
+        InfectionFragment fragment = ((InfectionFragment) mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
+        LocationService service = fragment.getLocationService().join();
+        service.setReceiver(cityReceiver);
+        InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver, sender);
+        service.setAnalyst(analysis);
+
+        GeoPoint badLocations = new GeoPoint(42, 113.4);
+        city.put(badLocations, new HashMap<>());
+        long nowMillis = System.currentTimeMillis();
+        for (int i = 0; i < 5; i++) {
+            city.get(badLocations).put(nowMillis + i * 100, Collections.singleton(new Layman(UNKNOWN, .98f + i)));
+        }
+
+        sleep(5001);
+
+        cityReceiver.setMyCurrentLocation(buildLocation(42, 113.4));
+        // Now there should be some risk that I was infected
+
+        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
+        sleep(1000);
+        clickBack();
+        sleep(11);
+        float threshold = 0.05f;
+        //In case the TRANSMISSION_FACTOR changes in the future, the test still works by doing:
+        if (TRANSMISSION_FACTOR >= 0.9) {
+            threshold = 0.10f;
+        } else if (TRANSMISSION_FACTOR >= 0.7f) {
+            threshold = 0.08f;
+        } else if (TRANSMISSION_FACTOR > 0.6f) {
+            threshold = 0.06f;
+        }
+        assertTrue(me.getIllnessProbability() < threshold);
+    }
+
     class CityDataReceiver implements DataReceiver {
+        Location myCurrentLocation;
+
         @Override
         public CompletableFuture<Set<Carrier>> getUserNearby(Location l, Date date) {
             GeoPoint location = new GeoPoint(l.getLatitude(), l.getLongitude());
@@ -264,7 +494,7 @@ public class ConcreteAnalysisTest {
 
         private void merge(Map<Carrier, Integer> r, Carrier carrier) {
             if (r.containsKey(carrier)) {
-                r.put(carrier, r.get(carrier)+1);
+                r.put(carrier, r.get(carrier) + 1);
             } else {
                 r.put(carrier, 1);
             }
@@ -293,8 +523,6 @@ public class ConcreteAnalysisTest {
             }
         }
 
-        Location myCurrentLocation;
-
         void setMyCurrentLocation(Location here) {
             myCurrentLocation = here;
         }
@@ -308,234 +536,9 @@ public class ConcreteAnalysisTest {
         public CompletableFuture<Map<String, Object>> getNumberOfSickNeighbors(String userId) {
             return CompletableFuture.completedFuture(Collections.emptyMap());
         }
+
         public CompletableFuture<Map<String, Object>> getRecoveryCounter(String userId) {
             return CompletableFuture.completedFuture(getRecoveryCount());
         }
-    }
-
-    @Test
-    public void infectionProbabilityIsUpdated() throws Throwable {
-        recoveryCounter = 0;
-        CityDataReceiver cityReceiver = new CityDataReceiver();
-        ObservableCarrier me = new Layman(HEALTHY,"TESTUSER");
-
-        InfectionFragment fragment = ((InfectionFragment)mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
-
-        LocationService service = fragment.getLocationService().join();
-
-        DataReceiver originalReceiver = service.getReceiver();
-        service.setReceiver(cityReceiver);
-        service.setSender(sender);
-        InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver,sender);
-        InfectionAnalyst originalAnalyst = service.getAnalyst();
-
-        service.setAnalyst(analysis);
-
-
-        cityReceiver.setMyCurrentLocation(buildLocation(0, 0));
-
-        //fragment.onModelRefresh(null);
-        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
-
-        TestTools.sleep();
-        clickBack();
-        onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
-
-        // I'm going to a healthy location
-        GeoPoint healthyLocation = new GeoPoint(12, 13);
-        cityReceiver.setMyCurrentLocation(buildLocation(12,13));
-
-        Thread.sleep(10);
-
-        city.put(healthyLocation, new HashMap<>());
-        city.get(healthyLocation).put(System.currentTimeMillis(), Collections.singleton(new Layman(UNKNOWN, .89f)));
-        city.get(healthyLocation).put(System.currentTimeMillis()+1, Collections.singleton(new Layman(UNKNOWN, .91f)));
-        city.get(healthyLocation).put(System.currentTimeMillis()+2, Collections.singleton(new Layman(UNKNOWN, .90f)));
-        city.get(healthyLocation).put(System.currentTimeMillis()+3, Collections.singleton(new Layman(UNKNOWN, .92f)));
-
-        Thread.sleep(10);
-
-        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
-        Thread.sleep(10);
-        clickBack();
-
-        onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
-        Thread.sleep(3000);
-        // This location is full of ill people
-        GeoPoint badLocation = new GeoPoint(40, 113.4);
-        city.put(badLocation, new HashMap<>());
-        long nowMillis = System.currentTimeMillis();
-        for (int i = 0; i < 30; i++) {
-//            city.get(badLocation).put(nowMillis+i+14, Collections.singleton(new Layman(INFECTED)));
-        }
-
-        city.get(badLocation).put(nowMillis+13,Collections.singleton((new Layman(INFECTED))));
-        city.get(badLocation).put(nowMillis+14,Collections.singleton(man1));
-        Thread.sleep(30);
-        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
-
-        clickBack();
-
-        // I was still on healthyLocation
-        onView(withId(R.id.my_infection_refresh)).perform(click());
-        sleep(5000);
-        clickBack();
-        onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
-
-        Thread.sleep(1500);
-
-        nowMillis = System.currentTimeMillis();
-        for (int i = 0; i < 5; i++) {
-            city.get(badLocation).put(nowMillis+i*1000, Collections.singleton(new Layman(UNKNOWN, .99f + i)));
-        }
-        city.get(badLocation).put(nowMillis+13,Collections.singleton((new Layman(INFECTED))));
-        city.get(badLocation).put(nowMillis+14,Collections.singleton(man1));
-        city.get(badLocation).put(nowMillis+12,Collections.singleton((new Layman(INFECTED,"Joseph"))));
-        city.get(badLocation).put(nowMillis+11,Collections.singleton((new Layman(INFECTED,"Amélie Poulain"))));
-        city.get(badLocation).put(nowMillis+10,Collections.singleton((new Layman(INFECTED,"Jean-Yves le Boudecque"))));
-
-        sleep(5000);
-
-        // I go to the bad location
-        cityReceiver.setMyCurrentLocation(buildLocation(40, 113.4));
-
-        mActivityRule.getActivity().runOnUiThread(() -> fragment.onModelRefresh(null));
-        clickBack(2500);
-        // Now there should be some risk that I was infected
-        onView(withId(R.id.my_infection_refresh)).perform(click());
-        clickBack(2500);
-        onView(withId(R.id.my_infection_status)).check(matches(withText("UNKNOWN")));
-
-        // TODO: Restore original components
-        service.setReceiver(originalReceiver);
-        service.setAnalyst(originalAnalyst);
-
-    }
-
-    @Test
-    public void locationEqualityTest() {
-        GeoPoint a = new GeoPoint(12,13.24);
-        GeoPoint b = new GeoPoint(12,13.24);
-        assertThat(a.equals(b), equalTo(true));
-    }
-
-    @Test
-    public void getCarrierReturnsTheSameCarrier(){
-        ObservableCarrier me = new Layman(HEALTHY);
-        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
-        assertNotNull(analyst.getCarrier());
-        assertSame(me,analyst.getCarrier());
-    }
-    @Test
-    public void observersKnowIfStatusChanged(){
-        AtomicInteger counter = new AtomicInteger(0);
-
-        Observer fakeOserver = (o, arg) -> {
-            if (((Optional<Float>)arg).isPresent()) {
-                counter.incrementAndGet();
-            }
-        };
-
-        ObservableCarrier me = new Layman(HEALTHY);
-        me.addObserver(fakeOserver);
-
-        // No status change
-        assertTrue(me.evolveInfection(new Date(), HEALTHY, me.getIllnessProbability()));
-        sleep();
-        assertThat(counter.get(), equalTo(0));
-
-        // With status change
-        assertTrue(me.evolveInfection(new Date(), UNKNOWN, me.getIllnessProbability()));
-        sleep();
-        assertThat(counter.get(), equalTo(1));
-    }
-
-    @Test
-    public void notifiesSickNeighborsWhenYouGetSick(){
-        ObservableCarrier me = new Layman(HEALTHY);
-        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
-        me.evolveInfection(new Date(), INFECTED, 1f);
-        mockReceiver.getNumberOfSickNeighbors("Man1").thenAccept(res ->
-                assertTrue(res.isEmpty()));
-        mockReceiver.getNumberOfSickNeighbors("Man2").thenAccept(res ->
-                assertEquals(1f,getMapValue(res),0.0001));
-        mockReceiver.getNumberOfSickNeighbors("Man3").thenAccept(res ->
-                assertEquals(1f,getMapValue(res),0.0001));
-        mockReceiver.getNumberOfSickNeighbors("Man4").thenAccept(res ->
-                assertEquals(1f,getMapValue(res),0.0001));
-    }
-    @Test
-    public void adaptYourProbabilityOfInfectionAccordingToSickMeetingsAndThenResetItsCounter(){
-        recoveryCounter = 0;
-        ObservableCarrier me = new Layman(HEALTHY,"TESTUSER");
-        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
-        sender.sendAlert(me.getUniqueId());
-        sender.sendAlert(me.getUniqueId(),0.4f);
-        analyst.updateInfectionPredictions(null,null, null);
-        System.out.println(me.toString());
-        assertEquals(TRANSMISSION_FACTOR* (1+ (1-0.4)),me.getIllnessProbability(),0.00001f);
-        mockReceiver.getNumberOfSickNeighbors(me.getUniqueId()).thenAccept(res -> assertTrue((res).isEmpty()));
-    }
-
-    @Test
-    public void doesUpdateCorrectlySicknessState(){
-        InfectionFragment fragment = ((InfectionFragment)mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
-        LocationService service = fragment.getLocationService().join();
-        ObservableCarrier me = new Layman(HEALTHY);
-        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
-        me.evolveInfection(new Date(), INFECTED, 1f);
-        assertSame(INFECTED,analyst.getCarrier().getInfectionStatus());
-    }
-
-    @Test
-    public void adaptInfectionProbabilityOfBadMeetingsIfRecovered(){
-        recoveryCounter = 1;
-        ObservableCarrier me = new Layman(HEALTHY);
-        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver,sender);
-        sender.sendAlert(me.getUniqueId());
-        sender.sendAlert(me.getUniqueId(),0.4f);
-        analyst.updateInfectionPredictions(null,null, null).thenAccept(res->{
-            assertEquals(1.6 * Math.pow(IMMUNITY_FACTOR,recoveryCounter)*TRANSMISSION_FACTOR ,me.getIllnessProbability(),0.00001f);
-        });
-    }
-    
-    @Test
-    public void decreaseSickProbaWhenRecovered(){
-        recoveryCounter = 2;
-        CityDataReceiver cityReceiver = new CityDataReceiver();
-        ObservableCarrier me = new Layman(HEALTHY);
-
-        InfectionFragment fragment = ((InfectionFragment)mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
-        LocationService service = fragment.getLocationService().join();
-        service.setReceiver(cityReceiver);
-        InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver,sender);
-        service.setAnalyst(analysis);
-
-        GeoPoint badLocations = new GeoPoint(42, 113.4);
-        city.put(badLocations, new HashMap<>());
-        long nowMillis = System.currentTimeMillis();
-        for (int i = 0; i < 5; i++) {
-            city.get(badLocations).put(nowMillis+i*100, Collections.singleton(new Layman(UNKNOWN, .98f + i)));
-        }
-
-        sleep(5001);
-
-        cityReceiver.setMyCurrentLocation(buildLocation(42, 113.4));
-        // Now there should be some risk that I was infected
-
-        mActivityRule.getActivity().runOnUiThread(( ) -> fragment.onModelRefresh(null));
-        sleep(1000);
-        clickBack();
-        sleep(11);
-        float threshold = 0.05f;
-        //In case the TRANSMISSION_FACTOR changes in the future, the test still works by doing:
-        if(TRANSMISSION_FACTOR>=0.9){
-            threshold = 0.10f;
-        }else if(TRANSMISSION_FACTOR >= 0.7f){
-            threshold = 0.08f;
-        }else if(TRANSMISSION_FACTOR >0.6f){
-            threshold = 0.06f;
-        }
-        assertTrue(me.getIllnessProbability()<threshold);
     }
 }

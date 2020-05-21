@@ -43,6 +43,14 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
     private ServiceConnection serviceConnection;
     private CompletableFuture<LocationService> locationService = new CompletableFuture<>();
 
+    public static Account getAccount(Activity activity) {
+        if (!IN_TEST) {
+            return new AccountAdapter(GoogleSignIn.getLastSignedInAccount(activity));
+        } else {
+            return new AccountAdapter(new User());
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -75,14 +83,6 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
         getActivity().bindService(new Intent(getActivity(), LocationService.class), serviceConnection, Context.BIND_AUTO_CREATE);
 
         return view;
-    }
-
-    public static Account getAccount(Activity activity) {
-        if( ! IN_TEST){
-            return new AccountAdapter(GoogleSignIn.getLastSignedInAccount(activity));
-        }else{
-            return new AccountAdapter(new User());
-        }
     }
 
     @Override

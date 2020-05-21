@@ -43,19 +43,6 @@ public class LocationServiceTest {
 
     private Location beenThere = TestTools.newLoc(13, 78);
     private Date now = new Date();
-
-    @Before
-    public void setUp() {
-        initSafeTest(mActivityRule, true);
-        registered = new AtomicBoolean(false);
-
-    }
-
-    @After
-    public void release(){
-        Intents.release();
-    }
-
     private LocationListener listener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
@@ -78,6 +65,18 @@ public class LocationServiceTest {
         }
     };
 
+    @Before
+    public void setUp() {
+        initSafeTest(mActivityRule, true);
+        registered = new AtomicBoolean(false);
+
+    }
+
+    @After
+    public void release() {
+        Intents.release();
+    }
+
     @Test
     public void registerForUpdatesFailsWithWrongProvider() {
         LocationService service = mActivityRule.getActivity().getService();
@@ -93,7 +92,7 @@ public class LocationServiceTest {
         AtomicBoolean result = new AtomicBoolean(false);
         AtomicBoolean done = new AtomicBoolean(false);
 
-        mActivityRule.runOnUiThread(() ->{
+        mActivityRule.runOnUiThread(() -> {
             LocationBroker broker = mActivityRule.getActivity().getService().getBroker();
             boolean hasPermissions = broker.hasPermissions(LocationBroker.Provider.GPS);
             boolean registrationSucceeded = broker.requestLocationUpdates(LocationBroker.Provider.GPS, 1, 1, listener);
@@ -101,7 +100,8 @@ public class LocationServiceTest {
             done.set(true);
         });
 
-        while (!done.get()) {}
+        while (!done.get()) {
+        }
 
         assertThat(result.get(), equalTo(true));
 
@@ -132,7 +132,8 @@ public class LocationServiceTest {
             done.set(true);
         });
 
-        while (!done.get()) { }
+        while (!done.get()) {
+        }
 
         assertThat(result.get(), equalTo(true));
     }

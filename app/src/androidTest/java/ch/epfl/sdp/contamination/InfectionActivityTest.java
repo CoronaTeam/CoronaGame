@@ -34,30 +34,32 @@ import static junit.framework.TestCase.assertNotNull;
 
 public class InfectionActivityTest {
 
-    private InfectionFragment fragment;
-
     @Rule
     public final ActivityTestRule<InfectionActivity> mActivityRule = new ActivityTestRule<>(InfectionActivity.class);
+    private InfectionFragment fragment;
 
     @Before
     public void setup() {
-        fragment = ((InfectionFragment)((InfectionActivity)(getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
-        initSafeTest(mActivityRule,true);
+        fragment = ((InfectionFragment) ((InfectionActivity) (getActivity())).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
+        initSafeTest(mActivityRule, true);
     }
+
     @After
-    public void release(){
+    public void release() {
 //        Intents.release();
     }
 
     @Test
-    public void receiverIsInstantiated(){
+    public void receiverIsInstantiated() {
         assertNotNull(fragment.getLocationService().join().getReceiver());
     }
+
     @Test
-    public void analystIsInstantiated(){
+    public void analystIsInstantiated() {
         assertNotNull(fragment.getLocationService().join().getAnalyst());
     }
-    private void displayHelper(){
+
+    private void displayHelper() {
         InfectionAnalyst analyst = new FakeAnalyst();
 
         LocationService service = fragment.getLocationService().join();
@@ -95,29 +97,32 @@ public class InfectionActivityTest {
             }
         });
 
-        int now = (int)System.currentTimeMillis();
+        int now = (int) System.currentTimeMillis();
         fragment.onModelRefresh(null);
         sleep(10);
         onView(withId(R.id.my_infection_refresh)).perform(click());
         clickBack();
 
     }
+
     @Test
-    public void displaysWhenNoMeeting(){
-        FakeAnalyst.infectMeets = 0 ;
+    public void displaysWhenNoMeeting() {
+        FakeAnalyst.infectMeets = 0;
         displayHelper();
         //Why we check it has HEALTHY : the press-back would have quit the app if the display would have not be shown
         onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
     }
+
     @Test
-    public void displaysDialogWhen1Meeting(){
+    public void displaysDialogWhen1Meeting() {
         FakeAnalyst.infectMeets = 1;
         displayHelper();
         onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
     }
+
     @Test
-    public void displayDialogWhenSeveralMeetings(){
-        FakeAnalyst.infectMeets=42;
+    public void displayDialogWhenSeveralMeetings() {
+        FakeAnalyst.infectMeets = 42;
         displayHelper();
         onView(withId(R.id.my_infection_status)).check(matches(withText("HEALTHY")));
     }

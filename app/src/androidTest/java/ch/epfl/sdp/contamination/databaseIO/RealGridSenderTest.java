@@ -91,7 +91,6 @@ public class RealGridSenderTest {
         });
 
 
-
     }
 
     private Map<Carrier, Boolean> getBackSliceData(Location somewhere, Date rightNow) throws Throwable {

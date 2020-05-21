@@ -110,7 +110,8 @@ public class HistoryActivityTest {
         onView(withId(R.id.refresh_history)).perform(click());
     }
 
-    @Test @Ignore
+    @Test
+    @Ignore
     public void unreadableContentIsPurged() {
         //FirestoreInteractor unreadableInteractor = createReadTestFSI(true, unreadableSnapshot);
 
@@ -122,6 +123,37 @@ public class HistoryActivityTest {
                 .inAdapterView(withId(R.id.history_tracker))
                 .atPosition(0)
                 .check(matches(withText("[...unreadable.:).]")));
+    }
+
+    private FirestoreInteractor createReadTestFSI(Boolean success, Map<String, Object> docData) {
+        return new FirestoreInteractor() {
+
+            @Override
+            public CompletableFuture<Map<String, Object>> readDocument(DocumentReference documentReference) {
+                CompletableFuture<Map<String, Object>> completableFuture = new CompletableFuture<>();
+                if (success) completableFuture.complete(docData);
+                else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
+                return completableFuture;
+            }
+
+            @Override
+            public CompletableFuture<Map<String, Map<String, Object>>> readCollection(CollectionReference collectionReference) {
+                CompletableFuture<Map<String, Map<String, Object>>> completableFuture = new CompletableFuture<>();
+                if (success) completableFuture.complete(null);
+                else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
+                return completableFuture;
+            }
+
+            @Override
+            public CompletableFuture<Void> writeDocumentWithID(DocumentReference documentReference, Object document) {
+                return null;
+            }
+
+            @Override
+            public CompletableFuture<DocumentReference> writeDocument(CollectionReference collectionReference, Object document) {
+                return null;
+            }
+        };
     }
 
     private class failureHistoryFSI extends HistoryFirestoreInteractor {
@@ -137,7 +169,7 @@ public class HistoryActivityTest {
         @Override
         public CompletableFuture<Map<String, Object>> readDocument(DocumentReference documentReference) {
             CompletableFuture<Map<String, Object>> completableFuture = new CompletableFuture<>();
-            if(success) completableFuture.complete(docData);
+            if (success) completableFuture.complete(docData);
             else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
             return completableFuture;
         }
@@ -145,7 +177,7 @@ public class HistoryActivityTest {
         @Override
         public CompletableFuture<Map<String, Map<String, Object>>> readCollection(CollectionReference collectionReference) {
             CompletableFuture<Map<String, Map<String, Object>>> completableFuture = new CompletableFuture<>();
-            if(success) completableFuture.complete(null);
+            if (success) completableFuture.complete(null);
             else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
             return completableFuture;
         }
@@ -159,36 +191,5 @@ public class HistoryActivityTest {
         public CompletableFuture<DocumentReference> writeDocument(CollectionReference collectionReference, Object document) {
             return null;
         }
-    }
-
-    private FirestoreInteractor createReadTestFSI(Boolean success, Map<String, Object> docData) {
-        return new FirestoreInteractor() {
-
-            @Override
-            public CompletableFuture<Map<String, Object>> readDocument(DocumentReference documentReference) {
-                CompletableFuture<Map<String, Object>> completableFuture = new CompletableFuture<>();
-                if(success) completableFuture.complete(docData);
-                else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
-                return completableFuture;
-            }
-
-            @Override
-            public CompletableFuture<Map<String, Map<String, Object>>> readCollection(CollectionReference collectionReference) {
-                CompletableFuture<Map<String, Map<String, Object>>> completableFuture = new CompletableFuture<>();
-                if(success) completableFuture.complete(null);
-                else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
-                return completableFuture;
-            }
-
-            @Override
-            public CompletableFuture<Void> writeDocumentWithID(DocumentReference documentReference, Object document) {
-                return null;
-            }
-
-            @Override
-            public CompletableFuture<DocumentReference> writeDocument(CollectionReference collectionReference, Object document) {
-                return null;
-            }
-        };
     }
 }

@@ -55,11 +55,10 @@ public class GridSenderTest {
 
     Consumer<Void> writeSuccessToUi;
     Function<Throwable, Void> writeFailureToUi;
-
-    @Mock
-    private Map<String, Map<String, Object>> stringMapMap;
     @Mock
     Map.Entry<String, Map<String, Object>> stringMapEntry;
+    @Mock
+    private Map<String, Map<String, Object>> stringMapMap;
     @Mock
     private QuerySnapshot firstPeriodSnapshot;
     @Mock

@@ -22,8 +22,8 @@ import ch.epfl.sdp.storage.StorageManager;
  * Laymen can locally store and retrieve the history of their infection probabilities
  * They are also able to notify Observers about probability or status transitions.
  * In case of a transition, Observers receive as argument of update() an Optional<Float> that:
- *   - if the STATUS changed, contains the previous infection probability
- *   - if only the PROBABILITY changed, is None
+ * - if the STATUS changed, contains the previous infection probability
+ * - if only the PROBABILITY changed, is None
  */
 public class Layman extends ObservableCarrier {
 
@@ -48,8 +48,19 @@ public class Layman extends ObservableCarrier {
         this(initialStatus, infectedWithProbability, "__NOT_UNIQUE_NOW");
     }
 
-    public Layman(InfectionStatus initialStatus, String uniqueID){
-        this(initialStatus, initialStatus == InfectionStatus.INFECTED ? 1 : 0,uniqueID);
+    public Layman(InfectionStatus initialStatus, String uniqueID) {
+        this(initialStatus, initialStatus == InfectionStatus.INFECTED ? 1 : 0, uniqueID);
+    }
+
+    public Layman(InfectionStatus initialStatus, float infectedWithProbability, String uniqueID) {
+        this.myStatus = initialStatus;
+        this.uniqueID = uniqueID;
+
+        lock = new ReentrantLock();
+
+        this.infectionHistory = initStorageManager(uniqueID);
+
+        validateAndSetProbability(new Date(), infectedWithProbability);
     }
 
     private StorageManager<Date, Float> openStorageManager(String fileId) {
@@ -81,17 +92,6 @@ public class Layman extends ObservableCarrier {
         return cm;
     }
 
-    public Layman(InfectionStatus initialStatus, float infectedWithProbability, String uniqueID) {
-        this.myStatus = initialStatus;
-        this.uniqueID = uniqueID;
-
-        lock = new ReentrantLock();
-
-        this.infectionHistory = initStorageManager(uniqueID);
-
-        validateAndSetProbability(new Date(), infectedWithProbability);
-    }
-
     private boolean validateAndSetProbability(Date when, float probability) {
         if (probability < 0 || 1 < probability) {
             return false;
@@ -101,7 +101,7 @@ public class Layman extends ObservableCarrier {
         //TODO :@Matteo what is wrong with those lines
         try {
             infectionHistory.write(new TreeMap<>(Collections.singletonMap(when, probability)));
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
             e.printStackTrace();
         }
         infectedWithProbability = probability;
@@ -213,9 +213,9 @@ public class Layman extends ObservableCarrier {
         lock.lock();
 
         boolean result = (obj instanceof Layman) &&
-                ((Layman)obj).uniqueID.equals(this.uniqueID) &&
-                ((Layman)obj).myStatus == this.myStatus &&
-                ((Layman)obj).infectedWithProbability == this.infectedWithProbability;
+                ((Layman) obj).uniqueID.equals(this.uniqueID) &&
+                ((Layman) obj).myStatus == this.myStatus &&
+                ((Layman) obj).infectedWithProbability == this.infectedWithProbability;
 
         lock.unlock();
 
@@ -234,7 +234,7 @@ public class Layman extends ObservableCarrier {
 
         return result;
     }
-    
+
     @Override
     public int hashCode() {
 

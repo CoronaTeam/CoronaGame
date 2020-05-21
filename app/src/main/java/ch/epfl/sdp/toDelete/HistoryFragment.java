@@ -77,9 +77,9 @@ public class HistoryFragment extends Fragment {
                     Map<String, Object> positionRecord = mapEntry.getValue();
                     //TODO resource strings with interpolation
                     historyAdapter.insert(String.format("Found @ %s:%s on %s",
-                            ((GeoPoint)(positionRecord.get(GEOPOINT_TAG))).getLatitude(),
-                            ((GeoPoint)(positionRecord.get(GEOPOINT_TAG))).getLongitude(),
-                            ((Timestamp)(positionRecord.get(TIMESTAMP_TAG))).toDate()), 0);
+                            ((GeoPoint) (positionRecord.get(GEOPOINT_TAG))).getLatitude(),
+                            ((GeoPoint) (positionRecord.get(GEOPOINT_TAG))).getLongitude(),
+                            ((Timestamp) (positionRecord.get(TIMESTAMP_TAG))).toDate()), 0);
                 } catch (NullPointerException e) {
                     historyAdapter.insert("[...unreadable.:).]", 0);
                 }

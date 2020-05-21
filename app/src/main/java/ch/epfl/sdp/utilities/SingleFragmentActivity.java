@@ -10,6 +10,7 @@ import ch.epfl.sdp.R;
 
 public abstract class SingleFragmentActivity extends FragmentActivity {
     protected abstract Fragment createFragment();
+
     public Fragment getFragment() {
         return getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
     }

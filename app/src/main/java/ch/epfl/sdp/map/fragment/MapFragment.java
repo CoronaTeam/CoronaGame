@@ -49,8 +49,8 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
 /**
  * Instantiate one instance of MapBox
- *  Used to display the pathLayers and heatMapLayer
- *  Add listeners to update the user's position on the map and react on floating button click
+ * Used to display the pathLayers and heatMapLayer
+ * Add listeners to update the user's position on the map and react on floating button click
  */
 public class MapFragment extends Fragment implements LocationListener, View.OnClickListener {
 
@@ -296,26 +296,27 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     }
 
 
-    private void callOnMapVisible(){
+    private void callOnMapVisible() {
 
         try {
             onMapVisible.call();
             onMapVisible = null;
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     @VisibleForTesting
     void onMapVisible(Callable func) {
         onMapVisible = func;
 
-        if(view.findViewById(R.id.mapFragment).getVisibility() == View.VISIBLE){
+        if (view.findViewById(R.id.mapFragment).getVisibility() == View.VISIBLE) {
             callOnMapVisible();
         }
     }
 
     @VisibleForTesting
-    void setLocationBroker(LocationBroker locationBroker){
-        if (locationBroker != null && conn != null){
+    void setLocationBroker(LocationBroker locationBroker) {
+        if (locationBroker != null && conn != null) {
             getActivity().unbindService(conn);
             getActivity().stopService(new Intent(getContext(), LocationService.class));
             conn = null;
@@ -330,7 +331,9 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     }
 
     @VisibleForTesting
-    HeatMapHandler getHeatMapHandler() {return heatMapHandler; }
+    HeatMapHandler getHeatMapHandler() {
+        return heatMapHandler;
+    }
 
     @VisibleForTesting
     PathsHandler getPathsHandler() {

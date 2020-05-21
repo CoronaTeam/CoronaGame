@@ -26,17 +26,18 @@ import static ch.epfl.sdp.firestore.FirestoreLabels.publicAlertAttribute;
 
 
 // TODO: @Ulysse, @Adrien, @Kevin, @Lucas, @Lucie: general info on ConcreteAnalysis
+
 /**
  * Concrete implementation of InfectionAnalyst, which can be observed
  * It models the evolution of the disease.
  * A few general remarks about it:
- *   - The distance between 2 Carriers is the main parameter that determines how infection probabilities
- *     are updated
- *   - If the Carrier does not meet anyone, his probability of being infected slowly decreases over
- *     time
- *   - The only exception to the above rule is when the Carrier is marked as infected (because of
- *     infection probability exceeding a certain threshold or because he declares his infection)
- *     Then, his status does NOT evolve until he marks himself as healthy
+ * - The distance between 2 Carriers is the main parameter that determines how infection probabilities
+ * are updated
+ * - If the Carrier does not meet anyone, his probability of being infected slowly decreases over
+ * time
+ * - The only exception to the above rule is when the Carrier is marked as infected (because of
+ * infection probability exceeding a certain threshold or because he declares his infection)
+ * Then, his status does NOT evolve until he marks himself as healthy
  */
 public class ConcreteAnalysis implements InfectionAnalyst, Observer {
 
@@ -160,6 +161,7 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
 
     /**
      * Recalculate the probability that the Carrier is infected
+     *
      * @param location
      * @param startTime
      * @return
@@ -180,7 +182,7 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
 
         CompletableFuture<Float> badMeetingCoefficient =
                 receiver.getNumberOfSickNeighbors(me.getUniqueId())
-                .thenApply(res -> (float) (res.getOrDefault(publicAlertAttribute, 0f)));
+                        .thenApply(res -> (float) (res.getOrDefault(publicAlertAttribute, 0f)));
 
         return CompletableFuture.allOf(recoveryCounter, peopleAroundMe, badMeetingCoefficient)
                 .thenRun(() -> dispatchModelUpdates(endTime, recoveryCounter.join(), identifySuspectContacts(peopleAroundMe.join()), badMeetingCoefficient.join()))

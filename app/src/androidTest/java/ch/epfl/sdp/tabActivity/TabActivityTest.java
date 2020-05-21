@@ -24,13 +24,12 @@ import static org.hamcrest.CoreMatchers.not;
 public class TabActivityTest {
 
     @Rule
+    public final ActivityTestRule<TabActivity> activityRule = new ActivityTestRule<>(TabActivity.class);
+    @Rule
     public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
 
-    @Rule
-    public final ActivityTestRule<TabActivity> activityRule = new ActivityTestRule<>(TabActivity.class);
-
     @Before
-    public void setUp() throws Throwable{
+    public void setUp() throws Throwable {
     }
 
     @After

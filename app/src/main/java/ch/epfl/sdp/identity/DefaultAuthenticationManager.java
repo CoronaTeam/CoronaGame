@@ -51,14 +51,16 @@ public interface DefaultAuthenticationManager {
     }
 
     default Account getAccount(Context context) {
-        if (AccountFragment.IN_TEST || context == null){     //for tests
+        if (AccountFragment.IN_TEST || context == null) {     //for tests
             return getNonNullAccount(null);
         }
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(context);
         return getNonNullAccount(acct);
     }
 
-    default String getUserId() { return getAccount(CoronaGame.getContext()).getId(); }
+    default String getUserId() {
+        return getAccount(CoronaGame.getContext()).getId();
+    }
 
     default GoogleSignInClient getGoogleClient(Activity activity) {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();

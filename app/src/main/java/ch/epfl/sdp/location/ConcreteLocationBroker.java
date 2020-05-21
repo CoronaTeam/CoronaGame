@@ -21,6 +21,10 @@ import static ch.epfl.sdp.location.LocationBroker.Provider.NETWORK;
 
 public class ConcreteLocationBroker implements LocationBroker {
 
+    private static final Map<Provider, String> providerToString = new HashMap<Provider, String>() {{
+        put(GPS, LocationManager.GPS_PROVIDER);
+        put(NETWORK, LocationManager.NETWORK_PROVIDER);
+    }};
     private LocationManager locationManager;
     private Context context;
 
@@ -28,11 +32,6 @@ public class ConcreteLocationBroker implements LocationBroker {
         this.locationManager = locationManager;
         this.context = context;
     }
-
-    private static final Map<Provider, String> providerToString = new HashMap<Provider, String>() {{
-        put(GPS, LocationManager.GPS_PROVIDER);
-        put(NETWORK, LocationManager.NETWORK_PROVIDER);
-    }};
 
     @Override
     public boolean isProviderEnabled(@NonNull Provider provider) {

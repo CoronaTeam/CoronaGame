@@ -26,8 +26,6 @@ import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.Neighbor;
 import ch.epfl.sdp.identity.Account;
 
-import static ch.epfl.sdp.firestore.FirestoreLabels.privateUserFolder;
-import static ch.epfl.sdp.firestore.FirestoreLabels.publicUserFolder;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.getTag;
 import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
@@ -35,6 +33,8 @@ import static ch.epfl.sdp.firestore.FirestoreLabels.ILLNESS_PROBABILITY_TAG;
 import static ch.epfl.sdp.firestore.FirestoreLabels.INFECTION_STATUS_TAG;
 import static ch.epfl.sdp.firestore.FirestoreLabels.UNIQUE_ID_TAG;
 import static ch.epfl.sdp.firestore.FirestoreLabels.UNIXTIME_TAG;
+import static ch.epfl.sdp.firestore.FirestoreLabels.privateUserFolder;
+import static ch.epfl.sdp.firestore.FirestoreLabels.publicUserFolder;
 
 public class ConcreteDataReceiver implements DataReceiver {
 
@@ -107,7 +107,7 @@ public class ConcreteDataReceiver implements DataReceiver {
 
     @Override
     public CompletableFuture<Map<Carrier, Integer>> getUserNearbyDuring(Location location,
-                                                                       Date startDate, Date endDate) {
+                                                                        Date startDate, Date endDate) {
         return interactor.getTimes(location)
                 .thenApply(stringMapMap -> filterValidTimes(startDate.getTime(), endDate.getTime(), stringMapMap))
                 .thenApply(filtered -> {
@@ -125,10 +125,10 @@ public class ConcreteDataReceiver implements DataReceiver {
                     CompletableFuture<Void> carriersForTimeSlice = CompletableFuture.allOf(metDuringSlices.toArray(new CompletableFuture[metDuringSlices.size()]));
 
                     return carriersForTimeSlice.thenApply(ignoredVoid -> {
-                                // Create a Map containing all the Carriers met during this interval
-                                Stream<Map<String, Map<String, Object>>> results = metDuringSlices.stream().map(ft -> ft.join());
-                                return collectCarriersMetDuringInterval(results);
-                            });
+                        // Create a Map containing all the Carriers met during this interval
+                        Stream<Map<String, Map<String, Object>>> results = metDuringSlices.stream().map(ft -> ft.join());
+                        return collectCarriersMetDuringInterval(results);
+                    });
                 })
                 .exceptionally(exception -> Collections.emptyMap());
     }
@@ -142,18 +142,19 @@ public class ConcreteDataReceiver implements DataReceiver {
                 location.setLatitude(geoPoint.getLatitude());
                 location.setLongitude(geoPoint.getLongitude());
                 return location;
-            }else{
+            } else {
                 return null;
             }
         });
     }
 
     @Override
-    public CompletableFuture<Map<String, Object>> getNumberOfSickNeighbors(String userId){
+    public CompletableFuture<Map<String, Object>> getNumberOfSickNeighbors(String userId) {
         DocumentReference ref = documentReference(publicUserFolder, userId);
         return interactor.readDocument(ref);
     }
-    public CompletableFuture<Map<String, Object>> getRecoveryCounter(String userId){
+
+    public CompletableFuture<Map<String, Object>> getRecoveryCounter(String userId) {
         return interactor.readDocument(documentReference(privateUserFolder, userId));
     }
 }

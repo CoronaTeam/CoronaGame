@@ -46,12 +46,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CarrierUpdatePersistenceTest {
 
+    private static String fakeUserID = "THIS_IS_A_FAKE_ID";
     @Rule
     public final ActivityTestRule<DataExchangeActivity> mActivityRule = new ActivityTestRule<>(DataExchangeActivity.class);
-
+    Intent locaIntentWithAlarm;
     private ObservableCarrier iAmBob = new Layman(HEALTHY);
     private AtomicInteger sentinel;
-
     private InfectionAnalyst analystWithSentinel = new InfectionAnalyst() {
         @Override
         public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
@@ -64,11 +64,8 @@ public class CarrierUpdatePersistenceTest {
             return iAmBob;
         }
     };
-
     private InfectionAnalyst realAnalyst;
-    Intent locaIntentWithAlarm;
-
-    private static String fakeUserID = "THIS_IS_A_FAKE_ID";
+    private InfectionAnalyst originalAnalyst;
 
     @BeforeClass
     public static void mockUserId() {
@@ -85,10 +82,20 @@ public class CarrierUpdatePersistenceTest {
     @AfterClass
     public static void restoreUserId() {
         // Restore real UserID
-        AuthenticationManager.defaultManager = new DefaultAuthenticationManager() {};
+        AuthenticationManager.defaultManager = new DefaultAuthenticationManager() {
+        };
     }
 
-    private InfectionAnalyst originalAnalyst;
+    @AfterClass
+    public static void resetFakeCarrierStatus() {
+        SharedPreferences sharedPreferences = CoronaGame.getContext().getSharedPreferences(CoronaGame.SHARED_PREF_FILENAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.remove(LocationService.INFECTION_STATUS_PREF)
+                .remove(LocationService.INFECTION_PROBABILITY_PREF)
+                .remove(LocationService.LAST_UPDATED_PREF)
+                .commit();
+    }
 
     @Before
     public void before() {
@@ -112,7 +119,7 @@ public class CarrierUpdatePersistenceTest {
     }
 
     @After
-    public void release(){
+    public void release() {
         Intents.release();
     }
 
@@ -147,20 +154,9 @@ public class CarrierUpdatePersistenceTest {
         mActivityRule.getActivity().stopService(new Intent(mActivityRule.getActivity(), LocationService.class));
     }
 
-    @AfterClass
-    public static void resetFakeCarrierStatus() {
-        SharedPreferences sharedPreferences = CoronaGame.getContext().getSharedPreferences(CoronaGame.SHARED_PREF_FILENAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        editor.remove(LocationService.INFECTION_STATUS_PREF)
-                .remove(LocationService.INFECTION_PROBABILITY_PREF)
-                .remove(LocationService.LAST_UPDATED_PREF)
-                .commit();
-    }
-
     private void startLocationServiceWithAlarm() {
         locaIntentWithAlarm = new Intent(mActivityRule.getActivity(), LocationService.class);
-        locaIntentWithAlarm.putExtra(LocationService.ALARM_GOES_OFF,true);
+        locaIntentWithAlarm.putExtra(LocationService.ALARM_GOES_OFF, true);
         mActivityRule.getActivity().startService(locaIntentWithAlarm);
     }
 
@@ -230,7 +226,8 @@ public class CarrierUpdatePersistenceTest {
         fakeSender.registerLocation(iAmBob, TestTools.newLoc(1, 1), now);
         mActivityRule.getActivity().getService().setSender(fakeSender);
 
-        while (sentinel.get() == 0) {}
+        while (sentinel.get() == 0) {
+        }
 
         assertThat(sentinel.get(), equalTo(1));
 

@@ -19,26 +19,6 @@ public class IntroActivity extends AppIntro {
     private static int BG_COLOR = Color.rgb(255, 255, 255);
     private static int TITLE_COLOR = Color.rgb(0, 0, 0);
     private static int DESC_COLOR = Color.rgb(30, 30, 30);
-
-    private static class Slide {
-        final int title, description;
-        final int drawable;
-        final int backgroundColor, titleColor, descriptionColor;
-
-        Slide(
-                int title, int description,
-                int drawable,
-                int backgroundColor, int titleColor, int descriptionColor
-        ) {
-            this.title = title;
-            this.description = description;
-            this.drawable = drawable;
-            this.backgroundColor = backgroundColor;
-            this.titleColor = titleColor;
-            this.descriptionColor = descriptionColor;
-        }
-    }
-
     private static Slide[] slides = {
             new Slide(
                     R.string.intro_page1_title,
@@ -101,5 +81,24 @@ public class IntroActivity extends AppIntro {
     @Override
     public void onDonePressed(Fragment currentFragment) {
         super.onDonePressed(currentFragment);
+    }
+
+    private static class Slide {
+        final int title, description;
+        final int drawable;
+        final int backgroundColor, titleColor, descriptionColor;
+
+        Slide(
+                int title, int description,
+                int drawable,
+                int backgroundColor, int titleColor, int descriptionColor
+        ) {
+            this.title = title;
+            this.description = description;
+            this.drawable = drawable;
+            this.backgroundColor = backgroundColor;
+            this.titleColor = titleColor;
+            this.descriptionColor = descriptionColor;
+        }
     }
 }

@@ -22,6 +22,7 @@ public class IntroActivityTest {
     private static final int N_SLIDES = 4; // number of slides in Intro screen
     @Rule
     public final ActivityTestRule<IntroActivity> activityRule = new ActivityTestRule<>(IntroActivity.class);
+
     @Before
     public void setUp() throws Exception {
         initSafeTest(activityRule, true);

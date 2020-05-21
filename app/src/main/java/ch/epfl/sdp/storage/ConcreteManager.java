@@ -19,25 +19,22 @@ import java.util.function.Function;
 
 /**
  * Implements a StorageManager with cache (asynchronously preloaded)
+ *
  * @param <A> The type of the keys
  * @param <B> The type of the values
  */
 public class ConcreteManager<A extends Comparable<A>, B> implements StorageManager<A, B> {
 
+    private static final String SEPARATOR = ",";
+    private static final String LINE_END = "\n";
     private boolean isDeleted = false;
     private File file;
     private FileWriter writer = null;
-
     private volatile SortedMap<A, B> cache;
-
     private Function<String, A> stringToA;
     private Function<String, B> stringToB;
-
     private AtomicBoolean loadingCache;
     private AtomicBoolean cacheOk;
-
-    private static final String SEPARATOR = ",";
-    private static final String LINE_END = "\n";
 
     public ConcreteManager(Context context, String filename, Function<String, A> convertToA, Function<String, B> convertToB) {
         if (convertToA == null || convertToB == null) {
@@ -69,9 +66,9 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
         cacheOk = new AtomicBoolean(false);
 
         AsyncTask.execute(() -> {
-                boolean result = loadCache();
-                cacheOk.set(result);
-                loadingCache.set(true);
+            boolean result = loadCache();
+            cacheOk.set(result);
+            loadingCache.set(true);
         });
     }
 
@@ -130,7 +127,8 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
 
     @Override
     public boolean isReadable() {
-        while (!loadingCache.get()) { }
+        while (!loadingCache.get()) {
+        }
 
         if (!cacheOk.get()) {
             return false;
@@ -173,8 +171,8 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
 
         SortedMap<A, B> result = new TreeMap<>();
         cache.forEach((k, v) -> {
-            if (rule.apply(k,v)) {
-                result.put(k,v);
+            if (rule.apply(k, v)) {
+                result.put(k, v);
             }
         });
 

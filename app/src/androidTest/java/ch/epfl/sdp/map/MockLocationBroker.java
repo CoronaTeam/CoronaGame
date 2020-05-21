@@ -41,6 +41,7 @@ public class MockLocationBroker implements LocationBroker {
             }
         }
     }
+
     @Override
     public boolean isProviderEnabled(Provider provider) {
         return fakeStatus;

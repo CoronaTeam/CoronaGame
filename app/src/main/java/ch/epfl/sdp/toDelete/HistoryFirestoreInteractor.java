@@ -24,7 +24,7 @@ public class HistoryFirestoreInteractor extends ConcreteFirestoreInteractor {
         return readCollection(collectionReference(historyPositionsPath()));
     }
 
-    private String historyPositionsPath(){
+    private String historyPositionsPath() {
         return "History/" + user.getId() + "/Positions";
     }
 

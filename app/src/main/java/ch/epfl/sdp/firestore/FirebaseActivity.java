@@ -17,12 +17,10 @@ import java.util.Random;
 import java.util.function.BiConsumer;
 
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
-import ch.epfl.sdp.firestore.FirestoreInteractor;
 
+import static ch.epfl.sdp.CoronaGame.IS_ONLINE;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
-import static ch.epfl.sdp.CoronaGame.IS_ONLINE;
 import static ch.epfl.sdp.utilities.Tools.checkNetworkStatus;
 
 public class FirebaseActivity extends AppCompatActivity {
@@ -34,7 +32,6 @@ public class FirebaseActivity extends AppCompatActivity {
         setContentView(R.layout.activity_firebase);
         fs = new ConcreteFirestoreInteractor();
     }
-
 
 
     public void addUser1(View view) {

@@ -18,14 +18,16 @@ public abstract class FirestoreInteractor {
 
     // TODO: @Ulysse, @Adrien, @Kevin, @Lucas, @Lucie use this function to get something from
     // maps returned by Firestore
+
     /**
      * Retrieves information taken from Firestore and stored in the map 'fields'
+     *
      * @param fields
      * @param tagName The string to search for
      * @param tagType The type to which the information corresponds
      * @param <A>
      * @return
-     * @throws ClassCastException if the Object cannot be cast to A
+     * @throws ClassCastException       if the Object cannot be cast to A
      * @throws IllegalArgumentException if tagName does not exist
      */
     public static <A> A getTag(Map<String, Object> fields, String tagName, Class<A> tagType) throws ClassCastException {

@@ -58,7 +58,7 @@ public class GridFirestoreInteractor extends ConcreteFirestoreInteractor {
         Log.e("POSITION_UPLOAD", getGridId(location));
 
         return writeDocumentWithID(
-                    documentReference(LIVE_GRID_COLL + "/" + getGridId(location) + "/" + TIMES_LIST_COLL, time), timeMap)
+                documentReference(LIVE_GRID_COLL + "/" + getGridId(location) + "/" + TIMES_LIST_COLL, time), timeMap)
                 .thenRun(() -> writeDocument(collectionReference(
                         LIVE_GRID_COLL + "/" + getGridId(location) + "/" + time), carrier));
     }

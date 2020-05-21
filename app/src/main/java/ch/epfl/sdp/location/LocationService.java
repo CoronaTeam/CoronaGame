@@ -63,16 +63,13 @@ import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 public class LocationService extends Service implements LocationListener, Observer {
 
     public final static int LOCATION_PERMISSION_REQUEST = 20201;
-    //TODO: should we accelerate also the interval between requests to location update?
-    private static final int MIN_UP_INTERVAL_MILLIS = 1000;
-    private static final int MIN_UP_INTERVAL_METERS = 5;
-
     public static final String ALARM_GOES_OFF = "beeep!";
-
     public static final String INFECTION_PROBABILITY_PREF = "infectionProbability";
     public static final String INFECTION_STATUS_PREF = "infectionStatus";
     public static final String LAST_UPDATED_PREF = "lastUpdated";
-
+    //TODO: should we accelerate also the interval between requests to location update?
+    private static final int MIN_UP_INTERVAL_MILLIS = 1000;
+    private static final int MIN_UP_INTERVAL_METERS = 5;
     // This correspond to 6h divided by the DEMO_SPEEDUP constant
     private static long alarmDelayMillis = 21_600_000 / getDemoSpeedup();
 
@@ -160,7 +157,7 @@ public class LocationService extends Service implements LocationListener, Observ
     /**
      * Updates the infection probability by running the model
      * WARNING: Cannot be called after a period longer than MAX_CACHE_ENTRY_AGE
-     *          since DataSender cache would have been partially emptied already
+     * since DataSender cache would have been partially emptied already
      */
     private void updateInfectionModel() {
         SortedMap<Date, Location> locations = sender.getLastPositions().tailMap(lastUpdated);
@@ -234,24 +231,6 @@ public class LocationService extends Service implements LocationListener, Observ
         AsyncTask.execute(() -> remotelyStoreCarrierStatus(analyst.getCarrier().getInfectionStatus()));
     }
 
-    public class LocationBinder extends android.os.Binder {
-        public LocationService getService() {
-            return LocationService.this;
-        }
-        public boolean hasGpsPermissions() {
-            return hasGpsPermissions;
-        }
-        public void requestGpsPermissions(Activity activity) {
-            broker.requestPermissions(activity, LOCATION_PERMISSION_REQUEST);
-        }
-        public boolean startAggregator() {
-            return LocationService.this.startAggregator();
-        }
-        private void stopAggregator() {
-            LocationService.this.stopAggregator();
-        }
-    }
-
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -319,40 +298,60 @@ public class LocationService extends Service implements LocationListener, Observ
         return broker;
     }
 
+    @VisibleForTesting
+    public void setBroker(LocationBroker broker) {
+        this.broker = broker;
+    }
+
     public InfectionAnalyst getAnalyst() {
         return analyst;
     }
 
-
+    @VisibleForTesting
+    public void setAnalyst(InfectionAnalyst analyst) {
+        this.analyst = analyst;
+    }
 
     public CachingDataSender getSender() {
         return sender;
-    }
-
-    public DataReceiver getReceiver() {
-        return receiver;
     }
 
     // TODO: @Adrien, to reduce the number of VisibleForTesting functions, reset....() can be
     // moved to tests files (and they can just use set...())
 
     @VisibleForTesting
-    public void setReceiver(DataReceiver receiver) {
-        this.receiver = receiver;
-    }
-
-    @VisibleForTesting
     public void setSender(CachingDataSender sender) {
         this.sender = sender;
     }
 
-    @VisibleForTesting
-    public void setBroker(LocationBroker broker) {
-        this.broker = broker;
+    public DataReceiver getReceiver() {
+        return receiver;
     }
 
     @VisibleForTesting
-    public void setAnalyst(InfectionAnalyst analyst) {
-        this.analyst = analyst;
+    public void setReceiver(DataReceiver receiver) {
+        this.receiver = receiver;
+    }
+
+    public class LocationBinder extends android.os.Binder {
+        public LocationService getService() {
+            return LocationService.this;
+        }
+
+        public boolean hasGpsPermissions() {
+            return hasGpsPermissions;
+        }
+
+        public void requestGpsPermissions(Activity activity) {
+            broker.requestPermissions(activity, LOCATION_PERMISSION_REQUEST);
+        }
+
+        public boolean startAggregator() {
+            return LocationService.this.startAggregator();
+        }
+
+        private void stopAggregator() {
+            LocationService.this.stopAggregator();
+        }
     }
 }

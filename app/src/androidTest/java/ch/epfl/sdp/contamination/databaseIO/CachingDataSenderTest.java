@@ -43,8 +43,8 @@ public class CachingDataSenderTest {
         Location manuallyRoundedLocation = new Location("provider");
         manuallyRoundedLocation.setLongitude(134.98765);
         manuallyRoundedLocation.setLatitude(12.12346);
-        assertEquals(manuallyRoundedLocation.getLongitude(),location.getLongitude(),0.00000001f);
-        assertEquals(manuallyRoundedLocation.getLatitude(),location.getLatitude(),0.00000001f);
+        assertEquals(manuallyRoundedLocation.getLongitude(), location.getLongitude(), 0.00000001f);
+        assertEquals(manuallyRoundedLocation.getLatitude(), location.getLatitude(), 0.00000001f);
     }
 
     @Test

@@ -35,18 +35,26 @@ import static junit.framework.TestCase.assertNotNull;
 
 public class MapActivityTest {
 
+    @Rule
+    public final ActivityTestRule<MapActivity> activityRule = new ActivityTestRule<>(MapActivity.class);
+    @Rule
+    public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
     private MapFragment mapFragment;
     private AtomicInteger sentinel;
     private MockLocationBroker mockLocationBroker;
 
-    @Rule
-    public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
+    @BeforeClass
+    public static void preSetup() {
+        AccountFragment.IN_TEST = true;
+    }
 
-    @Rule
-    public final ActivityTestRule<MapActivity> activityRule = new ActivityTestRule<>(MapActivity.class);
+    @AfterClass
+    public static void postClean() {
+        AccountFragment.IN_TEST = false;
+    }
 
     @Before
-    public void setUp() throws Throwable{
+    public void setUp() throws Throwable {
         mockLocationBroker = new MockLocationBroker(activityRule);
         mockLocationBroker.setProviderStatus(true);
         mapFragment = (MapFragment) activityRule.getActivity().getFragment();
@@ -60,25 +68,20 @@ public class MapActivityTest {
         //Intents.release();
     }
 
-    @BeforeClass
-    public static void preSetup(){
-        AccountFragment.IN_TEST = true;
-    }
-
-    @AfterClass
-    public static void postClean(){
-        AccountFragment.IN_TEST = false;
-    }
-
     @Test(timeout = 30000)
     public void testMapLoadCorrectly() throws Throwable {
-        while (mapFragment.getMap() == null){sleep(500);};
+        while (mapFragment.getMap() == null) {
+            sleep(500);
+        }
+        ;
 
         activityRule.runOnUiThread(() -> {
             mapFragment.getMap().getStyle((s) -> sentinel.incrementAndGet());
         }); // The sentinel value will only increase when the style has completely loaded
 
-        while (sentinel.get() == 0){sleep(500);}
+        while (sentinel.get() == 0) {
+            sleep(500);
+        }
         sentinel.set(0);
     }
 
@@ -89,17 +92,22 @@ public class MapActivityTest {
 
         mockLocationBroker.setFakeLocation(buildLocation(46, 54));
 
-        while (mapFragment.getHeatMapHandler() == null){sleep(500);};
+        while (mapFragment.getHeatMapHandler() == null) {
+            sleep(500);
+        }
+        ;
 
         activityRule.runOnUiThread(() -> {
             mapFragment.getHeatMapHandler().onHeatMapDataLoaded(() -> sentinel.incrementAndGet());
         }); // The sentinel value will only increase when the heatmap has completely loaded
 
-        while (sentinel.get() == 0){sleep(500);}
+        while (sentinel.get() == 0) {
+            sleep(500);
+        }
         sentinel.set(0);
     }
 
-    private void testLayerVisibility(String visibility) throws Throwable{
+    private void testLayerVisibility(String visibility) throws Throwable {
         activityRule.runOnUiThread(() -> {
             mapFragment.getMap().getStyle(style -> {
                 Layer layer = style.getLayer(HeatMapHandler.HEATMAP_LAYER_ID);
@@ -119,18 +127,24 @@ public class MapActivityTest {
 
         mapFragment.onMapVisible(() -> sentinel.incrementAndGet());
 
-        while (sentinel.get() == 0){sleep(500);}
+        while (sentinel.get() == 0) {
+            sleep(500);
+        }
         sentinel.set(0);
 
         testLayerVisibility(VISIBLE);
 
-        while (sentinel.get() == 0){sleep(500);}
+        while (sentinel.get() == 0) {
+            sleep(500);
+        }
         sentinel.set(0);
         onView(withId(R.id.heatMapToggle)).perform(click());
 
         testLayerVisibility(NONE);
 
-        while (sentinel.get() == 0){sleep(500);}
+        while (sentinel.get() == 0) {
+            sleep(500);
+        }
         sentinel.set(0);
     }
 
@@ -173,7 +187,8 @@ public class MapActivityTest {
     }
 
     //"Map interactions should happen on the UI thread. Method invoked from wrong thread is getLayer.")
-    @Test @Ignore("Incomplete")
+    @Test
+    @Ignore("Incomplete")
     public void pathNotVisibleByDefault() {
         /*onView(withId(R.id.history_button)).perform(click());
         onView(withId(R.id.pathButton)).perform(click());
@@ -183,7 +198,8 @@ public class MapActivityTest {
     }
 
     //"need to be able to click back on the map to make the history dialog fragment disappear")
-    @Test @Ignore("Incomplete")
+    @Test
+    @Ignore("Incomplete")
     public void cameraTargetsPathWhenToggle() {
         /*sleep(15000);
         onView(withId(R.id.history_button)).perform(click());

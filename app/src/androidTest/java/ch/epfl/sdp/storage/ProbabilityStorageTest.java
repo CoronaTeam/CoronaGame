@@ -25,13 +25,22 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ProbabilityStorageTest {
 
+    private static final String TEST_FILENAME = "history_test_file.csv";
     @Rule
     public final ActivityTestRule<IntroActivity> mActivityRule = new ActivityTestRule<>(IntroActivity.class);
-
     @Rule
     public ExpectedException testException = ExpectedException.none();
+    private DateFormat format = new SimpleDateFormat("E MMM dd HH:mm:ss zzz yyyy");
 
-    private static final String TEST_FILENAME = "history_test_file.csv";
+    @BeforeClass
+    public static void DeleteTestFile() {
+        new ConcreteManager<>(
+                CoronaGame.getContext(),
+                TEST_FILENAME,
+                k -> 0,
+                v -> null
+        ).delete();
+    }
 
     private StorageManager<Integer, Double> getIntDoubleManager() {
         return new ConcreteManager<>(
@@ -40,8 +49,6 @@ public class ProbabilityStorageTest {
                 Integer::valueOf,
                 Double::valueOf);
     }
-
-    private DateFormat format = new SimpleDateFormat("E MMM dd HH:mm:ss zzz yyyy");
 
     private StorageManager<Date, Double> getDateDoubleManager() {
         return new ConcreteManager<>(
@@ -55,16 +62,6 @@ public class ProbabilityStorageTest {
                     }
                 },
                 Double::valueOf);
-    }
-
-    @BeforeClass
-    public static void DeleteTestFile() {
-        new ConcreteManager<>(
-                CoronaGame.getContext(),
-                TEST_FILENAME,
-                k -> 0,
-                v -> null
-        ).delete();
     }
 
     @Test

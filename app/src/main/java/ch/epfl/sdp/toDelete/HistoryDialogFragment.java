@@ -40,15 +40,18 @@ public class HistoryDialogFragment extends BottomSheetDialogFragment {
         return view;
     }
 
-    @NonNull @Override public Dialog onCreateDialog(Bundle savedInstanceState) {
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override public void onShow(DialogInterface dialogInterface) {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
                 BottomSheetDialog bottomSheetDialog = (BottomSheetDialog) dialogInterface;
                 setupFullHeight(bottomSheetDialog);
             }
         });
-        return  dialog;
+        return dialog;
     }
 
 

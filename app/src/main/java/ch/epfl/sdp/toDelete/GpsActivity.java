@@ -93,9 +93,9 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         element.put("Position", new PositionRecord(Timestamp.now(),
                 new GeoPoint(newLocation.getLatitude(), newLocation.getLongitude())));
         db.writePositions(element).whenComplete((res, thr) -> {
-            if (thr == null){
+            if (thr == null) {
                 uploadStatus.setText(R.string.sync_ok);
-            }else{
+            } else {
                 uploadStatus.setText(R.string.sync_error);
             }
         });
@@ -176,7 +176,7 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         uploadStatus = findViewById(R.id.history_upload_status);
 
         trackerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
-        ((ListView)findViewById(R.id.location_tracker)).setAdapter(trackerAdapter);
+        ((ListView) findViewById(R.id.location_tracker)).setAdapter(trackerAdapter);
 
         account = AuthenticationManager.getAccount(this);
 
@@ -186,7 +186,7 @@ public class GpsActivity extends AppCompatActivity implements LocationListener {
         ServiceConnection conn = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                GpsActivity.this.service = ((LocationService.LocationBinder)service).getService();
+                GpsActivity.this.service = ((LocationService.LocationBinder) service).getService();
                 connectedToService = true;
 
                 activatePosition();

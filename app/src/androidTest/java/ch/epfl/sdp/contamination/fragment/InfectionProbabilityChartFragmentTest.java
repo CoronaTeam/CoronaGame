@@ -1,10 +1,7 @@
 package ch.epfl.sdp.contamination.fragment;
 
-import android.Manifest;
-
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -22,11 +19,10 @@ import static ch.epfl.sdp.TestTools.sleep;
 
 public class InfectionProbabilityChartFragmentTest {
 
-    private InfectionProbabilityChartFragment fragment;
-
     @Rule
     public final ActivityTestRule<InfectionProbabilityChartFragmentActivity> activityRule =
             new ActivityTestRule<>(InfectionProbabilityChartFragmentActivity.class);
+    private InfectionProbabilityChartFragment fragment;
 
     @Before
     public void setUp() {
@@ -38,7 +34,7 @@ public class InfectionProbabilityChartFragmentTest {
     }
 
     @Test
-    public void infectionChartIsDisplayed(){
+    public void infectionChartIsDisplayed() {
         onView(withId(R.id.infectionProbabilityChart)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 }

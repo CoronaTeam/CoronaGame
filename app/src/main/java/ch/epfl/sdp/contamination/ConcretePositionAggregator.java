@@ -1,10 +1,7 @@
 package ch.epfl.sdp.contamination;
 
 import android.location.Location;
-import android.os.AsyncTask;
 import android.util.Log;
-
-import androidx.annotation.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,15 +16,15 @@ import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
  * @author lucas
  */
 public final class ConcretePositionAggregator implements PositionAggregator {
+    HashMap<Long, List<Location>> buffer;
     private int timelapBetweenNewLocationRegistration;
-    private Date lastDate ;
+    private Date lastDate;
     private Location newestLocation;
     private Date newestDate;
     private boolean isOnline;
     private CachingDataSender cachingDataSender;
     private Carrier carrier;
     private Timer updatePosTimer;
-    HashMap<Long, List<Location>> buffer;
 
     // TODO: @Lucas, position aggregator doesn't send positions if the user is not moving (if
     // LocationService doesn't call registerPosition())
@@ -38,7 +35,7 @@ public final class ConcretePositionAggregator implements PositionAggregator {
         } else if (maxLocationsPerAggregation <= 0) {
             throw new IllegalArgumentException("There should be more than zero locations per aggregation!");
         }
-        this.timelapBetweenNewLocationRegistration =  WINDOW_FOR_LOCATION_AGGREGATION / maxLocationsPerAggregation;
+        this.timelapBetweenNewLocationRegistration = WINDOW_FOR_LOCATION_AGGREGATION / maxLocationsPerAggregation;
         this.buffer = new HashMap<>();
         this.cachingDataSender = cachingDataSender;
         this.carrier = carrier;
@@ -48,7 +45,7 @@ public final class ConcretePositionAggregator implements PositionAggregator {
     }
 
     public ConcretePositionAggregator(CachingDataSender cachingDataSender, Carrier carrier) {
-       this(cachingDataSender, carrier, PositionAggregator.MAXIMAL_NUMBER_OF_LOCATIONS_PER_AGGREGATION);
+        this(cachingDataSender, carrier, PositionAggregator.MAXIMAL_NUMBER_OF_LOCATIONS_PER_AGGREGATION);
     }
 
     /**
@@ -58,7 +55,7 @@ public final class ConcretePositionAggregator implements PositionAggregator {
         class UpdatePosTask extends TimerTask {
             public void run() {
                 if (isOnline && newestLocation != null) {
-                    registerPosition(newestLocation,newestDate);
+                    registerPosition(newestLocation, newestDate);
                 }
             }
         }
@@ -82,14 +79,15 @@ public final class ConcretePositionAggregator implements PositionAggregator {
         if (tmp != null) {
             tmp.add(location);
             lastDate = roundedDate;
-        }else{
+        } else {
             update();
             lastDate = roundedDate;
             ArrayList<Location> newList = new ArrayList<Location>();
             newList.add(location);
-            buffer.put(roundedDate.getTime(),newList);
+            buffer.put(roundedDate.getTime(), newList);
         }
     }
+
     @Override
     public void addPosition(Location location, Date date) {
         if (location == null || date == null) {
@@ -104,7 +102,6 @@ public final class ConcretePositionAggregator implements PositionAggregator {
      * Every WINDOW_FOR_LOCATION_AGGREGATION time, the PositionAggregator should send the mean value of the
      * saved positions to the DataSender. This method estimates whether the PositionAggregator should send that mean,
      * or if it just returns without doing anything.
-     *
      */
     private void update() {
         if (lastDate != null) {
@@ -122,20 +119,19 @@ public final class ConcretePositionAggregator implements PositionAggregator {
     }
 
 
-
     private Location getMean(List<Location> targetLocations) {
         if (targetLocations == null || targetLocations.size() == 0) {
             throw new IllegalArgumentException("Target location should not be empty");
         }
-        double latitudeSum=0;
-        double longitudeSum=0;
+        double latitudeSum = 0;
+        double longitudeSum = 0;
         int size = targetLocations.size();
-        for (int i = 0 ; i < size; i +=1) {
+        for (int i = 0; i < size; i += 1) {
             latitudeSum += targetLocations.get(i).getLatitude();
             longitudeSum += targetLocations.get(i).getLongitude();
         }
-        latitudeSum = latitudeSum / ((double)(size));
-        longitudeSum = longitudeSum /((double)(size));
+        latitudeSum = latitudeSum / ((double) (size));
+        longitudeSum = longitudeSum / ((double) (size));
         Location res = new Location(targetLocations.get(0)); // creates a new location with same properties as other locations
         res.setLatitude(latitudeSum);
         res.setLongitude(longitudeSum);
@@ -145,6 +141,7 @@ public final class ConcretePositionAggregator implements PositionAggregator {
     public void updateToOffline() {
         this.isOnline = false;
     }
+
     public void updateToOnline() {
         this.isOnline = true;
     }

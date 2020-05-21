@@ -10,7 +10,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
@@ -30,7 +29,6 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -59,11 +57,11 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
  * as well as points of met infected users.
  */
 public class PathsHandler extends Fragment {
+    public static final String PATH_LAYER_ID = "linelayer"; // public for testing
     static final String POINTS_SOURCE_ID = "points-source";
     static final String POINTS_LAYER_ID = "pointslayer";
     static final String PATH_SOURCE_ID = "line-source";
     private static final int ZOOM = 7;
-    public static final String PATH_LAYER_ID = "linelayer"; // public for testing
     public List<Point> pathCoordinates;
     public List<Point> infected_met;
     private MapboxMap map;

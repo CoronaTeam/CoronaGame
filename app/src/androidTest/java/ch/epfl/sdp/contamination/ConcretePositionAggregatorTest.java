@@ -9,7 +9,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
-import static ch.epfl.sdp.TestTools.expandedLocEquals;
+import static ch.epfl.sdp.TestTools.equalLatLong;
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
@@ -107,15 +107,15 @@ public class ConcretePositionAggregatorTest {
         assertNotNull(firebaseLoc);
         Location res = newLoc(5, 5);
         assertTrue(firebaseLoc.containsKey(now));
-        assertTrue(expandedLocEquals(firebaseLoc.get(now), res));
+        assertTrue(equalLatLong(firebaseLoc.get(now), res));
 
         // TEST 2
         Location res2 = newLoc(5.75, 4.5);
         assertTrue(firebaseLoc.containsKey(now1));
-        assertTrue(expandedLocEquals(firebaseLoc.get(now1), res2));
+        assertTrue(equalLatLong(firebaseLoc.get(now1), res2));
         // TEST 3
         Location res3 = newLoc(7, 4);
         assertTrue(firebaseLoc.containsKey(now1));
-        assertTrue(expandedLocEquals(firebaseLoc.get(now2), res3));
+        assertTrue(equalLatLong(firebaseLoc.get(now2), res3));
     }
 }

@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.contamination.databaseIO.DataReceiver;
 import ch.epfl.sdp.contamination.fragment.UserInfectionFragment;
 import ch.epfl.sdp.identity.User;
@@ -59,7 +60,7 @@ public class UserInfectionTest {
     public void setUp() {
         initSafeTest(activityRule, true);
         sleep(1001);
-        fragment = ((UserInfectionFragment) activityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
+        fragment = ((UserInfectionFragment) ((UserInfectionActivity) TestTools.getActivity()).getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
         sleep(1000);
         me = new Layman(HEALTHY);
         analyst = new InfectionAnalyst() {

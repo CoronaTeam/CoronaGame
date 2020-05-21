@@ -59,9 +59,6 @@ public class MapActivityTest {
         MapFragment.TESTING_MODE = true;
     }
 
-    @Rule
-    public final ActivityTestRule<MapActivity> activityRule =
-            new ActivityTestRule<>(MapActivity.class);
     @AfterClass
     public static void postClean() {
         AccountFragment.IN_TEST = false;
@@ -186,7 +183,7 @@ public class MapActivityTest {
         }
     }
 
-    @Test(timeout = 8000)
+    @Test(timeout = 20000)
     public void pathGetsInstantiated() {
         while (mapFragment.getPathsHandler() == null) {
             sleep(500);

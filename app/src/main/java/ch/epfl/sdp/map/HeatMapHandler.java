@@ -65,7 +65,7 @@ public class HeatMapHandler {
     }
 
     @NotNull
-    // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
+    // Color ramp for heatmap.  Domain is 0 (low) to 1  (high).
     // Begin color ramp at 0-stop with a 0-transparency color
     // to create a blur-like effect.
     /*private*/ static PropertyValue<Expression> adjustHeatMapColorRange() {

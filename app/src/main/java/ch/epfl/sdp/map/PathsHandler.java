@@ -92,6 +92,8 @@ public class PathsHandler extends Fragment {
     private static final int ZOOM = 13;
     private MapboxMap map;
     private MapFragment parentClass;
+    private ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(
+            new GridFirestoreInteractor());
 
 
     public PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
@@ -220,8 +222,6 @@ public class PathsHandler extends Fragment {
     }
 
     private void addInfectedMet(double lat, double lon, Timestamp timestamp, List<Point> infected) {
-        ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(
-                new GridFirestoreInteractor());
         Location location = LocationUtils.buildLocation(lat, lon);
         concreteDataReceiver
                 .getUserNearbyDuring(location, timestamp.toDate(), timestamp.toDate())

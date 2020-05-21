@@ -1,9 +1,11 @@
 package ch.epfl.sdp.contamination;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
 
+import androidx.fragment.app.Fragment;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
@@ -46,6 +48,7 @@ public class UserInfectionTest {
     private DataReceiver receiver;
     private UserInfectionFragment fragment;
     private static ObservableCarrier me;
+
     @Rule
     public final ActivityTestRule<UserInfectionActivity> activityRule =
             new ActivityTestRule<>(UserInfectionActivity.class);

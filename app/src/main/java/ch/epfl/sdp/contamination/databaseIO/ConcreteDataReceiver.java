@@ -9,6 +9,8 @@ import androidx.annotation.VisibleForTesting;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.GeoPoint;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -55,14 +57,19 @@ public class ConcreteDataReceiver implements DataReceiver {
         return interactor.gridRead(location, date.getTime()).thenApply(stringMapMap -> {
             Set<Carrier> carriers = new HashSet<>();
             for (Map.Entry<String, Map<String, Object>> doc : stringMapMap.entrySet()) {
-                carriers.add(new Neighbor(Enum.valueOf(Carrier.InfectionStatus.class,
-                        getTag(doc.getValue(), INFECTION_STATUS_TAG, String.class)),
-                        getTag(doc.getValue(), ILLNESS_PROBABILITY_TAG, Double.class).floatValue(),
-                        getTag(doc.getValue(), UNIQUE_ID_TAG, String.class))
+                carriers.add(createNeighbor(doc)
                 );
             }
             return carriers;
         }).exceptionally(exception -> Collections.emptySet());
+    }
+
+    @NotNull
+    private Neighbor createNeighbor(Map.Entry<String, Map<String, Object>> doc) {
+        return new Neighbor(Enum.valueOf(Carrier.InfectionStatus.class,
+                getTag(doc.getValue(), INFECTION_STATUS_TAG, String.class)),
+                getTag(doc.getValue(), ILLNESS_PROBABILITY_TAG, Double.class).floatValue(),
+                getTag(doc.getValue(), UNIQUE_ID_TAG, String.class));
     }
 
     private Set<Long> filterValidTimes(long startDate, long endDate, Map<String, Map<String, Object>> snapshot) {
@@ -82,11 +89,7 @@ public class ConcreteDataReceiver implements DataReceiver {
         Map<Carrier, Integer> metDuringInterval = new HashMap<>();
         results.forEach(res -> {
             for (Map.Entry<String, Map<String, Object>> doc : res.entrySet()) {
-                Carrier c = new Neighbor(
-                        Enum.valueOf(Carrier.InfectionStatus.class,
-                                getTag(doc.getValue(), INFECTION_STATUS_TAG, String.class)),
-                        getTag(doc.getValue(), ILLNESS_PROBABILITY_TAG, Double.class).floatValue(),
-                        getTag(doc.getValue(), UNIQUE_ID_TAG, String.class));
+                Carrier c = createNeighbor(doc);
 
                 // TODO: [LOG]
                 Log.e("MET_DURING_INTERVAL", c.getInfectionStatus() + ", " + c.getIllnessProbability());

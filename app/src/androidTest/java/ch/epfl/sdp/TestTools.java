@@ -98,7 +98,7 @@ public interface TestTools {
         return res;
     }
 
-    static boolean expandedLocEquals(Location loc1, Location loc2) {
+    static boolean equalLatLong(Location loc1, Location loc2) {
         return loc1.getLatitude() == loc2.getLatitude() && loc1.getLongitude() == loc2.getLongitude();
     }
 

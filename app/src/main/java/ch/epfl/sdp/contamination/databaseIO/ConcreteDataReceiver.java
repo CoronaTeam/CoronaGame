@@ -36,7 +36,6 @@ import static ch.epfl.sdp.firestore.FirestoreLabels.UNIXTIME_TAG;
 
 public class ConcreteDataReceiver implements DataReceiver {
 
-
     private GridFirestoreInteractor interactor;
 
     public ConcreteDataReceiver(GridFirestoreInteractor gridInteractor) {

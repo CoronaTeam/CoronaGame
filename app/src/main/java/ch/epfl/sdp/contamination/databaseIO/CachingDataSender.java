@@ -19,7 +19,7 @@ import static ch.epfl.sdp.firestore.FirestoreLabels.publicAlertAttribute;
 import static ch.epfl.sdp.firestore.FirestoreLabels.publicUserFolder;
 
 public interface CachingDataSender {
-    int ROUNDING_FACTOR = 100000; //determines the GPS coordinates precision
+    double ROUNDING_FACTOR = 100000d; //determines the GPS coordinates precision
 
 
     int MAX_CACHE_ENTRY_AGE = InfectionAnalyst.PRESYMPTOMATIC_CONTAGION_TIME;
@@ -69,7 +69,7 @@ public interface CachingDataSender {
 
 
     static double roundCoordinate(double coor){
-        return (double)Math.round(coor * 100000d) / 100000d;//fast rounding to 5 digits
+        return (double)Math.round(coor * ROUNDING_FACTOR) / ROUNDING_FACTOR;//fast rounding to 5 digits
     }
 
     /**

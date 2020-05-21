@@ -5,11 +5,13 @@ import android.location.Location;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 
+import static ch.epfl.sdp.CoronaGame.DEMO_SPEEDUP;
+
 public interface InfectionAnalyst {
 
     // MODEL: Staying close to an infected person for a time period longer than this
     // implies to be considered INFECTED (with probability =1)
-    int WINDOW_FOR_INFECTION_DETECTION = 1200000; //[ms]
+    int WINDOW_FOR_INFECTION_DETECTION = 1200000 / DEMO_SPEEDUP; //[ms]
 
     // MODEL: Being ill with a probability higher than this means becoming marked as INFECTED
     float CERTAINTY_APPROXIMATION_THRESHOLD = 0.9f;
@@ -25,7 +27,7 @@ public interface InfectionAnalyst {
     float TRANSMISSION_FACTOR = .1f;
 
     //MODEL: This parameters models how long we are contagious before we remark our illness
-    int PRESYMPTOMATIC_CONTAGION_TIME = 86400000; //[ms] actual : 24 hours
+    int PRESYMPTOMATIC_CONTAGION_TIME = 86400000 / DEMO_SPEEDUP; //[ms] actual : 24 hours
 
     //MODEL: This parameter models the immunity gain by a person who has been cured against the disease, 0 = 100% immune, 1 = 0% immune
     float IMMUNITY_FACTOR = 0.3f;

@@ -18,6 +18,8 @@ public class CoronaGame extends Application implements Application.ActivityLifec
 
     public static final String SHARED_PREF_FILENAME = "coronagame_shared_pref";
 
+    public static final int DEMO_SPEEDUP = 10;
+
     public static final DateFormat dateFormat = new SimpleDateFormat("E MMM dd hh:mm:ss zzz yyyy");
 
     @Override

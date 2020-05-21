@@ -65,7 +65,7 @@ public class ConcreteCachingDataSender implements CachingDataSender {
         return CompletableFuture.allOf(lastPositionsFuture, gridWriteFuture);
     }
 
-    // Removes every locations older than UNINTENTIONAL_CONTAGION_TIME ms and adds a new position
+    // Removes every locations older than PRE-SYMPTOMATIC_CONTAGION_TIME ms and adds a new position
     private void refreshLastPositions(Date time, Location location) {
 
         Date oldestDate = new Date(time.getTime() - MAX_CACHE_ENTRY_AGE);

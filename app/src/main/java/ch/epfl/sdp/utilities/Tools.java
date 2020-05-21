@@ -64,8 +64,4 @@ public class Tools {
                     activeNetwork.isConnectedOrConnecting());
         }
     }
-
-    public Pair<Double, Double> geoPointToPair(GeoPoint geoPoint){
-        return new Pair<>(geoPoint.getLatitude(), geoPoint.getLongitude());
-    }
 }

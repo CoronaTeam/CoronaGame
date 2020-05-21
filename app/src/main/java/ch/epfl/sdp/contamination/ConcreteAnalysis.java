@@ -121,9 +121,7 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
             }
         }
 
-        float oldWeight = PROBABILITY_HISTORY_RETENTION_FACTOR;
-
-        float updatedProbability = oldWeight * me.getIllnessProbability() + increaseInProbability;
+        float updatedProbability = PROBABILITY_HISTORY_RETENTION_FACTOR * me.getIllnessProbability() + increaseInProbability;
         updatedProbability = Math.min(updatedProbability, 1f);
 
         return updatedProbability;

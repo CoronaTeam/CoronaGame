@@ -33,7 +33,7 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
                         });
     }
 
-    private Map<String, Map<String, Object>> parseCollection(QuerySnapshot collection) {
+    public static Map<String, Map<String, Object>> parseCollection(QuerySnapshot collection) {
         List<DocumentSnapshot> list = collection.getDocuments();
         Map<String, Map<String, Object>> result = new HashMap<>();
         for (DocumentSnapshot doc : list) {

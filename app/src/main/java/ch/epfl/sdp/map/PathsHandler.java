@@ -198,12 +198,7 @@ public class PathsHandler extends Fragment {
                     if (collection.isEmpty()) {
                         throw new RuntimeException("Collection doesn't contain any document");
                     } else {
-                        List<DocumentSnapshot> list = collection.getDocuments();
-                        Map<String, Map<String, Object>> result = new HashMap<>();
-                        for (DocumentSnapshot doc : list) {
-                            result.put(doc.getId(), doc.getData());
-                        }
-                        return result;
+                        return ConcreteFirestoreInteractor.parseCollection(collection);
                     }
                 })
                 .exceptionally(e -> {

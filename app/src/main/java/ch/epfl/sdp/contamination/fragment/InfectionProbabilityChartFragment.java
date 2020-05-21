@@ -50,6 +50,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     private View view;
     private LineChart chart;
     private LocationService service;
+    private ServiceConnection serviceConnection;
     private long referenceTime = 0L;
     private final ValueFormatter DATA_TIME_FORMATTER = new ValueFormatter() {
         @Override
@@ -82,7 +83,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     }
 
     private void connectService() {
-        ServiceConnection conn = new ServiceConnection() {
+        serviceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 InfectionProbabilityChartFragment.this.service = ((LocationService.LocationBinder) service).getService();
@@ -95,7 +96,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
                 service = null;
             }
         };
-        getActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
+        getActivity().bindService(new Intent(getActivity(), LocationService.class), serviceConnection, BIND_AUTO_CREATE);
     }
 
     private void initializeChart() {
@@ -253,5 +254,14 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
         Log.e("CHART_UPDATE", "New data available! Regenerating view");
 
         updateData();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (serviceConnection != null) {
+            getActivity().unbindService(serviceConnection);
+        }
+        service.onDestroy();
+        super.onDestroy();
     }
 }

@@ -94,7 +94,7 @@ public class CarrierUpdatePersistenceTest {
     public void before() {
         initSafeTest(mActivityRule, true);
 
-        iAmBob = new Layman(HEALTHY);
+        iAmBob = new Layman(HEALTHY, fakeUserID);
 
         LocationService service = mActivityRule.getActivity().getService();
         originalAnalyst = service.getAnalyst();
@@ -325,6 +325,8 @@ public class CarrierUpdatePersistenceTest {
     @Test
     public void carrierHistoryTest() {
         LocationService service = mActivityRule.getActivity().getService();
+
+        service.getAnalyst().getCarrier().deleteLocalProbabilityHistory();
 
         service.getAnalyst().getCarrier().setIllnessProbability(new Date(), .1f);
         TestTools.sleep();

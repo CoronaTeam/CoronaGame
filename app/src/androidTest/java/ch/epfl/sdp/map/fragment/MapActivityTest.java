@@ -87,6 +87,8 @@ public class MapActivityTest {
     public void testHeatMapLoadCorrectly() throws Throwable {
         testMapLoadCorrectly();
 
+        mockLocationBroker.setFakeLocation(buildLocation(46, 54));
+
         while (mapFragment.getHeatMapHandler() == null){sleep(500);};
 
         activityRule.runOnUiThread(() -> {

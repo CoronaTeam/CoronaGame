@@ -16,7 +16,7 @@ import ch.epfl.sdp.identity.User;
 
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
-import static ch.epfl.sdp.contamination.InfectionAnalyst.UNINTENTIONAL_CONTAGION_TIME;
+import static ch.epfl.sdp.contamination.InfectionAnalyst.PRESYMPTOMATIC_CONTAGION_TIME;
 import static ch.epfl.sdp.firestore.FirestoreLabels.publicAlertAttribute;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -74,7 +74,7 @@ public class CachingDataSenderTest {
     @Test
     public void getLastPositionsReturnsCorrectWindowOfLocations() {
         Layman me = new Layman(Carrier.InfectionStatus.HEALTHY);
-        sender.registerLocation(me, newLoc(2, 2), new Date(System.currentTimeMillis() - 1 - UNINTENTIONAL_CONTAGION_TIME));
+        sender.registerLocation(me, newLoc(2, 2), new Date(System.currentTimeMillis() - 1 - PRESYMPTOMATIC_CONTAGION_TIME));
         sender.registerLocation(me, newLoc(1, 1), new Date(System.currentTimeMillis()));
         SortedMap<Date, Location> res = sender.getLastPositions();
         Collection<Location> val = res.values();

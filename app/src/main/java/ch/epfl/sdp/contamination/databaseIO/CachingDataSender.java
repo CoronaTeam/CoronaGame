@@ -22,7 +22,7 @@ public interface CachingDataSender {
     int ROUNDING_FACTOR = 100000; //determines the GPS coordinates precision
 
 
-    int MAX_CACHE_ENTRY_AGE = InfectionAnalyst.UNINTENTIONAL_CONTAGION_TIME;
+    int MAX_CACHE_ENTRY_AGE = InfectionAnalyst.PRESYMPTOMATIC_CONTAGION_TIME;
 
     /**
      *   Sends the location and date to firebase, along with the userID of the user using the app.

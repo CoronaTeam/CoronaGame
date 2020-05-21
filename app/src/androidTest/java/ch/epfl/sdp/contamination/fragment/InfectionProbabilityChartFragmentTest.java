@@ -12,7 +12,6 @@ import org.junit.Test;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.testActivities.InfectionProbabilityChartFragmentActivity;
-import ch.epfl.sdp.testActivities.UserInfectionActivity;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -20,7 +19,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibilit
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.sleep;
-import static org.junit.Assert.*;
 
 public class InfectionProbabilityChartFragmentTest {
 

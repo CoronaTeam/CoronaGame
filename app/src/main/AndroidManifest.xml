@@ -26,13 +26,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".testActivities.InfectionProbabilityChartFragmentActivity">
-            <intent-filter>
-                <action android:name="applicationB.intent.action.Launch" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
         <activity android:name=".testActivities.MapActivity">
             <intent-filter>
                 <action android:name="applicationB.intent.action.Launch" />

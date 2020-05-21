@@ -53,6 +53,7 @@ import ch.epfl.sdp.contamination.databaseIO.DataReceiver;
 import ch.epfl.sdp.contamination.databaseIO.GridFirestoreInteractor;
 import ch.epfl.sdp.identity.AuthenticationManager;
 
+import static ch.epfl.sdp.CoronaGame.DEMO_SPEEDUP;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
@@ -62,6 +63,7 @@ import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 public class LocationService extends Service implements LocationListener, Observer {
 
     public final static int LOCATION_PERMISSION_REQUEST = 20201;
+    //TODO: should we accelerate also the interval between requests to location update?
     private static final int MIN_UP_INTERVAL_MILLIS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
 
@@ -71,8 +73,8 @@ public class LocationService extends Service implements LocationListener, Observ
     public static final String INFECTION_STATUS_PREF = "infectionStatus";
     public static final String LAST_UPDATED_PREF = "lastUpdated";
 
-    // TODO: This value should be set to several hours. It's now 20 seconds to allow for demo
-    private static long alarmDelayMillis = 20_000;
+    // This correspond to 6h divided by the DEMO_SPEEDUP constant
+    private static long alarmDelayMillis = 21_600_000 / DEMO_SPEEDUP;
 
     private LocationBroker broker;
     private PositionAggregator aggregator;

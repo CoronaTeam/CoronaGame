@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * This class represent an abstraction over the firestore database. It contains abstract methods
- * to be implemented in the instances to interact with firestore some and a couple of static
+ * to be implemented in the instances to interact with firestore and a couple of static
  * utilities.
  */
 public abstract class FirestoreInteractor {

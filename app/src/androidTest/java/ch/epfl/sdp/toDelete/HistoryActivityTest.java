@@ -38,6 +38,8 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static ch.epfl.sdp.TestTools.sleep;
+import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
+import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
 import static org.hamcrest.CoreMatchers.anything;
 import static org.mockito.Mockito.when;
 
@@ -62,8 +64,8 @@ public class HistoryActivityTest {
         when(querySnapshot.iterator()).thenReturn(Collections.singletonList(queryDocumentSnapshot).iterator());
         Date date = new GregorianCalendar(2020, Calendar.MARCH, 17).getTime();
         Map<String, Object> lastPos = new HashMap<>();
-        lastPos.put("geoPoint", new GeoPoint(19, 98));
-        lastPos.put("timeStamp", new Timestamp(date));
+        lastPos.put(GEOPOINT_TAG, new GeoPoint(19, 98));
+        lastPos.put(TIMESTAMP_TAG, new Timestamp(date));
         when(queryDocumentSnapshot.getData()).thenReturn(lastPos);
 
         when(unreadableSnapshot.iterator()).thenReturn(Collections.singletonList(unreadableDocumentSnapshot).iterator());
@@ -108,7 +110,8 @@ public class HistoryActivityTest {
         onView(withId(R.id.refresh_history)).perform(click());
     }
 
-    @Test @Ignore
+    @Test
+    @Ignore
     public void unreadableContentIsPurged() {
         //FirestoreInteractor unreadableInteractor = createReadTestFSI(true, unreadableSnapshot);
 
@@ -120,6 +123,37 @@ public class HistoryActivityTest {
                 .inAdapterView(withId(R.id.history_tracker))
                 .atPosition(0)
                 .check(matches(withText("[...unreadable.:).]")));
+    }
+
+    private FirestoreInteractor createReadTestFSI(Boolean success, Map<String, Object> docData) {
+        return new FirestoreInteractor() {
+
+            @Override
+            public CompletableFuture<Map<String, Object>> readDocument(DocumentReference documentReference) {
+                CompletableFuture<Map<String, Object>> completableFuture = new CompletableFuture<>();
+                if (success) completableFuture.complete(docData);
+                else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
+                return completableFuture;
+            }
+
+            @Override
+            public CompletableFuture<Map<String, Map<String, Object>>> readCollection(CollectionReference collectionReference) {
+                CompletableFuture<Map<String, Map<String, Object>>> completableFuture = new CompletableFuture<>();
+                if (success) completableFuture.complete(null);
+                else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
+                return completableFuture;
+            }
+
+            @Override
+            public CompletableFuture<Void> writeDocumentWithID(DocumentReference documentReference, Object document) {
+                return null;
+            }
+
+            @Override
+            public CompletableFuture<DocumentReference> writeDocument(CollectionReference collectionReference, Object document) {
+                return null;
+            }
+        };
     }
 
     private class failureHistoryFSI extends HistoryFirestoreInteractor {
@@ -135,7 +169,7 @@ public class HistoryActivityTest {
         @Override
         public CompletableFuture<Map<String, Object>> readDocument(DocumentReference documentReference) {
             CompletableFuture<Map<String, Object>> completableFuture = new CompletableFuture<>();
-            if(success) completableFuture.complete(docData);
+            if (success) completableFuture.complete(docData);
             else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
             return completableFuture;
         }
@@ -143,7 +177,7 @@ public class HistoryActivityTest {
         @Override
         public CompletableFuture<Map<String, Map<String, Object>>> readCollection(CollectionReference collectionReference) {
             CompletableFuture<Map<String, Map<String, Object>>> completableFuture = new CompletableFuture<>();
-            if(success) completableFuture.complete(null);
+            if (success) completableFuture.complete(null);
             else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
             return completableFuture;
         }
@@ -157,36 +191,5 @@ public class HistoryActivityTest {
         public CompletableFuture<DocumentReference> writeDocument(CollectionReference collectionReference, Object document) {
             return null;
         }
-    }
-
-    private FirestoreInteractor createReadTestFSI(Boolean success, Map<String, Object> docData) {
-        return new FirestoreInteractor() {
-
-            @Override
-            public CompletableFuture<Map<String, Object>> readDocument(DocumentReference documentReference) {
-                CompletableFuture<Map<String, Object>> completableFuture = new CompletableFuture<>();
-                if(success) completableFuture.complete(docData);
-                else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
-                return completableFuture;
-            }
-
-            @Override
-            public CompletableFuture<Map<String, Map<String, Object>>> readCollection(CollectionReference collectionReference) {
-                CompletableFuture<Map<String, Map<String, Object>>> completableFuture = new CompletableFuture<>();
-                if(success) completableFuture.complete(null);
-                else completableFuture.completeExceptionally(new RuntimeException("Exception!"));
-                return completableFuture;
-            }
-
-            @Override
-            public CompletableFuture<Void> writeDocumentWithID(DocumentReference documentReference, Object document) {
-                return null;
-            }
-
-            @Override
-            public CompletableFuture<DocumentReference> writeDocument(CollectionReference collectionReference, Object document) {
-                return null;
-            }
-        };
     }
 }

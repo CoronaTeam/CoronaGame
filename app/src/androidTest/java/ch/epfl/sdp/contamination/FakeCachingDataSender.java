@@ -21,16 +21,18 @@ public class FakeCachingDataSender implements CachingDataSender {
     HashMap<Date, Location> fakeFirebaseStore;
     private String userID;
 
-    public FakeCachingDataSender(){
+    public FakeCachingDataSender() {
         this.fakeFirebaseStore = new HashMap<>();
         String userID = User.DEFAULT_USERID;
     }
+
     /**
      * Again, this function is to be used only for testing
+     *
      * @return
      */
-    public Map<Date, Location> getMap(){
-        if(fakeFirebaseStore.size() !=0){
+    public Map<Date, Location> getMap() {
+        if (fakeFirebaseStore.size() != 0) {
             return Collections.unmodifiableMap(fakeFirebaseStore);
         }
         return null;

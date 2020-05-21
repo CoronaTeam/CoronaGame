@@ -10,15 +10,14 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.SortedMap;
 
-import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.identity.User;
 
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
-import static ch.epfl.sdp.contamination.databaseIO.CachingDataSender.publicAlertAttribute;
-import static ch.epfl.sdp.contamination.InfectionAnalyst.UNINTENTIONAL_CONTAGION_TIME;
+import static ch.epfl.sdp.contamination.InfectionAnalyst.PRESYMPTOMATIC_CONTAGION_TIME;
+import static ch.epfl.sdp.firestore.FirestoreLabels.publicAlertAttribute;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -38,13 +37,14 @@ public class CachingDataSenderTest {
         Location location = new Location("provider");
         location.setLatitude(12.1234567);
         location.setLongitude(134.9876543);
-        CachingDataSender.RoundAndExpandLocation(location);
+
+        CachingDataSender.roundLocation(location);
+
         Location manuallyRoundedLocation = new Location("provider");
-        manuallyRoundedLocation.setLongitude(13498765);
-        manuallyRoundedLocation.setLatitude(1212346);
-        assertTrue(TestTools.expandedLocEquals(manuallyRoundedLocation, location));
-//        assertEquals(manuallyRoundedLocation.getLongitude(),location.getLongitude(),0);
-//        assertEquals(manuallyRoundedLocation.getLatitude(),location.getLatitude(),0);
+        manuallyRoundedLocation.setLongitude(134.98765);
+        manuallyRoundedLocation.setLatitude(12.12346);
+        assertEquals(manuallyRoundedLocation.getLongitude(), location.getLongitude(), 0.00000001f);
+        assertEquals(manuallyRoundedLocation.getLatitude(), location.getLatitude(), 0.00000001f);
     }
 
     @Test
@@ -74,7 +74,7 @@ public class CachingDataSenderTest {
     @Test
     public void getLastPositionsReturnsCorrectWindowOfLocations() {
         Layman me = new Layman(Carrier.InfectionStatus.HEALTHY);
-        sender.registerLocation(me, newLoc(2, 2), new Date(System.currentTimeMillis() - 1 - UNINTENTIONAL_CONTAGION_TIME));
+        sender.registerLocation(me, newLoc(2, 2), new Date(System.currentTimeMillis() - 1 - PRESYMPTOMATIC_CONTAGION_TIME));
         sender.registerLocation(me, newLoc(1, 1), new Date(System.currentTimeMillis()));
         SortedMap<Date, Location> res = sender.getLastPositions();
         Collection<Location> val = res.values();

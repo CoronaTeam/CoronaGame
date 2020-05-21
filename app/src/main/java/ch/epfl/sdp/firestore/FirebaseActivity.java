@@ -1,4 +1,4 @@
-package ch.epfl.sdp.testActivities;
+package ch.epfl.sdp.firestore;
 
 import android.os.Bundle;
 import android.view.View;
@@ -17,13 +17,11 @@ import java.util.Random;
 import java.util.function.BiConsumer;
 
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
-import ch.epfl.sdp.firestore.FirestoreInteractor;
 
-import static ch.epfl.sdp.utilities.Tools.IS_ONLINE;
-import static ch.epfl.sdp.utilities.Tools.checkNetworkStatus;
+import static ch.epfl.sdp.CoronaGame.IS_ONLINE;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
+import static ch.epfl.sdp.utilities.Tools.checkNetworkStatus;
 
 public class FirebaseActivity extends AppCompatActivity {
     private FirestoreInteractor fs;
@@ -34,6 +32,7 @@ public class FirebaseActivity extends AppCompatActivity {
         setContentView(R.layout.activity_firebase);
         fs = new ConcreteFirestoreInteractor();
     }
+
 
     public void addUser1(View view) {
         Map<String, Object> user = new HashMap<>();
@@ -82,6 +81,7 @@ public class FirebaseActivity extends AppCompatActivity {
             outputView.setText(R.string.can_t_Download_Offline);
         }
     }
+
 
     public void readData2(View view) {
         DocumentReference documentReference = documentReference("Tests/FirebaseActivity" +

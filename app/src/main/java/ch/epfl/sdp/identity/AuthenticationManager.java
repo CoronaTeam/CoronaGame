@@ -8,7 +8,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
 public class AuthenticationManager {
 
-    public static DefaultAuthenticationManager defaultManager = new DefaultAuthenticationManager(){};
+    public static DefaultAuthenticationManager defaultManager = new DefaultAuthenticationManager() {
+    };
 
     public static Activity getActivity() {
         return defaultManager.getActivity();
@@ -17,7 +18,7 @@ public class AuthenticationManager {
     public static Account getAccount(Context context) {
         return defaultManager.getAccount(context);
     }
-    
+
     public static String getUserId() {
         return defaultManager.getUserId();
     }

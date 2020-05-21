@@ -10,11 +10,33 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * This class represent an abstraction over the firestore database. It contains abstract methods
- * to be implemented in the instances to interact with firestore some and a couple of static
+ * to be implemented in the instances to interact with firestore and a couple of static
  * utilities.
  */
 public abstract class FirestoreInteractor {
-    private static FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    public static final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+    // TODO: @Ulysse, @Adrien, @Kevin, @Lucas, @Lucie use this function to get something from
+    // maps returned by Firestore
+
+    /**
+     * Retrieves information taken from Firestore and stored in the map 'fields'
+     *
+     * @param fields
+     * @param tagName The string to search for
+     * @param tagType The type to which the information corresponds
+     * @param <A>
+     * @return
+     * @throws ClassCastException       if the Object cannot be cast to A
+     * @throws IllegalArgumentException if tagName does not exist
+     */
+    public static <A> A getTag(Map<String, Object> fields, String tagName, Class<A> tagType) throws ClassCastException {
+        Object data = fields.getOrDefault(tagName, null);
+        if (data == null) {
+            throw new IllegalArgumentException(String.format("Tag %s not found", tagName));
+        }
+        return tagType.cast(data);
+    }
 
     /**
      * Convert a task into a completableFuture
@@ -24,6 +46,7 @@ public abstract class FirestoreInteractor {
      * @return a future behaving as the original task
      */
     public static <T> CompletableFuture<T> taskToFuture(Task<T> task) {
+
         if (task.isComplete()) {
             if (task.isSuccessful()) {
                 return CompletableFuture.completedFuture(task.getResult());

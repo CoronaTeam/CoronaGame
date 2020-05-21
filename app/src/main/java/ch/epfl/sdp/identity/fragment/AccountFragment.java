@@ -1,8 +1,13 @@
 package ch.epfl.sdp.identity.fragment;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,18 +16,22 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
+
+import com.bumptech.glide.Glide;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+
+import java.util.concurrent.CompletableFuture;
+
+import ch.epfl.sdp.R;
 import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.identity.AccountAdapter;
 import ch.epfl.sdp.identity.AuthenticationManager;
-import ch.epfl.sdp.R;
 import ch.epfl.sdp.identity.User;
+import ch.epfl.sdp.location.LocationService;
 
 public class AccountFragment extends Fragment implements View.OnClickListener, MenuItem.OnMenuItemClickListener {
     public static boolean IN_TEST = false;
@@ -30,6 +39,17 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
     private TextView email;
     private TextView userIdView;
     private ImageView img;
+
+    private ServiceConnection serviceConnection;
+    private CompletableFuture<LocationService> locationService = new CompletableFuture<>();
+
+    public static Account getAccount(Activity activity) {
+        if (!IN_TEST) {
+            return new AccountAdapter(GoogleSignIn.getLastSignedInAccount(activity));
+        } else {
+            return new AccountAdapter(new User());
+        }
+    }
 
     @Nullable
     @Override
@@ -48,15 +68,21 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
 
         view.findViewById(R.id.moreButton).setOnClickListener(this);
 
-        return view;
-    }
+        serviceConnection = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                locationService.complete(((LocationService.LocationBinder) service).getService());
+            }
 
-    public static Account getAccount(Activity activity) {
-        if( ! IN_TEST){
-            return new AccountAdapter(GoogleSignIn.getLastSignedInAccount(activity));
-        }else{
-            return new AccountAdapter(new User());
-        }
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                locationService = null;
+            }
+        };
+
+        getActivity().bindService(new Intent(getActivity(), LocationService.class), serviceConnection, Context.BIND_AUTO_CREATE);
+
+        return view;
     }
 
     @Override
@@ -74,6 +100,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
         popup.getMenuInflater().inflate(R.menu.more_menu, popup.getMenu());
         popup.show();
         popup.getMenu().findItem(R.id.button_sign_out).setOnMenuItemClickListener(this);
+        popup.getMenu().findItem(R.id.button_delete_local_history).setOnMenuItemClickListener(this);
     }
 
     @Override
@@ -106,7 +133,20 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
                 AuthenticationManager.signOut(getActivity());
                 return true;
             }
+            case R.id.button_delete_local_history: {
+                locationService.join().getAnalyst().getCarrier().deleteLocalProbabilityHistory();
+            }
         }
         return false;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        if (serviceConnection != null) {
+            getActivity().unbindService(serviceConnection);
+            serviceConnection = null;
+        }
     }
 }

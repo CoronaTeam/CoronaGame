@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
@@ -18,25 +19,22 @@ import java.util.function.Function;
 
 /**
  * Implements a StorageManager with cache (asynchronously preloaded)
- * @param <A>
- * @param <B>
+ *
+ * @param <A> The type of the keys
+ * @param <B> The type of the values
  */
 public class ConcreteManager<A extends Comparable<A>, B> implements StorageManager<A, B> {
 
+    private static final String SEPARATOR = ",";
+    private static final String LINE_END = "\n";
     private boolean isDeleted = false;
     private File file;
     private FileWriter writer = null;
-
-    private volatile Map<A, B> cache;
-
+    private volatile SortedMap<A, B> cache;
     private Function<String, A> stringToA;
     private Function<String, B> stringToB;
-
     private AtomicBoolean loadingCache;
     private AtomicBoolean cacheOk;
-
-    private static final String SEPARATOR = ",";
-    private static final String LINE_END = "\n";
 
     public ConcreteManager(Context context, String filename, Function<String, A> convertToA, Function<String, B> convertToB) {
         if (convertToA == null || convertToB == null) {
@@ -68,23 +66,20 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
         cacheOk = new AtomicBoolean(false);
 
         AsyncTask.execute(() -> {
-                boolean result = loadCache();
-                cacheOk.set(result);
-                loadingCache.set(true);
+            boolean result = loadCache();
+            cacheOk.set(result);
+            loadingCache.set(true);
         });
     }
 
     private void checkCacheStatus() {
-        if (loadingCache.get() && !cacheOk.get()) {
+        if (!isReadable()) {
             throw new IllegalStateException("Could not perform initial cache loading");
         }
-
-        // Block to wait cache loading
-        while (!loadingCache.get()) { }
     }
 
     @Override
-    public boolean write(Map<A, B> payload) {
+    public boolean write(SortedMap<A, B> payload) {
         if (isDeleted) {
             throw new IllegalStateException("Cannot read file after deletion");
         }
@@ -125,11 +120,25 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
             return true;
         } catch (IOException e) {
             return false;
+        } catch (Exception e) {
+            return false;
         }
     }
 
     @Override
-    public Map<A, B> read() {
+    public boolean isReadable() {
+        while (!loadingCache.get()) {
+        }
+
+        if (!cacheOk.get()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public SortedMap<A, B> read() {
         if (isDeleted) {
             throw new IllegalStateException("Cannot read file after deletion");
         }
@@ -139,14 +148,14 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
         if (cache.isEmpty()) {
             boolean cacheSuccess = loadCache();
             if (!cacheSuccess) {
-                return Collections.emptyMap();
+                return new TreeMap<>();
             }
         }
-        return Collections.unmodifiableMap(cache);
+        return Collections.unmodifiableSortedMap(new TreeMap<>(cache));
     }
 
     @Override
-    public Map<A, B> filter(BiFunction<A, B, Boolean> rule) {
+    public SortedMap<A, B> filter(BiFunction<A, B, Boolean> rule) {
         if (isDeleted) {
             throw new IllegalStateException("Cannot filter on file after deletion");
         }
@@ -156,18 +165,18 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
         if (cache.isEmpty()) {
             boolean cacheSuccess = loadCache();
             if (!cacheSuccess) {
-                return Collections.emptyMap();
+                return new TreeMap<>();
             }
         }
 
-        Map<A, B> result = new TreeMap<>();
+        SortedMap<A, B> result = new TreeMap<>();
         cache.forEach((k, v) -> {
-            if (rule.apply(k,v)) {
-                result.put(k,v);
+            if (rule.apply(k, v)) {
+                result.put(k, v);
             }
         });
 
-        return Collections.unmodifiableMap(result);
+        return Collections.unmodifiableSortedMap(result);
     }
 
     @Override

@@ -29,7 +29,6 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.location.LocationUtils.buildLocation;
 import static org.hamcrest.CoreMatchers.is;
 
@@ -90,7 +89,6 @@ public class RealGridSenderTest {
             assertThat(result.get(aFakeCarrier), is(1));
             assertThat(result.get(trulyHealthy), is(1));
         });
-
 
 
     }

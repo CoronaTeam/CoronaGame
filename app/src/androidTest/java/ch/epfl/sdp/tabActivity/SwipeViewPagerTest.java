@@ -3,15 +3,13 @@ package ch.epfl.sdp.tabActivity;
 import android.content.Context;
 import android.util.AttributeSet;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
-
-import ch.epfl.sdp.tabActivity.SwipeViewPager;
 
 import static org.junit.Assert.assertFalse;
 

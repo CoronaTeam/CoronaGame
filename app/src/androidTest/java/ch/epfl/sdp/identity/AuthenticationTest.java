@@ -4,15 +4,15 @@ import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
 
-import ch.epfl.sdp.R;
-import ch.epfl.sdp.TestTools;
-import ch.epfl.sdp.identity.fragment.AuthenticationFragment;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+
+import ch.epfl.sdp.R;
+import ch.epfl.sdp.TestTools;
+import ch.epfl.sdp.identity.fragment.AuthenticationFragment;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -25,11 +25,12 @@ import static ch.epfl.sdp.TestTools.sleep;
 public class AuthenticationTest {
     @Rule
     public final ActivityTestRule<Authentication> activityRule = new ActivityTestRule<>(Authentication.class);
+
     @Before
     public void setUp() throws Exception {
         initSafeTest(activityRule, true);
         AuthenticationManager.signOut(activityRule.getActivity()); // fixes Auth skip to TabActivity
-        }
+    }
 
     @Test(expected = Test.None.class) //expect no error
     public void signInButtonIsDisplayedAndClickable() {
@@ -41,7 +42,7 @@ public class AuthenticationTest {
 
     @Test(expected = IllegalStateException.class)
     public void onActivityResultThrowsExceptionOnWrongRequestCode() {
-        ((AuthenticationFragment)(activityRule.getActivity().getFragment())).onActivityResult(AuthenticationFragment.RC_SIGN_IN - 1, 0, null);
+        ((AuthenticationFragment) (activityRule.getActivity().getFragment())).onActivityResult(AuthenticationFragment.RC_SIGN_IN - 1, 0, null);
     }
 
     @Test(expected = Test.None.class)
@@ -49,7 +50,8 @@ public class AuthenticationTest {
         activityRule.getActivity().getFragment().onActivityResult(AuthenticationFragment.RC_SIGN_IN, 0, null);
     }
 
-    @Test @Ignore
+    @Test
+    @Ignore
     public void signInButtonIsVisibleWhenAccountIsNull() {
         onView(withId(R.id.sign_in_button)).check(matches(isDisplayed()));
     }

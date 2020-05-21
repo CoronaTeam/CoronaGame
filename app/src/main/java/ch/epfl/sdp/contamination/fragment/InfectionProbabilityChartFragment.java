@@ -7,9 +7,15 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.LimitLine;
@@ -28,22 +34,33 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.location.LocationService;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 
-public class InfectionProbabilityChartFragment extends Fragment implements OnChartValueSelectedListener {
+public class InfectionProbabilityChartFragment extends Fragment implements OnChartValueSelectedListener, Observer {
 
+    private static long DATA_TIME_SCALE = 1000L;
+    private static float DATA_TIME_GRANULARITY = (float) (1000L * 60L * 60L * 24L) / DATA_TIME_SCALE; // one day in ms
     private View view;
     private LineChart chart;
     private LocationService service;
     private ServiceConnection serviceConnection;
+    private long referenceTime = 0L;
+    private final ValueFormatter DATA_TIME_FORMATTER = new ValueFormatter() {
+        @Override
+        public String getFormattedValue(float value) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(referenceTime + (long) (value * DATA_TIME_SCALE));
+            int month = cal.get(Calendar.MONTH) + 1;
+            return cal.get(Calendar.DAY_OF_MONTH) + "/" + (month < 10 ? "0" : "") + month;
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -69,11 +86,15 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
         serviceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                InfectionProbabilityChartFragment.this.service = ((LocationService.LocationBinder)service).getService();
+                InfectionProbabilityChartFragment.this.service = ((LocationService.LocationBinder) service).getService();
+                ((Layman) InfectionProbabilityChartFragment.this.service.getAnalyst().getCarrier()).addObserver(InfectionProbabilityChartFragment.this);
                 updateData();
             }
+
             @Override
-            public void onServiceDisconnected(ComponentName name) { service = null; }
+            public void onServiceDisconnected(ComponentName name) {
+                service = null;
+            }
         };
         getActivity().bindService(new Intent(getActivity(), LocationService.class), serviceConnection, BIND_AUTO_CREATE);
     }
@@ -103,18 +124,9 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     }
 
     private void setAxes() {
-        ValueFormatter xAxisFormatter = new ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value) {
-                Calendar cal = Calendar.getInstance();
-                cal.setTimeInMillis((long)value);
-                int month = cal.get(Calendar.MONTH) + 1;
-                return cal.get(Calendar.DAY_OF_MONTH) + "/" + (month < 10 ? "0" : "") + month;
-            }
-        };
         XAxis xAxis = chart.getXAxis();
-        xAxis.setValueFormatter(xAxisFormatter);
-        xAxis.setGranularity(1000 * 60 * 60 * 24);
+        xAxis.setValueFormatter(DATA_TIME_FORMATTER);
+        xAxis.setGranularity(DATA_TIME_GRANULARITY); // seconds in a day
         xAxis.setDrawGridLines(false);
 
         YAxis yAxis = chart.getAxisLeft();
@@ -156,11 +168,19 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
         Date since = calendar.getTime();
         Map<Date, Float> infectionHistory = service.getAnalyst().getCarrier().getIllnessProbabilityHistory(since);
 
+        // TODO: [LOG]
+        infectionHistory.forEach((k, v) -> Log.e("CHART_DATA_PAYLOAD", k.toString() + ": " + v));
+
         ArrayList<Entry> values = new ArrayList<>();
 
         Drawable drawable = getResources().getDrawable(R.drawable.ic_person, getContext().getTheme());
+        boolean first = true;
         for (Map.Entry<Date, Float> entry : infectionHistory.entrySet()) {
-            values.add(new Entry(entry.getKey().getTime(), entry.getValue(), drawable));
+            if (first) {
+                referenceTime = entry.getKey().getTime();
+                first = false;
+            }
+            values.add(new Entry((float) (entry.getKey().getTime() - referenceTime) / DATA_TIME_SCALE, entry.getValue(), drawable));
         }
 
         return values;
@@ -170,19 +190,24 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
 
         List<Entry> data = generateData();
 
-        if (chart.getData() != null && chart.getData().getDataSetCount() > 0) {
-            updateExistingDataSet(data);
-        } else {
-            createNewDataSet(data);
-        }
+        getActivity().runOnUiThread(() -> {
+            if (chart.getData() != null) {
+                updateExistingDataSet(data);
+            } else {
+                createNewDataSet(data);
+            }
+        });
     }
 
     private void updateExistingDataSet(List<Entry> data) {
+        Log.e("DATA_UPDATE", "existing data set updated");
         LineDataSet set1 = (LineDataSet) chart.getData().getDataSetByIndex(0);
         set1.setValues(data);
         set1.notifyDataSetChanged();
+        Log.e("DATA_UPDATE", set1.getValues().toString());
         chart.getData().notifyDataChanged();
         chart.notifyDataSetChanged();
+        chart.invalidate(); // force redraw
     }
 
     private void createNewDataSet(List<Entry> data) {
@@ -212,7 +237,6 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     }
 
 
-
     @Override
     public void onValueSelected(Entry e, Highlight h) {
 
@@ -221,6 +245,15 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     @Override
     public void onNothingSelected() {
 
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+
+        //TODO: [LOG]
+        Log.e("CHART_UPDATE", "New data available! Regenerating view");
+
+        updateData();
     }
 
     @Override

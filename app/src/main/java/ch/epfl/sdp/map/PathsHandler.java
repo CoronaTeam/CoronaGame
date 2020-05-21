@@ -45,10 +45,14 @@ import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.databaseIO.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.databaseIO.GridFirestoreInteractor;
+import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.location.LocationUtils;
 import ch.epfl.sdp.map.fragment.MapFragment;
 
+import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
+import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
 import static ch.epfl.sdp.map.HeatMapHandler.adjustHeatMapColorRange;
 import static ch.epfl.sdp.map.HeatMapHandler.adjustHeatMapWeight;
 import static ch.epfl.sdp.map.HeatMapHandler.adjustHeatmapIntensity;

@@ -43,19 +43,28 @@ import static junit.framework.TestCase.assertNotNull;
 
 public class MapActivityTest {
 
+    @Rule
+    public final ActivityTestRule<MapActivity> activityRule = new ActivityTestRule<>(MapActivity.class);
+    @Rule
+    public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
     private MapFragment mapFragment;
     private AtomicInteger sentinel;
     private MockLocationBroker mockLocationBroker;
     private boolean pathCoordIsEmpty;
     private boolean infectedCoordIsEmpty;
 
-    @Rule
-    public GrantPermissionRule locationPermissionRule =
-            GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
+    @BeforeClass
+    public static void preSetup() {
+        AccountFragment.IN_TEST = true;
+        MapFragment.TESTING_MODE = true;
+    }
 
-    @Rule
-    public final ActivityTestRule<MapActivity> activityRule =
-            new ActivityTestRule<>(MapActivity.class);
+    @AfterClass
+    public static void postClean() {
+        AccountFragment.IN_TEST = false;
+        MapFragment.TESTING_MODE = false;
+
+    }
 
     @Before
     public void setUp() throws Throwable {
@@ -72,23 +81,12 @@ public class MapActivityTest {
         //Intents.release();
     }
 
-    @BeforeClass
-    public static void preSetup() {
-        AccountFragment.IN_TEST = true;
-        MapFragment.TESTING_MODE = true;
-    }
-
-    @AfterClass
-    public static void postClean() {
-        AccountFragment.IN_TEST = false;
-        MapFragment.TESTING_MODE = false;
-    }
-
     @Test(timeout = 30000)
     public void testMapLoadCorrectly() throws Throwable {
         while (mapFragment.getMap() == null) {
             sleep(500);
         }
+        ;
 
         activityRule.runOnUiThread(() -> mapFragment.getMap().getStyle((s)
                 -> sentinel.incrementAndGet()));
@@ -102,6 +100,8 @@ public class MapActivityTest {
     public void testHeatMapLoadCorrectly() throws Throwable {
         testMapLoadCorrectly();
 
+        mockLocationBroker.setFakeLocation(buildLocation(46, 54));
+
         while (mapFragment.getHeatMapHandler() == null) {
             sleep(500);
         }
@@ -110,6 +110,15 @@ public class MapActivityTest {
                 -> sentinel.incrementAndGet()));
         // The sentinel value will only increase when the heatmap has completely loaded
 
+        activityRule.runOnUiThread(() -> {
+            mapFragment.getHeatMapHandler().onHeatMapDataLoaded(() -> sentinel.incrementAndGet());
+        }); // The sentinel value will only increase when the heatmap has completely loaded
+
+        waitForSentinelAndSetToZero();
+
+    }
+
+    private void testLayerVisibility(String visibility) throws Throwable {
         waitForSentinelAndSetToZero();
     }
 
@@ -174,7 +183,7 @@ public class MapActivityTest {
         }
     }
 
-    @Test(timeout = 8000)
+    @Test(timeout = 20000)
     public void pathGetsInstantiated() {
         while (mapFragment.getPathsHandler() == null) {
             sleep(500);

@@ -10,51 +10,68 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.SortedMap;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.SetOptions;
 
-import ch.epfl.sdp.identity.AuthenticationManager;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
+import java.util.SortedMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.ConcreteAnalysis;
-import ch.epfl.sdp.contamination.databaseIO.ConcreteCachingDataSender;
-import ch.epfl.sdp.contamination.databaseIO.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.ConcretePositionAggregator;
-import ch.epfl.sdp.contamination.databaseIO.DataReceiver;
-import ch.epfl.sdp.contamination.databaseIO.GridFirestoreInteractor;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
 import ch.epfl.sdp.contamination.Layman;
+import ch.epfl.sdp.contamination.ObservableCarrier;
 import ch.epfl.sdp.contamination.PositionAggregator;
+import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
+import ch.epfl.sdp.contamination.databaseIO.ConcreteCachingDataSender;
+import ch.epfl.sdp.contamination.databaseIO.ConcreteDataReceiver;
+import ch.epfl.sdp.contamination.databaseIO.DataReceiver;
+import ch.epfl.sdp.contamination.databaseIO.GridFirestoreInteractor;
+import ch.epfl.sdp.identity.AuthenticationManager;
 
+import static ch.epfl.sdp.CoronaGame.getDemoSpeedup;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
+import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
+import static ch.epfl.sdp.firestore.FirestoreInteractor.taskToFuture;
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 
-public class LocationService extends Service implements LocationListener {
+public class LocationService extends Service implements LocationListener, Observer {
 
     public final static int LOCATION_PERMISSION_REQUEST = 20201;
-    private static final int MIN_UP_INTERVAL_MILLISECS = 1000;
-    private static final int MIN_UP_INTERVAL_METERS = 5;
-
     public static final String ALARM_GOES_OFF = "beeep!";
-
-    public static final String INFECTION_PROBABILITY_TAG = "infectionProbability";
-    public static final String INFECTION_STATUS_TAG = "infectionStatus";
-    public static final String LAST_UPDATED_TAG = "lastUpdated";
-
-    // TODO: This value should be set to several hours. It's now 2 minutes to allow for demo
-    private static long alarmDelayMillis = 120_000;
+    public static final String INFECTION_PROBABILITY_PREF = "infectionProbability";
+    public static final String INFECTION_STATUS_PREF = "infectionStatus";
+    public static final String LAST_UPDATED_PREF = "lastUpdated";
+    //TODO: should we accelerate also the interval between requests to location update?
+    private static final int MIN_UP_INTERVAL_MILLIS = 1000;
+    private static final int MIN_UP_INTERVAL_METERS = 5;
+    // This correspond to 6h divided by the DEMO_SPEEDUP constant
+    private static long alarmDelayMillis = 21_600_000 / getDemoSpeedup();
 
     private LocationBroker broker;
     private PositionAggregator aggregator;
@@ -65,8 +82,6 @@ public class LocationService extends Service implements LocationListener {
 
     private DataReceiver receiver;
     private CachingDataSender sender;
-
-    private Carrier me;
 
     private boolean isAlarmSet = false;
 
@@ -93,20 +108,27 @@ public class LocationService extends Service implements LocationListener {
         isAlarmSet = true;
     }
 
-    private void loadCarrierStatus() {
-        float infectionProbability = sharedPref.getFloat(INFECTION_PROBABILITY_TAG, 0);
-        InfectionStatus infectionStatus = InfectionStatus.values()[sharedPref.getInt(INFECTION_STATUS_TAG, InfectionStatus.HEALTHY.ordinal())];
+    private ObservableCarrier locallyLoadCarrier() {
+        lastUpdated = new Date(sharedPref.getLong(LAST_UPDATED_PREF, System.currentTimeMillis()));
 
-        me = new Layman(infectionStatus, infectionProbability, AuthenticationManager.getUserId());
+        float infectionProbability = sharedPref.getFloat(INFECTION_PROBABILITY_PREF, 0);
+        InfectionStatus infectionStatus = InfectionStatus.values()[sharedPref.getInt(INFECTION_STATUS_PREF, InfectionStatus.HEALTHY.ordinal())];
 
-        lastUpdated = new Date(sharedPref.getLong(LAST_UPDATED_TAG, System.currentTimeMillis()));
+        Layman carrier = new Layman(infectionStatus, infectionProbability, AuthenticationManager.getUserId());
+
+        // Register as observer of Layman
+        carrier.addObserver(this);
+
+        return carrier;
     }
 
-    private void storeCarrierStatus() {
+    public void locallyStoreCarrier() {
+        Carrier me = analyst.getCarrier();
+
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putFloat(INFECTION_PROBABILITY_TAG, me.getIllnessProbability())
-                .putInt(INFECTION_STATUS_TAG, me.getInfectionStatus().ordinal())
-                .putLong(LAST_UPDATED_TAG, lastUpdated.getTime())
+        editor.putFloat(INFECTION_PROBABILITY_PREF, me.getIllnessProbability())
+                .putInt(INFECTION_STATUS_PREF, me.getInfectionStatus().ordinal())
+                .putLong(LAST_UPDATED_PREF, lastUpdated.getTime())
                 .commit();
     }
 
@@ -122,7 +144,7 @@ public class LocationService extends Service implements LocationListener {
 
         sharedPref = this.getSharedPreferences(CoronaGame.SHARED_PREF_FILENAME, Context.MODE_PRIVATE);
 
-        loadCarrierStatus();
+        ObservableCarrier me = locallyLoadCarrier();
 
         analyst = new ConcreteAnalysis(me, receiver, sender);
         aggregator = new ConcretePositionAggregator(sender, me);
@@ -132,51 +154,81 @@ public class LocationService extends Service implements LocationListener {
         }
     }
 
-    /** Updates the infection probability by running the model
+    /**
+     * Updates the infection probability by running the model
      * WARNING: Cannot be called after a period longer than MAX_CACHE_ENTRY_AGE
-     * Since DataSender cache would have been partially emptied already
+     * since DataSender cache would have been partially emptied already
      */
     private void updateInfectionModel() {
         SortedMap<Date, Location> locations = sender.getLastPositions().tailMap(lastUpdated);
 
+        // TODO: [LOG]
+        Log.e("POSITION_ITERATOR", Integer.toString(locations.size()));
+        List<CompletableFuture<Integer>> operationFutures = new ArrayList<>();
+
         for (Map.Entry<Date, Location> l : locations.entrySet()) {
-            analyst.updateInfectionPredictions(l.getValue(), lastUpdated, l.getKey());
+            operationFutures.add(analyst.updateInfectionPredictions(l.getValue(), lastUpdated, l.getKey()));
             lastUpdated = l.getKey();
         }
 
-        storeCarrierStatus();
+        // TODO: @Matteo decide how to treat timed-out requests
+        // TODO: Understant why, after history deletion, some position upload requests timeout
+        //operationFutures.forEach(CompletableFuture::join);
+        for (CompletableFuture<Integer> future : operationFutures) {
+            try {
+                future.get(1500, TimeUnit.MILLISECONDS);
+            } catch (TimeoutException e) {
+                // TODO: [LOG]
+                Log.e("MODEL_UPDATE", "Request timed out");
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.hasExtra(ALARM_GOES_OFF)) {
+            isAlarmSet = false;
+
             // It's time to run the model, starting from time 'lastUpdated';
-            updateInfectionModel();
+            AsyncTask.execute(() -> {
+                updateInfectionModel();
+            });
         }
 
         if (!isAlarmSet) {
+            // TODO: [LOG]
+            Log.e("LOCATION_SERVICE", "Setting alarm");
             // Create next alarm
             setModelUpdateAlarm();
         }
         return START_STICKY;
     }
 
-    public class LocationBinder extends android.os.Binder {
-        public LocationService getService() {
-            return LocationService.this;
-        }
-        public boolean hasGpsPermissions() {
-            return hasGpsPermissions;
-        }
-        public void requestGpsPermissions(Activity activity) {
-            broker.requestPermissions(activity, LOCATION_PERMISSION_REQUEST);
-        }
-        public boolean startAggregator() {
-            return LocationService.this.startAggregator();
-        }
-        private void stopAggregator() {
-            LocationService.this.stopAggregator();
-        }
+    private CompletableFuture<Void> remotelyStoreCarrierStatus(InfectionStatus status) {
+        boolean isInfected = status == INFECTED;
+
+        Map<String, Object> userPayload = new HashMap<>();
+        userPayload.put("Infected", isInfected);
+
+        String userId = AuthenticationManager.getAccount(CoronaGame.getContext()).getId();
+
+        // TODO: [LOG]
+        Log.e("ACCOUNT_NAME", userId);
+
+        DocumentReference userRef = documentReference("Users", userId);
+        CompletableFuture<Void> future1 = taskToFuture(userRef.set(userPayload, SetOptions.merge()));
+        CompletableFuture<Void> future2 = taskToFuture(userRef.update("Infected", isInfected));
+
+        return CompletableFuture.allOf(future1, future2);
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        // Store updates to Carrier
+        locallyStoreCarrier();
+        AsyncTask.execute(() -> remotelyStoreCarrierStatus(analyst.getCarrier().getInfectionStatus()));
     }
 
     @Nullable
@@ -210,7 +262,7 @@ public class LocationService extends Service implements LocationListener {
     }
 
     private boolean startAggregator() {
-        if (broker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, this)) {
+        if (broker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLIS, MIN_UP_INTERVAL_METERS, this)) {
             displayToast(getString(R.string.aggregator_status_on));
             aggregator.updateToOnline();
             return true;
@@ -246,14 +298,30 @@ public class LocationService extends Service implements LocationListener {
         return broker;
     }
 
+    @VisibleForTesting
+    public void setBroker(LocationBroker broker) {
+        this.broker = broker;
+    }
+
     public InfectionAnalyst getAnalyst() {
         return analyst;
     }
 
-
+    @VisibleForTesting
+    public void setAnalyst(InfectionAnalyst analyst) {
+        this.analyst = analyst;
+    }
 
     public CachingDataSender getSender() {
         return sender;
+    }
+
+    // TODO: @Adrien, to reduce the number of VisibleForTesting functions, reset....() can be
+    // moved to tests files (and they can just use set...())
+
+    @VisibleForTesting
+    public void setSender(CachingDataSender sender) {
+        this.sender = sender;
     }
 
     public DataReceiver getReceiver() {
@@ -261,37 +329,29 @@ public class LocationService extends Service implements LocationListener {
     }
 
     @VisibleForTesting
-    public void resetAnalyst(){
-        analyst = new ConcreteAnalysis(me, receiver, sender);
-    }
-
-    @VisibleForTesting
-    public void setCarrier(Carrier carrier){
-        me = carrier;
-    }
-
-    @VisibleForTesting
-    public void resetSender(){
-        sender = new ConcreteCachingDataSender(gridInteractor);
-    }
-
-    @VisibleForTesting
     public void setReceiver(DataReceiver receiver) {
         this.receiver = receiver;
     }
 
-    @VisibleForTesting
-    public void setSender(CachingDataSender sender) {
-        this.sender = sender;
-    }
+    public class LocationBinder extends android.os.Binder {
+        public LocationService getService() {
+            return LocationService.this;
+        }
 
-    @VisibleForTesting
-    public void setBroker(LocationBroker broker) {
-        this.broker = broker;
-    }
+        public boolean hasGpsPermissions() {
+            return hasGpsPermissions;
+        }
 
-    @VisibleForTesting
-    public void setAnalyst(InfectionAnalyst analyst) {
-        this.analyst = analyst;
+        public void requestGpsPermissions(Activity activity) {
+            broker.requestPermissions(activity, LOCATION_PERMISSION_REQUEST);
+        }
+
+        public boolean startAggregator() {
+            return LocationService.this.startAggregator();
+        }
+
+        private void stopAggregator() {
+            LocationService.this.stopAggregator();
+        }
     }
 }

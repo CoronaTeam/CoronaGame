@@ -9,6 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -16,19 +20,22 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.tabActivity.TabActivity;
 
 public class AuthenticationFragment extends Fragment {
 
     public static final int RC_SIGN_IN = 0; //any number, but common for the app
+    private static Class NEXT_ACTIVITY = TabActivity.class;
     GoogleSignInClient googleSignInClient;
     View signIn;// error prone line if View is replaced by Button
 
-    private static Class NEXT_ACTIVITY = TabActivity.class;
+    public static void signInComplete(Activity activity) {
+        Intent intent = new Intent(activity, NEXT_ACTIVITY);// New activity
+//            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); //clears this activity's stack
+        activity.startActivity(intent);
+        activity.finish(); // Launches next Activity
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,13 +87,6 @@ public class AuthenticationFragment extends Fragment {
 //            startActivity(new Intent(this, AccountGettingActivity.class));
             signInComplete(getActivity());
         }
-    }
-
-    public static void signInComplete(Activity activity) {
-        Intent intent = new Intent(activity, NEXT_ACTIVITY);// New activity
-//            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP); //clears this activity's stack
-        activity.startActivity(intent);
-        activity.finish(); // Launches next Activity
     }
 
     private void signIn() {

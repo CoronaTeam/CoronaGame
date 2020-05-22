@@ -46,4 +46,5 @@ public interface InfectionAnalyst {
      * @return
      */
     ObservableCarrier getCarrier();
+
 }

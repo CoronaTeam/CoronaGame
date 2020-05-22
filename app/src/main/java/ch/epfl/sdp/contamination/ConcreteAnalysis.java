@@ -218,7 +218,11 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
 
         // Tell those user that they have been close to you
         // TODO: @Lucas discuss whether considering only the previous Illness probability is good
-        userIds.forEach(u -> DataSender.sendAlert(u, previousIllnessProbability));
+        userIds.forEach(u -> notifyNeighborsOfMyInfection(u,previousIllnessProbability));
+    }
+
+    private void notifyNeighborsOfMyInfection(String u, float previousIllnessProbability){
+        DataSender.sendAlert(u, previousIllnessProbability);
     }
 
     @Override

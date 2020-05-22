@@ -2,6 +2,7 @@ package ch.epfl.sdp.storage;
 
 import android.location.Location;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,6 +28,11 @@ public class PositionHistoryManagerTest {
     public void miniInit(){
         sender = new ConcreteDataSender(new GridFirestoreInteractor());
         AccountFragment.IN_TEST = true;
+        PositionHistoryManager.delete();
+    }
+    @After
+    public void release(){
+        PositionHistoryManager.delete();
     }
 
     @Test
@@ -42,5 +48,9 @@ public class PositionHistoryManagerTest {
         while (it.hasNext()) {
             assertTrue(it.next().getLatitude() == 1);
         }
+    }
+    @Test
+    public void getLastPositionsWorksOnSecondUseage(){
+        getLastPositionsReturnsCorrectWindowOfLocations();
     }
 }

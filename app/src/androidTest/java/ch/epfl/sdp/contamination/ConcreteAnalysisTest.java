@@ -34,6 +34,7 @@ import ch.epfl.sdp.contamination.databaseIO.DataReceiver;
 import ch.epfl.sdp.contamination.fragment.InfectionFragment;
 import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.location.LocationService;
+import ch.epfl.sdp.storage.PositionHistoryManager;
 import ch.epfl.sdp.testActivities.InfectionActivity;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -213,14 +214,14 @@ public class ConcreteAnalysisTest {
 
     @Before
     public void init() {
-        initSafeTest(mActivityRule, false);
+        initSafeTest(mActivityRule, true);
     }
 
     @After
     public void release() {
+        PositionHistoryManager.delete();
         Intents.release();
     }
-
     @Test
     public void canEvolveIfInfected() {
 
@@ -365,14 +366,14 @@ public class ConcreteAnalysisTest {
     public void observersKnowIfStatusChanged() {
         AtomicInteger counter = new AtomicInteger(0);
 
-        Observer fakeOserver = (o, arg) -> {
+        Observer fakeObserver = (o, arg) -> {
             if (((Optional<Float>) arg).isPresent()) {
                 counter.incrementAndGet();
             }
         };
 
         ObservableCarrier me = new Layman(HEALTHY);
-        me.addObserver(fakeOserver);
+        me.addObserver(fakeObserver);
 
         // No status change
         assertTrue(me.evolveInfection(new Date(), HEALTHY, me.getIllnessProbability()));
@@ -384,11 +385,11 @@ public class ConcreteAnalysisTest {
         sleep();
         assertThat(counter.get(), equalTo(1));
     }
-
+//TODO : ------------------------------------------------ corrige ça lucas
     @Test
     public void notifiesSickNeighborsWhenYouGetSick() {
         ObservableCarrier me = new Layman(HEALTHY);
-        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver);
+        InfectionAnalyst analyst = new ConcreteFakeAnalyst(me, mockReceiver);
         me.evolveInfection(new Date(), INFECTED, 1f);
         mockReceiver.getNumberOfSickNeighbors("Man1").thenAccept(res ->
                 assertTrue(res.isEmpty()));
@@ -398,6 +399,26 @@ public class ConcreteAnalysisTest {
                 assertEquals(1f, getMapValue(res), 0.0001));
         mockReceiver.getNumberOfSickNeighbors("Man4").thenAccept(res ->
                 assertEquals(1f, getMapValue(res), 0.0001));
+    }
+
+    private class ConcreteFakeAnalyst extends ConcreteAnalysis {
+        public ConcreteFakeAnalyst(ObservableCarrier carrier, DataReceiver receiver) {
+            super(carrier, receiver);
+        }
+        private void notifyNeighborsOfMyInfection(String u, float previousIllnessProbability){
+            recentSickMeetingCounter.computeIfPresent(u,
+                    (k, v) -> v + 1 - previousIllnessProbability);
+            recentSickMeetingCounter.computeIfAbsent(u, k -> 1 - previousIllnessProbability);
+        }
+    }
+
+//TODO : ------------------------------------------------ corrige ça lucas
+    @Test
+    public void doesUpdateCorrectlySicknessState() {
+        ObservableCarrier me = new Layman(HEALTHY);
+        InfectionAnalyst analyst = new ConcreteFakeAnalyst(me, mockReceiver);
+        me.evolveInfection(new Date(), INFECTED, 1f);
+        assertSame(INFECTED, analyst.getCarrier().getInfectionStatus());
     }
 
     @Test
@@ -411,17 +432,6 @@ public class ConcreteAnalysisTest {
         assertEquals(TRANSMISSION_FACTOR * (1 + (1 - 0.4)), me.getIllnessProbability(), 0.00001f);
         mockReceiver.getNumberOfSickNeighbors(me.getUniqueId()).thenAccept(res -> assertTrue((res).isEmpty()));
     }
-
-    @Test
-    public void doesUpdateCorrectlySicknessState() {
-        InfectionFragment fragment = ((InfectionFragment) mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
-        LocationService service = fragment.getLocationService().join();
-        ObservableCarrier me = new Layman(HEALTHY);
-        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver);
-        me.evolveInfection(new Date(), INFECTED, 1f);
-        assertSame(INFECTED, analyst.getCarrier().getInfectionStatus());
-    }
-
     @Test
     public void adaptInfectionProbabilityOfBadMeetingsIfRecovered() {
         recoveryCounter = 1;

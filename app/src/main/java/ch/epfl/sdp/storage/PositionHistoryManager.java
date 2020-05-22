@@ -19,21 +19,21 @@ import static ch.epfl.sdp.contamination.databaseIO.DataSender.MAX_CACHE_ENTRY_AG
 /**
  * This is a singleton class to avoid problems. It manages the storing exchanges of the last positions.
  */
-public class PositionHistoryManager extends ConcreteManager<Date, Location> {
-    private static PositionHistoryManager instance = null;
+public class PositionHistoryManager  {
+    private static ConcreteManager instance = null;
     private static void setHistoryManager(){
         if(instance!=null && !instance.isReadable()){
             instance.delete();
             instance = null;
         }
         if(instance == null){
-            instance = new PositionHistoryManager();
+            instance =  getNewManager();
         }
         return;
     }
 
-    private PositionHistoryManager() {
-        super(CoronaGame.getContext(),
+    private static ConcreteManager<Date, Location> getNewManager() {
+        return new ConcreteManager<Date,Location>(CoronaGame.getContext(),
                 "last_positions.csv",
                 date_position -> {
                     try {
@@ -84,8 +84,21 @@ public class PositionHistoryManager extends ConcreteManager<Date, Location> {
      */
     public static SortedMap<Date, Location> getLastPositions() {
         setHistoryManager();
+        //TODO: [LOG]
+        System.out.println("TEST GETLASTPOSITION IN");
         Date lastDate = new Date(System.currentTimeMillis()-MAX_CACHE_ENTRY_AGE);
         SortedMap<Date,Location> lastPos = instance.filter((date, geoP) -> ((Date)(date)).after(lastDate));
         return lastPos;
+    }
+    public static void delete(){
+        if(instance!=null){
+            instance.delete();
+            instance = null;
+        }
+    }
+    public static void close() throws IOException {
+        if(instance!=null){
+            instance.close();
+        }
     }
 }

@@ -41,7 +41,6 @@ import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
-import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -213,6 +212,7 @@ public class CarrierUpdatePersistenceTest {
     public void alarmSetByServiceIsSuccessful() {
 
         useAnalystWithSentinel();
+
         sentinel.set(0);
 
         assertThat(sentinel.get(), equalTo(0));
@@ -227,13 +227,8 @@ public class CarrierUpdatePersistenceTest {
         mActivityRule.getActivity().getService().setSender(fakeSender);
 
         while (sentinel.get() == 0) {
-            if(now.getTime() + 10000 > System.currentTimeMillis()){
-                restoreRealAnalyst();
-                assertTrue(false);
-                LocationService.setAlarmDelay(2000);
-                return ;
-            }
         }
+
         assertThat(sentinel.get(), equalTo(1));
 
         restoreRealAnalyst();

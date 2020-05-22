@@ -4,6 +4,8 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import androidx.annotation.VisibleForTesting;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -220,7 +222,8 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
         // TODO: @Lucas discuss whether considering only the previous Illness probability is good
         userIds.forEach(u -> notifyNeighborsOfMyInfection(u,previousIllnessProbability));
     }
-
+    //Need to be public so that in the test we can override
+    @VisibleForTesting
     public void notifyNeighborsOfMyInfection(String u, float previousIllnessProbability){
 
         //TODO: [LOG]

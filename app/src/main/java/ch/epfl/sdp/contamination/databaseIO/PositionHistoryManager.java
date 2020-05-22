@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ch.epfl.sdp.CoronaGame;
+import ch.epfl.sdp.identity.fragment.AccountFragment;
 import ch.epfl.sdp.storage.ConcreteManager;
 
 import static ch.epfl.sdp.contamination.databaseIO.DataSender.MAX_CACHE_ENTRY_AGE;
@@ -21,7 +22,7 @@ import static ch.epfl.sdp.contamination.databaseIO.DataSender.MAX_CACHE_ENTRY_AG
  * This is a singleton class to avoid problems. It manages the storing exchanges of the last positions.
  */
 public class PositionHistoryManager  {
-    private static ConcreteManager instance = null;
+    private static ConcreteManager<Date, Location> instance = null;
     private static void setHistoryManager(){
         if(instance!=null && !instance.isReadable()){
             instance.delete();
@@ -34,7 +35,7 @@ public class PositionHistoryManager  {
 
     private static ConcreteManager<Date, Location> getNewManager() {
         return new ConcreteManager<Date,Location>(CoronaGame.getContext(),
-                "last_positions.csv",
+                String.valueOf(AccountFragment.IN_TEST)+"_last_positions.csv",
                 date_position -> {
                     try {
                         return CoronaGame.dateFormat.parse(date_position);
@@ -70,7 +71,14 @@ public class PositionHistoryManager  {
         SortedMap<Date,Location> hist = new TreeMap();
 
         hist.put(time,geoPoint);
+        try{
+            //TODO : why does this throw an IllegalStateException
         instance.write(hist);
+        }catch (IllegalStateException i){
+            instance.delete();
+            instance = getNewManager();
+            instance.write(hist);
+        }
         try {
             instance.close();
         } catch (IOException e) {
@@ -86,11 +94,5 @@ public class PositionHistoryManager  {
         Date lastDate = new Date(System.currentTimeMillis()-MAX_CACHE_ENTRY_AGE);
         SortedMap<Date,Location> lastPos = instance.filter((date, geoP) -> ((Date)(date)).after(lastDate));
         return lastPos;
-    }
-    protected static void delete(){
-        if(instance!=null){
-            instance.delete();
-            instance = null;
-        }
     }
 }

@@ -23,8 +23,9 @@ public class DataReceiverTest {
 
     @Before
     public void init() {
-        sender = new ConcreteDataSender(new GridFirestoreInteractor());
-        receiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
+         GridFirestoreInteractor grid = new GridFirestoreInteractor();
+        sender = new ConcreteDataSender(grid);
+        receiver = new ConcreteDataReceiver(grid);
 
         /*receiver = fragment.getLocationService().getReceiver();
         sender = (ConcreteCachingDataSender)fragment.getLocationService().getSender();*/

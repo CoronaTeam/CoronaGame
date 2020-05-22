@@ -22,12 +22,14 @@ import ch.epfl.sdp.contamination.databaseIO.PositionHistoryManager;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
 
 import static ch.epfl.sdp.TestTools.newLoc;
+import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.contamination.InfectionAnalyst.PRESYMPTOMATIC_CONTAGION_TIME;
 import static org.junit.Assert.assertTrue;
 
 public class PositionHistoryManagerTest {
     private DataSender sender;
     private DataReceiver receiver;
+    private static int round = 0 ;
     @Before
     public void miniInit(){
         GridFirestoreInteractor grid = new GridFirestoreInteractor();
@@ -38,20 +40,30 @@ public class PositionHistoryManagerTest {
 
     @Test
     public void getLastPositionsReturnsCorrectWindowOfLocations() {
-
+        if(round == 1){
+            getLastPositionsWorksOnSecondUsage();
+            return;
+        }
+        round +=1 ;
         Layman me = new Layman(Carrier.InfectionStatus.HEALTHY);
         sender.registerLocation(me, newLoc(2, 2), new Date(System.currentTimeMillis() - 1 - PRESYMPTOMATIC_CONTAGION_TIME));
         sender.registerLocation(me, newLoc(1, 1), new Date(System.currentTimeMillis()));
         SortedMap<Date, Location> res = receiver.getLastPositions();
         Collection<Location> val = res.values();
         Iterator<Location> it = val.iterator();
-        assertTrue(val.size() == 1);
+        assertTrue(val.size() == round);
         while (it.hasNext()) {
             assertTrue(it.next().getLatitude() == 1);
         }
     }
     @Test
     public void getLastPositionsWorksOnSecondUsage(){
-        getLastPositionsReturnsCorrectWindowOfLocations();
+        if(round == 0){
+            getLastPositionsReturnsCorrectWindowOfLocations();
+        }else{
+            round += 1;
+            sender.registerLocation(new Layman(Carrier.InfectionStatus.INFECTED),newLoc(1,9),new Date(System.currentTimeMillis()-3));
+            getLastPositionsReturnsCorrectWindowOfLocations();
+        }
     }
 }

@@ -22,6 +22,7 @@ import ch.epfl.sdp.R;
 import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.Layman;
+import ch.epfl.sdp.identity.fragment.AccountFragment;
 import ch.epfl.sdp.testActivities.DataExchangeActivity;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -43,6 +44,7 @@ public class RealGridSenderTest {
     @Before
     public void setupTests() {
         TextView exchangeStatus = mActivityRule.getActivity().exchangeStatus;
+        AccountFragment.IN_TEST=true;
 
         // Get reference to UI handler
         Handler uiHandler = mActivityRule.getActivity().uiHandler;

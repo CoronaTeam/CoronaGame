@@ -29,6 +29,7 @@ import ch.epfl.sdp.R;
 import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.Layman;
+import ch.epfl.sdp.identity.fragment.AccountFragment;
 import ch.epfl.sdp.testActivities.DataExchangeActivity;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -78,6 +79,8 @@ public class GridSenderTest {
 
     @Before
     public void setupMockito() {
+        AccountFragment.IN_TEST=true;
+
         /*when(stringMapMap.entrySet()).thenReturn(Collections.singleton(stringMapEntry));
         when(stringMapEntry.getValue().get("infectionStatus")).thenReturn(Carrier.InfectionStatus.HEALTHY.toString());
         when(stringMapEntry.getValue().get("illnessProbability")).thenReturn(0.5d);*/

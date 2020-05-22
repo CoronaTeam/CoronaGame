@@ -4,9 +4,10 @@
 
     <color name="colorGreenCured">#2eb82e</color>
 
-    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimary">#000000</color>
+    <color name="colorPrimaryLight">#888888</color>
 
-    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorSecondary">#FFFFFF</color>
 
     <color name="colorRedInfected">#A9F44336</color>
 </resources>

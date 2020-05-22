@@ -37,33 +37,29 @@ public class PositionHistoryManagerTest {
         receiver = new ConcreteDataReceiver(grid);
         AccountFragment.IN_TEST = true;
     }
-
-    @Test
-    public void getLastPositionsReturnsCorrectWindowOfLocations() {
-        if(round == 1){
-            getLastPositionsWorksOnSecondUsage();
-            return;
-        }
+    private Iterator<Location> addReg(Layman me,int checkNumber){
         round +=1 ;
-        Layman me = new Layman(Carrier.InfectionStatus.HEALTHY);
         sender.registerLocation(me, newLoc(2, 2), new Date(System.currentTimeMillis() - 1 - PRESYMPTOMATIC_CONTAGION_TIME));
         sender.registerLocation(me, newLoc(1, 1), new Date(System.currentTimeMillis()));
         SortedMap<Date, Location> res = receiver.getLastPositions();
         Collection<Location> val = res.values();
         Iterator<Location> it = val.iterator();
         assertTrue(val.size() == round);
+        return it;
+    }
+    private void checkItValue(Iterator<Location> it){
         while (it.hasNext()) {
             assertTrue(it.next().getLatitude() == 1);
         }
     }
     @Test
-    public void getLastPositionsWorksOnSecondUsage(){
-        if(round == 0){
-            getLastPositionsReturnsCorrectWindowOfLocations();
-        }else{
-            round += 1;
-            sender.registerLocation(new Layman(Carrier.InfectionStatus.INFECTED),newLoc(1,9),new Date(System.currentTimeMillis()-3));
-            getLastPositionsReturnsCorrectWindowOfLocations();
-        }
+    public void getLastPositionsReturnsCorrectWindowOfLocations() {
+
+        Layman me = new Layman(Carrier.InfectionStatus.HEALTHY);
+        Iterator<Location> it = addReg(me,1);
+        checkItValue(it);
+
+        it = addReg(me,2);
+        checkItValue(it);
     }
 }

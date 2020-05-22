@@ -29,12 +29,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.TestTools;
-import ch.epfl.sdp.contamination.databaseIO.DataSender;
 import ch.epfl.sdp.contamination.databaseIO.DataReceiver;
 import ch.epfl.sdp.contamination.fragment.InfectionFragment;
 import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.location.LocationService;
-import ch.epfl.sdp.storage.PositionHistoryManager;
+import ch.epfl.sdp.contamination.databaseIO.PositionHistoryManager;
 import ch.epfl.sdp.testActivities.InfectionActivity;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -43,7 +42,6 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static ch.epfl.sdp.TestTools.clickBack;
-import static ch.epfl.sdp.TestTools.getMapValue;
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
@@ -125,6 +123,11 @@ public class ConcreteAnalysisTest {
         }
 
         @Override
+        public SortedMap<Date, Location> getLastPositions() {
+            return lastPositions;
+        }
+
+        @Override
         public CompletableFuture<Map<String, Object>> getRecoveryCounter(String userId) {
             return CompletableFuture.completedFuture(getRecoveryCount());
         }
@@ -165,11 +168,6 @@ public class ConcreteAnalysisTest {
         public CompletableFuture<Void> resetSickAlerts(String userId) {
             recentSickMeetingCounter.remove(userId);
             return CompletableFuture.completedFuture(null);
-        }
-
-        @Override
-        public SortedMap<Date, Location> getLastPositions() {
-            return lastPositions;
         }
     };
 
@@ -219,9 +217,9 @@ public class ConcreteAnalysisTest {
 
     @After
     public void release() {
-        PositionHistoryManager.delete();
         Intents.release();
     }
+
     @Test
     public void canEvolveIfInfected() {
 
@@ -405,8 +403,9 @@ public class ConcreteAnalysisTest {
         public ConcreteFakeAnalyst(ObservableCarrier carrier, DataReceiver receiver) {
             super(carrier, receiver);
         }
+
         @Override
-        public void notifyNeighborsOfMyInfection(String u, float previousIllnessProbability){
+        public void notifyNeighborsOfMyInfection(String u, float previousIllnessProbability) {
             recentSickMeetingCounter.computeIfPresent(u,
                     (k, v) -> v + 1 - previousIllnessProbability);
             recentSickMeetingCounter.computeIfAbsent(u, k -> 1 - previousIllnessProbability);
@@ -435,6 +434,7 @@ public class ConcreteAnalysisTest {
         assertEquals(TRANSMISSION_FACTOR * (1 + (1 - 0.4)), me.getIllnessProbability(), 0.00001f);
         mockReceiver.getNumberOfSickNeighbors(me.getUniqueId()).thenAccept(res -> assertTrue((res).isEmpty()));
     }
+
     @Test
     public void adaptInfectionProbabilityOfBadMeetingsIfRecovered() {
         recoveryCounter = 1;
@@ -551,6 +551,11 @@ public class ConcreteAnalysisTest {
 
         public CompletableFuture<Map<String, Object>> getRecoveryCounter(String userId) {
             return CompletableFuture.completedFuture(getRecoveryCount());
+        }
+
+        @Override
+        public SortedMap<Date, Location> getLastPositions() {
+            return Collections.emptySortedMap();
         }
     }
 }

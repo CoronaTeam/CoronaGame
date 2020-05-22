@@ -25,7 +25,6 @@ import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
 import static ch.epfl.sdp.firestore.FirestoreLabels.privateRecoveryCounter;
 import static ch.epfl.sdp.firestore.FirestoreLabels.publicAlertAttribute;
-import static ch.epfl.sdp.storage.PositionHistoryManager.getLastPositions;
 
 
 // TODO: @Ulysse, @Adrien, @Kevin, @Lucas, @Lucie: general info on ConcreteAnalysis
@@ -205,7 +204,7 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
 
     private void notifyNeighborsOfInfection(float previousIllnessProbability) {
         //1: retrieve your own last positions
-        SortedMap<Date, Location> lastPositions = getLastPositions();
+        SortedMap<Date, Location> lastPositions = receiver.getLastPositions();
 
         //2: Ask firebase who was there
         Set<String> userIds = new HashSet<>();

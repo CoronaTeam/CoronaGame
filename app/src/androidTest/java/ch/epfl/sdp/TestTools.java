@@ -21,7 +21,7 @@ import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.identity.User;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
 import ch.epfl.sdp.location.LocationService;
-import ch.epfl.sdp.storage.PositionHistoryManager;
+import ch.epfl.sdp.contamination.databaseIO.PositionHistoryManager;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -42,7 +42,6 @@ public interface TestTools {
      */
     static <E extends Activity> void initSafeTest(ActivityTestRule<E> activityTestRule, boolean launchActivity) throws IllegalStateException {
         AccountFragment.IN_TEST = true;
-        PositionHistoryManager.delete();
         try {
             Intents.init();
         } catch (IllegalStateException alreadyBeenInit) {

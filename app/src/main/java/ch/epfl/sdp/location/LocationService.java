@@ -59,7 +59,6 @@ import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.taskToFuture;
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
-import static ch.epfl.sdp.storage.PositionHistoryManager.getLastPositions;
 
 public class LocationService extends Service implements LocationListener, Observer {
 
@@ -161,7 +160,7 @@ public class LocationService extends Service implements LocationListener, Observ
      * since DataSender cache would have been partially emptied already
      */
     private void updateInfectionModel() {
-        SortedMap<Date, Location> locations = getLastPositions().tailMap(lastUpdated);
+        SortedMap<Date, Location> locations = receiver.getLastPositions().tailMap(lastUpdated);
 
         // TODO: [LOG]
         Log.e("POSITION_ITERATOR", Integer.toString(locations.size()));

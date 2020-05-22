@@ -10,7 +10,6 @@ import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.identity.Account;
-import ch.epfl.sdp.storage.PositionHistoryManager;
 
 public interface DataReceiver {
     /**
@@ -36,6 +35,13 @@ public interface DataReceiver {
      */
     CompletableFuture<Location> getMyLastLocation(Account account);
 
+    /**
+     *
+     * @return: positions send to firebase during the last UNINTENTIONAL_CONTAGION_TIME time.
+     */
+     default SortedMap<Date, Location> getLastPositions(){
+         return PositionHistoryManager.getLastPositions();
+     }
 
     /**
      * @param userId

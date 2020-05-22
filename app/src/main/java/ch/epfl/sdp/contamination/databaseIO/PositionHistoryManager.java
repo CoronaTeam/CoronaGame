@@ -1,4 +1,4 @@
-package ch.epfl.sdp.storage;
+package ch.epfl.sdp.contamination.databaseIO;
 
 import android.location.Location;
 
@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ch.epfl.sdp.CoronaGame;
+import ch.epfl.sdp.storage.ConcreteManager;
 
 import static ch.epfl.sdp.contamination.databaseIO.DataSender.MAX_CACHE_ENTRY_AGE;
 
@@ -64,7 +65,7 @@ public class PositionHistoryManager  {
         }
         return res;
     }
-    public static void refreshLastPositions(Date time, Location geoPoint) {
+    protected static void refreshLastPositions(Date time, Location geoPoint) {
         setHistoryManager();
         SortedMap<Date,Location> hist = new TreeMap();
 
@@ -80,13 +81,13 @@ public class PositionHistoryManager  {
      *
      * @return: positions send to firebase during the last UNINTENTIONAL_CONTAGION_TIME time.
      */
-    public static SortedMap<Date, Location> getLastPositions() {
+    protected static SortedMap<Date, Location> getLastPositions() {
         setHistoryManager();
         Date lastDate = new Date(System.currentTimeMillis()-MAX_CACHE_ENTRY_AGE);
         SortedMap<Date,Location> lastPos = instance.filter((date, geoP) -> ((Date)(date)).after(lastDate));
         return lastPos;
     }
-    public static void delete(){
+    protected static void delete(){
         if(instance!=null){
             instance.delete();
             instance = null;

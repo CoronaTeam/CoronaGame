@@ -12,7 +12,6 @@ import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.contamination.databaseIO.DataSender;
 import ch.epfl.sdp.identity.User;
-import ch.epfl.sdp.storage.PositionHistoryManager;
 
 /**
  * This class, made to make testing other classes convenient, simulates the behavior of a regular datasender to firestore, but store info locally
@@ -42,7 +41,6 @@ public class FakeDataSender implements DataSender {
     @Override
     public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
         fakeFirebaseStore.put(time, location);
-//        PositionHistoryManager.refreshLastPositions(time,location);
         return null;
     }
     public CompletableFuture<Void> sendAlert(String userId, float previousIllnessProbability) {
@@ -55,8 +53,5 @@ public class FakeDataSender implements DataSender {
 
     public CompletableFuture<Void> resetSickAlerts(String userId) {
         return CompletableFuture.completedFuture(null);
-    }
-    public SortedMap<Date, Location> getLastPositions() {
-        return new TreeMap<>(fakeFirebaseStore);
     }
 }

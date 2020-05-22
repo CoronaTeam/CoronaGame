@@ -6,6 +6,7 @@ import androidx.annotation.VisibleForTesting;
 
 import com.google.firebase.firestore.GeoPoint;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -38,16 +39,16 @@ public class ConcreteCachingDataSender implements CachingDataSender {
 
     SortedMap<Date, Location> lastPositions;
     private GridFirestoreInteractor gridInteractor;
-    private StorageManager<Date,GeoPoint> position_history;
+    private StorageManager<Date,Location> positionHistory;
 
     public ConcreteCachingDataSender(GridFirestoreInteractor interactor) {
         this.gridInteractor = interactor;
         this.lastPositions = new TreeMap<>();
-        this.position_history = initStorageManager();
+        this.positionHistory = initStorageManager();
     }
-    private StorageManager<Date, GeoPoint> openStorageManager() {
+    private StorageManager<Date, Location> openStorageManager() {
 
-        return new ConcreteManager<Date, GeoPoint>(
+        return new ConcreteManager<Date, Location>(
                 CoronaGame.getContext(),
                 "last_positions.csv",
                 date_position -> {
@@ -56,13 +57,13 @@ public class ConcreteCachingDataSender implements CachingDataSender {
                     } catch (ParseException e) {
                         throw new IllegalArgumentException("The file specified has wrong format: field 'date_position'");
                     }
-                }, geoPoint->{
+                }, location->{
 
-                return stringToGeoPoint(geoPoint);
+                return stringToLocation(location);
                 }
         );
     }
-    private GeoPoint stringToGeoPoint(String s){
+    private Location stringToLocation(String s){
         Pattern p = Pattern.compile("-?\\d+(,\\d+)*?\\.?\\d+?");
         List<Double> numbers = new ArrayList<Double>();
         Matcher m = p.matcher(s);
@@ -70,18 +71,20 @@ public class ConcreteCachingDataSender implements CachingDataSender {
         while (m.find()) {
             numbers.add(Double.valueOf(m.group()));
         }
-        GeoPoint res;
+        Location res = new Location("provider");
+        res.reset();
         try{
-            res = new GeoPoint(numbers.get(0),numbers.get(1));
+            res.setLatitude(numbers.get(0));
+            res.setLongitude(numbers.get(1));
         }catch (NullPointerException e){
-            throw new IllegalArgumentException("The cache is not storing geoPoint" + e.getStackTrace());
+            throw new IllegalArgumentException("The cache is not storing Location" + e.getStackTrace());
         }
         return res;
     }
     // Load previous probabilities history
-    private StorageManager<Date, GeoPoint> initStorageManager() {
+    private StorageManager<Date, Location> initStorageManager() {
 
-        StorageManager<Date, GeoPoint> cm = openStorageManager();
+        StorageManager<Date, Location> cm = openStorageManager();
 
         if (!cm.isReadable()) {
             cm.delete();
@@ -99,8 +102,6 @@ public class ConcreteCachingDataSender implements CachingDataSender {
     public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
         location = CachingDataSender.roundLocation(location);
         CompletableFuture<Void> lastPositionsFuture, gridWriteFuture;
-
-
         refreshLastPositions(time, location);
 
         Map<String, Object> element = new HashMap<>();
@@ -120,21 +121,25 @@ public class ConcreteCachingDataSender implements CachingDataSender {
     }
 
     // Removes every locations older than PRE-SYMPTOMATIC_CONTAGION_TIME ms and adds a new position
-    private void refreshLastPositions(Date time, Location location) {
-
+    private void refreshLastPositions(Date time, Location geoPoint) {
         Date oldestDate = new Date(time.getTime() - MAX_CACHE_ENTRY_AGE);
-        lastPositions.headMap(oldestDate).clear();
-        if (location != null) {
-            lastPositions.put(time, location);
+        SortedMap<Date,Location> hist = new TreeMap();
+
+        hist.put(time,geoPoint);
+        positionHistory.write(hist);
+        try {
+            positionHistory.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
     }
 
     @Override
     public SortedMap<Date, Location> getLastPositions() {
-
         // Return a copy of the cache to avoid conflicts
-        SortedMap<Date, Location> copyOfLastPositions = new TreeMap<>(lastPositions.tailMap(new Date(System.currentTimeMillis() - MAX_CACHE_ENTRY_AGE)));
-
-        return copyOfLastPositions;
+        Date lastDate = new Date(System.currentTimeMillis()-MAX_CACHE_ENTRY_AGE);
+        SortedMap<Date,Location> lastPos = positionHistory.filter((date, geoP) -> ((Date)(date)).after(lastDate));
+        return lastPos;
     }
 }

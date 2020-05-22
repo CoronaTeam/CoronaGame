@@ -13,6 +13,7 @@ import java.util.SortedMap;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.identity.User;
+import ch.epfl.sdp.identity.fragment.AccountFragment;
 
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
@@ -30,6 +31,7 @@ public class CachingDataSenderTest {
     public void init() {
         receiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
         sender = new ConcreteCachingDataSender(new GridFirestoreInteractor());
+        AccountFragment.IN_TEST = true;
     }
 
     @Test
@@ -83,5 +85,10 @@ public class CachingDataSenderTest {
         while (it.hasNext()) {
             assertTrue(it.next().getLatitude() == 1);
         }
+    }
+    @Test
+    public void cacheWorksIfUsedTwice(){
+        //During development, the above test failed if runed twice.
+        getLastPositionsReturnsCorrectWindowOfLocations();
     }
 }

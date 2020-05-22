@@ -68,24 +68,6 @@ public class DataForDemo {
                     });
         }
 
-        @Override
-        public CompletableFuture<Void> sendAlert(String userId) {
-
-            return null;
-        }
-
-        @Override
-        public CompletableFuture<Void> sendAlert(String userId, float previousIllnessProbability) {
-
-            return null;
-        }
-
-        @Override
-        public CompletableFuture<Void> resetSickAlerts(String userId) {
-
-            return null;
-        }
-
     };
     private Date rightNow = new Date(System.currentTimeMillis());
 

@@ -140,7 +140,7 @@ public class ConcreteAnalysisTest {
             }
         }
     };
-    DataSender sender = new FakeDataSender() {
+    FakeDataSender sender = new FakeDataSender() {
         @Override
         public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
             fakeFirebaseStore.put(time, location);
@@ -405,8 +405,8 @@ public class ConcreteAnalysisTest {
         recoveryCounter = 0;
         ObservableCarrier me = new Layman(HEALTHY, "TESTUSER");
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver);
-        DataSender.sendAlert(me.getUniqueId());
-        DataSender.sendAlert(me.getUniqueId(), 0.4f);
+        sender.sendAlert(me.getUniqueId());
+        sender.sendAlert(me.getUniqueId(), 0.4f);
         analyst.updateInfectionPredictions(null, null, null);
         assertEquals(TRANSMISSION_FACTOR * (1 + (1 - 0.4)), me.getIllnessProbability(), 0.00001f);
         mockReceiver.getNumberOfSickNeighbors(me.getUniqueId()).thenAccept(res -> assertTrue((res).isEmpty()));
@@ -427,8 +427,8 @@ public class ConcreteAnalysisTest {
         recoveryCounter = 1;
         ObservableCarrier me = new Layman(HEALTHY);
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver);
-        DataSender.sendAlert(me.getUniqueId());
-        DataSender.sendAlert(me.getUniqueId(), 0.4f);
+        sender.sendAlert(me.getUniqueId());
+        sender.sendAlert(me.getUniqueId(), 0.4f);
         analyst.updateInfectionPredictions(null, null, null).thenAccept(res -> {
             assertEquals(1.6 * Math.pow(IMMUNITY_FACTOR, recoveryCounter) * TRANSMISSION_FACTOR, me.getIllnessProbability(), 0.00001f);
         });

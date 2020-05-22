@@ -105,7 +105,7 @@ public class CarrierUpdatePersistenceTest {
 
         LocationService service = mActivityRule.getActivity().getService();
         originalAnalyst = service.getAnalyst();
-        InfectionAnalyst fakeAnalyst = new ConcreteAnalysis(iAmBob, service.getReceiver(), service.getSender());
+        InfectionAnalyst fakeAnalyst = new ConcreteAnalysis(iAmBob, service.getReceiver());
         service.setAnalyst(fakeAnalyst);
 
         sentinel = new AtomicInteger(0);
@@ -135,7 +135,7 @@ public class CarrierUpdatePersistenceTest {
                 AuthenticationManager.getUserId()
         );
 
-        service.setAnalyst(new ConcreteAnalysis(newCarrier, service.getReceiver(), service.getSender()));
+        service.setAnalyst(new ConcreteAnalysis(newCarrier, service.getReceiver()));
     }
 
     @Before

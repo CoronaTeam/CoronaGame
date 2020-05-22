@@ -147,7 +147,7 @@ public class LocationService extends Service implements LocationListener, Observ
 
         ObservableCarrier me = locallyLoadCarrier();
 
-        analyst = new ConcreteAnalysis(me, receiver, sender);
+        analyst = new ConcreteAnalysis(me, receiver);
         aggregator = new ConcretePositionAggregator(sender, me);
 
         if (hasGpsPermissions) {

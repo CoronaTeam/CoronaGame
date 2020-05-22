@@ -71,8 +71,7 @@ public class GpsActivityTest {
                 // TODO: Refactor this to use only 1 reset function
                 locationService.setAnalyst(new ConcreteAnalysis(
                         locationService.getAnalyst().getCarrier(),
-                        locationService.getReceiver(),
-                        locationService.getSender()));
+                        locationService.getReceiver()));
                 locationService.setBroker(br);
             }
 

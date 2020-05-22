@@ -43,7 +43,17 @@ public class FakeDataSender implements DataSender {
         fakeFirebaseStore.put(time, location);
         return null;
     }
+    public CompletableFuture<Void> sendAlert(String userId, float previousIllnessProbability) {
+        return CompletableFuture.completedFuture(null);
+    }
 
+    public CompletableFuture<Void> sendAlert(String userId) {
+        return sendAlert(userId, 0);
+    }
+
+    public CompletableFuture<Void> resetSickAlerts(String userId) {
+        return CompletableFuture.completedFuture(null);
+    }
     public SortedMap<Date, Location> getLastPositions() {
         return new TreeMap<>(fakeFirebaseStore);
     }

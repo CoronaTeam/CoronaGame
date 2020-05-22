@@ -86,7 +86,7 @@ public class UserInfectionTest {
     @After
     public void resetAnalyst() {
         fragment.getLocationService().setAnalyst(
-                new ConcreteAnalysis(me, fragment.getLocationService().getReceiver(), fragment.getLocationService().getSender()));
+                new ConcreteAnalysis(me, fragment.getLocationService().getReceiver()));
     }
 
     @After

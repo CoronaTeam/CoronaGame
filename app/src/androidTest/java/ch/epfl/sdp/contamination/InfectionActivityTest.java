@@ -65,7 +65,7 @@ public class InfectionActivityTest {
         LocationService service = fragment.getLocationService().join();
 
         service.setAnalyst(analyst);
-        service.setSender(new FakeCachingDataSender());
+        service.setSender(new FakeDataSender());
         service.setReceiver(new DataReceiver() {
             @Override
             public CompletableFuture<Set<Carrier>> getUserNearby(Location location, Date date) {

@@ -26,11 +26,11 @@ import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.ConcreteAnalysis;
 import ch.epfl.sdp.contamination.FakeAnalyst;
-import ch.epfl.sdp.contamination.FakeCachingDataSender;
+import ch.epfl.sdp.contamination.FakeDataSender;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
 import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.contamination.ObservableCarrier;
-import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
+import ch.epfl.sdp.contamination.databaseIO.DataSender;
 import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.identity.DefaultAuthenticationManager;
 import ch.epfl.sdp.storage.ConcreteManager;
@@ -195,7 +195,7 @@ public class CarrierUpdatePersistenceTest {
         assertThat(sentinel.get(), equalTo(0));
 
         Date now = new Date();
-        CachingDataSender fakeSender = new FakeCachingDataSender();
+        DataSender fakeSender = new FakeDataSender();
         fakeSender.registerLocation(iAmBob, TestTools.newLoc(0, 0), now);
         mActivityRule.getActivity().getService().setSender(fakeSender);
 
@@ -222,7 +222,7 @@ public class CarrierUpdatePersistenceTest {
 
 
         Date now = new Date();
-        CachingDataSender fakeSender = new FakeCachingDataSender();
+        DataSender fakeSender = new FakeDataSender();
         fakeSender.registerLocation(iAmBob, TestTools.newLoc(1, 1), now);
         mActivityRule.getActivity().getService().setSender(fakeSender);
 
@@ -244,7 +244,7 @@ public class CarrierUpdatePersistenceTest {
         // Pass LocationService's carrier to FakeAnalyst
         InfectionAnalyst fakeAnalyst = new FakeAnalyst(service.getAnalyst().getCarrier());
 
-        CachingDataSender fakeSender = new FakeCachingDataSender();
+        DataSender fakeSender = new FakeDataSender();
 
         service.setAnalyst(fakeAnalyst);
         service.setSender(fakeSender);
@@ -282,7 +282,7 @@ public class CarrierUpdatePersistenceTest {
         InfectionAnalyst fakeAnalyst = new FakeAnalyst(serviceBefore.getAnalyst().getCarrier());
 
         serviceBefore.setAnalyst(fakeAnalyst);
-        serviceBefore.setSender(new FakeCachingDataSender());
+        serviceBefore.setSender(new FakeDataSender());
 
         // Modify carrier status
         assertThat(fakeAnalyst.getCarrier().evolveInfection(new Date(), UNKNOWN, .45f), equalTo(true));

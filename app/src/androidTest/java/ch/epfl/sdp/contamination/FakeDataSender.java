@@ -10,18 +10,18 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
-import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
+import ch.epfl.sdp.contamination.databaseIO.DataSender;
 import ch.epfl.sdp.identity.User;
 
 /**
  * This class, made to make testing other classes convenient, simulates the behavior of a regular datasender to firestore, but store info locally
  */
-public class FakeCachingDataSender implements CachingDataSender {
+public class FakeDataSender implements DataSender {
 
     HashMap<Date, Location> fakeFirebaseStore;
     private String userID;
 
-    public FakeCachingDataSender() {
+    public FakeDataSender() {
         this.fakeFirebaseStore = new HashMap<>();
         String userID = User.DEFAULT_USERID;
     }
@@ -44,7 +44,6 @@ public class FakeCachingDataSender implements CachingDataSender {
         return null;
     }
 
-    @Override
     public SortedMap<Date, Location> getLastPositions() {
         return new TreeMap<>(fakeFirebaseStore);
     }

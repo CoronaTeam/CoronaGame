@@ -14,7 +14,7 @@ import com.google.firebase.firestore.FieldValue;
 
 import java.util.Map;
 
-import ch.epfl.sdp.contamination.databaseIO.ConcreteCachingDataSender;
+import ch.epfl.sdp.contamination.databaseIO.ConcreteDataSender;
 import ch.epfl.sdp.contamination.databaseIO.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.databaseIO.GridFirestoreInteractor;
 import ch.epfl.sdp.identity.AuthenticationManager;
@@ -120,7 +120,7 @@ public interface TestTools {
     static void resetLocationServiceStatus(LocationService service) {
         GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor();
         service.setReceiver(new ConcreteDataReceiver(gridInteractor));
-        service.setSender(new ConcreteCachingDataSender(gridInteractor));
+        service.setSender(new ConcreteDataSender(gridInteractor));
     }
 
     static void resetSickCounter() {

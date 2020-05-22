@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.TestTools;
-import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
+import ch.epfl.sdp.contamination.databaseIO.DataSender;
 import ch.epfl.sdp.contamination.databaseIO.DataReceiver;
 import ch.epfl.sdp.contamination.fragment.InfectionFragment;
 import ch.epfl.sdp.identity.Account;
@@ -140,7 +140,7 @@ public class ConcreteAnalysisTest {
             }
         }
     };
-    CachingDataSender sender = new FakeCachingDataSender() {
+    DataSender sender = new FakeDataSender() {
         @Override
         public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
             fakeFirebaseStore.put(time, location);
@@ -228,7 +228,7 @@ public class ConcreteAnalysisTest {
 
         assertThat(me.setIllnessProbability(new Date(), .5f), equalTo(true));
 
-        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver, sender);
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver);
         analyst.updateInfectionPredictions(testLocation, new Date(1585223373980L), new Date());
         assertThat(me.getInfectionStatus(), equalTo(UNKNOWN));
 
@@ -239,7 +239,7 @@ public class ConcreteAnalysisTest {
 
         ObservableCarrier me = new Layman(HEALTHY);
 
-        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver, sender);
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver);
         analyst.updateInfectionPredictions(testLocation, new Date(1585220363913L), new Date()).thenRun(() -> {
             assertThat(me.getInfectionStatus(), equalTo(HEALTHY));
             assertThat(me.getIllnessProbability(), greaterThan(0.f));
@@ -260,7 +260,7 @@ public class ConcreteAnalysisTest {
         DataReceiver originalReceiver = service.getReceiver();
         service.setReceiver(cityReceiver);
         service.setSender(sender);
-        InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver, sender);
+        InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver);
         InfectionAnalyst originalAnalyst = service.getAnalyst();
 
         service.setAnalyst(analysis);
@@ -356,7 +356,7 @@ public class ConcreteAnalysisTest {
     @Test
     public void getCarrierReturnsTheSameCarrier() {
         ObservableCarrier me = new Layman(HEALTHY);
-        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver, sender);
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver);
         assertNotNull(analyst.getCarrier());
         assertSame(me, analyst.getCarrier());
     }
@@ -388,7 +388,7 @@ public class ConcreteAnalysisTest {
     @Test
     public void notifiesSickNeighborsWhenYouGetSick() {
         ObservableCarrier me = new Layman(HEALTHY);
-        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver, sender);
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver);
         me.evolveInfection(new Date(), INFECTED, 1f);
         mockReceiver.getNumberOfSickNeighbors("Man1").thenAccept(res ->
                 assertTrue(res.isEmpty()));
@@ -404,11 +404,10 @@ public class ConcreteAnalysisTest {
     public void adaptYourProbabilityOfInfectionAccordingToSickMeetingsAndThenResetItsCounter() {
         recoveryCounter = 0;
         ObservableCarrier me = new Layman(HEALTHY, "TESTUSER");
-        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver, sender);
-        sender.sendAlert(me.getUniqueId());
-        sender.sendAlert(me.getUniqueId(), 0.4f);
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver);
+        DataSender.sendAlert(me.getUniqueId());
+        DataSender.sendAlert(me.getUniqueId(), 0.4f);
         analyst.updateInfectionPredictions(null, null, null);
-        System.out.println(me.toString());
         assertEquals(TRANSMISSION_FACTOR * (1 + (1 - 0.4)), me.getIllnessProbability(), 0.00001f);
         mockReceiver.getNumberOfSickNeighbors(me.getUniqueId()).thenAccept(res -> assertTrue((res).isEmpty()));
     }
@@ -418,7 +417,7 @@ public class ConcreteAnalysisTest {
         InfectionFragment fragment = ((InfectionFragment) mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
         LocationService service = fragment.getLocationService().join();
         ObservableCarrier me = new Layman(HEALTHY);
-        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver, sender);
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver);
         me.evolveInfection(new Date(), INFECTED, 1f);
         assertSame(INFECTED, analyst.getCarrier().getInfectionStatus());
     }
@@ -427,9 +426,9 @@ public class ConcreteAnalysisTest {
     public void adaptInfectionProbabilityOfBadMeetingsIfRecovered() {
         recoveryCounter = 1;
         ObservableCarrier me = new Layman(HEALTHY);
-        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver, sender);
-        sender.sendAlert(me.getUniqueId());
-        sender.sendAlert(me.getUniqueId(), 0.4f);
+        InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver);
+        DataSender.sendAlert(me.getUniqueId());
+        DataSender.sendAlert(me.getUniqueId(), 0.4f);
         analyst.updateInfectionPredictions(null, null, null).thenAccept(res -> {
             assertEquals(1.6 * Math.pow(IMMUNITY_FACTOR, recoveryCounter) * TRANSMISSION_FACTOR, me.getIllnessProbability(), 0.00001f);
         });
@@ -444,7 +443,7 @@ public class ConcreteAnalysisTest {
         InfectionFragment fragment = ((InfectionFragment) mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
         LocationService service = fragment.getLocationService().join();
         service.setReceiver(cityReceiver);
-        InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver, sender);
+        InfectionAnalyst analysis = new ConcreteAnalysis(me, cityReceiver);
         service.setAnalyst(analysis);
 
         GeoPoint badLocations = new GeoPoint(42, 113.4);

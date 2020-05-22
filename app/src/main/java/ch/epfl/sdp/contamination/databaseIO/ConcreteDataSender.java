@@ -6,15 +6,12 @@ import androidx.annotation.VisibleForTesting;
 
 import com.google.firebase.firestore.GeoPoint;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,16 +28,16 @@ import static ch.epfl.sdp.firestore.FirestoreLabels.INFECTION_STATUS_TAG;
 import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_COLL;
 import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
 import static ch.epfl.sdp.identity.AuthenticationManager.getActivity;
+import static ch.epfl.sdp.storage.PositionHistoryManager.refreshLastPositions;
 
 /**
  * Implementation of a DataSender with a cache
  */
-public class ConcreteCachingDataSender implements CachingDataSender {
+public class ConcreteDataSender implements DataSender {
 
     private GridFirestoreInteractor gridInteractor;
     private StorageManager<Date,Location> positionHistory;
-
-    public ConcreteCachingDataSender(GridFirestoreInteractor interactor) {
+    public ConcreteDataSender(GridFirestoreInteractor interactor) {
         this.gridInteractor = interactor;
         this.positionHistory = initStorageManager();
     }
@@ -98,7 +95,7 @@ public class ConcreteCachingDataSender implements CachingDataSender {
 
     @Override
     public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
-        location = CachingDataSender.roundLocation(location);
+        location = DataSender.roundLocation(location);
         CompletableFuture<Void> lastPositionsFuture, gridWriteFuture;
         refreshLastPositions(time, location);
 
@@ -116,28 +113,5 @@ public class ConcreteCachingDataSender implements CachingDataSender {
         gridWriteFuture = gridInteractor.gridWrite(location, String.valueOf(time.getTime()), carrier);
 
         return CompletableFuture.allOf(lastPositionsFuture, gridWriteFuture);
-    }
-
-    // Removes every locations older than PRE-SYMPTOMATIC_CONTAGION_TIME ms and adds a new position
-    private void refreshLastPositions(Date time, Location geoPoint) {
-        Date oldestDate = new Date(time.getTime() - MAX_CACHE_ENTRY_AGE);
-        SortedMap<Date,Location> hist = new TreeMap();
-
-        hist.put(time,geoPoint);
-        positionHistory.write(hist);
-        try {
-            positionHistory.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @Override
-    public SortedMap<Date, Location> getLastPositions() {
-        // Return a copy of the cache to avoid conflicts
-        Date lastDate = new Date(System.currentTimeMillis()-MAX_CACHE_ENTRY_AGE);
-        SortedMap<Date,Location> lastPos = positionHistory.filter((date, geoP) -> ((Date)(date)).after(lastDate));
-        return lastPos;
     }
 }

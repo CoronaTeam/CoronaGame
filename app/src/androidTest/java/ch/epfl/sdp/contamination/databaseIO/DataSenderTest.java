@@ -23,14 +23,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class CachingDataSenderTest {
+public class DataSenderTest {
     DataReceiver receiver;
-    CachingDataSender sender;
+    DataSender sender;
 
     @Before
     public void init() {
         receiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
-        sender = new ConcreteCachingDataSender(new GridFirestoreInteractor());
+        sender = new ConcreteDataSender(new GridFirestoreInteractor());
         AccountFragment.IN_TEST = true;
     }
 
@@ -40,7 +40,7 @@ public class CachingDataSenderTest {
         location.setLatitude(12.1234567);
         location.setLongitude(134.9876543);
 
-        CachingDataSender.roundLocation(location);
+        DataSender.roundLocation(location);
 
         Location manuallyRoundedLocation = new Location("provider");
         manuallyRoundedLocation.setLongitude(134.98765);
@@ -51,8 +51,8 @@ public class CachingDataSenderTest {
 
     @Test
     public void resetAlertsDeletesAlertAttribute() {
-        sender.sendAlert(User.DEFAULT_USERID);
-        sender.resetSickAlerts(User.DEFAULT_USERID);
+        DataSender.sendAlert(User.DEFAULT_USERID);
+        DataSender.resetSickAlerts(User.DEFAULT_USERID);
 //        DataReceiver receiver = new ConcreteDataReceiver(new GridFirestoreInteractor());<
         receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID).thenAccept(res ->
                 assertTrue(res.isEmpty()));
@@ -61,34 +61,15 @@ public class CachingDataSenderTest {
 
     @Test
     public void sendAlertIncrementsOrCreatesAlertAttribute() {
-        sender.resetSickAlerts(User.DEFAULT_USERID);
-        sender.sendAlert(User.DEFAULT_USERID);
+        DataSender.resetSickAlerts(User.DEFAULT_USERID);
+        DataSender.sendAlert(User.DEFAULT_USERID);
         sleep();
         receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID).thenAccept(res ->
                 assertFalse(res.isEmpty()));
         sleep();
-        sender.sendAlert(User.DEFAULT_USERID);
+        DataSender.sendAlert(User.DEFAULT_USERID);
         receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID).thenAccept(res ->
                 assertEquals(2, ((float) ((double) (res.get(publicAlertAttribute)))), 0.0001));
         sleep();
-    }
-
-    @Test
-    public void getLastPositionsReturnsCorrectWindowOfLocations() {
-        Layman me = new Layman(Carrier.InfectionStatus.HEALTHY);
-        sender.registerLocation(me, newLoc(2, 2), new Date(System.currentTimeMillis() - 1 - PRESYMPTOMATIC_CONTAGION_TIME));
-        sender.registerLocation(me, newLoc(1, 1), new Date(System.currentTimeMillis()));
-        SortedMap<Date, Location> res = sender.getLastPositions();
-        Collection<Location> val = res.values();
-        Iterator<Location> it = val.iterator();
-        assertTrue(val.size() == 1);
-        while (it.hasNext()) {
-            assertTrue(it.next().getLatitude() == 1);
-        }
-    }
-    @Test
-    public void cacheWorksIfUsedTwice(){
-        //During development, the above test failed if runed twice.
-        getLastPositionsReturnsCorrectWindowOfLocations();
     }
 }

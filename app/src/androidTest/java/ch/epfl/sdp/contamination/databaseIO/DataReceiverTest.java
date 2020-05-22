@@ -19,11 +19,11 @@ import static org.junit.Assert.assertEquals;
 
 public class DataReceiverTest {
     DataReceiver receiver;
-    ConcreteCachingDataSender sender;
+    ConcreteDataSender sender;
 
     @Before
     public void init() {
-        sender = new ConcreteCachingDataSender(new GridFirestoreInteractor());
+        sender = new ConcreteDataSender(new GridFirestoreInteractor());
         receiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
 
         /*receiver = fragment.getLocationService().getReceiver();
@@ -32,7 +32,7 @@ public class DataReceiverTest {
 
     @Test
     public void getSickNeighborDoesGetIt() {
-        sender.sendAlert(User.DEFAULT_USERID).thenRun(() ->
+        DataSender.sendAlert(User.DEFAULT_USERID).thenRun(() ->
                 receiver.getNumberOfSickNeighbors(User.DEFAULT_USERID).thenAccept(res ->
                         assertEquals(1f, ((float) (double) (res.get(publicAlertAttribute))),
                                 0.00001)));

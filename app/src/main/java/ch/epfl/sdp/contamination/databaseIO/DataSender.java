@@ -18,7 +18,7 @@ import static ch.epfl.sdp.firestore.FirestoreInteractor.taskToFuture;
 import static ch.epfl.sdp.firestore.FirestoreLabels.publicAlertAttribute;
 import static ch.epfl.sdp.firestore.FirestoreLabels.publicUserFolder;
 
-public interface CachingDataSender {
+public interface DataSender {
     double ROUNDING_FACTOR = 100000d; //determines the GPS coordinates precision
 
 
@@ -63,7 +63,7 @@ public interface CachingDataSender {
      *
      * @return
      */
-    default CompletableFuture<Void> sendAlert(String userId) {
+    static CompletableFuture<Void> sendAlert(String userId) {
         return sendAlert(userId, 0f);
     }
 
@@ -75,23 +75,18 @@ public interface CachingDataSender {
      * @param previousIllnessProbability
      * @return a future notification of success or failure.
      */
-    default CompletableFuture<Void> sendAlert(String userId, float previousIllnessProbability) {
+    static CompletableFuture<Void> sendAlert(String userId, float previousIllnessProbability) {
         DocumentReference ref = documentReference(publicUserFolder, userId);
         Task<Void> task = ref.update(publicAlertAttribute,
                 FieldValue.increment(1f - previousIllnessProbability));
         return taskToFuture(task);
     }
 
-    default CompletableFuture<Void> resetSickAlerts(String userId) {
+    static CompletableFuture<Void> resetSickAlerts(String userId) {
         DocumentReference ref = documentReference(publicUserFolder, userId);
         Task<Void> task = ref.update(publicAlertAttribute, FieldValue.delete());
         return taskToFuture(task);
     }
 
-    /**
-     * This is the cache part of the CachedSender.
-     *
-     * @return: positions send to firebase during the last UNINTENTIONAL_CONTAGION_TIME time.
-     */
-    SortedMap<Date, Location> getLastPositions();
+
 }

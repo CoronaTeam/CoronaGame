@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
+import ch.epfl.sdp.contamination.databaseIO.DataSender;
 
 /**
  * @author lucas
@@ -22,30 +22,30 @@ public final class ConcretePositionAggregator implements PositionAggregator {
     private Location newestLocation;
     private Date newestDate;
     private boolean isOnline;
-    private CachingDataSender cachingDataSender;
+    private DataSender dataSender;
     private Carrier carrier;
     private Timer updatePosTimer;
 
     // TODO: @Lucas, position aggregator doesn't send positions if the user is not moving (if
     // LocationService doesn't call registerPosition())
 
-    public ConcretePositionAggregator(CachingDataSender cachingDataSender, Carrier carrier, int maxLocationsPerAggregation) {
-        if (cachingDataSender == null || carrier == null) {
+    public ConcretePositionAggregator(DataSender dataSender, Carrier carrier, int maxLocationsPerAggregation) {
+        if (dataSender == null || carrier == null) {
             throw new IllegalArgumentException("DataSender and Carrier should not be null");
         } else if (maxLocationsPerAggregation <= 0) {
             throw new IllegalArgumentException("There should be more than zero locations per aggregation!");
         }
         this.timelapBetweenNewLocationRegistration = WINDOW_FOR_LOCATION_AGGREGATION / maxLocationsPerAggregation;
         this.buffer = new HashMap<>();
-        this.cachingDataSender = cachingDataSender;
+        this.dataSender = dataSender;
         this.carrier = carrier;
         this.lastDate = null;
         this.isOnline = false;
         startTimer();
     }
 
-    public ConcretePositionAggregator(CachingDataSender cachingDataSender, Carrier carrier) {
-        this(cachingDataSender, carrier, PositionAggregator.MAXIMAL_NUMBER_OF_LOCATIONS_PER_AGGREGATION);
+    public ConcretePositionAggregator(DataSender dataSender, Carrier carrier) {
+        this(dataSender, carrier, PositionAggregator.MAXIMAL_NUMBER_OF_LOCATIONS_PER_AGGREGATION);
     }
 
     /**
@@ -110,7 +110,7 @@ public final class ConcretePositionAggregator implements PositionAggregator {
             // TODO: [LOG]
             Log.e("POSITION_AGGREGATOR", "New position committed");
             // Perform potentially long-running operation on a different thread
-            cachingDataSender.registerLocation(carrier, meanLocation, lastDate);
+            dataSender.registerLocation(carrier, meanLocation, lastDate);
             // TODO: [LOG]
             Log.e("POSITION_AGGREGATOR", meanLocation.toString() + " with date : " + lastDate.getTime());
             Log.e("POSITION_AGGREGATOR", "Upload performed");

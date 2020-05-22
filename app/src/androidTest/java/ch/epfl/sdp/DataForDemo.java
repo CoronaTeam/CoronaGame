@@ -21,8 +21,8 @@ import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.Layman;
-import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
-import ch.epfl.sdp.contamination.databaseIO.ConcreteCachingDataSender;
+import ch.epfl.sdp.contamination.databaseIO.DataSender;
+import ch.epfl.sdp.contamination.databaseIO.ConcreteDataSender;
 import ch.epfl.sdp.contamination.databaseIO.GridFirestoreInteractor;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.location.LocationUtils;
@@ -54,7 +54,7 @@ public class DataForDemo {
     private static double SPARSE_INITIAL_EPFL_LONGITUDE = 6.56700;
     private Random r = new Random();
     private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
-    private CachingDataSender dataSender = new ConcreteCachingDataSender(gridFirestoreInteractor) {
+    private DataSender dataSender = new ConcreteDataSender(gridFirestoreInteractor) {
         @Override
         public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
             return gridFirestoreInteractor.gridWrite(location, String.valueOf(time.getTime()),
@@ -86,10 +86,6 @@ public class DataForDemo {
             return null;
         }
 
-        @Override
-        public SortedMap<Date, Location> getLastPositions() {
-            return null;
-        }
     };
     private Date rightNow = new Date(System.currentTimeMillis());
 

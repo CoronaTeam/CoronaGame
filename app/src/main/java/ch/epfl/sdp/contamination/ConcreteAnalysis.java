@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
 
-import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
+import ch.epfl.sdp.contamination.databaseIO.DataSender;
 import ch.epfl.sdp.contamination.databaseIO.DataReceiver;
 
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
@@ -23,6 +23,7 @@ import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
 import static ch.epfl.sdp.firestore.FirestoreLabels.privateRecoveryCounter;
 import static ch.epfl.sdp.firestore.FirestoreLabels.publicAlertAttribute;
+import static ch.epfl.sdp.storage.PositionHistoryManager.getLastPositions;
 
 
 // TODO: @Ulysse, @Adrien, @Kevin, @Lucas, @Lucie: general info on ConcreteAnalysis
@@ -43,12 +44,10 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
 
     private final ObservableCarrier me;
     private final DataReceiver receiver;
-    private final CachingDataSender cachedSender;
 
-    public ConcreteAnalysis(ObservableCarrier carrier, DataReceiver receiver, CachingDataSender dataSender) {
+    public ConcreteAnalysis(ObservableCarrier carrier, DataReceiver receiver) {
         this.me = carrier;
         this.receiver = receiver;
-        this.cachedSender = dataSender;
 
         // Register as Carrier observer
         this.me.addObserver(this);
@@ -194,7 +193,7 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
                 when,
                 Math.min(determineUpdatedInfectionProbability(when, suspectContacts) + badMeetingsCoefficient * getFactor(recoveryCounter), 1f)
         );
-        cachedSender.resetSickAlerts(me.getUniqueId());
+        DataSender.resetSickAlerts(me.getUniqueId());
     }
 
     @Override
@@ -204,7 +203,7 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
 
     private void notifyNeighborsOfInfection(float previousIllnessProbability) {
         //1: retrieve your own last positions
-        SortedMap<Date, Location> lastPositions = cachedSender.getLastPositions();
+        SortedMap<Date, Location> lastPositions = getLastPositions();
 
         //2: Ask firebase who was there
         Set<String> userIds = new HashSet<>();
@@ -219,7 +218,7 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
 
         // Tell those user that they have been close to you
         // TODO: @Lucas discuss whether considering only the previous Illness probability is good
-        userIds.forEach(u -> cachedSender.sendAlert(u, previousIllnessProbability));
+        userIds.forEach(u -> DataSender.sendAlert(u, previousIllnessProbability));
     }
 
     @Override

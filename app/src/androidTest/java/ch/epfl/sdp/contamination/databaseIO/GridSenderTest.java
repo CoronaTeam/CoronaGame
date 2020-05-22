@@ -111,7 +111,7 @@ public class GridSenderTest {
 
     private void programSenderAction(GridFirestoreInteractor mockInteractor) {
         TestTools.resetLocationServiceStatus(mActivityRule.getActivity().getService());
-        ((ConcreteCachingDataSender) mActivityRule.getActivity().getService().getSender()).setInteractor(mockInteractor);
+        ((ConcreteDataSender) mActivityRule.getActivity().getService().getSender()).setInteractor(mockInteractor);
     }
 
     @Test

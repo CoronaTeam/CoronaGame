@@ -46,8 +46,8 @@ import ch.epfl.sdp.contamination.InfectionAnalyst;
 import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.contamination.ObservableCarrier;
 import ch.epfl.sdp.contamination.PositionAggregator;
-import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
-import ch.epfl.sdp.contamination.databaseIO.ConcreteCachingDataSender;
+import ch.epfl.sdp.contamination.databaseIO.DataSender;
+import ch.epfl.sdp.contamination.databaseIO.ConcreteDataSender;
 import ch.epfl.sdp.contamination.databaseIO.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.databaseIO.DataReceiver;
 import ch.epfl.sdp.contamination.databaseIO.GridFirestoreInteractor;
@@ -59,6 +59,7 @@ import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.taskToFuture;
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
+import static ch.epfl.sdp.storage.PositionHistoryManager.getLastPositions;
 
 public class LocationService extends Service implements LocationListener, Observer {
 
@@ -81,7 +82,7 @@ public class LocationService extends Service implements LocationListener, Observ
     private SharedPreferences sharedPref;
 
     private DataReceiver receiver;
-    private CachingDataSender sender;
+    private DataSender sender;
 
     private boolean isAlarmSet = false;
 
@@ -135,7 +136,7 @@ public class LocationService extends Service implements LocationListener, Observ
     @Override
     public void onCreate() {
         gridInteractor = new GridFirestoreInteractor();
-        sender = new ConcreteCachingDataSender(gridInteractor);
+        sender = new ConcreteDataSender(gridInteractor);
         receiver = new ConcreteDataReceiver(gridInteractor);
 
         broker = new ConcreteLocationBroker((LocationManager) this.getSystemService(Context.LOCATION_SERVICE), this);
@@ -160,7 +161,7 @@ public class LocationService extends Service implements LocationListener, Observ
      * since DataSender cache would have been partially emptied already
      */
     private void updateInfectionModel() {
-        SortedMap<Date, Location> locations = sender.getLastPositions().tailMap(lastUpdated);
+        SortedMap<Date, Location> locations = getLastPositions().tailMap(lastUpdated);
 
         // TODO: [LOG]
         Log.e("POSITION_ITERATOR", Integer.toString(locations.size()));
@@ -312,7 +313,7 @@ public class LocationService extends Service implements LocationListener, Observ
         this.analyst = analyst;
     }
 
-    public CachingDataSender getSender() {
+    public DataSender getSender() {
         return sender;
     }
 
@@ -320,7 +321,7 @@ public class LocationService extends Service implements LocationListener, Observ
     // moved to tests files (and they can just use set...())
 
     @VisibleForTesting
-    public void setSender(CachingDataSender sender) {
+    public void setSender(DataSender sender) {
         this.sender = sender;
     }
 

@@ -16,10 +16,10 @@ import java.util.Map;
 import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.IntroActivity;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
-import ch.epfl.sdp.identity.Authentication;
 
 public interface DefaultAuthenticationManager {
 
+    // TODO: @Lucas
     /* TODO : REMOVE THIS METHOD AS SOON AS WE DO A GETCONTEXT OR THAT IT IS NOT USED ANYMORE
     This method was found on the internet for getting the current activity
     */
@@ -51,14 +51,16 @@ public interface DefaultAuthenticationManager {
     }
 
     default Account getAccount(Context context) {
-        if (AccountFragment.IN_TEST || context == null){     //for tests
+        if (AccountFragment.IN_TEST || context == null) {     //for tests
             return getNonNullAccount(null);
         }
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(context);
         return getNonNullAccount(acct);
     }
 
-    default String getUserId() { return getAccount(CoronaGame.getContext()).getId(); }
+    default String getUserId() {
+        return getAccount(CoronaGame.getContext()).getId();
+    }
 
     default GoogleSignInClient getGoogleClient(Activity activity) {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();

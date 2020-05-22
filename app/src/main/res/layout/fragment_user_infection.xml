@@ -24,6 +24,13 @@
         android:layout_height="wrap_content"
         android:text="@string/you_cannot_update_your_status_you_are_offline" />
 
+    <TextView
+        android:id="@+id/user_prob"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textAlignment="center" />
+
     <Button
         android:id="@+id/refreshButton"
         android:layout_width="wrap_content"

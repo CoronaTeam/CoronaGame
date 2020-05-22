@@ -28,6 +28,8 @@ import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.map.fragment.MapFragment;
 
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
+import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
+import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_COLL;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.heatmapDensity;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.interpolate;
@@ -55,70 +57,15 @@ public class HeatMapHandler {
 
 
     public HeatMapHandler(@NonNull MapFragment parentClass, @NonNull ConcreteFirestoreInteractor db,
-                   @NonNull MapboxMap map) {
+                          @NonNull MapboxMap map) {
         this.parentClass = parentClass;
         this.db = db;
         this.map = map;
         initQuery();
     }
 
-    private void initQuery() {
-        db.readCollection(collectionReference("LastPositions"))
-                .thenAccept(this::createGeoJson)
-                .exceptionally(e -> {
-                    Toast.makeText(parentClass.getActivity(), "Cannot retrieve " +
-                            "positions " +
-                            "from database", Toast.LENGTH_LONG).show();
-                    return null;
-                });
-    }
-
-    private void createGeoJson(@NotNull Map<String, Map<String, Object>> stringMapMap) {
-        List<Point> infectionHeatMapPoints = new ArrayList<>();
-        Set<Map.Entry<String, Map<String, Object>>> entrySet = stringMapMap.entrySet();
-
-        for (Map.Entry<String, Map<String, Object>> entry : entrySet) {
-            try {
-                GeoPoint geoPoint = (GeoPoint) entry.getValue().get("geoPoint");
-                infectionHeatMapPoints.add(Point.fromLngLat(
-                        geoPoint.getLongitude(),
-                        geoPoint.getLatitude()
-                ));
-            } catch (NullPointerException ignored) {
-            }
-        }
-
-        GeoJsonSource lastPos = new GeoJsonSource(LASTPOSITIONS_SOURCE_ID,
-                FeatureCollection.fromFeatures(new Feature[]{Feature.fromGeometry(
-                        MultiPoint.fromLngLats(infectionHeatMapPoints)
-                )}));
-
-        map.getStyle(style -> {
-            style.addSource(lastPos);
-            addHeatmapLayer();
-        });
-    }
-
-    private void addHeatmapLayer() {
-        HeatmapLayer layer = new HeatmapLayer(HEATMAP_LAYER_ID, LASTPOSITIONS_SOURCE_ID);
-        //layer.setMinZoom(13);
-        layer.setMaxZoom(17);
-        layer.setMinZoom(8);
-        layer.setSourceLayer(HEATMAP_LAYER_SOURCE);
-
-        layer.setProperties(
-                adjustHeatMapColorRange(),
-                adjustHeatMapWeight(),
-                adjustHeatmapIntensity(),
-                adjustHeatmapRadius()
-        );
-        map.getStyle(style -> style.addLayerAbove(layer, "waterway-label"));
-
-        callHeatmapDataLoaded();
-    }
-
     @NotNull
-    // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
+    // Color ramp for heatmap.  Domain is 0 (low) to 1  (high).
     // Begin color ramp at 0-stop with a 0-transparency color
     // to create a blur-like effect.
     /*private*/ static PropertyValue<Expression> adjustHeatMapColorRange() {
@@ -172,11 +119,67 @@ public class HeatMapHandler {
         );
     }
 
-    private void callHeatmapDataLoaded(){
+    private void initQuery() {
+        db.readCollection(collectionReference(LAST_POSITIONS_COLL))
+                .thenAccept(this::createGeoJson)
+                .exceptionally(e -> {
+                    Toast.makeText(parentClass.getActivity(), "Cannot retrieve " +
+                            "positions " +
+                            "from database", Toast.LENGTH_LONG).show();
+                    return null;
+                });
+    }
+
+    private void createGeoJson(@NotNull Map<String, Map<String, Object>> stringMapMap) {
+        List<Point> infectionHeatMapPoints = new ArrayList<>();
+        Set<Map.Entry<String, Map<String, Object>>> entrySet = stringMapMap.entrySet();
+
+        for (Map.Entry<String, Map<String, Object>> entry : entrySet) {
+            try {
+                GeoPoint geoPoint = (GeoPoint) entry.getValue().get(GEOPOINT_TAG);
+                infectionHeatMapPoints.add(Point.fromLngLat(
+                        geoPoint.getLongitude(),
+                        geoPoint.getLatitude()
+                ));
+            } catch (NullPointerException ignored) {
+            }
+        }
+
+        GeoJsonSource lastPos = new GeoJsonSource(LASTPOSITIONS_SOURCE_ID,
+                FeatureCollection.fromFeatures(new Feature[]{Feature.fromGeometry(
+                        MultiPoint.fromLngLats(infectionHeatMapPoints)
+                )}));
+
+        map.getStyle(style -> {
+            style.addSource(lastPos);
+            addHeatmapLayer();
+        });
+    }
+
+    private void addHeatmapLayer() {
+        HeatmapLayer layer = new HeatmapLayer(HEATMAP_LAYER_ID, LASTPOSITIONS_SOURCE_ID);
+        //layer.setMinZoom(13);
+        layer.setMaxZoom(17);
+        layer.setMinZoom(8);
+        layer.setSourceLayer(HEATMAP_LAYER_SOURCE);
+
+        layer.setProperties(
+                adjustHeatMapColorRange(),
+                adjustHeatMapWeight(),
+                adjustHeatmapIntensity(),
+                adjustHeatmapRadius()
+        );
+        map.getStyle(style -> style.addLayerAbove(layer, "waterway-label"));
+
+        callHeatmapDataLoaded();
+    }
+
+    private void callHeatmapDataLoaded() {
         try {
             onHeatMapDataLoaded.call();
             onHeatMapDataLoaded = null;
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     @VisibleForTesting
@@ -184,7 +187,7 @@ public class HeatMapHandler {
         onHeatMapDataLoaded = func;
 
         map.getStyle(style -> {
-            if (style.getLayer(HEATMAP_LAYER_ID) != null){
+            if (style.getLayer(HEATMAP_LAYER_ID) != null) {
                 callHeatmapDataLoaded();
             }
         });

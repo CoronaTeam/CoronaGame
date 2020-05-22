@@ -15,7 +15,6 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import ch.epfl.sdp.TestTools;
-import ch.epfl.sdp.testActivities.FirebaseActivity;
 
 /*
       Run tests in debug mode to see logs & values prints
@@ -23,15 +22,14 @@ import ch.epfl.sdp.testActivities.FirebaseActivity;
 public class FirebaseOfflineCacheTest {
 
     private static final String TAG = "OFFLINE CACHE TEST";
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private String localChanges = "local changes 29 avril";
-
     @Rule
     public final ActivityTestRule<FirebaseActivity> mActivityRule =
             new ActivityTestRule<>(FirebaseActivity.class);
     @Rule
     public GrantPermissionRule internetPermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.INTERNET);
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private String localChanges = "local changes 29 avril";
 
     @Before
     public void setUp() {
@@ -60,13 +58,13 @@ public class FirebaseOfflineCacheTest {
         db.collection("Tests")
                 .document("LocalChangeSyncTest").get()
                 .addOnSuccessListener(documentSnapshot ->
-                {
-                    System.out.println("SYNCHRONISE LOCAL/BACKEND: locallyChangedValue = " +
-                            documentSnapshot.get("locallyChangedValue"));
-                    SnapshotMetadata metadata = documentSnapshot.getMetadata();
-                    String source = metadata.isFromCache() ? "local cache" : "server";
-                    System.out.println("Data fetched from " + source);
-                }
+                        {
+                            System.out.println("SYNCHRONISE LOCAL/BACKEND: locallyChangedValue = " +
+                                    documentSnapshot.get("locallyChangedValue"));
+                            SnapshotMetadata metadata = documentSnapshot.getMetadata();
+                            String source = metadata.isFromCache() ? "local cache" : "server";
+                            System.out.println("Data fetched from " + source);
+                        }
                 )
                 .addOnFailureListener(e ->
                         Log.w(TAG, "Error retrieving locallyChangedValue from Firestore while online.", e));
@@ -79,13 +77,13 @@ public class FirebaseOfflineCacheTest {
         db.collection("Tests")
                 .document("LocalChangeSyncTest").get()
                 .addOnSuccessListener(documentSnapshot ->
-                        {
-                            SnapshotMetadata metadata = documentSnapshot.getMetadata();
-                            String source = metadata.isFromCache() ? "local cache" : "server";
-                            System.out.println("Data fetched from " + source);
-                            System.out.println("OFFLINE DATA: locallyChangedValue = " +
-                                    documentSnapshot.get("locallyChangedValue"));
-                        })
+                {
+                    SnapshotMetadata metadata = documentSnapshot.getMetadata();
+                    String source = metadata.isFromCache() ? "local cache" : "server";
+                    System.out.println("Data fetched from " + source);
+                    System.out.println("OFFLINE DATA: locallyChangedValue = " +
+                            documentSnapshot.get("locallyChangedValue"));
+                })
                 .addOnFailureListener(e ->
                         Log.w(TAG, "Error retrieving locallyChangedValue from cache Firestore while offline.", e));
         db.enableNetwork()

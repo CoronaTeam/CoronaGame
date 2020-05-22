@@ -9,14 +9,14 @@ import java.util.concurrent.CompletableFuture;
  * This class makes testing easier
  */
 public class FakeAnalyst implements InfectionAnalyst {
-    Carrier carrier;
-    static int infectMeets = 0 ;
+    static int infectMeets = 0;
+    ObservableCarrier carrier;
 
-    public FakeAnalyst(Carrier originalCarrier) {
+    public FakeAnalyst(ObservableCarrier originalCarrier) {
         carrier = originalCarrier;
     }
 
-    public FakeAnalyst(){
+    public FakeAnalyst() {
         this.carrier = new Layman(Carrier.InfectionStatus.HEALTHY);
     }
 
@@ -26,12 +26,7 @@ public class FakeAnalyst implements InfectionAnalyst {
     }
 
     @Override
-    public Carrier getCarrier() {
+    public ObservableCarrier getCarrier() {
         return carrier;
-    }
-
-    @Override
-    public boolean updateStatus(Carrier.InfectionStatus stat) {
-        return carrier.evolveInfection(stat);
     }
 }

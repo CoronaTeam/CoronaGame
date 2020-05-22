@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.util.Log;
 
 import androidx.test.espresso.intent.Intents;
 import androidx.test.rule.ActivityTestRule;
@@ -12,38 +13,44 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.CoronaGame;
-import ch.epfl.sdp.identity.DefaultAuthenticationManager;
 import ch.epfl.sdp.TestTools;
-import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
 import ch.epfl.sdp.contamination.Carrier;
-import ch.epfl.sdp.testActivities.DataExchangeActivity;
+import ch.epfl.sdp.contamination.ConcreteAnalysis;
 import ch.epfl.sdp.contamination.FakeAnalyst;
 import ch.epfl.sdp.contamination.FakeCachingDataSender;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
 import ch.epfl.sdp.contamination.Layman;
+import ch.epfl.sdp.contamination.ObservableCarrier;
+import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
+import ch.epfl.sdp.identity.AuthenticationManager;
+import ch.epfl.sdp.identity.DefaultAuthenticationManager;
+import ch.epfl.sdp.storage.ConcreteManager;
+import ch.epfl.sdp.storage.StorageManager;
+import ch.epfl.sdp.testActivities.DataExchangeActivity;
 
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
+import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CarrierUpdatePersistenceTest {
 
+    private static String fakeUserID = "THIS_IS_A_FAKE_ID";
     @Rule
     public final ActivityTestRule<DataExchangeActivity> mActivityRule = new ActivityTestRule<>(DataExchangeActivity.class);
-
-    private Carrier iAmBob = new Layman(HEALTHY);
+    Intent locaIntentWithAlarm;
+    private ObservableCarrier iAmBob = new Layman(HEALTHY);
     private AtomicInteger sentinel;
     private InfectionAnalyst analystWithSentinel = new InfectionAnalyst() {
         @Override
@@ -53,19 +60,12 @@ public class CarrierUpdatePersistenceTest {
         }
 
         @Override
-        public Carrier getCarrier() {
+        public ObservableCarrier getCarrier() {
             return iAmBob;
-        }
-
-        @Override
-        public boolean updateStatus(Carrier.InfectionStatus stat) {
-            return false;
         }
     };
     private InfectionAnalyst realAnalyst;
-    Intent locaIntentWithAlarm;
-
-    private static String fakeUserID = "THIS_IS_A_FAKE_ID";
+    private InfectionAnalyst originalAnalyst;
 
     @BeforeClass
     public static void mockUserId() {
@@ -82,22 +82,8 @@ public class CarrierUpdatePersistenceTest {
     @AfterClass
     public static void restoreUserId() {
         // Restore real UserID
-        AuthenticationManager.defaultManager = new DefaultAuthenticationManager() {};
-    }
-
-    @Before
-    public void before() {
-        initSafeTest(mActivityRule, true);
-
-        iAmBob = new Layman(HEALTHY);
-        mActivityRule.getActivity().getService().setCarrier(iAmBob);
-        mActivityRule.getActivity().getService().resetAnalyst();
-        sentinel = new AtomicInteger(0);
-    }
-
-    @After
-    public void release(){
-        Intents.release();
+        AuthenticationManager.defaultManager = new DefaultAuthenticationManager() {
+        };
     }
 
     @AfterClass
@@ -105,15 +91,72 @@ public class CarrierUpdatePersistenceTest {
         SharedPreferences sharedPreferences = CoronaGame.getContext().getSharedPreferences(CoronaGame.SHARED_PREF_FILENAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
-        editor.remove(LocationService.INFECTION_STATUS_TAG)
-                .remove(LocationService.INFECTION_PROBABILITY_TAG)
-                .remove(LocationService.LAST_UPDATED_TAG)
+        editor.remove(LocationService.INFECTION_STATUS_PREF)
+                .remove(LocationService.INFECTION_PROBABILITY_PREF)
+                .remove(LocationService.LAST_UPDATED_PREF)
                 .commit();
+    }
+
+    @Before
+    public void before() {
+        initSafeTest(mActivityRule, true);
+
+        iAmBob = new Layman(HEALTHY, fakeUserID);
+
+        LocationService service = mActivityRule.getActivity().getService();
+        originalAnalyst = service.getAnalyst();
+        InfectionAnalyst fakeAnalyst = new ConcreteAnalysis(iAmBob, service.getReceiver(), service.getSender());
+        service.setAnalyst(fakeAnalyst);
+
+        sentinel = new AtomicInteger(0);
+    }
+
+    @After
+    public void resetAnalyst() {
+        // TODO: @Adrien this mechanism can be refactored into a new method resetAnalysts() to
+        // be placed in some test file
+        mActivityRule.getActivity().getService().setAnalyst(originalAnalyst);
+    }
+
+    @After
+    public void release() {
+        Intents.release();
+    }
+
+    private void cleanFakeUserHistory() {
+        // Delete existing file
+        initStorageManager().delete();
+
+        LocationService service = mActivityRule.getActivity().getService();
+
+        ObservableCarrier newCarrier = new Layman(
+                service.getAnalyst().getCarrier().getInfectionStatus(),
+                service.getAnalyst().getCarrier().getIllnessProbability(),
+                AuthenticationManager.getUserId()
+        );
+
+        service.setAnalyst(new ConcreteAnalysis(newCarrier, service.getReceiver(), service.getSender()));
+    }
+
+    @Before
+    public void resetHistoryBeforeTest() {
+        // Clean in case there is something left from previous tests
+        cleanFakeUserHistory();
+    }
+
+    @After
+    public void resetHistoryAfterTest() {
+        cleanFakeUserHistory();
+    }
+
+    @After
+    public void stopLocationService() {
+        mActivityRule.getActivity().stopService(new Intent(mActivityRule.getActivity(), LocationService.class));
     }
 
     private void startLocationServiceWithAlarm() {
         locaIntentWithAlarm = new Intent(mActivityRule.getActivity(), LocationService.class);
-        locaIntentWithAlarm.putExtra(LocationService.ALARM_GOES_OFF,true);
+        locaIntentWithAlarm.putExtra(LocationService.ALARM_GOES_OFF, true);
         mActivityRule.getActivity().startService(locaIntentWithAlarm);
     }
 
@@ -133,6 +176,7 @@ public class CarrierUpdatePersistenceTest {
 
     @Test
     public void updateNotDoneWithoutNewLocations() {
+
         useAnalystWithSentinel();
         startLocationServiceWithAlarm();
 
@@ -164,8 +208,7 @@ public class CarrierUpdatePersistenceTest {
         restoreRealAnalyst();
     }
 
-    @Test(timeout = 30000)
-    @Ignore
+    @Test(timeout = 10000)
     public void alarmSetByServiceIsSuccessful() {
 
         useAnalystWithSentinel();
@@ -183,11 +226,14 @@ public class CarrierUpdatePersistenceTest {
         fakeSender.registerLocation(iAmBob, TestTools.newLoc(1, 1), now);
         mActivityRule.getActivity().getService().setSender(fakeSender);
 
-        while (sentinel.get() == 0) {}
+        while (sentinel.get() == 0) {
+        }
 
         assertThat(sentinel.get(), equalTo(1));
 
         restoreRealAnalyst();
+
+        LocationService.setAlarmDelay(2000);
     }
 
     @Test
@@ -203,13 +249,15 @@ public class CarrierUpdatePersistenceTest {
         service.setAnalyst(fakeAnalyst);
         service.setSender(fakeSender);
 
+        service.getAnalyst().getCarrier().addObserver(service);
+
         startLocationServiceWithAlarm();
 
         assertThat(fakeAnalyst.getCarrier().getIllnessProbability(), equalTo(0f));
         assertThat(fakeAnalyst.getCarrier().getInfectionStatus(), equalTo(HEALTHY));
 
-        fakeAnalyst.updateStatus(UNKNOWN);
-        assertThat(fakeAnalyst.getCarrier().setIllnessProbability(.3f), equalTo(true));
+        assertThat(fakeAnalyst.getCarrier().evolveInfection(new Date(), UNKNOWN, .3f), equalTo(true));
+        TestTools.sleep();
 
         Date aDate = new Date();
 
@@ -220,8 +268,8 @@ public class CarrierUpdatePersistenceTest {
         TestTools.sleep();
 
         SharedPreferences sharedPreferences = CoronaGame.getContext().getSharedPreferences(CoronaGame.SHARED_PREF_FILENAME, Context.MODE_PRIVATE);
-        assertThat(sharedPreferences.getInt(LocationService.INFECTION_STATUS_TAG, HEALTHY.ordinal()), equalTo(UNKNOWN.ordinal()));
-        assertThat(sharedPreferences.getFloat(LocationService.INFECTION_PROBABILITY_TAG, 0f), equalTo(.3f));
+        assertThat(sharedPreferences.getInt(LocationService.INFECTION_STATUS_PREF, -1), equalTo(UNKNOWN.ordinal()));
+        assertThat(sharedPreferences.getFloat(LocationService.INFECTION_PROBABILITY_PREF, 0f), equalTo(.3f));
     }
 
     @Test
@@ -237,8 +285,7 @@ public class CarrierUpdatePersistenceTest {
         serviceBefore.setSender(new FakeCachingDataSender());
 
         // Modify carrier status
-        fakeAnalyst.updateStatus(UNKNOWN);
-        assertThat(fakeAnalyst.getCarrier().setIllnessProbability(.5f), equalTo(true));
+        assertThat(fakeAnalyst.getCarrier().evolveInfection(new Date(), UNKNOWN, .45f), equalTo(true));
 
         // Stop LocationService
         mActivityRule.getActivity().unbindService(mActivityRule.getActivity().serviceConnection);
@@ -253,6 +300,46 @@ public class CarrierUpdatePersistenceTest {
         Carrier carrierAfter = mActivityRule.getActivity().getService().getAnalyst().getCarrier();
 
         assertThat(carrierAfter.getInfectionStatus(), equalTo(UNKNOWN));
-        assertThat(carrierAfter.getIllnessProbability(), equalTo(.5f));
+        assertThat(carrierAfter.getIllnessProbability(), equalTo(.45f));
+
+        carrierAfter.deleteLocalProbabilityHistory();
+    }
+
+    private StorageManager<Date, Float> initStorageManager() {
+        return new ConcreteManager<>(
+                mActivityRule.getActivity(),
+                AuthenticationManager.getUserId() + ".csv",
+                date -> {
+                    try {
+                        return CoronaGame.dateFormat.parse(date);
+                    } catch (ParseException e) {
+                        throw new IllegalArgumentException("The file specified has wrong format: field 'date'");
+                    }
+                },
+                Float::valueOf);
+    }
+
+    @Test
+    public void carrierHistoryTest() {
+        LocationService service = mActivityRule.getActivity().getService();
+
+        service.getAnalyst().getCarrier().deleteLocalProbabilityHistory();
+
+        service.getAnalyst().getCarrier().setIllnessProbability(new Date(), .1f);
+        TestTools.sleep();
+        service.getAnalyst().getCarrier().setIllnessProbability(new Date(), .2f);
+        TestTools.sleep();
+        service.getAnalyst().getCarrier().evolveInfection(new Date(), INFECTED, .6f);
+        TestTools.sleep();
+
+        StorageManager<Date, Float> manager = initStorageManager();
+
+        for (Float f : manager.read().values()) {
+            Log.e("MNG", f.toString());
+        }
+
+        assertThat(manager.read().size(), equalTo(3));
+
+        service.getAnalyst().getCarrier().deleteLocalProbabilityHistory();
     }
 }

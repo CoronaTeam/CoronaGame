@@ -8,22 +8,45 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+
 public class CoronaGame extends Application implements Application.ActivityLifecycleCallbacks {
 
-    private Activity currentActivity;
-    private static Context context;
-
     public static final String SHARED_PREF_FILENAME = "coronagame_shared_pref";
+    public static final DateFormat dateFormat = new SimpleDateFormat("E MMM dd hh:mm:ss zzz yyyy");
+    public static boolean IS_DEMO = FALSE;
+    public static boolean IS_ONLINE = TRUE;
+    public static boolean IS_NETWORK_DEBUG = FALSE;
+    private static Context context;
+    private static int DEMO_SPEEDUP = 1;
+    private Activity currentActivity;
+
+    public static int getDemoSpeedup() {
+        return DEMO_SPEEDUP;
+    }
+
+    public static void setDemoSpeedup(int demoSpeedup) {
+        if (!IS_DEMO) {
+            System.out.println("Switch to DEMO mode to change the execution speed");
+            DEMO_SPEEDUP = 1;
+        } else {
+            DEMO_SPEEDUP = demoSpeedup;
+        }
+    }
+
+    public static Context getContext() {
+        return CoronaGame.context;
+    }
 
     @Override
     public void onCreate() {
         super.onCreate();
         registerActivityLifecycleCallbacks(this);
         CoronaGame.context = getApplicationContext();
-    }
-
-    public static Context getContext() {
-        return CoronaGame.context;
     }
 
     @Override

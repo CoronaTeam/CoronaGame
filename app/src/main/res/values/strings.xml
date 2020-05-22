@@ -133,4 +133,8 @@
     <string name="your_user_status_is_set_to_not_infected">Your user status is set to not infected.</string>
     <string name="profile_picture">Profile picture</string>
     <string name="placeholder" translatable="false">...</string>
+    <string name="delete_local_his">Delete local history</string>
+    <string name="no_corresponding_path">No corresponding path</string>
+    <string name="yesterday" translatable="false">yesterday</string>
+    <string name="before_yesterday" translatable="false">before yesterday</string>
 </resources>

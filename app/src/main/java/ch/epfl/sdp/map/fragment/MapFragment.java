@@ -25,24 +25,35 @@ import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
-import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.plugins.annotation.Circle;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions;
 import com.mapbox.mapboxsdk.style.layers.Layer;
+import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionButton;
+import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionHelper;
+import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout;
+import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RFACLabelItem;
+import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RapidFloatingActionContentLabelList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import java.util.concurrent.Callable;
 
 import ch.epfl.sdp.BuildConfig;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
+import ch.epfl.sdp.location.LocationBroker;
+import ch.epfl.sdp.location.LocationService;
 import ch.epfl.sdp.map.HeatMapHandler;
 import ch.epfl.sdp.map.PathsHandler;
 import ch.epfl.sdp.toDelete.HistoryDialogFragment;
-import ch.epfl.sdp.location.LocationBroker;
-import ch.epfl.sdp.location.LocationService;
 
+import static ch.epfl.sdp.map.PathsHandler.BEFORE_PATH_LAYER_ID;
+import static ch.epfl.sdp.map.PathsHandler.BEFORE_INFECTED_LAYER_ID;
+import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_PATH_LAYER_ID;
+import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_INFECTED_LAYER_ID;
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
@@ -50,11 +61,12 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
 /**
  * Instantiate one instance of MapBox
- *  Used to display the pathLayers and heatMapLayer
- *  Add listeners to update the user's position on the map and react on floating button click
+ * Used to display the pathLayers and heatMapLayer
+ * Add listeners to update the user's position on the map and react on floating button click
  */
-public class MapFragment extends Fragment implements LocationListener, View.OnClickListener {
+public class MapFragment extends Fragment implements LocationListener, View.OnClickListener, RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener {
 
+    //TODO: some constant are dupicated from locationService
     public final static int LOCATION_PERMISSION_REQUEST = 20201;
     private static final int MIN_UP_INTERVAL_MILLISECS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
@@ -62,23 +74,43 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private MapView mapView;
     private MapboxMap map;
     private LocationBroker locationBroker;
-    private ServiceConnection locationBrokerConn;
     private LatLng prevLocation = new LatLng(0, 0);
     private ConcreteFirestoreInteractor db;
     private CircleManager positionMarkerManager;
     private Circle userLocation;
     private HeatMapHandler heatMapHandler;
     private MapFragment classPointer;
+    private ServiceConnection conn;
     private Callable onMapVisible;
 
+    private RapidFloatingActionHelper rfabHelper;
+
     private View view;
+
+    @VisibleForTesting
+    static boolean TESTING_MODE;
+
+    @VisibleForTesting
+    public void onLayerLoaded(Callable func, String layerId) {
+        map.getStyle(style -> {
+            if (style.getLayer(layerId) != null){
+                callDataLoaded(func);
+            }
+        });
+    }
+
+    private void callDataLoaded(Callable func){
+        try {
+            func.call();
+        } catch (Exception ignored) {}
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         classPointer = this;
 
-        locationBrokerConn = new ServiceConnection() {
+        conn = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 locationBroker = ((LocationService.LocationBinder) service).getService().getBroker();
@@ -97,7 +129,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         // it requires the service to remain running until stopService(Intent) is called,
         // regardless of whether any clients are connected to it.
         ComponentName myService = getActivity().startService(new Intent(getContext(), LocationService.class));
-        getActivity().bindService(new Intent(getContext(), LocationService.class), locationBrokerConn, Context.BIND_AUTO_CREATE);
+        getActivity().bindService(new Intent(getContext(), LocationService.class), conn, Context.BIND_AUTO_CREATE);
 
         db = new ConcreteFirestoreInteractor();
 
@@ -113,30 +145,24 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
         mapView = view.findViewById(R.id.mapFragment);
         mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(@NonNull MapboxMap mapboxMap) {
-                map = mapboxMap;
+        mapView.getMapAsync(mapboxMap -> {
+            map = mapboxMap;
 
-                mapboxMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-                        positionMarkerManager = new CircleManager(mapView, map, style);
+            mapboxMap.setStyle(Style.MAPBOX_STREETS, style -> {
+                positionMarkerManager = new CircleManager(mapView, map, style);
 
-                        userLocation = positionMarkerManager.create(new CircleOptions()
-                                .withLatLng(prevLocation));
+                userLocation = positionMarkerManager.create(new CircleOptions()
+                        .withLatLng(prevLocation));
 
-                        updateUserMarkerPosition(prevLocation);
-                        heatMapHandler = new HeatMapHandler(classPointer, db, map);
-                        pathsHandler = new PathsHandler(classPointer, map);
-                    }
-                });
-            }
+                updateUserMarkerPosition(prevLocation);
+                heatMapHandler = new HeatMapHandler(classPointer, db, map);
+                pathsHandler = new PathsHandler(classPointer, map);
+            });
         });
 
 
-        view.findViewById(R.id.history_button).setOnClickListener(this);
         view.findViewById(R.id.heatMapToggle).setOnClickListener(this);
+        setHistoryRFAButton();
 
         return view;
     }
@@ -163,7 +189,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         // check if marker is null
 
         if (map != null && map.getStyle() != null) {
-            userLocation.setLatLng(location);
+            userLocation.setLatLng(prevLocation);
             positionMarkerManager.update(userLocation);
             map.animateCamera(CameraUpdateFactory.newLatLng(location));
         }
@@ -241,9 +267,12 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     @Override
     public void onDestroy() {
         mapView.onDestroy();
-        if (locationBrokerConn != null){
-            getActivity().unbindService(locationBrokerConn);
+
+        // Unbind service
+        if (conn != null) {
+            getActivity().unbindService(conn);
         }
+
         super.onDestroy();
 
     }
@@ -252,6 +281,13 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view.getId() == R.id.heatMapToggle) {
+            toggleHeatMap();
+        }
     }
 
     private void onClickHistory() {
@@ -276,52 +312,90 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         });
     }
 
-    public void togglePath() {
-        toggleLayer(PathsHandler.PATH_LAYER_ID);
-        pathsHandler.setCameraPosition();
+    private void togglePath(int day) {
+        String pathLayerId = day == R.string.yesterday ? YESTERDAY_PATH_LAYER_ID : BEFORE_PATH_LAYER_ID;
+        String infectedLayerId = day == R.string.yesterday ? YESTERDAY_INFECTED_LAYER_ID : BEFORE_INFECTED_LAYER_ID;
+        toggleLayer(pathLayerId);
+        toggleLayer(infectedLayerId);
+        pathsHandler.setCameraPosition(day);
+    }
+
+
+    private void setHistoryRFAButton() {
+        RapidFloatingActionLayout rfaLayout = view.findViewById(R.id.history_rfal);
+        RapidFloatingActionButton rfaBtn = view.findViewById(R.id.history_rfab);
+
+        RapidFloatingActionContentLabelList rfaContent = new RapidFloatingActionContentLabelList(getContext());
+        rfaContent.setOnRapidFloatingActionContentLabelListListener(this);
+        List<RFACLabelItem> items = new ArrayList<>();
+        addItems(items, "Yesterday path", 0xff056f00, 0xff0d5302, 0xff056f00, 0);
+        addItems(items, "Before yesterday path", 0xff283593, 0xff1a237e, 0xff283593, 1);
+
+        rfaContent
+                .setItems(items)
+                .setIconShadowColor(0xff888888)
+        ;
+        rfabHelper = new RapidFloatingActionHelper(
+                getContext(),
+                rfaLayout,
+                rfaBtn,
+                rfaContent
+        ).build();
+    }
+
+    private void addItems(List<RFACLabelItem> items, String label, int normalColor, int pressedColor, int labelColor, int position) {
+        items.add(new RFACLabelItem<Integer>()
+                .setLabel(label)
+                .setResId(R.drawable.fab_history)
+                .setIconNormalColor(normalColor)
+                .setIconPressedColor(pressedColor)
+                .setLabelColor(labelColor)
+                .setWrapper(position)
+        );
     }
 
     @Override
-    public void onClick(View view) {
-        System.out.println(view.getId());
-        switch (view.getId()) {
-            case R.id.history_button: {
-                onClickHistory();
-            }
-            break;
-            case R.id.heatMapToggle: {
-                toggleHeatMap();
-            }
-            break;
-            default:
-                break;
+    public void onRFACItemLabelClick(int position, RFACLabelItem item) {
+        onRFACItemIconClick(position, item);
+    }
+
+    @Override
+    public void onRFACItemIconClick(int position, RFACLabelItem item) {
+        String day = position == 0 ? getString(R.string.yesterday) : getString(R.string.before_yesterday);
+        int dayInt = position == 0 ? R.string.yesterday : R.string.before_yesterday;
+        if (!TESTING_MODE) {
+            Toast.makeText(getContext(), "Toggle path from: " + day, Toast.LENGTH_SHORT).show();
         }
+        togglePath(dayInt);
+
+        rfabHelper.toggleContent();
     }
 
 
-    private void callOnMapVisible(){
+    private void callOnMapVisible() {
 
         try {
             onMapVisible.call();
             onMapVisible = null;
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     @VisibleForTesting
     void onMapVisible(Callable func) {
         onMapVisible = func;
 
-        if(view.findViewById(R.id.mapFragment).getVisibility() == View.VISIBLE){
+        if (view.findViewById(R.id.mapFragment).getVisibility() == View.VISIBLE) {
             callOnMapVisible();
         }
     }
 
     @VisibleForTesting
-    void setLocationBroker(LocationBroker locationBroker){
-        if (locationBroker != null && locationBrokerConn != null){
-            getActivity().unbindService(locationBrokerConn);
+    void setLocationBroker(LocationBroker locationBroker) {
+        if (locationBroker != null && conn != null) {
+            getActivity().unbindService(conn);
             getActivity().stopService(new Intent(getContext(), LocationService.class));
-            locationBrokerConn = null;
+            conn = null;
         }
         this.locationBroker = locationBroker;
         goOnline();
@@ -333,10 +407,17 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     }
 
     @VisibleForTesting
-    HeatMapHandler getHeatMapHandler() {return heatMapHandler; }
+    HeatMapHandler getHeatMapHandler() {
+        return heatMapHandler;
+    }
 
     @VisibleForTesting
     PathsHandler getPathsHandler() {
         return pathsHandler;
+    }
+
+    @VisibleForTesting
+    RapidFloatingActionHelper getRfabHelper() {
+        return rfabHelper;
     }
 }

@@ -3,19 +3,31 @@ package ch.epfl.sdp.contamination;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.storage.ConcreteManager;
 import ch.epfl.sdp.storage.StorageManager;
 
-public class Layman implements Carrier{
+/**
+ * THREAD-SAFE implementation of ObservableCarrier.
+ * Laymen can locally store and retrieve the history of their infection probabilities
+ * They are also able to notify Observers about probability or status transitions.
+ * In case of a transition, Observers receive as argument of update() an Optional<Float> that:
+ * - if the STATUS changed, contains the previous infection probability
+ * - if only the PROBABILITY changed, is None
+ */
+public class Layman extends ObservableCarrier {
+
+    private ReentrantLock lock;
 
     private InfectionStatus myStatus;
     // Every update of infectedWithProbability must happen through setInfectionProbability()
@@ -23,13 +35,11 @@ public class Layman implements Carrier{
 
     private StorageManager<Date, Float> infectionHistory;
 
-    // TODO: Properly set the uniqueID (!!)
     private String uniqueID;
 
     public Layman() {
     }
 
-    // TODO: Properly set uniqueID (also modify equalsTo and hashCode!!)
     public Layman(InfectionStatus initialStatus) {
         this(initialStatus, initialStatus == InfectionStatus.INFECTED ? 1 : 0);
     }
@@ -38,120 +48,239 @@ public class Layman implements Carrier{
         this(initialStatus, infectedWithProbability, "__NOT_UNIQUE_NOW");
     }
 
-    public Layman(InfectionStatus initialStatus, String uniqueID){
-        this(initialStatus, initialStatus == InfectionStatus.INFECTED ? 1 : 0,uniqueID);
+    public Layman(InfectionStatus initialStatus, String uniqueID) {
+        this(initialStatus, initialStatus == InfectionStatus.INFECTED ? 1 : 0, uniqueID);
     }
 
     public Layman(InfectionStatus initialStatus, float infectedWithProbability, String uniqueID) {
-        DateFormat format = new SimpleDateFormat("E MMM dd hh:mm:ss zzz yyyy");
+        this.myStatus = initialStatus;
+        this.uniqueID = uniqueID;
 
-        this.infectionHistory = new ConcreteManager<>(
+        lock = new ReentrantLock();
+
+        this.infectionHistory = initStorageManager(uniqueID);
+
+        validateAndSetProbability(new Date(), infectedWithProbability);
+    }
+
+    private StorageManager<Date, Float> openStorageManager(String fileId) {
+
+        return new ConcreteManager<>(
                 CoronaGame.getContext(),
-                uniqueID + ".csv",
+                fileId + ".csv",
                 date -> {
                     try {
-                        return format.parse(date);
+                        return CoronaGame.dateFormat.parse(date);
                     } catch (ParseException e) {
-                        throw new IllegalArgumentException("The file specified has wrong format: field 'date'");
+                        throw new IllegalArgumentException("The file specified has wrong format: field 'date'. Example of data found: " + date);
                     }
                 },
                 Float::valueOf
         );
-
-        this.myStatus = initialStatus;
-        setIllnessProbability(infectedWithProbability);
-        this.uniqueID = uniqueID;
     }
 
-    @Override
-    public InfectionStatus getInfectionStatus() {
-        return myStatus;
-    }
+    // Load previous probabilities history
+    private StorageManager<Date, Float> initStorageManager(String fileId) {
 
-    /**
-     * This method should only be called by someone 100% sure about the actual status.
-     * @param newStatus
-     * @return
-     */
-    @Override
-    public boolean evolveInfection(InfectionStatus newStatus) {
-        myStatus = newStatus;
-        if (newStatus == InfectionStatus.INFECTED) {
-            setIllnessProbability(1);
-        }else if(newStatus == InfectionStatus.HEALTHY){
-            setIllnessProbability(0);
-        }
-        return true;
-    }
+        StorageManager<Date, Float> cm = openStorageManager(fileId);
 
-    @Override
-    public float getIllnessProbability() {
-        switch (myStatus) {
-            case INFECTED:
-                return 1;
-            default:
-                // Only useful case: the infection hits the 10% of the population overall
-                return infectedWithProbability;
-        }
-    }
-
-    @Override
-    public boolean setIllnessProbability(float probability) {
-        if (probability < 0 || 1 <= probability) {
-            return false;
+        if (!cm.isReadable()) {
+            cm.delete();
+            cm = openStorageManager(fileId);
         }
 
-        if (myStatus == InfectionStatus.INFECTED) {
+        return cm;
+    }
+
+    private boolean validateAndSetProbability(Date when, float probability) {
+        if (probability < 0 || 1 < probability) {
             return false;
         }
 
         // Include this update into the history
-        infectionHistory.write(Collections.singletonMap(new Date(), probability));
-
+        //TODO :@Matteo what is wrong with those lines
+        try {
+            infectionHistory.write(new TreeMap<>(Collections.singletonMap(when, probability)));
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
         infectedWithProbability = probability;
-
         return true;
     }
 
     @Override
+    public InfectionStatus getInfectionStatus() {
+
+        // Only get status if all the updates are completed
+        lock.lock();
+
+        InfectionStatus result = myStatus;
+
+        lock.unlock();
+
+        return result;
+    }
+
+    @Override
+    public boolean evolveInfection(Date when, InfectionStatus newStatus, float newProbability) {
+
+        lock.lock();
+
+        boolean result = false;
+
+        try {
+            Optional<Float> previousProbability;
+
+            // Detect status transition and save previous probability
+            if (newStatus != myStatus) {
+                previousProbability = Optional.of(infectedWithProbability);
+            } else {
+                previousProbability = Optional.empty();
+            }
+
+            // If the probability is valid, update it and the status and notify observers
+            if (validateAndSetProbability(when, newProbability)) {
+
+                myStatus = newStatus;
+
+                // Broadcast the update
+                setChanged();
+
+                notifyObservers(previousProbability);
+
+                result = true;
+            }
+        } finally {
+            lock.unlock();
+        }
+
+        return result;
+    }
+
+    @Override
+    public float getIllnessProbability() {
+
+        lock.lock();
+
+        float result = infectedWithProbability;
+
+        lock.unlock();
+
+        return result;
+    }
+
+    @Override
+    public boolean setIllnessProbability(Date when, float probability) {
+
+        lock.lock();
+
+        boolean result = false;
+
+        try {
+            if (validateAndSetProbability(when, probability)) {
+                setChanged();
+
+                // Broadcast the update (status has NOT changed)
+                notifyObservers(Optional.empty());
+                result = true;
+            }
+        } finally {
+            lock.unlock();
+        }
+
+        return result;
+    }
+
+    @Override
     public Map<Date, Float> getIllnessProbabilityHistory(Date since) {
-        return infectionHistory.filter((date, prob) -> date.after(since));
+
+        lock.lock();
+
+        SortedMap<Date, Float> result;
+
+        try {
+            result = infectionHistory.filter((date, prob) -> date.after(since));
+        } finally {
+            lock.unlock();
+        }
+
+        return result;
     }
 
     @Override
     public boolean equals(@Nullable Object obj) {
-        return (obj instanceof Layman) &&
-                ((Layman)obj).uniqueID.equals(this.uniqueID) &&
-                ((Layman)obj).myStatus == this.myStatus &&
-                ((Layman)obj).infectedWithProbability == this.infectedWithProbability;
+
+        lock.lock();
+
+        boolean result = (obj instanceof Layman) &&
+                ((Layman) obj).uniqueID.equals(this.uniqueID) &&
+                ((Layman) obj).myStatus == this.myStatus &&
+                ((Layman) obj).infectedWithProbability == this.infectedWithProbability;
+
+        lock.unlock();
+
+        return result;
     }
 
     @NonNull
     @Override
     public String toString() {
-        return String.format("#%s: %s (p=%f)", uniqueID, myStatus, infectedWithProbability);
+
+        lock.lock();
+
+        String result = String.format("#%s: %s (p=%f)", uniqueID, myStatus, infectedWithProbability);
+
+        lock.unlock();
+
+        return result;
     }
 
-    // TODO: If uniqueID is properly assigned, its hash can be the hash of the carrier
     @Override
     public int hashCode() {
-        return Objects.hash(uniqueID, myStatus, infectedWithProbability);
+
+        lock.lock();
+
+        int result = Objects.hash(uniqueID, myStatus, infectedWithProbability);
+
+        lock.unlock();
+
+        return result;
     }
 
     @Override
     public String getUniqueId() {
+
+        // No need to lock, since uniqueID cannot be changed after object creation
         return uniqueID;
     }
 
     @Override
     protected void finalize() throws Throwable {
+
+        lock.lock();
+
         super.finalize();
         infectionHistory.close();
+
+        lock.unlock();
     }
 
-    ///Getters Needed for the conversion from Object to Map<String, Object> during the Fierbase
-    // Upload
-    public InfectionStatus getMyStatus() {
-        return myStatus;
+    @Override
+    public void deleteLocalProbabilityHistory() {
+
+        lock.lock();
+
+        try {
+            // Delete current manager
+            infectionHistory.delete();
+
+            // Create a new one
+            infectionHistory = initStorageManager(uniqueID);
+
+            infectionHistory.read();
+        } finally {
+            lock.unlock();
+        }
+
     }
 }

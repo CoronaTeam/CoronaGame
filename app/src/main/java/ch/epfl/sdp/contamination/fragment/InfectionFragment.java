@@ -20,6 +20,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 
 import java.util.Date;
+import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
@@ -37,7 +38,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
     private ProgressBar infectionProbability;
     private long lastUpdateTime;
 
-    private LocationService service;
+    private CompletableFuture<LocationService> service;
 
     private Handler uiHandler;
 
@@ -66,10 +67,12 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
 
         infectionStatus.setText("Refresh to see your status");
 
+        service = new CompletableFuture<>();
+
         ServiceConnection conn = new ServiceConnection() {
             @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                InfectionFragment.this.service = ((LocationService.LocationBinder) service).getService();
+            public void onServiceConnected(ComponentName name, IBinder binder) {
+                service.complete(((LocationService.LocationBinder) binder).getService());
             }
 
             @Override
@@ -98,15 +101,17 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
         Date refreshTime = new Date(lastUpdateTime);
         lastUpdateTime = System.currentTimeMillis();
 
+        LocationService locationService = service.join();
+
         // TODO: Which location?
-        service.getReceiver().getMyLastLocation(AccountFragment.getAccount(getActivity()))
-                .thenApply(location -> service.getAnalyst().updateInfectionPredictions(location, refreshTime, new Date())
+        locationService.getReceiver().getMyLastLocation(AccountFragment.getAccount(getActivity()))
+                .thenApply(location -> locationService.getAnalyst().updateInfectionPredictions(location, refreshTime, new Date())
                         .thenAccept(todayInfectionMeetings -> {
                             //TODO: should run on UI thread?
                             getActivity().runOnUiThread(() -> {
                                 infectionStatus.setText(R.string.infection_status_posted);
                                 uiHandler.post(() -> {
-                                    InfectionAnalyst analyst = service.getAnalyst();
+                                    InfectionAnalyst analyst = locationService.getAnalyst();
                                     infectionStatus.setText(analyst.getCarrier().getInfectionStatus().toString());
                                     infectionProbability.setProgress(Math.round(analyst.getCarrier().getIllnessProbability() * 100));
                                     Log.e("PROB:", analyst.getCarrier().getIllnessProbability() + "");
@@ -147,7 +152,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
     }
 
     @VisibleForTesting
-    public LocationService getLocationService() {
+    public CompletableFuture<LocationService> getLocationService() {
         return service;
     }
 

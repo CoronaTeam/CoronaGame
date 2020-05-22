@@ -11,21 +11,21 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import ch.epfl.sdp.map.fragment.MapFragment;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.map.fragment.MapFragment;
 
 public class HistoryDialogFragment extends BottomSheetDialogFragment {
 
     private MapFragment parentFragment;
 
-    public /*static*/ HistoryDialogFragment(MapFragment mapFragment) {
+    public HistoryDialogFragment(MapFragment mapFragment) {
         parentFragment = mapFragment;
     }
 
@@ -34,21 +34,21 @@ public class HistoryDialogFragment extends BottomSheetDialogFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_history, container, false);
 
-        Button button = view.findViewById(R.id.pathButton);
-        button.setOnClickListener(v -> parentFragment.togglePath());
-
         return view;
     }
 
-    @NonNull @Override public Dialog onCreateDialog(Bundle savedInstanceState) {
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override public void onShow(DialogInterface dialogInterface) {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
                 BottomSheetDialog bottomSheetDialog = (BottomSheetDialog) dialogInterface;
                 setupFullHeight(bottomSheetDialog);
             }
         });
-        return  dialog;
+        return dialog;
     }
 
 

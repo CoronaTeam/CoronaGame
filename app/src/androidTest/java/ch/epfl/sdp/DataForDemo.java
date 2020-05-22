@@ -5,32 +5,35 @@ import android.util.Log;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
+import com.mapbox.geojson.Point;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import com.mapbox.geojson.Point;
+import java.util.Map;
+import java.util.Random;
 import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
-import java.util.HashMap;
-import java.util.Map;
 
-import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
 import ch.epfl.sdp.contamination.Carrier;
+import ch.epfl.sdp.contamination.Layman;
+import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
 import ch.epfl.sdp.contamination.databaseIO.ConcreteCachingDataSender;
 import ch.epfl.sdp.contamination.databaseIO.GridFirestoreInteractor;
-import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.location.LocationUtils;
 import ch.epfl.sdp.toDelete.PositionRecord;
 
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
-
-import java.util.Random;
+import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
+import static ch.epfl.sdp.firestore.FirestoreLabels.INFECTION_STATUS_TAG;
+import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_COLL;
+import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
 
 /**
  * This class is used for creating fake data for the app demo.
@@ -38,13 +41,17 @@ import java.util.Random;
  * DEMO FOR USERS LOCATED ON MAP:
  * Create a grid with lots of users at some place and less at some other place.
  * These places are located around EPFL.
- *
+ * <p>
  * DEMO FOR USER PATH ON MAP:
  * Create 2 different paths on 2 different days of the same user.
  * Create infected people met on these paths.
  */
 @Ignore("This is not a proper test, it is used for testing and demos, but it does not test anything, only generates data.")
 public class DataForDemo {
+    private static double DENSE_INITIAL_EPFL_LATITUDE = 46.51800;
+    private static double DENSE_INITIAL_EPFL_LONGITUDE = 6.56600;
+    private static double SPARSE_INITIAL_EPFL_LATITUDE = 46.51900;
+    private static double SPARSE_INITIAL_EPFL_LONGITUDE = 6.56700;
     private Random r = new Random();
     private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
     private CachingDataSender dataSender = new ConcreteCachingDataSender(gridFirestoreInteractor) {
@@ -52,10 +59,10 @@ public class DataForDemo {
         public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
             return gridFirestoreInteractor.gridWrite(location, String.valueOf(time.getTime()),
                     carrier)
-                    .whenComplete((res, thr) ->{
-                        if (thr == null){
+                    .whenComplete((res, thr) -> {
+                        if (thr == null) {
                             System.out.println("location successfully added to firestore");
-                        }else{
+                        } else {
                             System.out.println("location could not be uploaded to firestore");
                         }
                     });
@@ -84,18 +91,13 @@ public class DataForDemo {
             return null;
         }
     };
-
-    private static double DENSE_INITIAL_EPFL_LATITUDE = 46.51800;
-    private static double DENSE_INITIAL_EPFL_LONGITUDE = 6.56600;
-    private static double SPARSE_INITIAL_EPFL_LATITUDE = 46.51900;
-    private static double SPARSE_INITIAL_EPFL_LONGITUDE = 6.56700;
     private Date rightNow = new Date(System.currentTimeMillis());
 
     private List<Point> routeCoordinates;
     private int[] infectedOnRoute;
 
-    double getRandomNumberBetweenBounds(double lower, double upper){
-        return r.nextDouble() * (upper-lower) + lower;
+    double getRandomNumberBetweenBounds(double lower, double upper) {
+        return r.nextDouble() * (upper - lower) + lower;
     }
 
     /**
@@ -120,11 +122,11 @@ public class DataForDemo {
                 dataSender.registerLocation(carrier, userLocation, rightNow);
 
                 Map<String, Object> element = new HashMap<>();
-                element.put("geoPoint", new GeoPoint(userLocation.getLatitude(), userLocation.getLongitude()));
-                element.put("timeStamp", Timestamp.now());
+                element.put(GEOPOINT_TAG, new GeoPoint(userLocation.getLatitude(), userLocation.getLongitude()));
+                element.put(TIMESTAMP_TAG, Timestamp.now());
                 // db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
 
-                gridFirestoreInteractor.writeDocument(collectionReference("LastPositions"), element);
+                gridFirestoreInteractor.writeDocument(collectionReference(LAST_POSITIONS_COLL), element);
             }
         }
 
@@ -185,12 +187,12 @@ public class DataForDemo {
                 dataSender.registerLocation(carrier, userLocation, rightNow);
 
                 Map<String, Object> element = new HashMap<>();
-                element.put("geoPoint", new GeoPoint(userLocation.getLatitude(), userLocation.getLongitude()));
-                element.put("timeStamp", Timestamp.now());
-                element.put("infectionStatus", carrier.getInfectionStatus());
+                element.put(GEOPOINT_TAG, new GeoPoint(userLocation.getLatitude(), userLocation.getLongitude()));
+                element.put(TIMESTAMP_TAG, Timestamp.now());
+                element.put(INFECTION_STATUS_TAG, carrier.getInfectionStatus());
                 //db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
 
-                gridFirestoreInteractor.writeDocument(collectionReference("LastPositions"), element);
+                gridFirestoreInteractor.writeDocument(collectionReference(LAST_POSITIONS_COLL), element);
             }
         }
     }
@@ -203,11 +205,11 @@ public class DataForDemo {
         dataSender.registerLocation(carrier, userLocation, date);
 
         Map<String, Object> element = new HashMap<>();
-        element.put("geoPoint", new GeoPoint(userLocation.getLatitude(), userLocation.getLongitude()));
-        element.put("timeStamp", Timestamp.now());
+        element.put(GEOPOINT_TAG, new GeoPoint(userLocation.getLatitude(), userLocation.getLongitude()));
+        element.put(TIMESTAMP_TAG, Timestamp.now());
         // db.writeDocument("History/" + userAccount.getId() + "/Positions", element, o -> { }, e -> { });
 
-        gridFirestoreInteractor.writeDocument(collectionReference("LastPositions"), element);
+        gridFirestoreInteractor.writeDocument(collectionReference(LAST_POSITIONS_COLL), element);
     }
 
     // write in History Collection on Firestore, user with ID USER_PATH_DEMO
@@ -217,7 +219,7 @@ public class DataForDemo {
         final boolean[] pathLoaded = new boolean[1];
         double lat = 50.0;//33.39767645465177;
         double longi = -73.0;//-118.39439114221236;
-        for (double i=0; i<50*0.001; i=i+0.001) {
+        for (double i = 0; i < 50 * 0.001; i = i + 0.001) {
             Location location = LocationUtils.buildLocation(lat + i, longi + i);
             Map<String, Object> position = new HashMap();
             position.put("Position", new PositionRecord(Timestamp.now(),
@@ -239,7 +241,7 @@ public class DataForDemo {
         initInfectedOnRoute();
         int i = 0;
         Log.d("ROUTE SIZE: ", String.valueOf(routeCoordinates.size()));
-        for (Point point: routeCoordinates) {
+        for (Point point : routeCoordinates) {
             double lat = point.latitude();
             double lon = point.longitude();
             //Location location = LocationUtils.buildLocation(lat, lon);
@@ -256,7 +258,7 @@ public class DataForDemo {
             if (infectedOnRoute[i] == 1) {
                 carrierAndPositionCreationUpload(Carrier.InfectionStatus.INFECTED, 1f, lat, lon, timestamp.toDate());
             }
-            i+=1;
+            i += 1;
         }
         Log.d("LOOPINDEX: ", String.valueOf(i));
     }

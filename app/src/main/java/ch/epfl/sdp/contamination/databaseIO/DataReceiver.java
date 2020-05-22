@@ -5,6 +5,7 @@ import android.location.Location;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.contamination.Carrier;
@@ -34,6 +35,10 @@ public interface DataReceiver {
      */
     CompletableFuture<Location> getMyLastLocation(Account account);
 
+    /**
+     * @return: positions send to firebase during the last UNINTENTIONAL_CONTAGION_TIME time.
+     */
+    SortedMap<Date, Location> getLastPositions();
 
 //    int getAndResetSickNeighbors(String userId);//,Callback<Map<String,Object>> callback);
 

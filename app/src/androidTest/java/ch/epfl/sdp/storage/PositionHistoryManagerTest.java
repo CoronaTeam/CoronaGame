@@ -50,7 +50,7 @@ public class PositionHistoryManagerTest {
         }
     }
     @Test
-    public void getLastPositionsWorksOnSecondUseage(){
+    public void getLastPositionsWorksOnSecondUsage(){
         getLastPositionsReturnsCorrectWindowOfLocations();
     }
 }

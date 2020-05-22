@@ -221,7 +221,10 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
         userIds.forEach(u -> notifyNeighborsOfMyInfection(u,previousIllnessProbability));
     }
 
-    private void notifyNeighborsOfMyInfection(String u, float previousIllnessProbability){
+    public void notifyNeighborsOfMyInfection(String u, float previousIllnessProbability){
+
+        //TODO: [LOG]
+        System.out.println("TEST GETLASTPOSITION IN");
         DataSender.sendAlert(u, previousIllnessProbability);
     }
 

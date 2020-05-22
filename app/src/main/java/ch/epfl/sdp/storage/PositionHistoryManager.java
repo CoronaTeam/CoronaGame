@@ -29,7 +29,6 @@ public class PositionHistoryManager  {
         if(instance == null){
             instance =  getNewManager();
         }
-        return;
     }
 
     private static ConcreteManager<Date, Location> getNewManager() {
@@ -67,7 +66,6 @@ public class PositionHistoryManager  {
     }
     public static void refreshLastPositions(Date time, Location geoPoint) {
         setHistoryManager();
-        Date oldestDate = new Date(time.getTime() - MAX_CACHE_ENTRY_AGE);
         SortedMap<Date,Location> hist = new TreeMap();
 
         hist.put(time,geoPoint);
@@ -84,8 +82,6 @@ public class PositionHistoryManager  {
      */
     public static SortedMap<Date, Location> getLastPositions() {
         setHistoryManager();
-        //TODO: [LOG]
-        System.out.println("TEST GETLASTPOSITION IN");
         Date lastDate = new Date(System.currentTimeMillis()-MAX_CACHE_ENTRY_AGE);
         SortedMap<Date,Location> lastPos = instance.filter((date, geoP) -> ((Date)(date)).after(lastDate));
         return lastPos;
@@ -94,11 +90,6 @@ public class PositionHistoryManager  {
         if(instance!=null){
             instance.delete();
             instance = null;
-        }
-    }
-    public static void close() throws IOException {
-        if(instance!=null){
-            instance.close();
         }
     }
 }

@@ -43,12 +43,6 @@ public class AuthenticationManagerTest {
     }
 
     @Test
-    @Ignore("Last name is in the same view in new UI")
-    public void lastNameIsDisplayed() {
-        onView(withId(R.id.lastName)).check(matches(withText(User.DEFAULT_FAMILY_NAME)));
-    }
-
-    @Test
     public void emailIsDisplayed() {
         onView(withId(R.id.email)).check(matches(withText(User.DEFAULT_EMAIL)));
     }

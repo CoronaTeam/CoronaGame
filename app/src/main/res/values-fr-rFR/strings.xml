@@ -107,6 +107,7 @@
 
     <string name="your_user_status_is_set_to_infected">Votre statut utilisateur est défini sur infecté(e)</string>
     <string name="your_user_status_is_set_to_not_infected">Votre statut utilisateur est défini sur non-infecté(e)</string>
+    <string name="profile_picture">Photo de profil</string>
     <string name="no_corresponding_path">Trajet inexistant</string>
     <string name="delete_local_his">Efface l\'historique</string>
 </resources>

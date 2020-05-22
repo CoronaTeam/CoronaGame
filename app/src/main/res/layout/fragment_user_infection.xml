@@ -1,43 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:gravity="center"
-    tools:context=".testActivities.UserInfectionActivity">
+    android:gravity="center">
 
     <Button
         android:id="@+id/infectionStatusButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/i_am_infected"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/infectionStatusView" />
+        android:text="@string/i_am_infected" />
 
     <TextView
         android:id="@+id/infectionStatusView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/your_user_status_is_set_to_not_infected"
-        android:textColor="#2eb82e"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textColor="@color/colorGreenCured"/>
 
     <TextView
         android:id="@+id/onlineStatusView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/you_cannot_update_your_status_you_are_offline"
-        app:layout_constraintBottom_toTopOf="@+id/infectionStatusButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/infectionStatusView" />
+        android:text="@string/you_cannot_update_your_status_you_are_offline" />
 
     <TextView
         android:id="@+id/user_prob"
@@ -50,9 +35,6 @@
         android:id="@+id/refreshButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/refresh"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/infectionStatusButton" />
+        android:text="@string/refresh" />
 
 </LinearLayout>

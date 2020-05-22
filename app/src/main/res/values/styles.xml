@@ -4,7 +4,8 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryLight</item>
+        <item name="colorSecondary">@color/colorSecondary</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
@@ -12,6 +13,13 @@
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Card">
+        <item name="android:background">@color/colorSecondary</item>
+        <item name="android:elevation">@dimen/baseElevation</item>
+        <item name="android:outlineProvider">bounds</item>
+        <item name="android:padding">@dimen/basePadding</item>
     </style>
 
 </resources>

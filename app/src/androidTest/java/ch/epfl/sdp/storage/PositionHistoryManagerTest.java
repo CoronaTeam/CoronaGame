@@ -24,6 +24,7 @@ import ch.epfl.sdp.identity.fragment.AccountFragment;
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.contamination.InfectionAnalyst.PRESYMPTOMATIC_CONTAGION_TIME;
+import static junit.framework.TestCase.assertSame;
 import static org.junit.Assert.assertTrue;
 
 public class PositionHistoryManagerTest {
@@ -44,12 +45,12 @@ public class PositionHistoryManagerTest {
         SortedMap<Date, Location> res = receiver.getLastPositions();
         Collection<Location> val = res.values();
         Iterator<Location> it = val.iterator();
-        assertTrue(val.size() == round);
+        assertSame(round,val.size());
         return it;
     }
     private void checkItValue(Iterator<Location> it){
         while (it.hasNext()) {
-            assertTrue(it.next().getLatitude() == 1);
+            assertSame(1,it.next().getLatitude());
         }
     }
     @Test

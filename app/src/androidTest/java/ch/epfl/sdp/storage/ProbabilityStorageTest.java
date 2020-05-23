@@ -81,9 +81,8 @@ public class ProbabilityStorageTest {
         Map<Integer, Double> res = manager.read();
     }
 
-    @Test
-    public void fileCannotBeDeletedThenWritten() {
-        testException.expect(IllegalStateException.class);
+    @Test(expected = Test.None.class)
+    public void fileCanBeDeletedThenWritten() {
 
         StorageManager<Integer, Double> manager = getIntDoubleManager();
         manager.delete();

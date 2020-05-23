@@ -107,7 +107,7 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
                 // Add to cache
                 cache.put(e.getKey(), e.getValue());
 
-                writer.write(e.getKey().toString() + "," + e.getValue().toString() + LINE_END);
+                writer.write(e.getKey().toString() + separator + e.getValue().toString() + LINE_END);
             }
             writer.flush();
             return true;

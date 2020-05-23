@@ -75,6 +75,8 @@ public class PositionHistoryManager  {
             //TODO : why does this throw an IllegalStateException
         instance.write(hist);
         }catch (IllegalStateException i){
+            //TODO: [LOG]
+            System.out.println("PositionHistoryManager illegal state refresh");
             instance.delete();
             instance = getNewManager();
             instance.write(hist);

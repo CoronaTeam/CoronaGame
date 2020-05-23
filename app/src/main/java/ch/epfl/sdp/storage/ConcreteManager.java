@@ -89,6 +89,8 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
 
     private void checkCacheStatus() {
         if (!isReadable()) {
+            //TODO: [LOG]
+            System.out.println("TEST : checkStatus FAILED");
             throw new IllegalStateException("Could not perform initial cache loading");
         }
     }
@@ -102,13 +104,16 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
         try {
             if (writer == null) {
                 //TODO: [LOG]
-                System.out.println("TEST : writer is null, check cache status");
+                System.out.println("TEST : writer is null, check cache status " + this + " with name "+filename);
                 checkCacheStatus();
-                //TODO: [LOG]
-                System.out.println("TEST : cache status check finished");
+                if(file==null){
+                    //TODO: [LOG]
+                    System.out.println("TEST : FILE IS NULL :( c'est nul");
+                }
                 writer = new FileWriter(file, true);
             }
-
+            //TODO: [LOG]
+            System.out.println("TEST : writer is not null with name "+filename);
             for (Map.Entry<A, B> e : payload.entrySet()) {
                 // Add to cache
                 cache.put(e.getKey(), e.getValue());
@@ -127,6 +132,10 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
                 System.out.println("TEST : IO EXCEPTION IN WRITE INTERNAL");
                 writer = null;
             }
+            return false;
+        } catch (NullPointerException e){
+            //TODO: [LOG]
+            System.out.println("TEST :IN THE NULLPOINTER OF WRITER" +e.getStackTrace());
             return false;
         }
     }
@@ -156,8 +165,6 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
     public boolean isReadable() {
         while (!loadingCache.get()) {
         }
-        //TODO: [LOG]
-        System.out.println("TEST : cachOk is "+cacheOk.get());
         return cacheOk.get();
     }
 

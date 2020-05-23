@@ -171,7 +171,7 @@ public class ConcreteAnalysisTest {
         }
     };
 
-    @BeforeClass
+//    @BeforeClass TODO: REMOVE COMMENT
     public static void initiateData() {
         recoveryCounter = 0;
 

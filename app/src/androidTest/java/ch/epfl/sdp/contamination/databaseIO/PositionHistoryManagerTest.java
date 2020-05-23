@@ -1,4 +1,4 @@
-package ch.epfl.sdp.storage;
+package ch.epfl.sdp.contamination.databaseIO;
 
 import android.location.Location;
 

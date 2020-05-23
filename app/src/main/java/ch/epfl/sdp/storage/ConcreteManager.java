@@ -35,6 +35,8 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
     private Function<String, B> stringToB;
     private AtomicBoolean loadingCache;
     private AtomicBoolean cacheOk;
+    private Context context;
+    private String filename;
 
     public ConcreteManager(Context context, String filename, Function<String, A> convertToA, Function<String, B> convertToB) {
         if (convertToA == null || convertToB == null) {
@@ -43,9 +45,26 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
 
         stringToA = convertToA;
         stringToB = convertToB;
+        this.context = context;
+        this.filename = filename;
 
+        createFile();
+
+    }
+    private void setAtomicBooleans(){
+        loadingCache = new AtomicBoolean(false);
+        cacheOk = new AtomicBoolean(false);
+        AsyncTask.execute(() -> {
+            boolean result = loadCache();
+            cacheOk.set(result);
+            loadingCache.set(true);
+        });
+    }
+    private void createFile(){
         file = new File(context.getFilesDir(), filename);
         if (file.isDirectory()) {
+            //TODO: [LOG]
+            System.out.println("TEST : it is directory");
             throw new IllegalArgumentException("Need a file and not a directory");
         }
 
@@ -53,23 +72,19 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
             try {
                 file.createNewFile();
             } catch (IOException e) {
+                //TODO: [LOG]
+                System.out.println("TEST : could not create file");
                 throw new IllegalArgumentException("Unable to create a new file, must select existing one");
             }
         }
         if (!file.canWrite() || !file.canRead()) {
+            //TODO: [LOG]
+            System.out.println("TEST : cannot read or write the specified file");
             throw new IllegalArgumentException("Cannot read or write on the specified file");
         }
-
+        isDeleted = false;
         cache = new TreeMap<>();
-
-        loadingCache = new AtomicBoolean(false);
-        cacheOk = new AtomicBoolean(false);
-
-        AsyncTask.execute(() -> {
-            boolean result = loadCache();
-            cacheOk.set(result);
-            loadingCache.set(true);
-        });
+        setAtomicBooleans();
     }
 
     private void checkCacheStatus() {
@@ -81,12 +96,16 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
     @Override
     public boolean write(SortedMap<A, B> payload) {
         if (isDeleted) {
-            throw new IllegalStateException("Cannot read file after deletion");
+            createFile();
         }
 
         try {
             if (writer == null) {
+                //TODO: [LOG]
+                System.out.println("TEST : writer is null, check cache status");
                 checkCacheStatus();
+                //TODO: [LOG]
+                System.out.println("TEST : cache status check finished");
                 writer = new FileWriter(file, true);
             }
 
@@ -99,7 +118,15 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
             writer.flush();
             return true;
         } catch (IOException e) {
-            writer = null;
+            //TODO: [LOG]
+            System.out.println("TEST : IO EXCEPTION IN WRITE EXTERNAL");
+            try {
+                close();
+            } catch (IOException ex) {
+                //TODO: [LOG]
+                System.out.println("TEST : IO EXCEPTION IN WRITE INTERNAL");
+                writer = null;
+            }
             return false;
         }
     }
@@ -129,12 +156,9 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
     public boolean isReadable() {
         while (!loadingCache.get()) {
         }
-
-        if (!cacheOk.get()) {
-            return false;
-        }
-
-        return true;
+        //TODO: [LOG]
+        System.out.println("TEST : cachOk is "+cacheOk.get());
+        return cacheOk.get();
     }
 
     @Override
@@ -197,6 +221,7 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
     public void close() throws IOException {
         if (writer != null) {
             writer.close();
+            writer = null;
         }
     }
 }

@@ -38,6 +38,7 @@ public class PositionHistoryManagerTest {
         sender = new ConcreteDataSender(grid);
         receiver = new ConcreteDataReceiver(grid);
         AccountFragment.IN_TEST = true;
+        PositionHistoryManager.deleteLocalProbabilityHistory();
     }
     private Iterator<Location> addReg(Layman me,int checkNumber){
         round +=1 ;

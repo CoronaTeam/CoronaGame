@@ -24,6 +24,7 @@ import static ch.epfl.sdp.contamination.databaseIO.DataSender.MAX_CACHE_ENTRY_AG
 /**
  * This is a kind of a singleton class to avoid problems. It manages the storing exchanges of the last positions.
  * Won't work if we store more than just the lattitude and longitude in the location
+ * This class should not be made static for testing purpose.
  */
 public class PositionHistoryManager  {
     private static ConcreteManager<Date, Location> instance = null;
@@ -81,19 +82,12 @@ public class PositionHistoryManager  {
         setHistoryManager();
         SortedMap<Date,Location> hist = new TreeMap();
         if(time==null){
-//            time = new Date();
+            time = new Date();
         }
         hist.put(time,location);
-        try{
-            //TODO : why does this throw an IllegalStateException
+
         instance.write(hist);
-        }catch (IllegalStateException i){
-            //TODO: [LOG]
-            System.out.println("PositionHistoryManager illegal state date "+time+" loc "+location.toString() + i.toString());
-            instance.delete();
-            instance = getNewManager();
-            instance.write(hist);
-        }
+
         try {
             instance.close();
         } catch (IOException e) {
@@ -112,15 +106,10 @@ public class PositionHistoryManager  {
     }
 
     @VisibleForTesting
-    public void deleteLocalProbabilityHistory() {
-
-            // Delete current manager
+    public static void deleteLocalProbabilityHistory() {
+        setHistoryManager();
+        // Delete the file
         instance.delete();
-
-            // Create a new one
-        instance = getNewManager();
-
-        instance.read();
     }
 
 }

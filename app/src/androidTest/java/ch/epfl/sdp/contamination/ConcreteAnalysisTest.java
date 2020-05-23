@@ -33,7 +33,6 @@ import ch.epfl.sdp.contamination.databaseIO.DataReceiver;
 import ch.epfl.sdp.contamination.fragment.InfectionFragment;
 import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.location.LocationService;
-import ch.epfl.sdp.contamination.databaseIO.PositionHistoryManager;
 import ch.epfl.sdp.testActivities.InfectionActivity;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -144,7 +143,7 @@ public class ConcreteAnalysisTest {
             }
         }
     };
-    FakeDataSender sender = new FakeDataSender() {
+    FakeDataExchanger sender = new FakeDataExchanger() {
         @Override
         public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
             fakeFirebaseStore.put(time, location);
@@ -171,7 +170,7 @@ public class ConcreteAnalysisTest {
         }
     };
 
-//    @BeforeClass TODO: REMOVE COMMENT
+    @BeforeClass
     public static void initiateData() {
         recoveryCounter = 0;
 

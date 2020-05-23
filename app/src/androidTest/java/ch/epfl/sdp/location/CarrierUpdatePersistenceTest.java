@@ -26,7 +26,7 @@ import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.ConcreteAnalysis;
 import ch.epfl.sdp.contamination.FakeAnalyst;
-import ch.epfl.sdp.contamination.FakeDataSender;
+import ch.epfl.sdp.contamination.FakeDataExchanger;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
 import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.contamination.ObservableCarrier;
@@ -195,7 +195,7 @@ public class CarrierUpdatePersistenceTest {
         assertThat(sentinel.get(), equalTo(0));
 
         Date now = new Date();
-        DataSender fakeSender = new FakeDataSender();
+        DataSender fakeSender = new FakeDataExchanger();
         fakeSender.registerLocation(iAmBob, TestTools.newLoc(0, 0), now);
         mActivityRule.getActivity().getService().setSender(fakeSender);
 
@@ -210,7 +210,6 @@ public class CarrierUpdatePersistenceTest {
 
     @Test(timeout = 10000)
     public void alarmSetByServiceIsSuccessful() {
-        //TODO IMMEDIATE : SEE IF CHANGING THE RECEIVER WILL HELP
         useAnalystWithSentinel();
 
         sentinel.set(0);
@@ -222,10 +221,10 @@ public class CarrierUpdatePersistenceTest {
 
 
         Date now = new Date();
-        DataSender fakeSender = new FakeDataSender();
+        FakeDataExchanger fakeSender = new FakeDataExchanger();
         fakeSender.registerLocation(iAmBob, TestTools.newLoc(1, 1), now);
         mActivityRule.getActivity().getService().setSender(fakeSender);
-
+        mActivityRule.getActivity().getService().setReceiver(fakeSender);
         while (sentinel.get() == 0) {
         }
 
@@ -244,7 +243,7 @@ public class CarrierUpdatePersistenceTest {
         // Pass LocationService's carrier to FakeAnalyst
         InfectionAnalyst fakeAnalyst = new FakeAnalyst(service.getAnalyst().getCarrier());
 
-        DataSender fakeSender = new FakeDataSender();
+        DataSender fakeSender = new FakeDataExchanger();
 
         service.setAnalyst(fakeAnalyst);
         service.setSender(fakeSender);
@@ -282,7 +281,7 @@ public class CarrierUpdatePersistenceTest {
         InfectionAnalyst fakeAnalyst = new FakeAnalyst(serviceBefore.getAnalyst().getCarrier());
 
         serviceBefore.setAnalyst(fakeAnalyst);
-        serviceBefore.setSender(new FakeDataSender());
+        serviceBefore.setSender(new FakeDataExchanger());
 
         // Modify carrier status
         assertThat(fakeAnalyst.getCarrier().evolveInfection(new Date(), UNKNOWN, .45f), equalTo(true));

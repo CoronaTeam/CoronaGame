@@ -20,12 +20,12 @@ import static org.junit.Assert.assertTrue;
 public class ConcretePositionAggregatorTest {
     private final int maxNumberOfLoc = 1000;
     private ConcretePositionAggregator aggregator;
-    private FakeDataSender sender;
+    private FakeDataExchanger sender;
     private int timelap;
 
     @Before
     public void initTest() {
-        this.sender = new FakeDataSender();
+        this.sender = new FakeDataExchanger();
         this.aggregator = new ConcretePositionAggregator(sender, new Layman(HEALTHY), maxNumberOfLoc);
         aggregator.updateToOnline();
         timelap = PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION / maxNumberOfLoc;
@@ -53,7 +53,7 @@ public class ConcretePositionAggregatorTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void canNotInstantiateAggregatorWithNullAnalyst() {
-        new ConcretePositionAggregator(new FakeDataSender(), null);
+        new ConcretePositionAggregator(new FakeDataExchanger(), null);
     }
 
     private void addAndWait(Location l, Date d) {

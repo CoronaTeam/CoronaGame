@@ -31,7 +31,6 @@ import static org.junit.Assert.assertTrue;
 public class PositionHistoryManagerTest {
     private DataSender sender;
     private DataReceiver receiver;
-    private static int round = 0 ;
     @Before
     public void miniInit(){
         GridFirestoreInteractor grid = new GridFirestoreInteractor();
@@ -41,7 +40,6 @@ public class PositionHistoryManagerTest {
         PositionHistoryManager.deleteLocalProbabilityHistory();
     }
     private Iterator<Location> addReg(Layman me,int checkNumber){
-        round +=1 ;
         sender.registerLocation(me, newLoc(2, 2), new Date(System.currentTimeMillis() - 1 - PRESYMPTOMATIC_CONTAGION_TIME));
         sender.registerLocation(me, newLoc(1, 1), new Date(System.currentTimeMillis()));
         SortedMap<Date, Location> res = receiver.getLastPositions();

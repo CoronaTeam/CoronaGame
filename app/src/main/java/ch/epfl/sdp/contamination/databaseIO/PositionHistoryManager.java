@@ -7,6 +7,7 @@ import androidx.annotation.VisibleForTesting;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.SortedMap;
@@ -23,7 +24,7 @@ import static ch.epfl.sdp.contamination.databaseIO.DataSender.MAX_CACHE_ENTRY_AG
 
 /**
  * This is a kind of a singleton class to avoid problems. It manages the storing exchanges of the last positions.
- * Won't work if we store more than just the lattitude and longitude in the location
+ * Will only store the lattitude and longitude in the location
  * This class should not be made static for testing purpose.
  */
 public class PositionHistoryManager  {
@@ -55,22 +56,23 @@ public class PositionHistoryManager  {
         );
     }
     private static Location stringToLocation(String s){
-        Pattern p = Pattern.compile("-?\\d+(,\\d+)*?\\.?\\d+?");
-        List<Double> numbers = new ArrayList<Double>();
-        Matcher m = p.matcher(s);
-
-        while (m.find()) {
-            numbers.add(Double.valueOf(m.group()));
+        String[] splitted = s.split(",");
+        if(splitted.length!=2){
+            throw new IllegalArgumentException("The location string is wrong");
         }
+        float n1 = getNumberFromString(splitted[0]);
+        float n2 = getNumberFromString(splitted[1]);
         Location res = new Location("provider");
         res.reset();
-        try{
-            res.setLatitude(numbers.get(0));
-            res.setLongitude(numbers.get(1));
-        }catch (NullPointerException e){
-            throw new IllegalArgumentException("The cache is not storing Location" + e.getStackTrace());
-        }
+        res.setLatitude(n1);
+        res.setLongitude(n2);
+
         return res;
+    }
+
+    private static float getNumberFromString(String s) {
+        s = s.replaceAll("[^\\d.]", "");
+        return Float.parseFloat(s);
     }
 
     /**
@@ -79,12 +81,20 @@ public class PositionHistoryManager  {
      * @param location
      */
     protected static void refreshLastPositions(Date time, Location location) {
-        setHistoryManager();
-        SortedMap<Date,Location> hist = new TreeMap();
+        if(location==null){
+            return; //refresh with no location is useless
+        }
+        Location toStore = new Location("myFavoriteFakeProvider");
+        toStore.reset();
+        toStore.setLongitude(location.getLongitude());
+        toStore.setLatitude(location.getLatitude());
         if(time==null){
             time = new Date();
         }
-        hist.put(time,location);
+        setHistoryManager();
+        SortedMap<Date,Location> hist = new TreeMap();
+
+        hist.put(time,toStore);
 
         instance.write(hist);
 

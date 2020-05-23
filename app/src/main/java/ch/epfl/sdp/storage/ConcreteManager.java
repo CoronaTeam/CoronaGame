@@ -65,6 +65,9 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
         });
     }
     private void createFileIfAbsent(){
+        if(isDeleted=false){
+            return;
+        }
         file = new File(context.getFilesDir(), filename);
         if (file.isDirectory()) {
             throw new IllegalArgumentException("Need a file and not a directory");
@@ -118,6 +121,7 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
     }
 
     private boolean loadCache() {
+        createFileIfAbsent();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
 
             String line;
@@ -126,9 +130,7 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
                 if (lineContent.length != 2) {
                     //TODO : [LOG]
                     System.out.println("LINE CONTENTT NOT  IN MANAGER : "+ Arrays.toString(lineContent)+lineContent.length);
-                    for( String s : lineContent){
-                        System.out.println("LINE CONTENTT NOT  IN MANAGER : "+s);
-                    }
+
 
                     return false;
                 }
@@ -138,8 +140,12 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
             }
             return true;
         } catch (IOException e) {
+            //TODO : [LOG]
+            System.out.println("LINE CONTENTT NOT  IN MANAGER : IO EXCEPTION "+e.toString());
             return false;
         } catch (Exception e) {
+            //TODO : [LOG]
+            System.out.println("LINE CONTENTT NOT  IN MANAGER : EXCEPTION "+e.toString());
             return false;
         }
     }

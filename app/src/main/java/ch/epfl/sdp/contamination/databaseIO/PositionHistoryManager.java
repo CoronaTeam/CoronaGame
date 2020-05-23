@@ -2,6 +2,8 @@ package ch.epfl.sdp.contamination.databaseIO;
 
 import android.location.Location;
 
+import androidx.annotation.VisibleForTesting;
+
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -9,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,7 +22,8 @@ import ch.epfl.sdp.storage.ConcreteManager;
 import static ch.epfl.sdp.contamination.databaseIO.DataSender.MAX_CACHE_ENTRY_AGE;
 
 /**
- * This is a singleton class to avoid problems. It manages the storing exchanges of the last positions.
+ * This is a kind of a singleton class to avoid problems. It manages the storing exchanges of the last positions.
+ * Won't work if we store more than just the lattitude and longitude in the location
  */
 public class PositionHistoryManager  {
     private static ConcreteManager<Date, Location> instance = null;
@@ -30,6 +34,7 @@ public class PositionHistoryManager  {
         }
         if(instance == null){
             instance =  getNewManager();
+//            instance.read();
         }
     }
 
@@ -45,7 +50,7 @@ public class PositionHistoryManager  {
                 }, location->{
 
                     return stringToLocation(location);
-                }
+                }, ";"
         );
     }
     private static Location stringToLocation(String s){
@@ -66,17 +71,25 @@ public class PositionHistoryManager  {
         }
         return res;
     }
-    protected static void refreshLastPositions(Date time, Location geoPoint) {
+
+    /**
+     * Refresh last positions. If date is null, it is set to now.
+     * @param time
+     * @param location
+     */
+    protected static void refreshLastPositions(Date time, Location location) {
         setHistoryManager();
         SortedMap<Date,Location> hist = new TreeMap();
-
-        hist.put(time,geoPoint);
+        if(time==null){
+//            time = new Date();
+        }
+        hist.put(time,location);
         try{
             //TODO : why does this throw an IllegalStateException
         instance.write(hist);
         }catch (IllegalStateException i){
             //TODO: [LOG]
-            System.out.println("PositionHistoryManager illegal state refresh");
+            System.out.println("PositionHistoryManager illegal state date "+time+" loc "+location.toString() + i.toString());
             instance.delete();
             instance = getNewManager();
             instance.write(hist);
@@ -94,7 +107,20 @@ public class PositionHistoryManager  {
     protected static SortedMap<Date, Location> getLastPositions() {
         setHistoryManager();
         Date lastDate = new Date(System.currentTimeMillis()-MAX_CACHE_ENTRY_AGE);
-        SortedMap<Date,Location> lastPos = instance.filter((date, geoP) -> ((Date)(date)).after(lastDate));
+        SortedMap<Date,Location> lastPos = instance.filter((date, loc) -> ((Date)(date)).after(lastDate));
         return lastPos;
     }
+
+    @VisibleForTesting
+    public void deleteLocalProbabilityHistory() {
+
+            // Delete current manager
+        instance.delete();
+
+            // Create a new one
+        instance = getNewManager();
+
+        instance.read();
+    }
+
 }

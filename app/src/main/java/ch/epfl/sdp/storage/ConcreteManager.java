@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.SortedMap;
@@ -24,8 +25,8 @@ import java.util.function.Function;
  * @param <B> The type of the values
  */
 public class ConcreteManager<A extends Comparable<A>, B> implements StorageManager<A, B> {
-
-    private static final String SEPARATOR = ",";
+    //The separator should be something that is not in the string representation of the data stored
+    private String separator;
     private static final String LINE_END = "\n";
     private boolean isDeleted = false;
     private File file;
@@ -38,18 +39,21 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
     private Context context;
     private String filename;
 
-    public ConcreteManager(Context context, String filename, Function<String, A> convertToA, Function<String, B> convertToB) {
+    public ConcreteManager(Context context, String filename, Function<String, A> convertToA, Function<String, B> convertToB,String separator) {
         if (convertToA == null || convertToB == null) {
             throw new IllegalArgumentException();
         }
-
+        this.separator = separator;
         stringToA = convertToA;
         stringToB = convertToB;
         this.context = context;
         this.filename = filename;
 
-        createFile();
+        createFileIfAbsent();
 
+    }
+    public ConcreteManager(Context context, String filename, Function<String, A> convertToA, Function<String, B> convertToB){
+        this(context,filename,convertToA,convertToB,",");
     }
     private void setAtomicBooleans(){
         loadingCache = new AtomicBoolean(false);
@@ -60,7 +64,7 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
             loadingCache.set(true);
         });
     }
-    private void createFile(){
+    private void createFileIfAbsent(){
         file = new File(context.getFilesDir(), filename);
         if (file.isDirectory()) {
             throw new IllegalArgumentException("Need a file and not a directory");
@@ -90,7 +94,7 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
     @Override
     public boolean write(SortedMap<A, B> payload) {
         if (isDeleted) {
-            createFile();
+            createFileIfAbsent();
         }
 
         try {
@@ -118,8 +122,14 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
 
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] lineContent = line.split(SEPARATOR);
+                String[] lineContent = line.split(separator);
                 if (lineContent.length != 2) {
+                    //TODO : [LOG]
+                    System.out.println("LINE CONTENTT NOT  IN MANAGER : "+ Arrays.toString(lineContent)+lineContent.length);
+                    for( String s : lineContent){
+                        System.out.println("LINE CONTENTT NOT  IN MANAGER : "+s);
+                    }
+
                     return false;
                 }
                 A key = stringToA.apply(lineContent[0]);

@@ -100,22 +100,10 @@ public class Layman extends ObservableCarrier {
             when = new Date();
         }
         // Include this update into the history
-        //TODO :@Matteo what is wrong with those lines
         TreeMap toWrite;
-        try{
-            toWrite = new TreeMap<>(Collections.singletonMap(when, probability));
-            infectionHistory.write(toWrite);
-        }catch(NullPointerException e){
-            //TODO:[LOG]
-            System.out.println("Tree map creating is laggy : TEST : "+when+" probability");
-        }
+        toWrite = new TreeMap<>(Collections.singletonMap(when, probability));
+        infectionHistory.write(toWrite);
 
-//        try {
-
-//        } catch (NullPointerException e) {
-//            System.out.println("I,"+uniqueID+", failed with "+e.toString()+ " in TEST :");
-//            e.printStackTrace();
-//        }
         infectedWithProbability = probability;
         return true;
     }

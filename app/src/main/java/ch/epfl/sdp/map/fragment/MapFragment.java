@@ -81,6 +81,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private MapFragment classPointer;
     private ServiceConnection conn;
     private Callable onMapVisible;
+    private int CURRENT_PATH;
 
     private RapidFloatingActionHelper rfabHelper;
 
@@ -289,7 +290,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         if (view.getId() == R.id.heatMapToggle) {
             toggleHeatMap();
         } else if (view.getId() == R.id.wholePath) {
-            //seeWholePath();
+            pathsHandler.seeWholePath(CURRENT_PATH);
         }
     }
 
@@ -311,6 +312,14 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
                     // button to see whole current path: appear when pressing to see some path, disappearing when pressing again
                     if (!layerId.equals(HEATMAP_LAYER_ID) && View.INVISIBLE == view.findViewById(R.id.wholePath).getVisibility()) {
                         view.findViewById(R.id.wholePath).setVisibility(View.VISIBLE);
+                    }
+                    if (layerId.equals(YESTERDAY_PATH_LAYER_ID)) {
+                        CURRENT_PATH = R.string.yesterday;
+                    } else if (layerId.equals(BEFORE_PATH_LAYER_ID)) {
+                        CURRENT_PATH = R.string.before_yesterday;
+                    }
+                    if (!TESTING_MODE && !layerId.equals(HEATMAP_LAYER_ID)) {
+                        Toast.makeText(getContext(), "Click on the square to see the whole path", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -368,9 +377,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     public void onRFACItemIconClick(int position, RFACLabelItem item) {
         String day = position == 0 ? getString(R.string.yesterday) : getString(R.string.before_yesterday);
         int dayInt = position == 0 ? R.string.yesterday : R.string.before_yesterday;
-        if (!TESTING_MODE) {
-            Toast.makeText(getContext(), "Click on focus button : " + position + 1 + "to see whole" + day + "path.", Toast.LENGTH_SHORT).show();
-        }
+
         togglePath(dayInt);
 
         rfabHelper.toggleContent();

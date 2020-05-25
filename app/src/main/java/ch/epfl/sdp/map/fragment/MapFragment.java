@@ -10,6 +10,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -163,6 +164,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
 
         view.findViewById(R.id.heatMapToggle).setOnClickListener(this);
+        view.findViewById(R.id.wholePath).setOnClickListener(this);
         setHistoryRFAButton();
 
         return view;
@@ -289,7 +291,9 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     public void onClick(View view) {
         if (view.getId() == R.id.heatMapToggle) {
             toggleHeatMap();
+            Log.d("HEATMAPCLICKED: ", "onClick MapFragment");
         } else if (view.getId() == R.id.wholePath) {
+            Log.d("SQUARECLICKED: ", "method onClick in MapFragment");
             pathsHandler.seeWholePath(CURRENT_PATH);
         }
     }

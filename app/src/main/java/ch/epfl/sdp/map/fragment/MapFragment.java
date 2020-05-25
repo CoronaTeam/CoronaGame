@@ -308,15 +308,11 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             if (layer != null) {
                 if (VISIBLE.equals(layer.getVisibility().getValue())) {
                     layer.setProperties(visibility(NONE));
-                    if (!layerId.equals(HEATMAP_LAYER_ID) && View.VISIBLE == view.findViewById(R.id.wholePath).getVisibility()) {
-                        view.findViewById(R.id.wholePath).setVisibility(View.INVISIBLE);
-                    }
+                    showPathZoomOutButton(layerId, View.VISIBLE, View.INVISIBLE);
                 } else {
                     layer.setProperties(visibility(VISIBLE));
                     // button to see whole current path: appear when pressing to see some path, disappearing when pressing again
-                    if (!layerId.equals(HEATMAP_LAYER_ID) && View.INVISIBLE == view.findViewById(R.id.wholePath).getVisibility()) {
-                        view.findViewById(R.id.wholePath).setVisibility(View.VISIBLE);
-                    }
+                    showPathZoomOutButton(layerId, View.INVISIBLE, View.VISIBLE);
                     if (layerId.equals(YESTERDAY_PATH_LAYER_ID)) {
                         CURRENT_PATH = R.string.yesterday;
                     } else if (layerId.equals(BEFORE_PATH_LAYER_ID)) {
@@ -328,6 +324,12 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
                 }
             }
         });
+    }
+
+    private void showPathZoomOutButton(String layerId, int invisible, int visible) {
+        if (!layerId.equals(HEATMAP_LAYER_ID) && invisible == view.findViewById(R.id.wholePath).getVisibility()) {
+            view.findViewById(R.id.wholePath).setVisibility(visible);
+        }
     }
 
     private void togglePath(int day) {

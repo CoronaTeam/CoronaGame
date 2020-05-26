@@ -118,10 +118,6 @@ public class MapActivityTest {
 
     }
 
-    private void testLayerVisibility(String visibility) throws Throwable {
-        waitForSentinelAndSetToZero();
-    }
-
     private void testLayerVisibility(String visibility, String layerId) throws Throwable {
         activityRule.runOnUiThread(() -> {
             mapFragment.getMap().getStyle(style -> {
@@ -152,6 +148,13 @@ public class MapActivityTest {
         testLayerVisibility(NONE, HEATMAP_LAYER_ID);
 
         waitForSentinelAndSetToZero();
+    }
+
+    @Test
+    public void clickOnMyCurrentLocation() {
+        // after click, check map bounds contains circle userLocation
+        //mapFragment.getMap().getBounds();
+        //bounds.contains(circle.getLatLng)
     }
 
     ////////////////////////////////// Tests for PathsHandler //////////////////////////////////////

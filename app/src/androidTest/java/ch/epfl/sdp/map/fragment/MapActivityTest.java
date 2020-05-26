@@ -299,6 +299,8 @@ public class MapActivityTest {
 
         testMapVisible();
 
+        pathGetsInstantiated();
+
         clickToSeePath();
 
         double zoom_before = mapFragment.getMap().getCameraPosition().zoom;

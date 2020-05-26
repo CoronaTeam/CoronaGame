@@ -1,5 +1,6 @@
 package ch.epfl.sdp.map.fragment;
 
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -30,6 +31,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.location.LocationUtils.buildLocation;
@@ -40,6 +42,7 @@ import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
 
 public class MapActivityTest {
 
@@ -136,13 +139,7 @@ public class MapActivityTest {
     @Test(timeout = 100000)
     public void testHeatMapToggleButton() throws Throwable {
 
-        testHeatMapLoadCorrectly();
-
-        mockLocationBroker.setFakeLocation(buildLocation(46, 55));
-
-        mapFragment.onMapVisible(() -> sentinel.incrementAndGet());
-
-        waitForSentinelAndSetToZero();
+        testMapVisible();
 
         testLayerVisibility(VISIBLE, HEATMAP_LAYER_ID);
 
@@ -232,12 +229,7 @@ public class MapActivityTest {
 
         mockLocationBroker.setFakeLocation(buildLocation(46, 55));
 
-        onView(withId(R.id.history_rfab)).perform(click());
-        List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList)
-                mapFragment.getRfabHelper().obtainRFAContent()).getItems();
-
-        activityRule.runOnUiThread(() -> mapFragment.onRFACItemIconClick(0, pathItems.get(0)));
-        sleep(10000);
+        clickToSeePath();
         double act_lat = mapFragment.getMap().getCameraPosition().target.getLatitude();
         double act_lon = mapFragment.getMap().getCameraPosition().target.getLongitude();
 
@@ -256,20 +248,83 @@ public class MapActivityTest {
 
     @Test(timeout = 200000)
     public void testsForNonEmptyPathAndInfected() throws Throwable {
+        yesterdayPathLayerIsSetWhenNotEmpty();
+        yesterdayInfectedLayerIsSetWhenNotEmpty();
+
         PathsHandler.TEST_NON_EMPTY_LIST = true;
 
-        yesterdayPathLayerIsSetWhenNotEmpty();
         if (pathCoordIsEmpty) {
             toggleYesterdayPathChangesVisibilityWhenNotEmpty();
             cameraTargetsPathWhenToggle();
         }
 
-        yesterdayInfectedLayerIsSetWhenNotEmpty();
         if (infectedCoordIsEmpty) {
             infectedLayerVisibilityChangesWhenNotEmpty();
         }
 
         PathsHandler.TEST_NON_EMPTY_LIST = false;
+    }
+
+    @Test
+    public void seeWholePathButtonAppearsWhenSeeingNonEmptyPath() throws Throwable {
+        PathsHandler.TEST_NON_EMPTY_LIST = true;
+
+        testMapVisible();
+        clickToSeePath();
+        onView(withId(R.id.wholePath)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
+
+        PathsHandler.TEST_NON_EMPTY_LIST = false;
+    }
+
+    @Test
+    public void seeWholePathButtonInvisibleWhenNoPath() throws Throwable {
+        PathsHandler.TEST_EMPTY_PATH = true;
+
+        testMapVisible();
+        clickToSeePath();
+        onView(withId(R.id.wholePath)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)));
+
+        PathsHandler.TEST_EMPTY_PATH = false;
+    }
+
+    @Test
+    public void seeWholePathButtonInvisibleByDefault() throws Throwable {
+        testMapVisible();
+        onView(withId(R.id.wholePath)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)));
+    }
+
+    @Test
+    public void clickSeeWholePathMakeZoomAdjust() throws Throwable {
+        PathsHandler.TEST_NON_EMPTY_LIST = true;
+
+        testMapVisible();
+
+        clickToSeePath();
+
+        double zoom_before = mapFragment.getMap().getCameraPosition().zoom;
+        onView(withId(R.id.wholePath)).perform(click());
+        sleep(5000);
+        double zoom_after = mapFragment.getMap().getCameraPosition().zoom;
+
+        assertTrue(zoom_before != zoom_after);
+
+        PathsHandler.TEST_NON_EMPTY_LIST = false;
+    }
+
+    private void clickToSeePath() throws Throwable {
+        onView(withId(R.id.history_rfab)).perform(click());
+        List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList)
+                mapFragment.getRfabHelper().obtainRFAContent()).getItems();
+
+        activityRule.runOnUiThread(() -> mapFragment.onRFACItemIconClick(0, pathItems.get(0)));
+        sleep(10000);
+    }
+
+    private void testMapVisible() throws Throwable {
+        testHeatMapLoadCorrectly();
+        mockLocationBroker.setFakeLocation(buildLocation(46, 55));
+        mapFragment.onMapVisible(() -> sentinel.incrementAndGet());
+        waitForSentinelAndSetToZero();
     }
 
     private void testLayerIsSet(String layerId) throws Throwable {

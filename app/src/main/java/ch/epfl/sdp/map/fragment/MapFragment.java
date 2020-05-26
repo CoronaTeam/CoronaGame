@@ -144,6 +144,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
         view.findViewById(R.id.mapFragment).setVisibility(View.INVISIBLE);
         view.findViewById(R.id.heatMapToggle).setVisibility(View.GONE);
+        view.findViewById(R.id.wholePath).setVisibility((View.INVISIBLE));
 
         mapView = view.findViewById(R.id.mapFragment);
         mapView.onCreate(savedInstanceState);
@@ -179,7 +180,6 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             view.findViewById(R.id.mapFragment).setVisibility(View.VISIBLE);
             view.findViewById(R.id.heatMapToggle).setVisibility(View.VISIBLE);
             view.findViewById(R.id.heapMapLoadingSpinner).setVisibility(View.GONE);
-            view.findViewById(R.id.wholePath).setVisibility((View.INVISIBLE));
 
             callOnMapVisible();
         } else {
@@ -311,12 +311,13 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
                     showPathZoomOutButton(layerId, View.VISIBLE, View.INVISIBLE);
                 } else {
                     layer.setProperties(visibility(VISIBLE));
-                    // button to see whole current path: appear when pressing to see some path, disappearing when pressing again
-                    showPathZoomOutButton(layerId, View.INVISIBLE, View.VISIBLE);
                     if (layerId.equals(YESTERDAY_PATH_LAYER_ID)) {
                         CURRENT_PATH = R.string.yesterday;
                     } else if (layerId.equals(BEFORE_PATH_LAYER_ID)) {
                         CURRENT_PATH = R.string.before_yesterday;
+                    }
+                    if (!layerId.equals(HEATMAP_LAYER_ID)) {
+                        showPathZoomOutButton(layerId, View.INVISIBLE, View.VISIBLE);
                     }
                     if (!TESTING_MODE && !layerId.equals(HEATMAP_LAYER_ID)) {
                         Toast.makeText(getContext(), "Click on the square to see the whole path", Toast.LENGTH_SHORT).show();
@@ -326,9 +327,9 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         });
     }
 
-    private void showPathZoomOutButton(String layerId, int invisible, int visible) {
-        if (!layerId.equals(HEATMAP_LAYER_ID) && invisible == view.findViewById(R.id.wholePath).getVisibility()) {
-            view.findViewById(R.id.wholePath).setVisibility(visible);
+    private void showPathZoomOutButton(String layerId, int visibilityCheck, int buttonVisibility) {
+        if (!layerId.equals(HEATMAP_LAYER_ID) && visibilityCheck == view.findViewById(R.id.wholePath).getVisibility()) {
+            view.findViewById(R.id.wholePath).setVisibility(buttonVisibility);
         }
     }
 

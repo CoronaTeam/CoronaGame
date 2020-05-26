@@ -100,7 +100,6 @@ public class PathsHandler extends Fragment {
     private ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(
             new GridFirestoreInteractor());
 
-
     public PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
         this.parentClass = parentClass;
         this.map = map;
@@ -134,6 +133,9 @@ public class PathsHandler extends Fragment {
         if (TEST_NON_EMPTY_LIST) {
             fakeInitialization();
             setLayers();
+            return;
+        }
+        if (TEST_EMPTY_PATH) {
             return;
         }
 
@@ -317,6 +319,9 @@ public class PathsHandler extends Fragment {
             }
         }
     }
+
+    @VisibleForTesting
+    public static boolean TEST_EMPTY_PATH;
 
     @VisibleForTesting
     public static boolean TEST_NON_EMPTY_LIST;

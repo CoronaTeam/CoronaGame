@@ -21,6 +21,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -38,7 +39,6 @@ import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RapidFloating
 
 import java.util.ArrayList;
 import java.util.List;
-
 import java.util.concurrent.Callable;
 
 import ch.epfl.sdp.BuildConfig;
@@ -48,13 +48,12 @@ import ch.epfl.sdp.location.LocationBroker;
 import ch.epfl.sdp.location.LocationService;
 import ch.epfl.sdp.map.HeatMapHandler;
 import ch.epfl.sdp.map.PathsHandler;
-import ch.epfl.sdp.toDelete.HistoryDialogFragment;
 
-import static ch.epfl.sdp.map.PathsHandler.BEFORE_PATH_LAYER_ID;
-import static ch.epfl.sdp.map.PathsHandler.BEFORE_INFECTED_LAYER_ID;
-import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_PATH_LAYER_ID;
-import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_INFECTED_LAYER_ID;
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
+import static ch.epfl.sdp.map.PathsHandler.BEFORE_INFECTED_LAYER_ID;
+import static ch.epfl.sdp.map.PathsHandler.BEFORE_PATH_LAYER_ID;
+import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_INFECTED_LAYER_ID;
+import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_PATH_LAYER_ID;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
@@ -162,6 +161,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
 
         view.findViewById(R.id.heatMapToggle).setOnClickListener(this);
+        view.findViewById(R.id.myCurrentLocation).setOnClickListener(this);
         setHistoryRFAButton();
 
         return view;
@@ -287,12 +287,20 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     public void onClick(View view) {
         if (view.getId() == R.id.heatMapToggle) {
             toggleHeatMap();
+        } else if (view.getId() == R.id.myCurrentLocation) {
+            setCameraToCurrentLocation();
         }
     }
 
-    private void onClickHistory() {
-        HistoryDialogFragment dialog = new HistoryDialogFragment(this);
-        dialog.show(getActivity().getSupportFragmentManager(), "history_dialog_fragment");
+    private void setCameraToCurrentLocation() {
+        double lat = prevLocation.getLatitude();
+        double lon = prevLocation.getLongitude();
+        CameraPosition position = new CameraPosition.Builder()
+                .target(new LatLng(lat, lon))
+                .build();
+        if (map != null) {
+            map.easeCamera(CameraUpdateFactory.newCameraPosition(position), 2000);
+        }
     }
 
     private void toggleHeatMap() {

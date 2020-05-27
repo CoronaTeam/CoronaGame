@@ -3,7 +3,6 @@ package ch.epfl.sdp.map;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.location.Location;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -197,11 +196,9 @@ public class PathsHandler extends Fragment {
     }
 
     public void seeWholePath(int day) {
-        Log.d("SEEWHOLEPATH: ", "enter method");
         LatLngBounds latLngBounds = day == R.string.yesterday ? yesterdayLLB : beforeLLB;
 
         if (map != null) {
-            Log.d("SEEWHOLEPATH: ", "new lat lng bounds");
             map.easeCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 100), 2000);
         }
     }
@@ -209,14 +206,11 @@ public class PathsHandler extends Fragment {
     private LatLngBounds setLatLngBounds(int day) {
         List<Point> pathCoord = day == R.string.yesterday ? yesterdayPathCoordinates :
                 beforeYesterdayPathCoordinates;
-        Log.d("SETLATLNGBNDS: ", "pathCoord is empty? " + pathCoord.isEmpty());
         LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
-        double lat;
-        double lon;
+
         for (int i = 0; i<pathCoord.size(); ++i) {
-            Log.d("LATLNGBOUNDS INDEX: ", String.valueOf(i));
-            lat = pathCoord.get(i).latitude();
-            lon = pathCoord.get(i).longitude();
+            double lat = pathCoord.get(i).latitude();
+            double lon = pathCoord.get(i).longitude();
             boundsBuilder.include(new LatLng(lat, lon));
         }
         return boundsBuilder.build();
@@ -238,7 +232,6 @@ public class PathsHandler extends Fragment {
             latitudeYesterday = yesterdayPathCoordinates.get(0).latitude();
             longitudeYesterday = yesterdayPathCoordinates.get(0).longitude();
             yesterdayLLB = setLatLngBounds(R.string.yesterday);
-            Log.d("yesterdayLLB is empty: ", String.valueOf(yesterdayLLB.isEmptySpan()));
             pathLocationSet1 = true;
         }
         if (!beforeYesterdayPathCoordinates.isEmpty()) {

@@ -291,9 +291,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     public void onClick(View view) {
         if (view.getId() == R.id.heatMapToggle) {
             toggleHeatMap();
-            Log.d("HEATMAPCLICKED: ", "onClick MapFragment");
         } else if (view.getId() == R.id.wholePath) {
-            Log.d("SQUARECLICKED: ", "method onClick in MapFragment");
             pathsHandler.seeWholePath(CURRENT_PATH);
         }
     }

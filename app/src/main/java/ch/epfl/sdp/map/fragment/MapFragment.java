@@ -10,7 +10,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -380,7 +379,6 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
     @Override
     public void onRFACItemIconClick(int position, RFACLabelItem item) {
-        String day = position == 0 ? getString(R.string.yesterday) : getString(R.string.before_yesterday);
         int dayInt = position == 0 ? R.string.yesterday : R.string.before_yesterday;
 
         togglePath(dayInt);

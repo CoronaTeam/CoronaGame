@@ -21,6 +21,7 @@ import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.style.layers.HeatmapLayer;
 import com.mapbox.mapboxsdk.style.layers.Layer;
@@ -39,26 +40,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import ch.epfl.sdp.identity.Account;
-import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.databaseIO.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.databaseIO.GridFirestoreInteractor;
-import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
+import ch.epfl.sdp.identity.Account;
+import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.location.LocationUtils;
 import ch.epfl.sdp.map.fragment.MapFragment;
 
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
-import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
 import static ch.epfl.sdp.map.HeatMapHandler.adjustHeatMapColorRange;
 import static ch.epfl.sdp.map.HeatMapHandler.adjustHeatMapWeight;
 import static ch.epfl.sdp.map.HeatMapHandler.adjustHeatmapIntensity;
 import static ch.epfl.sdp.map.HeatMapHandler.adjustHeatmapRadius;
-import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
-import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
@@ -87,6 +84,9 @@ public class PathsHandler extends Fragment {
     private double longitudeYesterday;
     private double longitudeBefore;
 
+    private LatLngBounds yesterdayLLB;
+    private LatLngBounds beforeLLB;
+
     private boolean pathLocationSet1; // yesterday
     private boolean pathLocationSet2; // before yesterday
 
@@ -98,7 +98,6 @@ public class PathsHandler extends Fragment {
     private MapFragment parentClass;
     private ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(
             new GridFirestoreInteractor());
-
 
     public PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
         this.parentClass = parentClass;
@@ -133,6 +132,9 @@ public class PathsHandler extends Fragment {
         if (TEST_NON_EMPTY_LIST) {
             fakeInitialization();
             setLayers();
+            return;
+        }
+        if (TEST_EMPTY_PATH) {
             return;
         }
 
@@ -193,6 +195,27 @@ public class PathsHandler extends Fragment {
         }
     }
 
+    public void seeWholePath(int day) {
+        LatLngBounds latLngBounds = day == R.string.yesterday ? yesterdayLLB : beforeLLB;
+
+        if (map != null) {
+            map.easeCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 100), 2000);
+        }
+    }
+
+    private LatLngBounds setLatLngBounds(int day) {
+        List<Point> pathCoord = day == R.string.yesterday ? yesterdayPathCoordinates :
+                beforeYesterdayPathCoordinates;
+        LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+
+        for (int i = 0; i<pathCoord.size(); ++i) {
+            double lat = pathCoord.get(i).latitude();
+            double lon = pathCoord.get(i).longitude();
+            boundsBuilder.include(new LatLng(lat, lon));
+        }
+        return boundsBuilder.build();
+    }
+
     private void initLists() {
         yesterdayPathCoordinates = new ArrayList<>();
         beforeYesterdayPathCoordinates = new ArrayList<>();
@@ -208,12 +231,14 @@ public class PathsHandler extends Fragment {
             setPathLayer(YESTERDAY_PATH_LAYER_ID, YESTERDAY_PATH_SOURCE_ID, yesterdayPathCoordinates);
             latitudeYesterday = yesterdayPathCoordinates.get(0).latitude();
             longitudeYesterday = yesterdayPathCoordinates.get(0).longitude();
+            yesterdayLLB = setLatLngBounds(R.string.yesterday);
             pathLocationSet1 = true;
         }
         if (!beforeYesterdayPathCoordinates.isEmpty()) {
             setPathLayer(BEFORE_PATH_LAYER_ID, BEFORE_PATH_SOURCE_ID, beforeYesterdayPathCoordinates);
             latitudeBefore = beforeYesterdayPathCoordinates.get(0).latitude();
             longitudeBefore = beforeYesterdayPathCoordinates.get(0).longitude();
+            beforeLLB = setLatLngBounds(R.string.before_yesterday);
             pathLocationSet2 = true;
         }
     }
@@ -287,6 +312,9 @@ public class PathsHandler extends Fragment {
             }
         }
     }
+
+    @VisibleForTesting
+    public static boolean TEST_EMPTY_PATH;
 
     @VisibleForTesting
     public static boolean TEST_NON_EMPTY_LIST;

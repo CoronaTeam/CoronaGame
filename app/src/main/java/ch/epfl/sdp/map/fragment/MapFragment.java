@@ -50,6 +50,7 @@ import ch.epfl.sdp.map.HeatMapHandler;
 import ch.epfl.sdp.map.PathsHandler;
 
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
+import static ch.epfl.sdp.map.HeatMapHandler.HEATMAP_LAYER_ID;
 import static ch.epfl.sdp.map.PathsHandler.BEFORE_INFECTED_LAYER_ID;
 import static ch.epfl.sdp.map.PathsHandler.BEFORE_PATH_LAYER_ID;
 import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_INFECTED_LAYER_ID;
@@ -81,6 +82,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private MapFragment classPointer;
     private ServiceConnection conn;
     private Callable onMapVisible;
+    private int CURRENT_PATH;
 
     private RapidFloatingActionHelper rfabHelper;
 
@@ -92,13 +94,13 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     @VisibleForTesting
     public void onLayerLoaded(Callable func, String layerId) {
         map.getStyle(style -> {
-            if (style.getLayer(layerId) != null){
+            if (style.getLayer(layerId) != null) {
                 callDataLoaded(func);
             }
         });
     }
 
-    private void callDataLoaded(Callable func){
+    private void callDataLoaded(Callable func) {
         try {
             func.call();
         } catch (Exception ignored) {}
@@ -141,6 +143,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
         view.findViewById(R.id.mapFragment).setVisibility(View.INVISIBLE);
         view.findViewById(R.id.heatMapToggle).setVisibility(View.GONE);
+        view.findViewById(R.id.wholePath).setVisibility((View.INVISIBLE));
 
         mapView = view.findViewById(R.id.mapFragment);
         mapView.onCreate(savedInstanceState);
@@ -161,6 +164,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
 
         view.findViewById(R.id.heatMapToggle).setOnClickListener(this);
+        view.findViewById(R.id.wholePath).setOnClickListener(this);
         view.findViewById(R.id.myCurrentLocation).setOnClickListener(this);
         setHistoryRFAButton();
 
@@ -287,6 +291,8 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     public void onClick(View view) {
         if (view.getId() == R.id.heatMapToggle) {
             toggleHeatMap();
+        } else if (view.getId() == R.id.wholePath) {
+            pathsHandler.seeWholePath(CURRENT_PATH);
         } else if (view.getId() == R.id.myCurrentLocation) {
             setCameraToCurrentLocation();
         }
@@ -304,7 +310,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     }
 
     private void toggleHeatMap() {
-        toggleLayer(HeatMapHandler.HEATMAP_LAYER_ID);
+        toggleLayer(HEATMAP_LAYER_ID);
     }
 
     private void toggleLayer(String layerId) {
@@ -313,11 +319,29 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             if (layer != null) {
                 if (VISIBLE.equals(layer.getVisibility().getValue())) {
                     layer.setProperties(visibility(NONE));
+                    showPathZoomOutButton(layerId, View.VISIBLE, View.INVISIBLE);
                 } else {
                     layer.setProperties(visibility(VISIBLE));
+                    if (layerId.equals(YESTERDAY_PATH_LAYER_ID)) {
+                        CURRENT_PATH = R.string.yesterday;
+                    } else if (layerId.equals(BEFORE_PATH_LAYER_ID)) {
+                        CURRENT_PATH = R.string.before_yesterday;
+                    }
+                    if (!layerId.equals(HEATMAP_LAYER_ID)) {
+                        showPathZoomOutButton(layerId, View.INVISIBLE, View.VISIBLE);
+                    }
+                    if (!TESTING_MODE && !layerId.equals(HEATMAP_LAYER_ID)) {
+                        Toast.makeText(getContext(), "Click on the square to see the whole path", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
+    }
+
+    private void showPathZoomOutButton(String layerId, int visibilityCheck, int buttonVisibility) {
+        if (!layerId.equals(HEATMAP_LAYER_ID) && visibilityCheck == view.findViewById(R.id.wholePath).getVisibility()) {
+            view.findViewById(R.id.wholePath).setVisibility(buttonVisibility);
+        }
     }
 
     private void togglePath(int day) {
@@ -369,16 +393,12 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
     @Override
     public void onRFACItemIconClick(int position, RFACLabelItem item) {
-        String day = position == 0 ? getString(R.string.yesterday) : getString(R.string.before_yesterday);
         int dayInt = position == 0 ? R.string.yesterday : R.string.before_yesterday;
-        if (!TESTING_MODE) {
-            Toast.makeText(getContext(), "Toggle path from: " + day, Toast.LENGTH_SHORT).show();
-        }
+
         togglePath(dayInt);
 
         rfabHelper.toggleContent();
     }
-
 
     private void callOnMapVisible() {
 

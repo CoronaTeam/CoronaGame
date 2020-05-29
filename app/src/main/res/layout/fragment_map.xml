@@ -17,6 +17,17 @@
         android:focusable="true"
         app:srcCompat="@android:drawable/ic_menu_view" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/wholePath"
+        app:fabSize="mini"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|start"
+        android:layout_margin="@dimen/baseMargin"
+        android:clickable="true"
+        mapbox:srcCompat="@drawable/marker"
+        android:focusable="true" />
+
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapFragment"
         android:layout_width="match_parent"
@@ -75,6 +86,7 @@
             mapbox:rfab_shadow_dy="0dp"
             mapbox:rfab_shadow_radius="1dp"
             mapbox:rfab_size="normal" />
+
     </com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -448,4 +448,9 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     RapidFloatingActionHelper getRfabHelper() {
         return rfabHelper;
     }
+
+    @VisibleForTesting
+    Circle getUserLocation() {
+        return userLocation;
+    }
 }

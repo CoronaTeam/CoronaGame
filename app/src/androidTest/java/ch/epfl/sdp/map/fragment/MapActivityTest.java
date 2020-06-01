@@ -247,17 +247,17 @@ public class MapActivityTest {
         mockLocationBroker.setFakeLocation(buildLocation(46, 55));
 
         clickToSeePath();
-        double act_lat = mapFragment.getMap().getCameraPosition().target.getLatitude();
-        double act_lon = mapFragment.getMap().getCameraPosition().target.getLongitude();
 
         double exp_lat = 46;
         double exp_lon = 55;
         double precision = 1;
 
-        if (mapFragment.getPathsHandler().isPathLocationSet1() || PathsHandler.TEST_NON_EMPTY_LIST) {
+        if (mapFragment.getPathsHandler().isPathLocationSet1()) {
             exp_lat = mapFragment.getPathsHandler().getLatitudeYesterday();
             exp_lon = mapFragment.getPathsHandler().getLongitudeYesterday();
         }
+        double act_lat = mapFragment.getMap().getCameraPosition().target.getLatitude();
+        double act_lon = mapFragment.getMap().getCameraPosition().target.getLongitude();
 
         assertEquals(exp_lat, act_lat, precision);
         assertEquals(exp_lon, act_lon, precision);
@@ -336,7 +336,7 @@ public class MapActivityTest {
                 mapFragment.getRfabHelper().obtainRFAContent()).getItems();
 
         activityRule.runOnUiThread(() -> mapFragment.onRFACItemIconClick(0, pathItems.get(0)));
-        sleep(10000);
+        sleep(20000);
     }
 
     private void testMapVisible() throws Throwable {

@@ -77,6 +77,10 @@ public class PathHandlerTest {
         mapFragment = (MapFragment) activityRule.getActivity().getFragment();
         mapFragment.setLocationBroker(mockLocationBroker);
         sentinel = new AtomicInteger(0);
+
+        testMapLoadCorrectly();
+        mapFragment.resetPathsHandler(sentinel::incrementAndGet);
+        waitForSentinelAndSetToZero();
     }
 
     @After
@@ -87,21 +91,8 @@ public class PathHandlerTest {
 
     ////////////////////////////////// Tests //////////////////////////////////////
 
-    private void waitForSentinelAndSetToZero() {
-        sWaitForSentinelAndSetToZero(sentinel);
-    }
-
-    private void testMapLoadCorrectly() throws Throwable{
-        sTestMapLoadCorrectly(mapFragment, sentinel, activityRule);
-    }
-
-    private void testMapVisible() throws Throwable {
-        sTestMapVisible(mapFragment, sentinel, mockLocationBroker, activityRule);
-    }
-
     @Test(timeout = 20000)
     public void yesterdayPathLayerIsSetWhenNotEmpty() throws Throwable {
-        testMapLoadCorrectly();
         pathGetsInstantiated();
 
         if (!mapFragment.getPathsHandler().getYesterdayPathCoordinates().isEmpty()) {
@@ -114,8 +105,6 @@ public class PathHandlerTest {
 
     @Test(timeout = 20000)
     public void yesterdayInfectedLayerIsSetWhenNotEmpty() throws Throwable {
-        testMapLoadCorrectly();
-
         pathGetsInstantiated();
 
         if (!mapFragment.getPathsHandler().getYesterdayInfectedMet().isEmpty()) {
@@ -128,12 +117,8 @@ public class PathHandlerTest {
 
     @Test(timeout = 20000)
     public void pathGetsInstantiated() {
-        while (mapFragment.getPathsHandler() == null) {
-            sleep(500);
-        }
-        while (mapFragment.getPathsHandler().getYesterdayPathCoordinates() == null) {
-            sleep(500);
-        }
+        mapFragment.getPathsHandler().onPathDataLoaded(sentinel::incrementAndGet);
+        waitForSentinelAndSetToZero();
     }
 
     @Test
@@ -194,10 +179,15 @@ public class PathHandlerTest {
 
     @Test(timeout = 200000)
     public void testsForNonEmptyPathAndInfected() throws Throwable {
+        pathGetsInstantiated();
         yesterdayPathLayerIsSetWhenNotEmpty();
         yesterdayInfectedLayerIsSetWhenNotEmpty();
 
-        PathsHandler.TEST_NON_EMPTY_LIST = true;
+        activityRule.runOnUiThread(() -> {
+            mapFragment.getPathsHandler().resetPaths(PathsHandler.TestOP.TEST_NON_EMPTY_LIST,
+                    () -> sentinel.incrementAndGet());
+        });
+        waitForSentinelAndSetToZero();
 
         if (pathCoordIsEmpty) {
             toggleYesterdayPathChangesVisibilityWhenNotEmpty();
@@ -208,29 +198,37 @@ public class PathHandlerTest {
             infectedLayerVisibilityChangesWhenNotEmpty();
         }
 
-        PathsHandler.TEST_NON_EMPTY_LIST = false;
     }
 
     @Test
     public void seeWholePathButtonAppearsWhenSeeingNonEmptyPath() throws Throwable {
-        PathsHandler.TEST_NON_EMPTY_LIST = true;
+        pathGetsInstantiated();
+        activityRule.runOnUiThread(() -> {
+            mapFragment.getPathsHandler().resetPaths(PathsHandler.TestOP.TEST_NON_EMPTY_LIST,
+                    () -> sentinel.incrementAndGet());
+        });
+        waitForSentinelAndSetToZero();
 
         testMapVisible();
         clickToSeePath();
         onView(withId(R.id.wholePath)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
 
-        PathsHandler.TEST_NON_EMPTY_LIST = false;
     }
 
     @Test
     public void seeWholePathButtonInvisibleWhenNoPath() throws Throwable {
-        PathsHandler.TEST_EMPTY_PATH = true;
+        pathGetsInstantiated();
+
+        activityRule.runOnUiThread(() -> {
+            mapFragment.getPathsHandler().resetPaths(PathsHandler.TestOP.TEST_EMPTY_PATH,
+                    () -> sentinel.incrementAndGet());
+        });
+        waitForSentinelAndSetToZero();
 
         testMapVisible();
         clickToSeePath();
         onView(withId(R.id.wholePath)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)));
 
-        PathsHandler.TEST_EMPTY_PATH = false;
     }
 
     @Test
@@ -241,7 +239,13 @@ public class PathHandlerTest {
 
     @Test
     public void clickSeeWholePathMakeZoomAdjust() throws Throwable {
-        PathsHandler.TEST_NON_EMPTY_LIST = true;
+        pathGetsInstantiated();
+
+        activityRule.runOnUiThread(() -> {
+            mapFragment.getPathsHandler().resetPaths(PathsHandler.TestOP.TEST_NON_EMPTY_LIST,
+                    () -> sentinel.incrementAndGet());
+        });
+        waitForSentinelAndSetToZero();
 
         testMapVisible();
 
@@ -256,7 +260,6 @@ public class PathHandlerTest {
 
         assertTrue(zoom_before != zoom_after);
 
-        PathsHandler.TEST_NON_EMPTY_LIST = false;
     }
 
 
@@ -307,4 +310,15 @@ public class PathHandlerTest {
         testLayerVisibilityIfNotEmpty(VISIBLE, coordListIsEmpty, layerId);
     }
 
+    private void waitForSentinelAndSetToZero() {
+        sWaitForSentinelAndSetToZero(sentinel);
+    }
+
+    private void testMapLoadCorrectly() throws Throwable{
+        sTestMapLoadCorrectly(mapFragment, sentinel, activityRule);
+    }
+
+    private void testMapVisible() throws Throwable {
+        sTestMapVisible(mapFragment, sentinel, mockLocationBroker, activityRule);
+    }
 }

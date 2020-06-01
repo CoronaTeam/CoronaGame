@@ -450,6 +450,19 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     }
 
     @VisibleForTesting
+    void resetPathsHandler(Callable onResetDone){
+        mapView.getMapAsync(mapboxMap -> {
+            mapboxMap.getStyle(style -> {
+
+                pathsHandler = new PathsHandler(classPointer, map);
+                try {
+                    onResetDone.call();
+                } catch (Exception ignore){}
+            });
+        });
+    }
+
+    @VisibleForTesting
     RapidFloatingActionHelper getRfabHelper() {
         return rfabHelper;
     }

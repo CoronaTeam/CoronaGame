@@ -170,8 +170,8 @@ public class PathsHandler extends Fragment {
         cal.add(Calendar.DAY_OF_MONTH, -1);
         Date bef = cal.getTime();
 
-        yesterdayString = dateToSimpleString(yes);//"2020/05/13"; //this is for demo only, should be replaced by: dateToSimpleString(yes);
-        beforeYesterdayString = dateToSimpleString(bef);//"2020/05/12";//this is for demo only, should be replaced by: dateToSimpleString(bef);
+        yesterdayString = "2020/05/20";//dateToSimpleString(yes);//"2020/05/13"; //this is for demo only, should be replaced by: dateToSimpleString(yes);
+        beforeYesterdayString = "2020/05/19";//dateToSimpleString(bef);//"2020/05/12";//this is for demo only, should be replaced by: dateToSimpleString(bef);
     }
 
     private String dateToSimpleString(Date date) {

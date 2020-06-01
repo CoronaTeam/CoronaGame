@@ -40,6 +40,7 @@ import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RapidFloating
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.epfl.sdp.BuildConfig;
 import ch.epfl.sdp.R;
@@ -49,6 +50,7 @@ import ch.epfl.sdp.location.LocationService;
 import ch.epfl.sdp.map.HeatMapHandler;
 import ch.epfl.sdp.map.PathsHandler;
 
+import static android.view.View.INVISIBLE;
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 import static ch.epfl.sdp.map.HeatMapHandler.HEATMAP_LAYER_ID;
 import static ch.epfl.sdp.map.PathsHandler.BEFORE_INFECTED_LAYER_ID;
@@ -141,9 +143,9 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         // This contains the MapView in XML and needs to be called after the access token is configured.
         view = inflater.inflate(R.layout.fragment_map, container, false);
 
-        view.findViewById(R.id.mapFragment).setVisibility(View.INVISIBLE);
+        view.findViewById(R.id.mapFragment).setVisibility(INVISIBLE);
         view.findViewById(R.id.heatMapToggle).setVisibility(View.GONE);
-        view.findViewById(R.id.wholePath).setVisibility((View.INVISIBLE));
+        view.findViewById(R.id.wholePath).setVisibility((INVISIBLE));
 
         mapView = view.findViewById(R.id.mapFragment);
         mapView.onCreate(savedInstanceState);
@@ -313,13 +315,19 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         toggleLayer(HEATMAP_LAYER_ID);
     }
 
-    private void toggleLayer(String layerId) {
+    /**
+     * Make the layer visible/invisible on the map, according to its current visibility.
+     * @param layerId identifies the layer
+     * @return true if the layer is set to visible, false otherwise
+     */
+    private AtomicBoolean toggleLayer(String layerId) {
+        AtomicBoolean res = new AtomicBoolean();
         map.getStyle(style -> {
             Layer layer = style.getLayer(layerId);
             if (layer != null) {
                 if (VISIBLE.equals(layer.getVisibility().getValue())) {
                     layer.setProperties(visibility(NONE));
-                    showPathZoomOutButton(layerId, View.VISIBLE, View.INVISIBLE);
+                    showPathZoomOutButton(layerId, View.VISIBLE, INVISIBLE);
                 } else {
                     layer.setProperties(visibility(VISIBLE));
                     if (layerId.equals(YESTERDAY_PATH_LAYER_ID)) {
@@ -328,14 +336,16 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
                         CURRENT_PATH = R.string.before_yesterday;
                     }
                     if (!layerId.equals(HEATMAP_LAYER_ID)) {
-                        showPathZoomOutButton(layerId, View.INVISIBLE, View.VISIBLE);
+                        showPathZoomOutButton(layerId, INVISIBLE, View.VISIBLE);
                     }
                     if (!TESTING_MODE && !layerId.equals(HEATMAP_LAYER_ID)) {
                         Toast.makeText(getContext(), "Click on the square to see the whole path", Toast.LENGTH_SHORT).show();
                     }
+                    res.set(true);
                 }
             }
         });
+        return res;
     }
 
     private void showPathZoomOutButton(String layerId, int visibilityCheck, int buttonVisibility) {
@@ -347,9 +357,13 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private void togglePath(int day) {
         String pathLayerId = day == R.string.yesterday ? YESTERDAY_PATH_LAYER_ID : BEFORE_PATH_LAYER_ID;
         String infectedLayerId = day == R.string.yesterday ? YESTERDAY_INFECTED_LAYER_ID : BEFORE_INFECTED_LAYER_ID;
-        toggleLayer(pathLayerId);
+        AtomicBoolean isVisible = toggleLayer(pathLayerId);
         toggleLayer(infectedLayerId);
-        pathsHandler.setCameraPosition(day);
+        // Don't make camera focus on path when clicking to disable its visibility
+        if (isVisible.get()) {
+            pathsHandler.setCameraPosition(day);
+        }
+
     }
 
 

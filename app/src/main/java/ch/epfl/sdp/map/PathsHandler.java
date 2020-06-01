@@ -320,6 +320,7 @@ public class PathsHandler extends Fragment {
                 yesterdayInfectedMet.add(Point.fromLngLat(i, i));
             }
         }
+        pathLocationSet1 = true;
     }
 
     @VisibleForTesting

@@ -37,7 +37,6 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
     public static boolean IN_TEST = false;
     private TextView name;
     private TextView email;
-    private TextView userIdView;
     private ImageView img;
 
     private ServiceConnection serviceConnection;
@@ -61,7 +60,6 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true); //fixes a bug on travis about inflating ImageView
         name = view.findViewById(R.id.name);
         email = view.findViewById(R.id.email);
-        userIdView = view.findViewById(R.id.userIdView);
         img = view.findViewById(R.id.profileImage);
         img.setImageResource(R.drawable.ic_person);
         getAndShowAccountInfo(AuthenticationManager.getAccount(getActivity()));
@@ -119,7 +117,6 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
 
             name.setText(personName);
             email.setText(personEmail);
-            userIdView.setText(getString(R.string.user_id, personId));
             if (personPhoto != null) {
                 Glide.with(this).load(String.valueOf(personPhoto)).into(img);
             }

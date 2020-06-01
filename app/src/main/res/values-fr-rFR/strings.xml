@@ -110,7 +110,7 @@
     <string name="profile_picture">Photo de profil</string>
     <string name="no_corresponding_path">Trajet inexistant</string>
     <string name="delete_local_his">Efface l\'historique</string>
-    <string name="with_proba">Avec probabilité :</string>
+    <string name="with_proba">Votre probabilité d\'infection :</string>
     <string name="infected">Infecté(e)</string>
     <string name="not_infected">Non infecté(e)</string>
 </resources>

@@ -137,7 +137,7 @@
     <string name="no_corresponding_path">No corresponding path</string>
     <string name="yesterday" translatable="false">yesterday</string>
     <string name="before_yesterday" translatable="false">before yesterday</string>
-    <string name="with_proba">With probability:</string>
+    <string name="with_proba">Your infection probability:</string>
     <string name="infected">Infected</string>
     <string name="not_infected">Not infected</string>
 </resources>

@@ -21,6 +21,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.fragment.app.Fragment;
 
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -102,8 +103,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private void callDataLoaded(Callable func) {
         try {
             func.call();
-        } catch (Exception ignored) {
-        }
+        } catch (Exception ignored) {}
     }
 
     @Nullable
@@ -165,6 +165,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
         view.findViewById(R.id.heatMapToggle).setOnClickListener(this);
         view.findViewById(R.id.wholePath).setOnClickListener(this);
+        view.findViewById(R.id.myCurrentLocation).setOnClickListener(this);
         setHistoryRFAButton();
 
         return view;
@@ -292,6 +293,19 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             toggleHeatMap();
         } else if (view.getId() == R.id.wholePath) {
             pathsHandler.seeWholePath(CURRENT_PATH);
+        } else if (view.getId() == R.id.myCurrentLocation) {
+            setCameraToCurrentLocation();
+        }
+    }
+
+    private void setCameraToCurrentLocation() {
+        double lat = prevLocation.getLatitude();
+        double lon = prevLocation.getLongitude();
+        CameraPosition position = new CameraPosition.Builder()
+                .target(new LatLng(lat, lon))
+                .build();
+        if (map != null) {
+            map.easeCamera(CameraUpdateFactory.newCameraPosition(position), 2000);
         }
     }
 
@@ -433,5 +447,10 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     @VisibleForTesting
     RapidFloatingActionHelper getRfabHelper() {
         return rfabHelper;
+    }
+
+    @VisibleForTesting
+    Circle getUserLocation() {
+        return userLocation;
     }
 }

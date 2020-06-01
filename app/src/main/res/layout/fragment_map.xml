@@ -40,6 +40,15 @@
         mapbox:mapbox_cameraTargetLng="-73.99155"
         mapbox:mapbox_cameraZoom="11">
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/myCurrentLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:layout_gravity="bottom|start"
+            android:layout_margin="@dimen/baseMargin"
+            mapbox:srcCompat="@android:drawable/ic_menu_mylocation"
+            android:focusable="true" />
     </com.mapbox.mapboxsdk.maps.MapView>
 
     <ProgressBar

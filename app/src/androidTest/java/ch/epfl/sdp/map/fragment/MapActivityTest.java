@@ -4,6 +4,7 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
+import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.style.layers.Layer;
 import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RFACLabelItem;
 import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RapidFloatingActionContentLabelList;
@@ -121,10 +122,6 @@ public class MapActivityTest {
 
     }
 
-    private void testLayerVisibility(String visibility) throws Throwable {
-        waitForSentinelAndSetToZero();
-    }
-
     private void testLayerVisibility(String visibility, String layerId) throws Throwable {
         activityRule.runOnUiThread(() -> {
             mapFragment.getMap().getStyle(style -> {
@@ -149,6 +146,26 @@ public class MapActivityTest {
         testLayerVisibility(NONE, HEATMAP_LAYER_ID);
 
         waitForSentinelAndSetToZero();
+    }
+
+    @Test
+    public void clickMyCurrentLocationTargetsMyLatLng() throws Throwable {
+        testMapVisible();
+
+        LatLng circleLatLng = mapFragment.getUserLocation().getLatLng();
+        double exp_lat = circleLatLng.getLatitude();
+        double exp_lon = circleLatLng.getLongitude();
+        double precision = 1;
+
+        onView(withId(R.id.myCurrentLocation)).perform(click());
+        sleep(5000);
+
+        LatLng cameraLatLng = mapFragment.getMap().getCameraPosition().target;
+        double act_lat = cameraLatLng.getLatitude();
+        double act_lon = cameraLatLng.getLongitude();
+
+        assertEquals(exp_lat, act_lat, precision);
+        assertEquals(exp_lon, act_lon, precision);
     }
 
     ////////////////////////////////// Tests for PathsHandler //////////////////////////////////////

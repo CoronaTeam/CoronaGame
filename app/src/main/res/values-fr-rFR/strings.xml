@@ -111,4 +111,6 @@
     <string name="no_corresponding_path">Trajet inexistant</string>
     <string name="delete_local_his">Efface l\'historique</string>
     <string name="with_proba">Avec probabilité :</string>
+    <string name="infected">Infecté(e)</string>
+    <string name="not_infected">Non infecté(e)</string>
 </resources>

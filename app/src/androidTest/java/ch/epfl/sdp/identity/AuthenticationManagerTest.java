@@ -9,7 +9,6 @@ import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -45,11 +44,6 @@ public class AuthenticationManagerTest {
     @Test
     public void emailIsDisplayed() {
         onView(withId(R.id.email)).check(matches(withText(User.DEFAULT_EMAIL)));
-    }
-
-    @Test
-    public void userIdViewIsDisplayed() {
-        onView(withId(R.id.userIdView)).check(matches(withText(getActivity().getString(R.string.user_id, User.DEFAULT_USERID))));
     }
 
     @Test

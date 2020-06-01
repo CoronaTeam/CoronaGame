@@ -3,7 +3,6 @@ package ch.epfl.sdp.map;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.location.Location;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
@@ -118,12 +117,7 @@ public class PathsHandler extends Fragment {
                         return collection.iterator();
                     }
                 })
-                .exceptionally(e -> {
-                    Toast.makeText(parentClass.getActivity(),
-                            "Cannot retrieve path from database",
-                            Toast.LENGTH_LONG).show();
-                    return Collections.emptyIterator();
-                });
+                .exceptionally(e -> Collections.emptyIterator());
     }
 
     private void getPathCoordinates(Iterator<QueryDocumentSnapshot> iterator) {

@@ -143,7 +143,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
 
         getActivity().runOnUiThread(() -> {
             setInfectionColorAndMessage(me.getInfectionStatus() == INFECTED);
-            userInfectionProbability.setText(String.format("%s With probability: %f", me.getUniqueId(), me.getIllnessProbability()));
+            userInfectionProbability.setText(String.format("%s "+getString(R.string.with_proba)+" %f", me.getUniqueId(), me.getIllnessProbability()));
         });
     }
 

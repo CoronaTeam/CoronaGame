@@ -137,4 +137,5 @@
     <string name="no_corresponding_path">No corresponding path</string>
     <string name="yesterday" translatable="false">yesterday</string>
     <string name="before_yesterday" translatable="false">before yesterday</string>
+    <string name="with_proba">With probability:</string>
 </resources>

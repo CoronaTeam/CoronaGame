@@ -140,4 +140,6 @@
     <string name="with_proba">Your infection probability:</string>
     <string name="infected">Infected</string>
     <string name="not_infected">Not infected</string>
+    <string name="no_path_to_show">No path to show</string>
+    <string name="click_to_see_whole_path">Click on the square to see the whole path</string>
 </resources>

@@ -335,14 +335,16 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
                     } else if (layerId.equals(BEFORE_PATH_LAYER_ID)) {
                         CURRENT_PATH = R.string.before_yesterday;
                     }
-                    if (!layerId.equals(HEATMAP_LAYER_ID)) {
+                    if (layerId.equals(YESTERDAY_PATH_LAYER_ID) || layerId.equals(BEFORE_PATH_LAYER_ID)) {
                         showPathZoomOutButton(layerId, INVISIBLE, View.VISIBLE);
                     }
-                    if (!TESTING_MODE && !layerId.equals(HEATMAP_LAYER_ID)) {
-                        Toast.makeText(getContext(), "Click on the square to see the whole path", Toast.LENGTH_SHORT).show();
+                    if (!TESTING_MODE && ((layerId.equals(YESTERDAY_PATH_LAYER_ID) || layerId.equals(BEFORE_PATH_LAYER_ID)))) {
+                        Toast.makeText(getContext(), R.string.click_to_see_whole_path, Toast.LENGTH_SHORT).show();
                     }
                     res.set(true);
                 }
+            } else if (layerId.equals(YESTERDAY_PATH_LAYER_ID) || layerId.equals(BEFORE_PATH_LAYER_ID)){
+                Toast.makeText(getActivity(), R.string.no_path_to_show, Toast.LENGTH_LONG).show();
             }
         });
         return res;

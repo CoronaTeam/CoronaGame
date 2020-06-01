@@ -109,8 +109,10 @@
     <string name="your_user_status_is_set_to_not_infected">Votre statut utilisateur est défini sur non-infecté(e)</string>
     <string name="profile_picture">Photo de profil</string>
     <string name="no_corresponding_path">Trajet inexistant</string>
-    <string name="delete_local_his">Efface l\'historique</string>
+    <string name="delete_local_his">Effacer l\'historique</string>
     <string name="with_proba">Votre probabilité d\'infection :</string>
     <string name="infected">Infecté(e)</string>
     <string name="not_infected">Non infecté(e)</string>
+    <string name="no_path_to_show">Aucun trajet à montrer</string>
+    <string name="click_to_see_whole_path">Cliquer pour voir le trajet entier</string>
 </resources>

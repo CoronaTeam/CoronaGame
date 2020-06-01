@@ -144,9 +144,7 @@ public class HeatMapHandler {
                             geoPoint.getLatitude()
                     ));
                 }
-            } catch (NullPointerException ignored) {
-                List<Point> ddd = new ArrayList<>();
-            }
+            } catch (NullPointerException ignored) { }
         }
 
         GeoJsonSource lastPos = new GeoJsonSource(LASTPOSITIONS_SOURCE_ID,

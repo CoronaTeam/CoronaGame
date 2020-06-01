@@ -36,7 +36,9 @@ import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.location.LocationUtils.buildLocation;
 import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_INFECTED_LAYER_ID;
 import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_PATH_LAYER_ID;
+import static ch.epfl.sdp.map.fragment.MapActivityTest.sTestLayerVisibility;
 import static ch.epfl.sdp.map.fragment.MapActivityTest.sTestMapLoadCorrectly;
+import static ch.epfl.sdp.map.fragment.MapActivityTest.sTestMapVisible;
 import static ch.epfl.sdp.map.fragment.MapActivityTest.sWaitForSentinelAndSetToZero;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
@@ -57,13 +59,13 @@ public class PathHandlerTest {
 
 
     @BeforeClass
-    public static void preSetup() {
+    public static void preClassSetup() {
         AccountFragment.IN_TEST = true;
         MapFragment.TESTING_MODE = true;
     }
 
     @AfterClass
-    public static void postClean() {
+    public static void postClassClean() {
         AccountFragment.IN_TEST = false;
         MapFragment.TESTING_MODE = false;
     }
@@ -80,8 +82,10 @@ public class PathHandlerTest {
     @After
     public void clean() {
         sentinel = new AtomicInteger(0);
-        //Intents.release();
     }
+
+
+    ////////////////////////////////// Tests //////////////////////////////////////
 
     private void waitForSentinelAndSetToZero() {
         sWaitForSentinelAndSetToZero(sentinel);
@@ -92,9 +96,7 @@ public class PathHandlerTest {
     }
 
     private void testMapVisible() throws Throwable {
-        mockLocationBroker.setFakeLocation(buildLocation(46, 55));
-        mapFragment.onMapVisible(() -> sentinel.incrementAndGet());
-        waitForSentinelAndSetToZero();
+        sTestMapVisible(mapFragment, sentinel, mockLocationBroker, activityRule);
     }
 
     @Test(timeout = 20000)
@@ -169,7 +171,7 @@ public class PathHandlerTest {
 
     @Test
     public void cameraTargetsPathWhenToggle() throws Throwable {
-        testHeatMapLoadCorrectly();
+        testMapVisible();
 
         mockLocationBroker.setFakeLocation(buildLocation(46, 55));
 
@@ -257,6 +259,13 @@ public class PathHandlerTest {
         PathsHandler.TEST_NON_EMPTY_LIST = false;
     }
 
+
+    ////////////////////////////////// Helper functions //////////////////////////////////////
+
+    private void testLayerVisibility(String visibility, String layerId) throws Throwable {
+        sTestLayerVisibility(visibility, layerId, mapFragment, sentinel, activityRule);
+    }
+
     private void clickToSeePath() throws Throwable {
         onView(withId(R.id.history_rfab)).perform(click());
         List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList)
@@ -272,6 +281,13 @@ public class PathHandlerTest {
         // The sentinel value will only increase if the layer on the map is not null
 
         waitForSentinelAndSetToZero();
+    }
+
+    private void testLayerVisibilityIfNotEmpty(String visibility, boolean listIsEmpty, String layerId) throws Throwable {
+        if (!listIsEmpty) {
+            testLayerVisibility(visibility, layerId);
+            waitForSentinelAndSetToZero();
+        }
     }
 
     private void testClickChangesVisibility(boolean coordListIsEmpty, String layerId) throws Throwable {

@@ -38,6 +38,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.R;
@@ -99,9 +100,14 @@ public class PathsHandler extends Fragment {
     private ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(
             new GridFirestoreInteractor());
 
+    private Callable onPathDataLoaded;
+    private Boolean layersHaveBeenSet;
+
+
     public PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
         this.parentClass = parentClass;
         this.map = map;
+        layersHaveBeenSet = false;
         setCalendar();
         initFirestorePathRetrieval().thenAccept(this::getPathCoordinates);
     }
@@ -241,6 +247,9 @@ public class PathsHandler extends Fragment {
             beforeLLB = setLatLngBounds(R.string.before_yesterday);
             pathLocationSet2 = true;
         }
+
+        layersHaveBeenSet = true;
+        callPathDataLoaded();
     }
 
     private void setInfectedLayerIfNotEmpty(List<Point> infectedMet, String infectedLayerId, String infectedSourceId) {
@@ -347,6 +356,23 @@ public class PathsHandler extends Fragment {
     @VisibleForTesting
     public String getSimpleDateFormat(Date date) {
         return dateToSimpleString(date);
+    }
+
+    private void callPathDataLoaded() {
+        try {
+            if(onPathDataLoaded != null) {onPathDataLoaded.call();}
+            onPathDataLoaded = null;
+        } catch (Exception ignored) {
+        }
+    }
+
+    @VisibleForTesting
+    public void onPathDataLoaded(Callable func) {
+        onPathDataLoaded = func;
+
+        if (layersHaveBeenSet){
+            callPathDataLoaded();
+        }
     }
 
 }

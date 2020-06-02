@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.R;
@@ -65,7 +66,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
  * This class is used to display the user's last positions as a line on the map,
  * as well as points of met infected users.
  */
-public class PathsHandler extends Fragment {
+public class PathsHandler {
     private static final String YESTERDAY_INFECTED_SOURCE_ID = "points-source-one";
     private static final String BEFORE_INFECTED_SOURCE_ID = "points-source-two";
     public static final String YESTERDAY_INFECTED_LAYER_ID = "pointslayer-one";
@@ -100,8 +101,12 @@ public class PathsHandler extends Fragment {
     private ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(
             new GridFirestoreInteractor());
 
+    private Callable onPathDataLoaded;
+    private Boolean layersHaveBeenSet;
+
     public PathsHandler(@NonNull MapboxMap map) {
         this.map = map;
+        layersHaveBeenSet = false;
         setCalendar();
         initFirestorePathRetrieval().thenAccept(this::getPathCoordinates);
     }
@@ -124,22 +129,13 @@ public class PathsHandler extends Fragment {
     private void getPathCoordinates(Iterator<QueryDocumentSnapshot> iterator) {
         initLists();
 
-        if (TEST_NON_EMPTY_LIST) {
-            fakeInitialization();
-            setLayers();
-            return;
-        }
-        if (TEST_EMPTY_PATH) {
-            return;
-        }
-
         for (; iterator.hasNext(); ) {
             QueryDocumentSnapshot qs = iterator.next();
             try {
-                GeoPoint geoPoint = (GeoPoint) ((Map) qs.get("Position")).get(GEOPOINT_TAG);
+                GeoPoint geoPoint = (GeoPoint) qs.get(GEOPOINT_TAG);
                 double lat = geoPoint.getLatitude();
                 double lon = geoPoint.getLongitude();
-                Timestamp timestamp = (Timestamp) ((Map) qs.get("Position")).get(TIMESTAMP_TAG);
+                Timestamp timestamp = (Timestamp) qs.get(TIMESTAMP_TAG);
 
                 String pathLocalDate = dateToSimpleString(timestamp.toDate());
 
@@ -236,6 +232,9 @@ public class PathsHandler extends Fragment {
             beforeLLB = setLatLngBounds(R.string.before_yesterday);
             pathLocationSet2 = true;
         }
+
+        layersHaveBeenSet = true;
+        callPathDataLoaded();
     }
 
     private void setInfectedLayerIfNotEmpty(List<Point> infectedMet, String infectedLayerId, String infectedSourceId) {
@@ -295,7 +294,7 @@ public class PathsHandler extends Fragment {
     }
 
     private String getUserId() {
-        Account account = AuthenticationManager.getAccount(getActivity());
+        Account account = AuthenticationManager.getAccount(parentClass.requireActivity());
         return account.getId();
     }
 
@@ -343,6 +342,45 @@ public class PathsHandler extends Fragment {
     @VisibleForTesting
     public String getSimpleDateFormat(Date date) {
         return dateToSimpleString(date);
+    }
+
+    @VisibleForTesting
+    public enum TestOP {TEST_NON_EMPTY_LIST, TEST_EMPTY_PATH}
+
+    @VisibleForTesting
+    public void resetPaths(TestOP testOP, Callable onResetDone){ // assumes the class has loaded
+        map.getStyle(style -> {
+            style.removeLayer(BEFORE_INFECTED_LAYER_ID);
+            style.removeLayer(BEFORE_PATH_LAYER_ID);
+            style.removeLayer(YESTERDAY_INFECTED_LAYER_ID);
+            style.removeLayer(YESTERDAY_PATH_LAYER_ID);
+
+            if (testOP == TestOP.TEST_NON_EMPTY_LIST) {
+                fakeInitialization();
+                setLayers();
+            }
+
+            try {
+                onResetDone.call();
+            } catch (Exception ignore) {}
+        });
+    }
+
+    private void callPathDataLoaded() {
+        try {
+            if(onPathDataLoaded != null) {onPathDataLoaded.call();}
+            onPathDataLoaded = null;
+        } catch (Exception ignored) {
+        }
+    }
+
+    @VisibleForTesting
+    public void onPathDataLoaded(Callable func) {
+        onPathDataLoaded = func;
+
+        if (layersHaveBeenSet){
+            callPathDataLoaded();
+        }
     }
 
 }

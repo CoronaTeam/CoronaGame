@@ -41,7 +41,7 @@
         mapbox:mapbox_cameraZoom="11">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/myCurrentLocation"
+            android:id="@+id/myCurrentLocationToggle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"

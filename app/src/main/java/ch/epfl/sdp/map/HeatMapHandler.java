@@ -124,7 +124,7 @@ public class HeatMapHandler {
         db.readCollection(collectionReference(LAST_POSITIONS_COLL))
                 .thenAccept(this::createGeoJson)
                 .exceptionally(e -> {
-                    Toast.makeText(parentClass.getActivity(), R.string.cannot_retr_pos_from_db, Toast.LENGTH_LONG).show();
+                    Toast.makeText(parentClass.requireActivity(), R.string.cannot_retr_pos_from_db, Toast.LENGTH_LONG).show();
                     return null;
                 });
     }
@@ -175,7 +175,7 @@ public class HeatMapHandler {
 
     private void callHeatmapDataLoaded() {
         try {
-            onHeatMapDataLoaded.call();
+            if(onHeatMapDataLoaded != null) {onHeatMapDataLoaded.call();}
             onHeatMapDataLoaded = null;
         } catch (Exception ignored) {
         }

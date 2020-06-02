@@ -97,11 +97,12 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
 
         checkOnline();
 
-        account = AuthenticationManager.getAccount(getActivity());
+        account = AuthenticationManager.getAccount(requireActivity());
         userName = account.getDisplayName();
 
-        Executor executor = ContextCompat.getMainExecutor(getActivity());
-        if (Tools.canAuthenticate(getActivity())) {
+
+        Executor executor = ContextCompat.getMainExecutor(requireActivity());
+        if (Tools.canAuthenticate(requireActivity())) {
             this.biometricPrompt = biometricPromptBuilder(executor);
             this.promptInfo = promptInfoBuilder();
         }
@@ -124,10 +125,12 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
          * (Intent, ServiceConnection, int):it requires the service to remain running until
          * stopService(Intent) is called, regardless of whether any clients are connected to it.
          */
-        getActivity().startService(new Intent(getContext(), LocationService.class));
-        sharedPref = getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE);
+        requireActivity().startService(new Intent(getContext(),
+                LocationService.class));
+        sharedPref = requireActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE);
 
-        getActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
+        requireActivity().bindService(new Intent(requireActivity(), LocationService.class), conn,
+                BIND_AUTO_CREATE);
         return view;
     }
 
@@ -135,7 +138,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     public void update(Observable o, Object arg) {
         Carrier me = service.getAnalyst().getCarrier();
 
-        getActivity().runOnUiThread(() -> {
+        requireActivity().runOnUiThread(() -> {
             setInfectionColorAndMessage(me.getInfectionStatus() == INFECTED);
             userInfectionProbability.setText(String.format(getString(R.string.with_proba)+" %f", me.getIllnessProbability()));
         });
@@ -158,7 +161,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     private void onClickChangeStatus() {
         if (checkOnline()) {
             if (checkElapsedTimeSinceLastChange()) {
-                if (Tools.canAuthenticate(getActivity())) {
+                if (Tools.canAuthenticate(requireActivity())) {
                     biometricPrompt.authenticate(promptInfo);
                     // executeHealthStatusChange is called on authentication success
                     // in onAuthenticationSucceeded of biometricPrompt
@@ -166,7 +169,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
                     executeHealthStatusChange();
                 }
             } else {
-                Toast.makeText(getActivity(),
+                Toast.makeText(requireActivity(),
                         R.string.error_infection_status_ratelimit, Toast.LENGTH_LONG).show();
             }
         }
@@ -180,7 +183,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         onlineStatusView = view.findViewById(R.id.onlineStatusView);
         refreshButton = view.findViewById(R.id.refreshButton);
         refreshButton.setOnClickListener(this);
-        checkNetworkStatus(getActivity());
+        checkNetworkStatus(requireActivity());
         setOnlineOfflineVisibility(IS_ONLINE);
         return IS_ONLINE;
     }
@@ -247,7 +250,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
 
     private void clickAction(Button button, TextView textView, int buttonText, int textViewText, int textColor) {
         button.setText(buttonText);
-        textView.setTextColor(getResources().getColorStateList(textColor, getActivity().getTheme()));
+        textView.setTextColor(getResources().getColorStateList(textColor, requireActivity().getTheme()));
         textView.setText(textViewText);
     }
 
@@ -277,21 +280,21 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     }
 
     private void displayAuthFailedToast() {
-        Toast.makeText(getActivity().getApplicationContext(), R.string.authentication_failed,
+        Toast.makeText(requireActivity().getApplicationContext(), R.string.authentication_failed,
                 Toast.LENGTH_SHORT)
                 .show();
     }
 
     private void displayNegativeButtonToast(int errorCode) {
         if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
-            Toast.makeText(getActivity().getApplicationContext(),
+            Toast.makeText(requireActivity().getApplicationContext(),
                     R.string.bio_auth_negative_button_toast, Toast.LENGTH_LONG)
                     .show();
         }
     }
 
     private void executeAndDisplayAuthSuccessToast() {
-        Toast.makeText(getActivity().getApplicationContext(),
+        Toast.makeText(requireActivity().getApplicationContext(),
                 R.string.bio_auth_success_toast, Toast.LENGTH_SHORT).show();
         executeHealthStatusChange();
     }

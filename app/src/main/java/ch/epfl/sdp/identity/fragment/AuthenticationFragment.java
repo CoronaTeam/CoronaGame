@@ -63,7 +63,7 @@ public class AuthenticationFragment extends Fragment {
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestEmail().build();
         // Build a GoogleSignInClient with the options specified by gso.
-        googleSignInClient = GoogleSignIn.getClient(getActivity(), gso);
+        googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso);
 
         return view;
     }
@@ -73,7 +73,7 @@ public class AuthenticationFragment extends Fragment {
         super.onStart();
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getActivity());
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(requireActivity());
         updateUI(account);
     }
 
@@ -85,7 +85,7 @@ public class AuthenticationFragment extends Fragment {
             // hide the sign-in button, launch your main activity -> already registered
             signIn.setVisibility(View.INVISIBLE);
 //            startActivity(new Intent(this, AccountGettingActivity.class));
-            signInComplete(getActivity());
+            signInComplete(requireActivity());
         }
     }
 
@@ -117,7 +117,7 @@ public class AuthenticationFragment extends Fragment {
             updateUI(account);
         } catch (ApiException e) {
             if (e.getStatusCode() == 7) {
-                Toast.makeText(getActivity(), R.string.pls_check_internet_co, Toast.LENGTH_LONG).show();
+                Toast.makeText(requireActivity(), R.string.pls_check_internet_co, Toast.LENGTH_LONG).show();
             }
 
             // The ApiException status code indicates the detailed failure reason.

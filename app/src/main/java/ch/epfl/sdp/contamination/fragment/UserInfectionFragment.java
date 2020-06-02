@@ -129,8 +129,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
          * (Intent, ServiceConnection, int):it requires the service to remain running until
          * stopService(Intent) is called, regardless of whether any clients are connected to it.
          */
-        //TODO: @Lucie do we need this ComponentName?
-        ComponentName myService = getActivity().startService(new Intent(getContext(), LocationService.class));
+        getActivity().startService(new Intent(getContext(), LocationService.class));
         sharedPref = getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE);
 
         getActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);

@@ -47,6 +47,8 @@ import static ch.epfl.sdp.CoronaGame.IS_ONLINE;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
+import static ch.epfl.sdp.firestore.FirestoreLabels.INFECTED_TAG;
+import static ch.epfl.sdp.firestore.FirestoreLabels.USERS_COLL;
 import static ch.epfl.sdp.firestore.FirestoreLabels.privateRecoveryCounter;
 import static ch.epfl.sdp.firestore.FirestoreLabels.privateUserFolder;
 import static ch.epfl.sdp.utilities.Tools.checkNetworkStatus;
@@ -165,7 +167,8 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
             if (checkElapsedTimeSinceLastChange()) {
                 if (Tools.canAuthenticate(getActivity())) {
                     biometricPrompt.authenticate(promptInfo);
-                    // TODO: @Lucie, after authentication when is executeHealthStatusChange called?
+                    // executeHealthStatusChange is called on authentication success
+                    // in onAuthenticationSucceeded of biometricPrompt
                 } else {
                     executeHealthStatusChange();
                 }
@@ -204,10 +207,9 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
             return true;
         } else {
             Date currentTime = Calendar.getInstance().getTime();
-            //TODO: what does this means?
-            //get 1 jan 1970 by default. It's definitely wrong but works as we want t check that
-            //the status has not been updated less than a day ago.
 
+            // lastStatusChange is 1 jan 1970 by default (value for Date(0)).
+            // This works as we want t check that the status has not been updated less than a day ago.
             Date lastStatusChange = new Date(sharedPref.getLong("lastStatusChange", 0));
             long difference = Math.abs(currentTime.getTime() - lastStatusChange.getTime());
             long differenceDays = difference / (24 * 60 * 60 * 1000);
@@ -231,7 +233,9 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     }
 
     private void sendRecoveryToFirebase() {
-        // TODO: @Lucie I think that doesn't upload anything to Firestore
+        // TODO: I think that doesn't upload anything to Firestore
+        // --->> Are you sure? From what I read on the doc,
+        //                      update method from DocumentReference updates on Firebase
         // TODO: [LOG]
         Log.e("RECOVERY_SENDER", account.getId());
         DocumentReference ref = documentReference(privateUserFolder, account.getId());
@@ -239,9 +243,9 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     }
 
     private CompletableFuture<Boolean> retrieveUserInfectionStatus() {
-        return fsi.readDocument(documentReference("Users", userName))
+        return fsi.readDocument(documentReference(USERS_COLL, userName))
                 .thenApply(stringObjectMap -> {
-                    Boolean infected = (Boolean) stringObjectMap.get("Infected");
+                    Boolean infected = (Boolean) stringObjectMap.get(INFECTED_TAG);
                     return infected == null ? false : infected;
                 }).exceptionally(e -> {
                     Log.w(TAG, "Error retrieving infection status from " +

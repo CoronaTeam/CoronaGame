@@ -51,6 +51,10 @@ import ch.epfl.sdp.map.fragment.MapFragment;
 
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
+import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
+import static ch.epfl.sdp.firestore.FirestoreLabels.HISTORY_COLL;
+import static ch.epfl.sdp.firestore.FirestoreLabels.HISTORY_POSITIONS_COLL;
+import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
 import static ch.epfl.sdp.map.HeatMapHandler.adjustHeatMapColorRange;
 import static ch.epfl.sdp.map.HeatMapHandler.adjustHeatMapWeight;
 import static ch.epfl.sdp.map.HeatMapHandler.adjustHeatmapIntensity;
@@ -108,8 +112,8 @@ public class PathsHandler extends Fragment {
     private CompletableFuture<Iterator<QueryDocumentSnapshot>> initFirestorePathRetrieval() {
         String userPath = getUserId(); //"USER_ID_X42"; coronaId: 109758096484534641167
         return FirestoreInteractor.taskToFuture(
-                collectionReference("History/" + userPath + "/Positions")
-                        .orderBy("Position" + ".timestamp").get())
+                collectionReference(HISTORY_COLL + userPath + HISTORY_POSITIONS_COLL)
+                        .orderBy(TIMESTAMP_TAG).get())
                 .thenApply(collection -> {
                     if (collection.isEmpty()) {
                         throw new RuntimeException("Collection doesn't contain any document");
@@ -135,10 +139,10 @@ public class PathsHandler extends Fragment {
         for (; iterator.hasNext(); ) {
             QueryDocumentSnapshot qs = iterator.next();
             try {
-                GeoPoint geoPoint = (GeoPoint) ((Map) qs.get("Position")).get("geoPoint");
+                GeoPoint geoPoint = (GeoPoint) ((Map) qs.get("Position")).get(GEOPOINT_TAG);
                 double lat = geoPoint.getLatitude();
                 double lon = geoPoint.getLongitude();
-                Timestamp timestamp = (Timestamp) ((Map) qs.get("Position")).get("timestamp");
+                Timestamp timestamp = (Timestamp) ((Map) qs.get("Position")).get(TIMESTAMP_TAG);
 
                 String pathLocalDate = dateToSimpleString(timestamp.toDate());
 

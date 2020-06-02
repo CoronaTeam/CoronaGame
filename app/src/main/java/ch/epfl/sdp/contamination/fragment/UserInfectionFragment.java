@@ -105,7 +105,8 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         account = AuthenticationManager.getAccount(getActivity());
         userName = account.getDisplayName();
 
-        Executor executor = ContextCompat.getMainExecutor(getActivity());
+
+        Executor executor = ContextCompat.getMainExecutor(requireActivity());
         if (Tools.canAuthenticate(getActivity())) {
             this.biometricPrompt = biometricPromptBuilder(executor);
             this.promptInfo = promptInfoBuilder();
@@ -130,10 +131,12 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
          * stopService(Intent) is called, regardless of whether any clients are connected to it.
          */
         //TODO: @Lucie do we need this ComponentName?
-        ComponentName myService = getActivity().startService(new Intent(getContext(), LocationService.class));
-        sharedPref = getActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE);
+        ComponentName myService = requireActivity().startService(new Intent(getContext(),
+                LocationService.class));
+        sharedPref = requireActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE);
 
-        getActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
+        requireActivity().bindService(new Intent(getActivity(), LocationService.class), conn,
+                BIND_AUTO_CREATE);
         return view;
     }
 
@@ -141,7 +144,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     public void update(Observable o, Object arg) {
         Carrier me = service.getAnalyst().getCarrier();
 
-        getActivity().runOnUiThread(() -> {
+        requireActivity().runOnUiThread(() -> {
             setInfectionColorAndMessage(me.getInfectionStatus() == INFECTED);
             userInfectionProbability.setText(String.format("%s With probability: %f", me.getUniqueId(), me.getIllnessProbability()));
         });
@@ -263,7 +266,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
 
     private void clickAction(Button button, TextView textView, int buttonText, int textViewText, int textColor) {
         button.setText(buttonText);
-        textView.setTextColor(getResources().getColorStateList(textColor, getActivity().getTheme()));
+        textView.setTextColor(getResources().getColorStateList(textColor, requireActivity().getTheme()));
         textView.setText(textViewText);
     }
 
@@ -293,21 +296,21 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     }
 
     private void displayAuthFailedToast() {
-        Toast.makeText(getActivity().getApplicationContext(), R.string.authentication_failed,
+        Toast.makeText(requireActivity().getApplicationContext(), R.string.authentication_failed,
                 Toast.LENGTH_SHORT)
                 .show();
     }
 
     private void displayNegativeButtonToast(int errorCode) {
         if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
-            Toast.makeText(getActivity().getApplicationContext(),
+            Toast.makeText(requireActivity().getApplicationContext(),
                     R.string.bio_auth_negative_button_toast, Toast.LENGTH_LONG)
                     .show();
         }
     }
 
     private void executeAndDisplayAuthSuccessToast() {
-        Toast.makeText(getActivity().getApplicationContext(),
+        Toast.makeText(requireActivity().getApplicationContext(),
                 R.string.bio_auth_success_toast, Toast.LENGTH_SHORT).show();
         executeHealthStatusChange();
     }

@@ -88,11 +88,8 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.my_infection_refresh: {
-                onModelRefresh(view);
-            }
-            break;
+        if (view.getId() == R.id.my_infection_refresh) {
+            onModelRefresh(view);
         }
     }
 

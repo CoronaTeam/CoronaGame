@@ -80,7 +80,8 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
             }
         };
 
-        getActivity().bindService(new Intent(getActivity(), LocationService.class), serviceConnection, Context.BIND_AUTO_CREATE);
+        requireActivity().bindService(new Intent(getActivity(), LocationService.class), serviceConnection,
+                Context.BIND_AUTO_CREATE);
 
         return view;
     }
@@ -145,7 +146,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
         super.onDestroyView();
 
         if (serviceConnection != null) {
-            getActivity().unbindService(serviceConnection);
+            requireActivity().unbindService(serviceConnection);
             serviceConnection = null;
         }
     }

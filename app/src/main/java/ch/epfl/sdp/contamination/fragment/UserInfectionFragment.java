@@ -29,7 +29,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 import ch.epfl.sdp.R;
@@ -47,8 +46,6 @@ import static ch.epfl.sdp.CoronaGame.IS_ONLINE;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
-import static ch.epfl.sdp.firestore.FirestoreLabels.INFECTED_TAG;
-import static ch.epfl.sdp.firestore.FirestoreLabels.USERS_COLL;
 import static ch.epfl.sdp.firestore.FirestoreLabels.privateRecoveryCounter;
 import static ch.epfl.sdp.firestore.FirestoreLabels.privateUserFolder;
 import static ch.epfl.sdp.utilities.Tools.checkNetworkStatus;
@@ -240,18 +237,6 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         Log.e("RECOVERY_SENDER", account.getId());
         DocumentReference ref = documentReference(privateUserFolder, account.getId());
         ref.update(privateRecoveryCounter, FieldValue.increment(1));
-    }
-
-    private CompletableFuture<Boolean> retrieveUserInfectionStatus() {
-        return fsi.readDocument(documentReference(USERS_COLL, userName))
-                .thenApply(stringObjectMap -> {
-                    Boolean infected = (Boolean) stringObjectMap.get(INFECTED_TAG);
-                    return infected == null ? false : infected;
-                }).exceptionally(e -> {
-                    Log.w(TAG, "Error retrieving infection status from " +
-                            "Firestore.", e);
-                    return null;
-                });
     }
 
     private void setInfectionColorAndMessage(boolean infected) {

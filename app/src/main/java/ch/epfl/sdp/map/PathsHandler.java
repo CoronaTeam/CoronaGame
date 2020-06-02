@@ -47,7 +47,6 @@ import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.location.LocationUtils;
-import ch.epfl.sdp.map.fragment.MapFragment;
 
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
@@ -98,12 +97,10 @@ public class PathsHandler extends Fragment {
 
     private static final int ZOOM = 13;
     private MapboxMap map;
-    private MapFragment parentClass;
     private ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(
             new GridFirestoreInteractor());
 
-    public PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
-        this.parentClass = parentClass;
+    public PathsHandler(@NonNull MapboxMap map) {
         this.map = map;
         setCalendar();
         initFirestorePathRetrieval().thenAccept(this::getPathCoordinates);

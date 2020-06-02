@@ -131,7 +131,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         // bindService(Intent, ServiceConnection, int):
         // it requires the service to remain running until stopService(Intent) is called,
         // regardless of whether any clients are connected to it.
-        ComponentName myService = getActivity().startService(new Intent(getContext(), LocationService.class));
+        getActivity().startService(new Intent(getContext(), LocationService.class));
         getActivity().bindService(new Intent(getContext(), LocationService.class), conn, Context.BIND_AUTO_CREATE);
 
         db = new ConcreteFirestoreInteractor();
@@ -160,7 +160,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
                 updateUserMarkerPosition(prevLocation);
                 heatMapHandler = new HeatMapHandler(classPointer, db, map);
-                pathsHandler = new PathsHandler(classPointer, map);
+                pathsHandler = new PathsHandler(map);
             });
         });
 

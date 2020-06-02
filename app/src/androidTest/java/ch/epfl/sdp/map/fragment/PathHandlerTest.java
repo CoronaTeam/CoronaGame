@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
-import ch.epfl.sdp.map.MockLocationBroker;
+import ch.epfl.sdp.map.MockConnectivityBroker;
 import ch.epfl.sdp.map.PathsHandler;
 import ch.epfl.sdp.testActivities.MapActivity;
 
@@ -53,7 +53,7 @@ public class PathHandlerTest {
     public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
     private MapFragment mapFragment;
     private AtomicInteger sentinel;
-    private MockLocationBroker mockLocationBroker;
+    private MockConnectivityBroker mockConnectivityBroker;
     private boolean pathCoordIsEmpty;
     private boolean infectedCoordIsEmpty;
 
@@ -72,10 +72,10 @@ public class PathHandlerTest {
 
     @Before
     public void setUp() throws Throwable {
-        mockLocationBroker = new MockLocationBroker(activityRule);
-        mockLocationBroker.setProviderStatus(true);
+        mockConnectivityBroker = new MockConnectivityBroker(activityRule);
+        mockConnectivityBroker.setProviderStatus(true);
         mapFragment = (MapFragment) activityRule.getActivity().getFragment();
-        mapFragment.setLocationBroker(mockLocationBroker);
+        mapFragment.setConnectivityBroker(mockConnectivityBroker);
         sentinel = new AtomicInteger(0);
 
         testMapLoadCorrectly();
@@ -158,7 +158,7 @@ public class PathHandlerTest {
     public void cameraTargetsPathWhenToggle() throws Throwable {
         testMapVisible();
 
-        mockLocationBroker.setFakeLocation(buildLocation(46, 55));
+        mockConnectivityBroker.setFakeLocation(buildLocation(46, 55));
 
         clickToSeePath();
 
@@ -288,7 +288,7 @@ public class PathHandlerTest {
     }
 
     private void testClickChangesVisibility(boolean coordListIsEmpty, String layerId) throws Throwable {
-        mockLocationBroker.setFakeLocation(buildLocation(46, 55));
+        mockConnectivityBroker.setFakeLocation(buildLocation(46, 55));
 
         mapFragment.onMapVisible(() -> sentinel.incrementAndGet());
         waitForSentinelAndSetToZero();
@@ -313,6 +313,6 @@ public class PathHandlerTest {
     }
 
     private void testMapVisible() throws Throwable {
-        sTestMapVisible(mapFragment, sentinel, mockLocationBroker, activityRule);
+        sTestMapVisible(mapFragment, sentinel, mockConnectivityBroker, activityRule);
     }
 }

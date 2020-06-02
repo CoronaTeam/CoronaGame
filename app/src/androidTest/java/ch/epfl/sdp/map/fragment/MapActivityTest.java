@@ -167,9 +167,9 @@ public class MapActivityTest {
         sTestMapVisible(mapFragment, sentinel, mockLocationBroker, activityRule);
     }
 
-    static void sTestMapVisible(MapFragment mapFragment, AtomicInteger sentinel, MockLocationBroker mockLocationBroker, ActivityTestRule<MapActivity> activityRule) throws Throwable {
+    static void sTestMapVisible(MapFragment mapFragment, AtomicInteger sentinel, MockConnectivityBroker mockConnectivityBroker, ActivityTestRule<MapActivity> activityRule) throws Throwable {
         sTestMapLoadCorrectly(mapFragment, sentinel, activityRule);
-        mockLocationBroker.setFakeLocation(buildLocation(46, 55));
+        mockConnectivityBroker.setFakeLocation(buildLocation(46, 55));
         mapFragment.onMapVisible(sentinel::incrementAndGet);
         sWaitForSentinelAndSetToZero(sentinel);
         sleep(1000);

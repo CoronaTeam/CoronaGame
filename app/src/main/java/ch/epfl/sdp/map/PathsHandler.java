@@ -64,7 +64,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
  * This class is used to display the user's last positions as a line on the map,
  * as well as points of met infected users.
  */
-public class PathsHandler extends Fragment {
+public class PathsHandler {
     private static final String YESTERDAY_INFECTED_SOURCE_ID = "points-source-one";
     private static final String BEFORE_INFECTED_SOURCE_ID = "points-source-two";
     public static final String YESTERDAY_INFECTED_LAYER_ID = "pointslayer-one";
@@ -300,7 +300,7 @@ public class PathsHandler extends Fragment {
     }
 
     private String getUserId() {
-        Account account = AuthenticationManager.getAccount(requireActivity());
+        Account account = AuthenticationManager.getAccount(parentClass.requireActivity());
         return account.getId();
     }
 

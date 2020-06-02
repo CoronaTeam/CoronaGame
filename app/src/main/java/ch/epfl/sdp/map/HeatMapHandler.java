@@ -30,6 +30,7 @@ import ch.epfl.sdp.map.fragment.MapFragment;
 
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
+import static ch.epfl.sdp.firestore.FirestoreLabels.INFECTION_STATUS_TAG;
 import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_COLL;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.heatmapDensity;
@@ -69,7 +70,7 @@ public class HeatMapHandler {
     // Color ramp for heatmap.  Domain is 0 (low) to 1  (high).
     // Begin color ramp at 0-stop with a 0-transparency color
     // to create a blur-like effect.
-    /*private*/ static PropertyValue<Expression> adjustHeatMapColorRange() {
+    static PropertyValue<Expression> adjustHeatMapColorRange() {
         return heatmapColor(
                 interpolate(
                         linear(), heatmapDensity(),
@@ -85,7 +86,7 @@ public class HeatMapHandler {
 
     @NotNull
     // Increase the heatmap weight based on frequency and property magnitude
-    /*private*/ static PropertyValue<Expression> adjustHeatMapWeight() {
+    static PropertyValue<Expression> adjustHeatMapWeight() {
         return heatmapWeight(
                 interpolate(
                         exponential(2), zoom(),
@@ -98,7 +99,7 @@ public class HeatMapHandler {
     @NotNull
     // Increase the heatmap color weight weight by zoom level
     // heatmap-intensity is a multiplier on top of heatmap-weight
-    /*private*/ static PropertyValue<Expression> adjustHeatmapIntensity() {
+    static PropertyValue<Expression> adjustHeatmapIntensity() {
         return heatmapIntensity(
                 interpolate(
                         linear(), zoom(),
@@ -110,7 +111,7 @@ public class HeatMapHandler {
 
     @NotNull
     // Adjust the heatmap radius by zoom level
-    /*private*/ static PropertyValue<Expression> adjustHeatmapRadius() {
+    static PropertyValue<Expression> adjustHeatmapRadius() {
         return heatmapRadius(
                 interpolate(
                         linear(), zoom(),
@@ -135,13 +136,14 @@ public class HeatMapHandler {
 
         for (Map.Entry<String, Map<String, Object>> entry : entrySet) {
             try {
-                GeoPoint geoPoint = (GeoPoint) entry.getValue().get(GEOPOINT_TAG);
-                infectionHeatMapPoints.add(Point.fromLngLat(
-                        geoPoint.getLongitude(),
-                        geoPoint.getLatitude()
-                ));
-            } catch (NullPointerException ignored) {
-            }
+                if (entry.getValue().get(INFECTION_STATUS_TAG).equals("INFECTED")){
+                    GeoPoint geoPoint = (GeoPoint) entry.getValue().get(GEOPOINT_TAG);
+                    infectionHeatMapPoints.add(Point.fromLngLat(
+                            geoPoint.getLongitude(),
+                            geoPoint.getLatitude()
+                    ));
+                }
+            } catch (NullPointerException ignored) { }
         }
 
         GeoJsonSource lastPos = new GeoJsonSource(LASTPOSITIONS_SOURCE_ID,
@@ -157,7 +159,7 @@ public class HeatMapHandler {
 
     private void addHeatmapLayer() {
         HeatmapLayer layer = new HeatmapLayer(HEATMAP_LAYER_ID, LASTPOSITIONS_SOURCE_ID);
-        //layer.setMinZoom(13);
+
         layer.setMaxZoom(17);
         layer.setMinZoom(8);
         layer.setSourceLayer(HEATMAP_LAYER_SOURCE);

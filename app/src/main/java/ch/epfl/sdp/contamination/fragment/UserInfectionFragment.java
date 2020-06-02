@@ -102,12 +102,12 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
 
         checkOnline();
 
-        account = AuthenticationManager.getAccount(getActivity());
+        account = AuthenticationManager.getAccount(requireActivity());
         userName = account.getDisplayName();
 
 
         Executor executor = ContextCompat.getMainExecutor(requireActivity());
-        if (Tools.canAuthenticate(getActivity())) {
+        if (Tools.canAuthenticate(requireActivity())) {
             this.biometricPrompt = biometricPromptBuilder(executor);
             this.promptInfo = promptInfoBuilder();
         }
@@ -135,7 +135,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
                 LocationService.class));
         sharedPref = requireActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE);
 
-        requireActivity().bindService(new Intent(getActivity(), LocationService.class), conn,
+        requireActivity().bindService(new Intent(requireActivity(), LocationService.class), conn,
                 BIND_AUTO_CREATE);
         return view;
     }
@@ -167,14 +167,14 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     private void onClickChangeStatus() {
         if (checkOnline()) {
             if (checkElapsedTimeSinceLastChange()) {
-                if (Tools.canAuthenticate(getActivity())) {
+                if (Tools.canAuthenticate(requireActivity())) {
                     biometricPrompt.authenticate(promptInfo);
                     // TODO: @Lucie, after authentication when is executeHealthStatusChange called?
                 } else {
                     executeHealthStatusChange();
                 }
             } else {
-                Toast.makeText(getActivity(),
+                Toast.makeText(requireActivity(),
                         R.string.error_infection_status_ratelimit, Toast.LENGTH_LONG).show();
             }
         }
@@ -188,7 +188,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         onlineStatusView = view.findViewById(R.id.onlineStatusView);
         refreshButton = view.findViewById(R.id.refreshButton);
         refreshButton.setOnClickListener(this);
-        checkNetworkStatus(getActivity());
+        checkNetworkStatus(requireActivity());
         setOnlineOfflineVisibility(IS_ONLINE);
         return IS_ONLINE;
     }

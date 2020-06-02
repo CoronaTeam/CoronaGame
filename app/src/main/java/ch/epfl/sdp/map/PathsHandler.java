@@ -125,7 +125,7 @@ public class PathsHandler extends Fragment {
                     }
                 })
                 .exceptionally(e -> {
-                    Toast.makeText(parentClass.getActivity(),
+                    Toast.makeText(parentClass.requireActivity(),
                             "Cannot retrieve path from database",
                             Toast.LENGTH_LONG).show();
                     return Collections.emptyIterator();
@@ -300,7 +300,7 @@ public class PathsHandler extends Fragment {
     }
 
     private String getUserId() {
-        Account account = AuthenticationManager.getAccount(getActivity());
+        Account account = AuthenticationManager.getAccount(requireActivity());
         return account.getId();
     }
 

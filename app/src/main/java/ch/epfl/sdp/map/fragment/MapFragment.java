@@ -186,7 +186,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
             callOnMapVisible();
         } else {
-            Toast.makeText(getActivity(), "Missing permission", Toast.LENGTH_LONG).show();
+            Toast.makeText(requireActivity(), "Missing permission", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -221,7 +221,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             locationBroker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, this);
         } else if (locationBroker.isProviderEnabled(GPS)) {
             // Must ask for permissions
-            locationBroker.requestPermissions(getActivity(), LOCATION_PERMISSION_REQUEST);
+            locationBroker.requestPermissions(requireActivity(), LOCATION_PERMISSION_REQUEST);
         }
     }
 

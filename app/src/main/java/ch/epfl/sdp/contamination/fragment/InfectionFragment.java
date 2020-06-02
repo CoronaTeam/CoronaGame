@@ -81,7 +81,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
             }
         };
 
-        getActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
+        requireActivity().bindService(new Intent(requireActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
 
         return view;
     }
@@ -101,11 +101,11 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
         LocationService locationService = service.join();
 
         // TODO: Which location?
-        locationService.getReceiver().getMyLastLocation(AccountFragment.getAccount(getActivity()))
+        locationService.getReceiver().getMyLastLocation(AccountFragment.getAccount(requireActivity()))
                 .thenApply(location -> locationService.getAnalyst().updateInfectionPredictions(location, refreshTime, new Date())
                         .thenAccept(todayInfectionMeetings -> {
                             //TODO: should run on UI thread?
-                            getActivity().runOnUiThread(() -> {
+                            requireActivity().runOnUiThread(() -> {
                                 infectionStatus.setText(R.string.infection_status_posted);
                                 uiHandler.post(() -> {
                                     InfectionAnalyst analyst = locationService.getAnalyst();
@@ -123,7 +123,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
         if (todayInfectionMeetings < 0) {
             throw new IllegalArgumentException();
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
 
         CharSequence first;
         CharSequence second;

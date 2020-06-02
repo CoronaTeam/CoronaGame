@@ -85,7 +85,7 @@ public class AuthenticationFragment extends Fragment {
             // hide the sign-in button, launch your main activity -> already registered
             signIn.setVisibility(View.INVISIBLE);
 //            startActivity(new Intent(this, AccountGettingActivity.class));
-            signInComplete(getActivity());
+            signInComplete(requireActivity());
         }
     }
 
@@ -117,7 +117,7 @@ public class AuthenticationFragment extends Fragment {
             updateUI(account);
         } catch (ApiException e) {
             if (e.getStatusCode() == 7) {
-                Toast.makeText(getActivity(), "Please check your internet connection", Toast.LENGTH_LONG).show();
+                Toast.makeText(requireActivity(), "Please check your internet connection", Toast.LENGTH_LONG).show();
             }
 
             // The ApiException status code indicates the detailed failure reason.

@@ -64,7 +64,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
         userIdView = view.findViewById(R.id.userIdView);
         img = view.findViewById(R.id.profileImage);
         img.setImageResource(R.drawable.ic_person);
-        getAndShowAccountInfo(AuthenticationManager.getAccount(getActivity()));
+        getAndShowAccountInfo(AuthenticationManager.getAccount(requireActivity()));
 
         view.findViewById(R.id.moreButton).setOnClickListener(this);
 
@@ -80,7 +80,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
             }
         };
 
-        requireActivity().bindService(new Intent(getActivity(), LocationService.class), serviceConnection,
+        requireActivity().bindService(new Intent(requireActivity(), LocationService.class), serviceConnection,
                 Context.BIND_AUTO_CREATE);
 
         return view;
@@ -97,7 +97,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
     }
 
     private void showMoreMenu(View anchor) {
-        PopupMenu popup = new PopupMenu(getActivity(), anchor);
+        PopupMenu popup = new PopupMenu(requireActivity(), anchor);
         popup.getMenuInflater().inflate(R.menu.more_menu, popup.getMenu());
         popup.show();
         popup.getMenu().findItem(R.id.button_sign_out).setOnMenuItemClickListener(this);
@@ -131,7 +131,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
     public boolean onMenuItemClick(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.button_sign_out: {
-                AuthenticationManager.signOut(getActivity());
+                AuthenticationManager.signOut(requireActivity());
                 return true;
             }
             case R.id.button_delete_local_history: {

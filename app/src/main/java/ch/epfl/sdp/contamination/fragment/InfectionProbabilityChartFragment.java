@@ -96,7 +96,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
                 service = null;
             }
         };
-        requireActivity().bindService(new Intent(getActivity(), LocationService.class), serviceConnection, BIND_AUTO_CREATE);
+        requireActivity().bindService(new Intent(requireActivity(), LocationService.class), serviceConnection, BIND_AUTO_CREATE);
     }
 
     private void initializeChart() {

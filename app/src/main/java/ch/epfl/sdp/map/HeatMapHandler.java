@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
+import ch.epfl.sdp.R;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.map.fragment.MapFragment;
 
@@ -123,9 +124,7 @@ public class HeatMapHandler {
         db.readCollection(collectionReference(LAST_POSITIONS_COLL))
                 .thenAccept(this::createGeoJson)
                 .exceptionally(e -> {
-                    Toast.makeText(parentClass.getActivity(), "Cannot retrieve " +
-                            "positions " +
-                            "from database", Toast.LENGTH_LONG).show();
+                    Toast.makeText(parentClass.getActivity(), R.string.cannot_retr_pos_from_db, Toast.LENGTH_LONG).show();
                     return null;
                 });
     }

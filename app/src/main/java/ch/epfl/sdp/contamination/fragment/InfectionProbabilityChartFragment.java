@@ -211,7 +211,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     }
 
     private void createNewDataSet(List<Entry> data) {
-        LineDataSet set1 = new LineDataSet(data, "Infection Probability");
+        LineDataSet set1 = new LineDataSet(data, getString(R.string.infection_proba));
         set1.setDrawIcons(false);
 
         set1.setColor(Color.BLACK);

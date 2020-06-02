@@ -33,8 +33,6 @@ import java.util.concurrent.Executor;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.Carrier;
-import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
-import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.location.LocationService;
@@ -54,13 +52,11 @@ import static ch.epfl.sdp.utilities.Tools.checkNetworkStatus;
  * Allow the user to change his health status (infected / cured)
  */
 public class UserInfectionFragment extends Fragment implements View.OnClickListener, Observer {
-    private static final String TAG = "User Infection Activity";
     private Button infectionStatusButton;
     private TextView infectionStatusView;
     private TextView onlineStatusView;
     private Button refreshButton;
     private Account account;
-    private FirestoreInteractor fsi = new ConcreteFirestoreInteractor();
     private String userName;
     private View view;
     private LocationService service;

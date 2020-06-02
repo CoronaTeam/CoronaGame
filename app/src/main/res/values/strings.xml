@@ -142,4 +142,9 @@
     <string name="not_infected">Not infected</string>
     <string name="no_path_to_show">No path to show</string>
     <string name="click_to_see_whole_path">Click on the magnifier to see the whole path</string>
+    <string name="missing_permission">Missing permission</string>
+    <string name="cannot_retr_pos_from_db">Cannot retrieve positions from database</string>
+    <string name="refresh_to_see_status">Refresh to see your status</string>
+    <string name="infection_proba">Infection Probability</string>
+    <string name="pls_check_internet_co">Please check your internet connection</string>
 </resources>

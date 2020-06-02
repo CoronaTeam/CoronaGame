@@ -185,7 +185,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
             callOnMapVisible();
         } else {
-            Toast.makeText(getActivity(), "Missing permission", Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), R.string.missing_permission, Toast.LENGTH_LONG).show();
         }
     }
 

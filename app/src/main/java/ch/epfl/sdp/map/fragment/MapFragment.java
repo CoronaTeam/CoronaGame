@@ -162,7 +162,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
                 updateUserMarkerPosition(prevLocation);
                 heatMapHandler = new HeatMapHandler(classPointer, db, map);
-                pathsHandler = new PathsHandler(map);
+                pathsHandler = new PathsHandler(classPointer, map);
             });
         });
 

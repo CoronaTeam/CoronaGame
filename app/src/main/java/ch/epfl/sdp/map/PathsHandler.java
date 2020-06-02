@@ -6,7 +6,6 @@ import android.location.Location;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
-import androidx.fragment.app.Fragment;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
@@ -48,6 +47,7 @@ import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.location.LocationUtils;
+import ch.epfl.sdp.map.fragment.MapFragment;
 
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
@@ -98,14 +98,16 @@ public class PathsHandler {
 
     private static final int ZOOM = 13;
     private MapboxMap map;
+    private MapFragment parentClass;
     private ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(
             new GridFirestoreInteractor());
 
     private Callable onPathDataLoaded;
     private Boolean layersHaveBeenSet;
 
-    public PathsHandler(@NonNull MapboxMap map) {
+    public PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
         this.map = map;
+        this.parentClass = parentClass;
         layersHaveBeenSet = false;
         setCalendar();
         initFirestorePathRetrieval().thenAccept(this::getPathCoordinates);

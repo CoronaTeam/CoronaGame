@@ -337,10 +337,9 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
                     layer.setProperties(visibility(VISIBLE));
                     if (layerId.equals(YESTERDAY_PATH_LAYER_ID)) {
                         CURRENT_PATH = R.string.yesterday;
+                        showPathZoomOutButton(layerId, INVISIBLE, View.VISIBLE);
                     } else if (layerId.equals(BEFORE_PATH_LAYER_ID)) {
                         CURRENT_PATH = R.string.before_yesterday;
-                    }
-                    if (layerId.equals(YESTERDAY_PATH_LAYER_ID) || layerId.equals(BEFORE_PATH_LAYER_ID)) {
                         showPathZoomOutButton(layerId, INVISIBLE, View.VISIBLE);
                     }
                     if (!TESTING_MODE && ((layerId.equals(YESTERDAY_PATH_LAYER_ID) || layerId.equals(BEFORE_PATH_LAYER_ID)))) {

@@ -176,7 +176,7 @@ public class HeatMapHandler {
 
     private void callHeatmapDataLoaded() {
         try {
-            onHeatMapDataLoaded.call();
+            if(onHeatMapDataLoaded != null) {onHeatMapDataLoaded.call();}
             onHeatMapDataLoaded = null;
         } catch (Exception ignored) {
         }

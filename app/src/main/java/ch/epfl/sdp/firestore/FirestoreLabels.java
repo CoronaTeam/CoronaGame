@@ -6,6 +6,12 @@ public interface FirestoreLabels {
     // written here too (we have to progressively get rid of random Strings with Firestore paths
     // in the rest of the code)
 
+    // History collection
+    String HISTORY_COLL = "History";
+
+    // History/[userID]/Positions
+    String HISTORY_POSITIONS_DOC = "Positions";
+
     // LastPositions collection
     String LAST_POSITIONS_COLL = "LastPositions";
 

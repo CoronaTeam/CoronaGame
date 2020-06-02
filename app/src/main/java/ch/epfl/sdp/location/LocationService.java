@@ -10,6 +10,9 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,6 +21,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
@@ -71,7 +75,7 @@ public class LocationService extends Service implements LocationListener, Observ
     private static final int MIN_UP_INTERVAL_MILLIS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
     // This correspond to 6h divided by the DEMO_SPEEDUP constant
-    private static long alarmDelayMillis = 21_600_000 / getDemoSpeedup();
+    private static long alarmDelayMillis = 5_000 / getDemoSpeedup();
 
     private LocationBroker broker;
     private PositionAggregator aggregator;
@@ -89,6 +93,25 @@ public class LocationService extends Service implements LocationListener, Observ
     private InfectionAnalyst analyst;
 
     private boolean hasGpsPermissions = false;
+    private boolean hasInternetConnection = false;
+
+    private ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
+        @Override
+        public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities networkCapabilities) {
+            super.onCapabilitiesChanged(network, networkCapabilities);
+            if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+                hasInternetConnection = true;
+                displayToast("Internet connection: OK");
+            }
+        }
+
+        @Override
+        public void onLost(@NonNull Network network) {
+            super.onLost(network);
+            hasInternetConnection = false;
+            displayToast("Lost Internet");
+        }
+    };
 
     public static void setAlarmDelay(int millisDelay) {
         alarmDelayMillis = millisDelay;
@@ -141,6 +164,13 @@ public class LocationService extends Service implements LocationListener, Observ
         broker = new ConcreteLocationBroker((LocationManager) this.getSystemService(Context.LOCATION_SERVICE), this);
 
         refreshPermissions();
+
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        if (cm == null) {
+            displayToast("Cannot access network status: perennial offline");
+        } else {
+            cm.registerDefaultNetworkCallback(networkCallback);
+        }
 
         sharedPref = this.getSharedPreferences(CoronaGame.SHARED_PREF_FILENAME, Context.MODE_PRIVATE);
 

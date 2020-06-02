@@ -338,13 +338,13 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
                     if (layerId.equals(YESTERDAY_PATH_LAYER_ID)) {
                         CURRENT_PATH = R.string.yesterday;
                         showPathZoomOutButton(layerId, INVISIBLE, View.VISIBLE);
+                        showToast();
                     } else if (layerId.equals(BEFORE_PATH_LAYER_ID)) {
                         CURRENT_PATH = R.string.before_yesterday;
                         showPathZoomOutButton(layerId, INVISIBLE, View.VISIBLE);
+                        showToast();
                     }
-                    if (!TESTING_MODE && ((layerId.equals(YESTERDAY_PATH_LAYER_ID) || layerId.equals(BEFORE_PATH_LAYER_ID)))) {
-                        Toast.makeText(getContext(), R.string.click_to_see_whole_path, Toast.LENGTH_SHORT).show();
-                    }
+
                     res.set(true);
                 }
             } else if (layerId.equals(YESTERDAY_PATH_LAYER_ID) || layerId.equals(BEFORE_PATH_LAYER_ID)){
@@ -352,6 +352,12 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             }
         });
         return res;
+    }
+
+    private void showToast() {
+        if (!TESTING_MODE) {
+            Toast.makeText(getContext(), R.string.click_to_see_whole_path, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showPathZoomOutButton(String layerId, int visibilityCheck, int buttonVisibility) {

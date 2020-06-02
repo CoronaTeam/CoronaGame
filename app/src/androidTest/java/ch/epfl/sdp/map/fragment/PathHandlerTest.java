@@ -202,32 +202,26 @@ public class PathHandlerTest {
 
     @Test
     public void seeWholePathButtonAppearsWhenSeeingNonEmptyPath() throws Throwable {
+        PathButtonTestBody(PathsHandler.TestOP.TEST_NON_EMPTY_LIST, ViewMatchers.Visibility.VISIBLE);
+
+    }
+
+    private void PathButtonTestBody(PathsHandler.TestOP testNonEmptyList, ViewMatchers.Visibility visible) throws Throwable {
         pathGetsInstantiated();
         activityRule.runOnUiThread(() -> {
-            mapFragment.getPathsHandler().resetPaths(PathsHandler.TestOP.TEST_NON_EMPTY_LIST,
+            mapFragment.getPathsHandler().resetPaths(testNonEmptyList,
                     () -> sentinel.incrementAndGet());
         });
         waitForSentinelAndSetToZero();
 
         testMapVisible();
         clickToSeePath();
-        onView(withId(R.id.wholePath)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
-
+        onView(withId(R.id.wholePath)).check(matches(withEffectiveVisibility(visible)));
     }
 
     @Test
     public void seeWholePathButtonInvisibleWhenNoPath() throws Throwable {
-        pathGetsInstantiated();
-
-        activityRule.runOnUiThread(() -> {
-            mapFragment.getPathsHandler().resetPaths(PathsHandler.TestOP.TEST_EMPTY_PATH,
-                    () -> sentinel.incrementAndGet());
-        });
-        waitForSentinelAndSetToZero();
-
-        testMapVisible();
-        clickToSeePath();
-        onView(withId(R.id.wholePath)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)));
+        PathButtonTestBody(PathsHandler.TestOP.TEST_EMPTY_PATH, ViewMatchers.Visibility.INVISIBLE);
 
     }
 

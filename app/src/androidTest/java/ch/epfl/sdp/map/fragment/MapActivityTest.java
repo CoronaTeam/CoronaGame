@@ -1,13 +1,10 @@
 package ch.epfl.sdp.map.fragment;
 
-import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.style.layers.Layer;
-import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RFACLabelItem;
-import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RapidFloatingActionContentLabelList;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -16,34 +13,23 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
 import ch.epfl.sdp.map.MockConnectivityBroker;
-import ch.epfl.sdp.map.PathsHandler;
 import ch.epfl.sdp.testActivities.MapActivity;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.location.LocationUtils.buildLocation;
 import static ch.epfl.sdp.map.HeatMapHandler.HEATMAP_LAYER_ID;
-import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_INFECTED_LAYER_ID;
-import static ch.epfl.sdp.map.PathsHandler.YESTERDAY_PATH_LAYER_ID;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertTrue;
 
 public class MapActivityTest {
 
@@ -54,20 +40,17 @@ public class MapActivityTest {
     private MapFragment mapFragment;
     private AtomicInteger sentinel;
     private MockConnectivityBroker mockLocationBroker;
-    private boolean pathCoordIsEmpty;
-    private boolean infectedCoordIsEmpty;
 
     @BeforeClass
-    public static void preSetup() {
+    public static void preClassSetup() {
         AccountFragment.IN_TEST = true;
         MapFragment.TESTING_MODE = true;
     }
 
     @AfterClass
-    public static void postClean() {
+    public static void postClassClean() {
         AccountFragment.IN_TEST = false;
         MapFragment.TESTING_MODE = false;
-
     }
 
     @Before
@@ -82,23 +65,16 @@ public class MapActivityTest {
     @After
     public void clean() {
         sentinel = new AtomicInteger(0);
-        //Intents.release();
     }
+
+
+    ////////////////////////////////// Tests //////////////////////////////////////
+
 
     @Test(timeout = 30000)
-    public void testMapLoadCorrectly() throws Throwable {
-        while (mapFragment.getMap() == null) {
-            sleep(500);
-        }
-        ;
-
-        activityRule.runOnUiThread(() -> mapFragment.getMap().getStyle((s)
-                -> sentinel.incrementAndGet()));
-        // The sentinel value will only increase when the style has completely loaded
-
-        waitForSentinelAndSetToZero();
+    public void testMapLoadCorrectly() throws Throwable{
+        sTestMapLoadCorrectly(mapFragment, sentinel, activityRule);
     }
-
 
     @Test(timeout = 50000)
     public void testHeatMapLoadCorrectly() throws Throwable {
@@ -110,33 +86,22 @@ public class MapActivityTest {
             sleep(500);
         }
 
-        activityRule.runOnUiThread(() -> mapFragment.getHeatMapHandler().onHeatMapDataLoaded(()
-                -> sentinel.incrementAndGet()));
+        activityRule.runOnUiThread(() -> mapFragment.getHeatMapHandler().onHeatMapDataLoaded(
+                sentinel::incrementAndGet));
         // The sentinel value will only increase when the heatmap has completely loaded
 
         activityRule.runOnUiThread(() -> {
-            mapFragment.getHeatMapHandler().onHeatMapDataLoaded(() -> sentinel.incrementAndGet());
+            mapFragment.getHeatMapHandler().onHeatMapDataLoaded(sentinel::incrementAndGet);
         }); // The sentinel value will only increase when the heatmap has completely loaded
 
         waitForSentinelAndSetToZero();
 
     }
 
-    private void testLayerVisibility(String visibility, String layerId) throws Throwable {
-        activityRule.runOnUiThread(() -> {
-            mapFragment.getMap().getStyle(style -> {
-                Layer layer = style.getLayer(layerId);
-                assertNotNull(layer);
-                assertEquals(visibility, layer.getVisibility().getValue());
-            });
-            sentinel.incrementAndGet();
-        });
-    }
-
     @Test(timeout = 100000)
     public void testHeatMapToggleButton() throws Throwable {
 
-        testMapVisible();
+        testHeatMapLoadCorrectly();
 
         testLayerVisibility(VISIBLE, HEATMAP_LAYER_ID);
 
@@ -152,233 +117,69 @@ public class MapActivityTest {
     public void clickMyCurrentLocationTargetsMyLatLng() throws Throwable {
         testMapVisible();
 
-        LatLng circleLatLng = mapFragment.getUserLocation().getLatLng();
+        LatLng circleLatLng = mapFragment.getUserLocation();
         double exp_lat = circleLatLng.getLatitude();
         double exp_lon = circleLatLng.getLongitude();
-        double precision = 1;
 
-        onView(withId(R.id.myCurrentLocation)).perform(click());
+        onView(withId(R.id.myCurrentLocationToggle)).perform(click());
         sleep(5000);
 
         LatLng cameraLatLng = mapFragment.getMap().getCameraPosition().target;
         double act_lat = cameraLatLng.getLatitude();
         double act_lon = cameraLatLng.getLongitude();
 
-        assertEquals(exp_lat, act_lat, precision);
-        assertEquals(exp_lon, act_lon, precision);
-    }
-
-    ////////////////////////////////// Tests for PathsHandler //////////////////////////////////////
-
-    @Test(timeout = 20000)
-    public void yesterdayPathLayerIsSetWhenNotEmpty() throws Throwable {
-        testMapLoadCorrectly();
-        pathGetsInstantiated();
-
-        if (!mapFragment.getPathsHandler().getYesterdayPathCoordinates().isEmpty()) {
-            testLayerIsSet(YESTERDAY_PATH_LAYER_ID);
-            pathCoordIsEmpty = false;
-        } else {
-            pathCoordIsEmpty = true;
-        }
-    }
-
-    @Test(timeout = 20000)
-    public void yesterdayInfectedLayerIsSetWhenNotEmpty() throws Throwable {
-        testMapLoadCorrectly();
-
-        pathGetsInstantiated();
-
-        if (!mapFragment.getPathsHandler().getYesterdayInfectedMet().isEmpty()) {
-            testLayerIsSet(YESTERDAY_INFECTED_LAYER_ID);
-            infectedCoordIsEmpty = false;
-        } else {
-            infectedCoordIsEmpty = true;
-        }
-    }
-
-    @Test(timeout = 20000)
-    public void pathGetsInstantiated() {
-        while (mapFragment.getPathsHandler() == null) {
-            sleep(500);
-        }
-        while (mapFragment.getPathsHandler().getYesterdayPathCoordinates() == null) {
-            sleep(500);
-        }
-    }
-
-    @Test
-    public void pathsButtonLayoutIsDisplayedWhenPressed() {
-        onView(withId(R.id.history_rfab)).perform(click());
-        onView(withId(R.id.history_rfal)).check(matches(isDisplayed()));
-    }
-
-    @Test(timeout = 8000)
-    public void datesFormattedAsYYYYmmDD() {
-        while (mapFragment.getPathsHandler() == null) {
-            sleep(500);
-        }
-        String expected = "2020/05/18";
-        Date date = new GregorianCalendar(2020, Calendar.MAY, 18).getTime();
-        String actual = mapFragment.getPathsHandler().getSimpleDateFormat(date);
-
-        assertEquals(expected, actual);
-    }
-
-    @Test(timeout = 100000)
-    public void toggleYesterdayPathChangesVisibilityWhenNotEmpty() throws Throwable {
-        yesterdayPathLayerIsSetWhenNotEmpty();
-
-        testClickChangesVisibility(pathCoordIsEmpty, YESTERDAY_PATH_LAYER_ID);
-
-    }
-
-    @Test(timeout = 100000)
-    public void infectedLayerVisibilityChangesWhenNotEmpty() throws Throwable {
-        yesterdayInfectedLayerIsSetWhenNotEmpty();
-
-        testClickChangesVisibility(infectedCoordIsEmpty, YESTERDAY_INFECTED_LAYER_ID);
-    }
-
-    @Test
-    public void cameraTargetsPathWhenToggle() throws Throwable {
-        testHeatMapLoadCorrectly();
-
-        mockLocationBroker.setFakeLocation(buildLocation(46, 55));
-
-        clickToSeePath();
-        double act_lat = mapFragment.getMap().getCameraPosition().target.getLatitude();
-        double act_lon = mapFragment.getMap().getCameraPosition().target.getLongitude();
-
-        double exp_lat = 46;
-        double exp_lon = 55;
         double precision = 1;
-
-        if (mapFragment.getPathsHandler().isPathLocationSet1() || PathsHandler.TEST_NON_EMPTY_LIST) {
-            exp_lat = mapFragment.getPathsHandler().getLatitudeYesterday();
-            exp_lon = mapFragment.getPathsHandler().getLongitudeYesterday();
-        }
-
         assertEquals(exp_lat, act_lat, precision);
         assertEquals(exp_lon, act_lon, precision);
     }
 
-    @Test(timeout = 200000)
-    public void testsForNonEmptyPathAndInfected() throws Throwable {
-        yesterdayPathLayerIsSetWhenNotEmpty();
-        yesterdayInfectedLayerIsSetWhenNotEmpty();
 
-        PathsHandler.TEST_NON_EMPTY_LIST = true;
+    ////////////////////////////////// Helper functions //////////////////////////////////////
 
-        if (pathCoordIsEmpty) {
-            toggleYesterdayPathChangesVisibilityWhenNotEmpty();
-            cameraTargetsPathWhenToggle();
+    private void testLayerVisibility(String visibility, String layerId) throws Throwable {
+        sTestLayerVisibility(visibility, layerId, mapFragment, sentinel, activityRule);
+    }
+
+    static void sTestLayerVisibility(String visibility, String layerId, MapFragment mapFragment, AtomicInteger sentinel, ActivityTestRule<MapActivity> activityRule) throws Throwable {
+        activityRule.runOnUiThread(() -> {
+            mapFragment.getMap().getStyle(style -> {
+                Layer layer = style.getLayer(layerId);
+                assertNotNull(layer);
+                assertEquals(visibility, layer.getVisibility().getValue());
+            });
+            sentinel.incrementAndGet();
+        });
+    }
+
+    static void sTestMapLoadCorrectly(MapFragment mapFragment, AtomicInteger sentinel, ActivityTestRule<MapActivity> activityRule) throws Throwable {
+        while (mapFragment.getMap() == null) {
+            sleep(500);
         }
 
-        if (infectedCoordIsEmpty) {
-            infectedLayerVisibilityChangesWhenNotEmpty();
-        }
+        activityRule.runOnUiThread(() -> mapFragment.getMap().getStyle((s)
+                -> sentinel.incrementAndGet()));
+        // The sentinel value will only increase when the style has completely loaded
 
-        PathsHandler.TEST_NON_EMPTY_LIST = false;
-    }
-
-    @Test
-    public void seeWholePathButtonAppearsWhenSeeingNonEmptyPath() throws Throwable {
-        PathsHandler.TEST_NON_EMPTY_LIST = true;
-
-        testMapVisible();
-        clickToSeePath();
-        onView(withId(R.id.wholePath)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
-
-        PathsHandler.TEST_NON_EMPTY_LIST = false;
-    }
-
-    @Test
-    public void seeWholePathButtonInvisibleWhenNoPath() throws Throwable {
-        PathsHandler.TEST_EMPTY_PATH = true;
-
-        testMapVisible();
-        clickToSeePath();
-        onView(withId(R.id.wholePath)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)));
-
-        PathsHandler.TEST_EMPTY_PATH = false;
-    }
-
-    @Test
-    public void seeWholePathButtonInvisibleByDefault() throws Throwable {
-        testMapVisible();
-        onView(withId(R.id.wholePath)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)));
-    }
-
-    @Test
-    public void clickSeeWholePathMakeZoomAdjust() throws Throwable {
-        PathsHandler.TEST_NON_EMPTY_LIST = true;
-
-        testMapVisible();
-
-        pathGetsInstantiated();
-
-        clickToSeePath();
-
-        double zoom_before = mapFragment.getMap().getCameraPosition().zoom;
-        onView(withId(R.id.wholePath)).perform(click());
-        sleep(5000);
-        double zoom_after = mapFragment.getMap().getCameraPosition().zoom;
-
-        assertTrue(zoom_before != zoom_after);
-
-        PathsHandler.TEST_NON_EMPTY_LIST = false;
-    }
-
-    private void clickToSeePath() throws Throwable {
-        onView(withId(R.id.history_rfab)).perform(click());
-        List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList)
-                mapFragment.getRfabHelper().obtainRFAContent()).getItems();
-
-        activityRule.runOnUiThread(() -> mapFragment.onRFACItemIconClick(0, pathItems.get(0)));
-        sleep(10000);
+        sWaitForSentinelAndSetToZero(sentinel);
     }
 
     private void testMapVisible() throws Throwable {
-        testHeatMapLoadCorrectly();
+        sTestMapVisible(mapFragment, sentinel, mockLocationBroker, activityRule);
+    }
+
+    static void sTestMapVisible(MapFragment mapFragment, AtomicInteger sentinel, MockLocationBroker mockLocationBroker, ActivityTestRule<MapActivity> activityRule) throws Throwable {
+        sTestMapLoadCorrectly(mapFragment, sentinel, activityRule);
         mockLocationBroker.setFakeLocation(buildLocation(46, 55));
-        mapFragment.onMapVisible(() -> sentinel.incrementAndGet());
-        waitForSentinelAndSetToZero();
-    }
-
-    private void testLayerIsSet(String layerId) throws Throwable {
-        activityRule.runOnUiThread(() -> mapFragment.onLayerLoaded(()
-                -> sentinel.incrementAndGet(), layerId));
-        // The sentinel value will only increase if the layer on the map is not null
-
-        waitForSentinelAndSetToZero();
-    }
-
-    private void testClickChangesVisibility(boolean coordListIsEmpty, String layerId) throws Throwable {
-        mockLocationBroker.setFakeLocation(buildLocation(46, 55));
-
-        mapFragment.onMapVisible(() -> sentinel.incrementAndGet());
-        waitForSentinelAndSetToZero();
-
-        testLayerVisibilityIfNotEmpty(NONE, coordListIsEmpty, layerId);
-
-        onView(withId(R.id.history_rfab)).perform(click());
-        List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList)
-                mapFragment.getRfabHelper().obtainRFAContent()).getItems();
-        activityRule.runOnUiThread(() ->
-                mapFragment.onRFACItemIconClick(0, pathItems.get(0)));
-
-        testLayerVisibilityIfNotEmpty(VISIBLE, coordListIsEmpty, layerId);
-    }
-
-    private void testLayerVisibilityIfNotEmpty(String visibility, boolean listIsEmpty, String layerId) throws Throwable {
-        if (!listIsEmpty) {
-            testLayerVisibility(visibility, layerId);
-            waitForSentinelAndSetToZero();
-        }
+        mapFragment.onMapVisible(sentinel::incrementAndGet);
+        sWaitForSentinelAndSetToZero(sentinel);
+        sleep(1000);
     }
 
     private void waitForSentinelAndSetToZero() {
+        sWaitForSentinelAndSetToZero(sentinel);
+    }
+
+    static void sWaitForSentinelAndSetToZero(AtomicInteger sentinel) {
         while (sentinel.get() == 0) {
             sleep(500);
         }

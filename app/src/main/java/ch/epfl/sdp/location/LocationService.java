@@ -245,7 +245,7 @@ public class LocationService extends Service implements LocationListener, Observ
         if (broker.hasPermissions(GPS)) {
             aggregator.addPosition(location);
         } else {
-            displayToast("Missing permission");
+            displayToast("Missing Location permission");
         }
     }
 

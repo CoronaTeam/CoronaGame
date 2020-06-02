@@ -70,6 +70,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     public final static int LOCATION_PERMISSION_REQUEST = 20201;
     private static final int MIN_UP_INTERVAL_MILLISECS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
+    private static final double MIN_LAT_LONG_CHANGE_RECENTER = 1;
     private PathsHandler pathsHandler;
     private MapView mapView;
     private MapboxMap map;
@@ -83,6 +84,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private ServiceConnection conn;
     private Callable onMapVisible;
     private int CURRENT_PATH;
+
 
     private RapidFloatingActionHelper rfabHelper;
 
@@ -129,14 +131,14 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         // bindService(Intent, ServiceConnection, int):
         // it requires the service to remain running until stopService(Intent) is called,
         // regardless of whether any clients are connected to it.
-        ComponentName myService = getActivity().startService(new Intent(getContext(), LocationService.class));
-        getActivity().bindService(new Intent(getContext(), LocationService.class), conn, Context.BIND_AUTO_CREATE);
+        ComponentName myService = requireActivity().startService(new Intent(getContext(), LocationService.class));
+        requireActivity().bindService(new Intent(getContext(), LocationService.class), conn, Context.BIND_AUTO_CREATE);
 
         db = new ConcreteFirestoreInteractor();
 
         // Mapbox access token is configured here. This needs to be called either in your application
         // object or in the same activity which contains the mapview.
-        Mapbox.getInstance(getContext(), BuildConfig.mapboxAPIKey);
+        Mapbox.getInstance(requireActivity(), BuildConfig.mapboxAPIKey);
 
         // This contains the MapView in XML and needs to be called after the access token is configured.
         view = inflater.inflate(R.layout.fragment_map, container, false);
@@ -165,17 +167,18 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
         view.findViewById(R.id.heatMapToggle).setOnClickListener(this);
         view.findViewById(R.id.wholePath).setOnClickListener(this);
-        view.findViewById(R.id.myCurrentLocation).setOnClickListener(this);
+        view.findViewById(R.id.myCurrentLocationToggle).setOnClickListener(this);
         setHistoryRFAButton();
 
         return view;
     }
 
     @Override
-    public void onLocationChanged(Location newLocation) {
+    public void onLocationChanged(Location location) {
         if (connectivityBroker.hasPermissions(GPS)) {
-            prevLocation = new LatLng(newLocation.getLatitude(), newLocation.getLongitude());
-            updateUserMarkerPosition(prevLocation);
+            LatLng newLocation = new LatLng(location.getLatitude(), location.getLongitude());
+            updateUserMarkerPosition(newLocation);
+            prevLocation = newLocation;
 
             view.findViewById(R.id.mapFragment).setVisibility(View.VISIBLE);
             view.findViewById(R.id.heatMapToggle).setVisibility(View.VISIBLE);
@@ -183,7 +186,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
             callOnMapVisible();
         } else {
-            Toast.makeText(getActivity(), "Missing permission", Toast.LENGTH_LONG).show();
+            Toast.makeText(requireActivity(), "Missing permission", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -193,9 +196,13 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         // check if marker is null
 
         if (map != null && map.getStyle() != null) {
-            userLocation.setLatLng(prevLocation);
+            userLocation.setLatLng(location);
             positionMarkerManager.update(userLocation);
-            map.animateCamera(CameraUpdateFactory.newLatLng(location));
+
+            if(Math.abs(prevLocation.getLatitude() - location.getLatitude()) +
+                    Math.abs(prevLocation.getLatitude() - location.getLatitude()) > MIN_LAT_LONG_CHANGE_RECENTER){
+                map.animateCamera(CameraUpdateFactory.newLatLng(location));
+            }
         }
     }
 
@@ -214,7 +221,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             connectivityBroker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, this);
         } else if (connectivityBroker.isProviderEnabled(GPS)) {
             // Must ask for permissions
-            connectivityBroker.requestPermissions(getActivity(), LOCATION_PERMISSION_REQUEST);
+            connectivityBroker.requestPermissions(requireActivity(), LOCATION_PERMISSION_REQUEST);
         }
     }
 
@@ -274,7 +281,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
         // Unbind service
         if (conn != null) {
-            getActivity().unbindService(conn);
+            requireActivity().unbindService(conn);
         }
 
         super.onDestroy();
@@ -293,16 +300,14 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             toggleHeatMap();
         } else if (view.getId() == R.id.wholePath) {
             pathsHandler.seeWholePath(CURRENT_PATH);
-        } else if (view.getId() == R.id.myCurrentLocation) {
+        } else if (view.getId() == R.id.myCurrentLocationToggle) {
             setCameraToCurrentLocation();
         }
     }
 
     private void setCameraToCurrentLocation() {
-        double lat = prevLocation.getLatitude();
-        double lon = prevLocation.getLongitude();
         CameraPosition position = new CameraPosition.Builder()
-                .target(new LatLng(lat, lon))
+                .target(prevLocation)
                 .build();
         if (map != null) {
             map.easeCamera(CameraUpdateFactory.newCameraPosition(position), 2000);
@@ -403,7 +408,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private void callOnMapVisible() {
 
         try {
-            onMapVisible.call();
+            if (onMapVisible != null) {onMapVisible.call();}
             onMapVisible = null;
         } catch (Exception ignored) {
         }
@@ -421,8 +426,8 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     @VisibleForTesting
     void setConnectivityBroker(ConnectivityBroker connectivityBroker) {
         if (connectivityBroker != null && conn != null) {
-            getActivity().unbindService(conn);
-            getActivity().stopService(new Intent(getContext(), LocationService.class));
+            requireActivity().unbindService(conn);
+            requireActivity().stopService(new Intent(getContext(), LocationService.class));
             conn = null;
         }
         this.connectivityBroker = connectivityBroker;
@@ -445,12 +450,25 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     }
 
     @VisibleForTesting
+    void resetPathsHandler(Callable onResetDone){
+        mapView.getMapAsync(mapboxMap -> {
+            mapboxMap.getStyle(style -> {
+
+                pathsHandler = new PathsHandler(classPointer, map);
+                try {
+                    onResetDone.call();
+                } catch (Exception ignore){}
+            });
+        });
+    }
+
+    @VisibleForTesting
     RapidFloatingActionHelper getRfabHelper() {
         return rfabHelper;
     }
 
     @VisibleForTesting
-    Circle getUserLocation() {
-        return userLocation;
+    LatLng getUserLocation() {
+        return userLocation.getLatLng();
     }
 }

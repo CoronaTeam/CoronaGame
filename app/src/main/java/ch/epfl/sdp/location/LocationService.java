@@ -252,7 +252,7 @@ public class LocationService extends Service implements LocationListener, Observ
         if (hasGpsPermissions) {
             aggregator.addPosition(location);
         } else {
-            displayToast("Missing permission");
+            displayToast("Missing Location permission");
         }
     }
 

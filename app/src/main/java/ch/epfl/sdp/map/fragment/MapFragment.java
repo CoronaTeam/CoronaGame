@@ -131,14 +131,14 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         // bindService(Intent, ServiceConnection, int):
         // it requires the service to remain running until stopService(Intent) is called,
         // regardless of whether any clients are connected to it.
-        ComponentName myService = getActivity().startService(new Intent(getContext(), LocationService.class));
-        getActivity().bindService(new Intent(getContext(), LocationService.class), conn, Context.BIND_AUTO_CREATE);
+        ComponentName myService = requireActivity().startService(new Intent(getContext(), LocationService.class));
+        requireActivity().bindService(new Intent(getContext(), LocationService.class), conn, Context.BIND_AUTO_CREATE);
 
         db = new ConcreteFirestoreInteractor();
 
         // Mapbox access token is configured here. This needs to be called either in your application
         // object or in the same activity which contains the mapview.
-        Mapbox.getInstance(getContext(), BuildConfig.mapboxAPIKey);
+        Mapbox.getInstance(requireActivity(), BuildConfig.mapboxAPIKey);
 
         // This contains the MapView in XML and needs to be called after the access token is configured.
         view = inflater.inflate(R.layout.fragment_map, container, false);
@@ -186,7 +186,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
             callOnMapVisible();
         } else {
-            Toast.makeText(getActivity(), "Missing permission", Toast.LENGTH_LONG).show();
+            Toast.makeText(requireActivity(), "Missing permission", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -221,7 +221,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             locationBroker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, this);
         } else if (locationBroker.isProviderEnabled(GPS)) {
             // Must ask for permissions
-            locationBroker.requestPermissions(getActivity(), LOCATION_PERMISSION_REQUEST);
+            locationBroker.requestPermissions(requireActivity(), LOCATION_PERMISSION_REQUEST);
         }
     }
 
@@ -281,7 +281,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
         // Unbind service
         if (conn != null) {
-            getActivity().unbindService(conn);
+            requireActivity().unbindService(conn);
         }
 
         super.onDestroy();
@@ -426,8 +426,8 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     @VisibleForTesting
     void setLocationBroker(LocationBroker locationBroker) {
         if (locationBroker != null && conn != null) {
-            getActivity().unbindService(conn);
-            getActivity().stopService(new Intent(getContext(), LocationService.class));
+            requireActivity().unbindService(conn);
+            requireActivity().stopService(new Intent(getContext(), LocationService.class));
             conn = null;
         }
         this.locationBroker = locationBroker;

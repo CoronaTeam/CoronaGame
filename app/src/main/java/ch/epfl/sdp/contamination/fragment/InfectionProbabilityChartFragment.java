@@ -96,7 +96,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
                 service = null;
             }
         };
-        getActivity().bindService(new Intent(getActivity(), LocationService.class), serviceConnection, BIND_AUTO_CREATE);
+        requireActivity().bindService(new Intent(requireActivity(), LocationService.class), serviceConnection, BIND_AUTO_CREATE);
     }
 
     private void initializeChart() {
@@ -173,7 +173,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
 
         ArrayList<Entry> values = new ArrayList<>();
 
-        Drawable drawable = getResources().getDrawable(R.drawable.ic_person, getContext().getTheme());
+        Drawable drawable = getResources().getDrawable(R.drawable.ic_person, requireContext().getTheme());
         boolean first = true;
         for (Map.Entry<Date, Float> entry : infectionHistory.entrySet()) {
             if (first) {
@@ -190,7 +190,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
 
         List<Entry> data = generateData();
 
-        getActivity().runOnUiThread(() -> {
+        requireActivity().runOnUiThread(() -> {
             if (chart.getData() != null) {
                 updateExistingDataSet(data);
             } else {
@@ -227,7 +227,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
         set1.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
 
         set1.setDrawFilled(true);
-        set1.setFillDrawable(ContextCompat.getDrawable(getContext(), R.drawable.chart_fade));
+        set1.setFillDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.chart_fade));
 
         ArrayList<ILineDataSet> dataSets = new ArrayList<>();
         dataSets.add(set1);
@@ -259,7 +259,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     @Override
     public void onDestroy() {
         if (serviceConnection != null) {
-            getActivity().unbindService(serviceConnection);
+            requireActivity().unbindService(serviceConnection);
         }
         service.onDestroy();
         super.onDestroy();

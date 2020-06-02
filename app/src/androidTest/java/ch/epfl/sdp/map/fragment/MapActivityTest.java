@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
-import ch.epfl.sdp.map.MockLocationBroker;
+import ch.epfl.sdp.map.MockConnectivityBroker;
 import ch.epfl.sdp.map.PathsHandler;
 import ch.epfl.sdp.testActivities.MapActivity;
 
@@ -53,7 +53,7 @@ public class MapActivityTest {
     public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
     private MapFragment mapFragment;
     private AtomicInteger sentinel;
-    private MockLocationBroker mockLocationBroker;
+    private MockConnectivityBroker mockLocationBroker;
     private boolean pathCoordIsEmpty;
     private boolean infectedCoordIsEmpty;
 
@@ -72,10 +72,10 @@ public class MapActivityTest {
 
     @Before
     public void setUp() throws Throwable {
-        mockLocationBroker = new MockLocationBroker(activityRule);
+        mockLocationBroker = new MockConnectivityBroker(activityRule);
         mockLocationBroker.setProviderStatus(true);
         mapFragment = (MapFragment) activityRule.getActivity().getFragment();
-        mapFragment.setLocationBroker(mockLocationBroker);
+        mapFragment.setConnectivityBroker(mockLocationBroker);
         sentinel = new AtomicInteger(0);
     }
 

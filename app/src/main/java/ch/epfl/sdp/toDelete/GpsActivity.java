@@ -34,7 +34,7 @@ import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.location.LocationService;
 
-import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
+import static ch.epfl.sdp.connectivity.ConnectivityBroker.Provider.GPS;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 

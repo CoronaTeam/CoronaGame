@@ -28,12 +28,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.connectivity.ConnectivityBroker;
 import ch.epfl.sdp.contamination.ConcreteAnalysis;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.identity.AuthenticationManager;
-import ch.epfl.sdp.location.ConcreteLocationBroker;
-import ch.epfl.sdp.location.LocationBroker;
 import ch.epfl.sdp.location.LocationService;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -42,8 +41,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static ch.epfl.sdp.TestTools.resetLocationServiceStatus;
 import static ch.epfl.sdp.TestTools.sleep;
-import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
-import static ch.epfl.sdp.location.LocationBroker.Provider.NETWORK;
+import static ch.epfl.sdp.connectivity.ConnectivityBroker.Provider.GPS;
 import static ch.epfl.sdp.location.LocationUtils.buildLocation;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 
@@ -59,7 +57,7 @@ public class GpsActivityTest {
     @Rule
     public ExpectedException illegalArgument = ExpectedException.none();
 
-    private void startActivityWithBroker(LocationBroker br) throws Throwable {
+    private void startActivityWithBroker(ConnectivityBroker br) throws Throwable {
         mActivityRule.launchActivity(new Intent());
         AtomicBoolean done = new AtomicBoolean(false);
         ServiceConnection conn = new ServiceConnection() {
@@ -191,17 +189,6 @@ public class GpsActivityTest {
         onView(withId(R.id.gpsLongitude)).check(matches(withText(startsWith(Double.toString(3)))));
     }
 
-    @Test
-    public void concreteBrokerFailsPermissionsTest() {
-        mActivityRule.launchActivity(new Intent());
-
-        ConcreteLocationBroker concreteBroker = new ConcreteLocationBroker(
-                (LocationManager) mActivityRule.getActivity().getSystemService(Context.LOCATION_SERVICE), mActivityRule.getActivity());
-
-        illegalArgument.expect(IllegalArgumentException.class);
-        concreteBroker.hasPermissions(NETWORK);
-    }
-
     private FirestoreInteractor createWriteFirestoreInteractor(Boolean success) {
         return new FirestoreInteractor() {
 
@@ -249,7 +236,7 @@ public class GpsActivityTest {
         onView(withId(R.id.history_upload_status)).check(matches(withText(expectedText)));
     }
 
-    private class MockBroker implements LocationBroker {
+    private class MockBroker implements ConnectivityBroker {
         LocationListener listener = null;
 
         Location fakeLocation;

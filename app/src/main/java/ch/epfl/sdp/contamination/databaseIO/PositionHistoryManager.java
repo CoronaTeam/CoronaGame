@@ -32,18 +32,16 @@ public final class PositionHistoryManager  {
     private static void setHistoryManager(){
         if(instance!=null && !instance.isReadable()){
             instance.reset();
-//            instance = null;
         }
         else if(instance == null){
             instance =  getNewManager();
-//            instance.read();
         }
     }
 
     private static ConcreteManager<Date, Location> getNewManager() {
 
         return new ConcreteManager<Date,Location>(CoronaGame.getContext(),
-                String.valueOf(AccountFragment.IN_TEST)+"_last_positions.csv",
+                String.valueOf(!AccountFragment.IN_TEST)+"_last_positions.csv",
                 date_position -> {
                     try {
                         return CoronaGame.dateFormat.parse(date_position);

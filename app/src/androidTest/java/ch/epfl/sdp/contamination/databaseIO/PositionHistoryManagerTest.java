@@ -1,6 +1,7 @@
 package ch.epfl.sdp.contamination.databaseIO;
 
 import android.location.Location;
+import android.util.Log;
 
 import org.junit.After;
 import org.junit.Before;
@@ -62,5 +63,9 @@ public class PositionHistoryManagerTest {
 
         it = addReg(me,2);
         checkItValue(it);
+    }
+    @Test
+    public void positionHistoryDoesDeleteHistoryOnDemand(){
+        getLastPositionsReturnsCorrectWindowOfLocations();
     }
 }

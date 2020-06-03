@@ -208,7 +208,6 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
 
     @Override
     public void delete() {
-
         try {
             close();
         } catch (IOException e) {
@@ -219,8 +218,8 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
                     file = new File(context.getFilesDir(), filename);
                 }
                 file.delete();
+                cache = new TreeMap<>();
             }
-//            file = null; -> should be useless to se it to null
         }
     }
 

@@ -67,5 +67,7 @@ public class PositionHistoryManagerTest {
     @Test
     public void positionHistoryDoesDeleteHistoryOnDemand(){
         getLastPositionsReturnsCorrectWindowOfLocations();
+        PositionHistoryManager.deleteLocalProbabilityHistory();
+        getLastPositionsReturnsCorrectWindowOfLocations();
     }
 }

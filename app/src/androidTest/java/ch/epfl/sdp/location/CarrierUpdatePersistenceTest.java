@@ -71,6 +71,35 @@ public class CarrierUpdatePersistenceTest {
     private InfectionAnalyst realAnalyst;
     private InfectionAnalyst originalAnalyst;
 
+    @After
+    public void globalAfter(){
+        //TODO : LOG
+        Log.e("carrierTest","before resetAnalyst");
+        resetAnalyst();
+        //TODO : LOG
+        Log.e("carrierTest","before resetHistoryAfterTest");
+        resetHistoryAfterTest();
+        //TODO : LOG
+        Log.e("carrierTest","before stopLocationService");
+        stopLocationService();
+        //TODO : LOG
+        Log.e("carrierTest","before release");
+        release();
+        //TODO : LOG
+        Log.e("carrierTest","after release");
+    }
+    @AfterClass
+    public static void globalAfterClass(){
+        //TODO : LOG
+        Log.e("carrierTest","before restoreUserId");
+        restoreUserId();
+        //TODO : LOG
+        Log.e("carrierTest","before resetFakeCarrierStatus");
+        resetFakeCarrierStatus();
+        //TODO : LOG
+        Log.e("carrierTest","after resetFakeCarrierStatus");
+    }
+
     @BeforeClass
     public static void mockUserId() {
         // To not pollute application status, make AuthenticationManager return a mock UserID
@@ -80,18 +109,19 @@ public class CarrierUpdatePersistenceTest {
                 return fakeUserID;
             }
         };
-        AccountFragment.IN_TEST = true;
+
 
     }
 
-    @AfterClass
+//    @AfterClass
     public static void restoreUserId() {
         // Restore real UserID
         AuthenticationManager.defaultManager = new DefaultAuthenticationManager() {
         };
+        AccountFragment.IN_TEST = false;
     }
 
-    @AfterClass
+//    @AfterClass
     public static void resetFakeCarrierStatus() {
         SharedPreferences sharedPreferences = CoronaGame.getContext().getSharedPreferences(CoronaGame.SHARED_PREF_FILENAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -116,7 +146,7 @@ public class CarrierUpdatePersistenceTest {
         sentinel = new AtomicInteger(0);
     }
 
-    @After
+    //@After
     public void resetAnalyst() {
         // TODO: @Adrien this mechanism can be refactored into a new method resetAnalysts() to
         // be placed in some test file
@@ -124,23 +154,33 @@ public class CarrierUpdatePersistenceTest {
     }
 
 //    @After
-//    public void release() { done in another method
-//        Intents.release();
-//    }
+    public void release() {
+        Intents.release();
+    }
 
     private void cleanFakeUserHistory() {
         // Delete existing file
+        //TODO : LOG
+        Log.e("carrierTest","before initStorageManager");
         initStorageManager().delete();
+        //TODO : LOG
+        Log.e("carrierTest","before PositionHistoryManager.deleteLocalProbabilityHistory()");
         PositionHistoryManager.deleteLocalProbabilityHistory();
+        //TODO : LOG
+        Log.e("carrierTest","before .getActivity().getService();");
         LocationService service = mActivityRule.getActivity().getService();
-
+//TODO : LOG
+        Log.e("carrierTest","before er newCarrier = new Layman(");
         ObservableCarrier newCarrier = new Layman(
                 service.getAnalyst().getCarrier().getInfectionStatus(),
                 service.getAnalyst().getCarrier().getIllnessProbability(),
                 AuthenticationManager.getUserId()
         );
-
+//TODO : LOG
+        Log.e("carrierTest","before setAnalyst(new ConcreteAnalysis(newCarrier, ser");
         service.setAnalyst(new ConcreteAnalysis(newCarrier, service.getReceiver()));
+        //TODO : LOG
+        Log.e("carrierTest","after setAnalyst(new ConcreteAnalysis(newCarrier, ser");
     }
 
     @Before
@@ -149,16 +189,15 @@ public class CarrierUpdatePersistenceTest {
         cleanFakeUserHistory();
     }
 
-    @After
+//    @After
     public void resetHistoryAfterTest() {
         cleanFakeUserHistory();
     }
 
-    @After
+//    @After
     public void stopLocationService() {
 //        ((DataExchangeActivity)(getActivity())).stopService(locaIntentWithAlarm);
         ((DataExchangeActivity)(getActivity())).stopService(new Intent(mActivityRule.getActivity(), LocationService.class));
-        Intents.release();
     }
 
     private void startLocationServiceWithAlarm() {
@@ -183,15 +222,22 @@ public class CarrierUpdatePersistenceTest {
 
     @Test
     public void updateNotDoneWithoutNewLocations() {
-
+        //TODO : LOG
+        Log.e("carrierTest","before useAnalyst");
         useAnalystWithSentinel();
+        //TODO : LOG
+        Log.e("carrierTest","after useAnalyst");
         startLocationServiceWithAlarm();
 
         TestTools.sleep(1000);
 
         assertThat(sentinel.get(), equalTo(0));
-
+        //TODO : LOG
+        Log.e("carrierTest","before restore");
         restoreRealAnalyst();
+        //TODO : LOG
+        Log.e("carrierTest","after restore");
+//        restoreRealAnalyst();
     }
 
     @Test
@@ -243,7 +289,6 @@ public class CarrierUpdatePersistenceTest {
     }
 
     @Test
-
     public void carrierStatusIsStored() {
 
         LocationService service = mActivityRule.getActivity().getService();

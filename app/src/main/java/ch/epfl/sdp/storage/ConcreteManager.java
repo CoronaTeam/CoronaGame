@@ -64,6 +64,8 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
         this(context,filename,convertToA,convertToB,",");
     }
     private void setAtomicBooleans(){
+        //TODO:LOG
+        Log.e("carrierTest in ConcreteManager","beforeLadCache");
         loadingCache = new AtomicBoolean(false);
         cacheOk = new AtomicBoolean(false);
         AsyncTask.execute(() -> {
@@ -71,11 +73,13 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
             cacheOk.set(result);
             loadingCache.set(true);
         });
+        //TODO:LOG
+        Log.e("carrierTest in ConcreteManager","after");
     }
     private void createFileIfAbsent(){
-        if(file!=null){
-            return;
-        }
+//        if(file!=null){
+//            return;
+//        }
         file = new File(context.getFilesDir(), filename);
         if (file.isDirectory()) {
             throw new IllegalArgumentException("Need a file and not a directory");
@@ -86,14 +90,16 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
                 file.createNewFile();
             } catch (IOException e) {
                 throw new IllegalArgumentException("Unable to create a new file, must select existing one");
+            }finally{
+                cache = new TreeMap<>();
+                setAtomicBooleans();
             }
         }
         if (!file.canWrite() || !file.canRead()) {
             throw new IllegalArgumentException("Cannot read or write on the specified file");
         }
 //        isDeleted = false;
-        cache = new TreeMap<>();
-        setAtomicBooleans();
+
     }
 
     private void checkCacheStatus() {
@@ -158,7 +164,13 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
 
     @Override
     public boolean isReadable() {
+        //TODO:LOG
+        Log.e("carrierTest in ConcreteManager","in READ--------------------------------");
+        long now = System.currentTimeMillis();
         while (!loadingCache.get()) {
+//            if(System.currentTimeMillis()>now + 10000){
+//                setAtomicBooleans();
+//            }
         }
         return cacheOk.get();
     }

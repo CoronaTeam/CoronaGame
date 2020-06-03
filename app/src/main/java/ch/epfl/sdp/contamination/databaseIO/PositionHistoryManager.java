@@ -1,6 +1,7 @@
 package ch.epfl.sdp.contamination.databaseIO;
 
 import android.location.Location;
+import android.util.Log;
 
 import androidx.annotation.VisibleForTesting;
 
@@ -31,10 +32,18 @@ public final class PositionHistoryManager  {
     private static ConcreteManager<Date, Location> instance = null;
     private static void setHistoryManager(){
         if(instance!=null && !instance.isReadable()){
+            //TODO:LOG
+            Log.e("carrierTest in PositionManager", "before reset");
             instance.reset();
         }
         else if(instance == null){
+            //TODO:LOG
+            Log.e("carrierTest in PositionManager", "before getNew");
             instance =  getNewManager();
+        }else{
+            //TODO:LOG
+            Log.e("carrierTest in PositionManager", "useless setHistory");
+
         }
     }
 
@@ -116,9 +125,17 @@ public final class PositionHistoryManager  {
 
     @VisibleForTesting
     public static void deleteLocalProbabilityHistory() {
+        //TODO:LOG
+        Log.e("carrierTest in PositionManager", "before setHistoryManager");
         setHistoryManager();
         // Delete the file
-        instance.delete();
+        //TODO:LOG
+        Log.e("carrierTest in PositionManager", "before delete");
+        if(instance!=null){
+            instance.delete();
+        }
+        //TODO:LOG
+        Log.e("carrierTest in PositionManager", "after delete");
     }
 
 }

@@ -75,7 +75,7 @@ public class ConcretePositionAggregatorTest {
     }
 
     @Test
-    //@Ignore // this test takes 5 minutes to run
+    @Ignore // this test takes 5 minutes to run
     public void uploadsPositionAtStarting(){
         //this test is here to catch the bug of the aggregator
 

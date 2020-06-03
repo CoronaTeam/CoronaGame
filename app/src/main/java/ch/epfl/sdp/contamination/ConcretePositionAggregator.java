@@ -29,8 +29,6 @@ public final class ConcretePositionAggregator implements PositionAggregator {
     private Carrier carrier;
     private Timer updatePosTimer;
 
-    // TODO: @Lucas, position aggregator doesn't send positions if the user is not moving (if
-    // LocationService doesn't call registerPosition())
 
     public ConcretePositionAggregator(CachingDataSender cachingDataSender, Carrier carrier, int maxLocationsPerAggregation) {
         if (cachingDataSender == null || carrier == null) {
@@ -102,11 +100,6 @@ public final class ConcretePositionAggregator implements PositionAggregator {
         if (location == null || date == null) {
             throw new IllegalArgumentException("Location or date should not be null !");
         }
-//        if(newestLocation == null){
-//            startTimer();
-//        }
-        //TODO:LOG[]
-        Log.e("POSITION_AGGREGATOR addPosition",location.toString());
         this.newestLocation = location;
         this.newestDate = date;
     }
@@ -118,8 +111,6 @@ public final class ConcretePositionAggregator implements PositionAggregator {
      * or if it just returns without doing anything.
      */
     private void update() {
-        //TODO:LOG
-        Log.e("POSITION_AGGREGATOR update",buffer.toString());
         if (lastDate != null) {
             List<Location> targetLocations = buffer.remove(lastDate.getTime());
             Location meanLocation = getMean(targetLocations);

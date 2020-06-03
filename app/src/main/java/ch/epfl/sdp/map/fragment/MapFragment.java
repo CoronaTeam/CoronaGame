@@ -160,7 +160,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
                 userLocation = positionMarkerManager.create(new CircleOptions()
                         .withLatLng(prevLocation));
 
-                updateUserMarkerPosition(prevLocation);
+                updateUserMarkerPosition(prevLocation, true);
                 heatMapHandler = new HeatMapHandler(classPointer, db, map);
                 pathsHandler = new PathsHandler(classPointer, map);
             });
@@ -179,7 +179,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     public void onLocationChanged(Location location) {
         if (connectivityBroker.hasPermissions(GPS)) {
             LatLng newLocation = new LatLng(location.getLatitude(), location.getLongitude());
-            updateUserMarkerPosition(newLocation);
+            updateUserMarkerPosition(newLocation, false);
             prevLocation = newLocation;
 
             view.findViewById(R.id.mapFragment).setVisibility(View.VISIBLE);
@@ -192,7 +192,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         }
     }
 
-    private void updateUserMarkerPosition(LatLng location) {
+    private void updateUserMarkerPosition(LatLng location, boolean initCamera) {
         // This method is where we update the marker position once we have new coordinates. First we
         // check if this is the first time we are executing this handler, the best way to do this is
         // check if marker is null
@@ -201,7 +201,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             userLocation.setLatLng(location);
             positionMarkerManager.update(userLocation);
 
-            if(Math.abs(prevLocation.getLatitude() - location.getLatitude()) +
+            if(initCamera || Math.abs(prevLocation.getLatitude() - location.getLatitude()) +
                     Math.abs(prevLocation.getLatitude() - location.getLatitude()) > MIN_LAT_LONG_CHANGE_RECENTER){
                 map.animateCamera(CameraUpdateFactory.newLatLng(location));
             }
@@ -472,15 +472,13 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
     @VisibleForTesting
     void resetPathsHandler(Callable onResetDone){
-        mapView.getMapAsync(mapboxMap -> {
-            mapboxMap.getStyle(style -> {
+        mapView.getMapAsync(mapboxMap -> mapboxMap.getStyle(style -> {
 
-                pathsHandler = new PathsHandler(classPointer, map);
-                try {
-                    onResetDone.call();
-                } catch (Exception ignore){}
-            });
-        });
+            pathsHandler = new PathsHandler(classPointer, map);
+            try {
+                onResetDone.call();
+            } catch (Exception ignore){}
+        }));
     }
 
     @VisibleForTesting

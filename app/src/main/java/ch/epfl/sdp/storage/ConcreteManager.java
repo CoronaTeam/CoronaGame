@@ -2,6 +2,7 @@ package ch.epfl.sdp.storage;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,7 +29,7 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
     //The separator should be something that is not in the string representation of the data stored
     private String separator;
     private static final String LINE_END = "\n";
-    private boolean isDeleted = false;
+//    private boolean isDeleted = false;
     private File file;
     private FileWriter writer = null;
     private volatile SortedMap<A, B> cache;
@@ -38,6 +39,13 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
     private AtomicBoolean cacheOk;
     private Context context;
     private String filename;
+
+    private boolean isDeleted(){
+        //TODO: Log
+        Log.e("ConcreteManager",context.getFilesDir()+ filename );
+        File tmpDir = new File(context.getFilesDir()+ filename);
+        return tmpDir.isFile();
+    }
 
     public ConcreteManager(Context context, String filename, Function<String, A> convertToA, Function<String, B> convertToB,String separator) {
         if (convertToA == null || convertToB == null) {
@@ -65,7 +73,7 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
         });
     }
     private void createFileIfAbsent(){
-        if(!isDeleted){
+        if(!isDeleted()){
             return;
         }
         file = new File(context.getFilesDir(), filename);
@@ -83,7 +91,7 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
         if (!file.canWrite() || !file.canRead()) {
             throw new IllegalArgumentException("Cannot read or write on the specified file");
         }
-        isDeleted = false;
+//        isDeleted = false;
         cache = new TreeMap<>();
         setAtomicBooleans();
     }
@@ -157,7 +165,7 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
 
     @Override
     public SortedMap<A, B> read() {
-        if (isDeleted) {
+        if (isDeleted()) {
             throw new IllegalStateException("Cannot read file after deletion");
         }
 
@@ -174,7 +182,7 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
 
     @Override
     public SortedMap<A, B> filter(BiFunction<A, B, Boolean> rule) {
-        if (isDeleted) {
+        if (isDeleted()) {
             throw new IllegalStateException("Cannot filter on file after deletion");
         }
 
@@ -204,10 +212,10 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (file.exists()) {
+            if (!isDeleted()) {
                 file.delete();
             }
-            isDeleted = true;
+//            isDeleted = true;
         }
     }
 

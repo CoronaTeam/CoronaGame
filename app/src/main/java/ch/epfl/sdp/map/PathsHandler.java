@@ -3,11 +3,9 @@ package ch.epfl.sdp.map;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.location.Location;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
-import androidx.fragment.app.Fragment;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
@@ -53,6 +51,10 @@ import ch.epfl.sdp.map.fragment.MapFragment;
 
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
+import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
+import static ch.epfl.sdp.firestore.FirestoreLabels.HISTORY_COLL;
+import static ch.epfl.sdp.firestore.FirestoreLabels.HISTORY_POSITIONS_COLL;
+import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
 import static ch.epfl.sdp.map.HeatMapHandler.adjustHeatMapColorRange;
 import static ch.epfl.sdp.map.HeatMapHandler.adjustHeatMapWeight;
 import static ch.epfl.sdp.map.HeatMapHandler.adjustHeatmapIntensity;
@@ -103,10 +105,9 @@ public class PathsHandler {
     private Callable onPathDataLoaded;
     private Boolean layersHaveBeenSet;
 
-
     public PathsHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
-        this.parentClass = parentClass;
         this.map = map;
+        this.parentClass = parentClass;
         layersHaveBeenSet = false;
         setCalendar();
         initFirestorePathRetrieval().thenAccept(this::getPathCoordinates);
@@ -115,8 +116,8 @@ public class PathsHandler {
     private CompletableFuture<Iterator<QueryDocumentSnapshot>> initFirestorePathRetrieval() {
         String userPath = getUserId(); //"USER_ID_X42"; coronaId: 109758096484534641167
         return FirestoreInteractor.taskToFuture(
-                collectionReference("History/" + userPath + "/Positions")
-                        .orderBy("Position" + ".timestamp").get())
+                collectionReference(HISTORY_COLL + userPath + HISTORY_POSITIONS_COLL)
+                        .orderBy(TIMESTAMP_TAG).get())
                 .thenApply(collection -> {
                     if (collection.isEmpty()) {
                         throw new RuntimeException("Collection doesn't contain any document");
@@ -124,12 +125,7 @@ public class PathsHandler {
                         return collection.iterator();
                     }
                 })
-                .exceptionally(e -> {
-                    Toast.makeText(parentClass.requireActivity(),
-                            "Cannot retrieve path from database",
-                            Toast.LENGTH_LONG).show();
-                    return Collections.emptyIterator();
-                });
+                .exceptionally(e -> Collections.emptyIterator());
     }
 
     private void getPathCoordinates(Iterator<QueryDocumentSnapshot> iterator) {
@@ -138,10 +134,10 @@ public class PathsHandler {
         for (; iterator.hasNext(); ) {
             QueryDocumentSnapshot qs = iterator.next();
             try {
-                GeoPoint geoPoint = (GeoPoint) qs.get("geoPoint");
+                GeoPoint geoPoint = (GeoPoint) qs.get(GEOPOINT_TAG);
                 double lat = geoPoint.getLatitude();
                 double lon = geoPoint.getLongitude();
-                Timestamp timestamp = (Timestamp) qs.get("timestamp");
+                Timestamp timestamp = (Timestamp) qs.get(TIMESTAMP_TAG);
 
                 String pathLocalDate = dateToSimpleString(timestamp.toDate());
 

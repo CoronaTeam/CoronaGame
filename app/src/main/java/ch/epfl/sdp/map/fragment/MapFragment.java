@@ -49,9 +49,9 @@ import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.location.LocationService;
 import ch.epfl.sdp.map.HeatMapHandler;
 import ch.epfl.sdp.map.PathsHandler;
+import ch.epfl.sdp.utilities.RotatedRapidFloatingActionButton;
 
 import static ch.epfl.sdp.connectivity.ConnectivityBroker.Provider.GPS;
-import static android.view.View.INVISIBLE;
 import static ch.epfl.sdp.map.HeatMapHandler.HEATMAP_LAYER_ID;
 import static ch.epfl.sdp.map.PathsHandler.BEFORE_INFECTED_LAYER_ID;
 import static ch.epfl.sdp.map.PathsHandler.BEFORE_PATH_LAYER_ID;
@@ -66,7 +66,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
  * Used to display the pathLayers and heatMapLayer
  * Add listeners to update the user's position on the map and react on floating button click
  */
-public class MapFragment extends Fragment implements LocationListener, View.OnClickListener, RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener {
+public class MapFragment extends Fragment implements LocationListener, RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener {
 
     //TODO: some constant are dupicated from locationService
     public final static int LOCATION_PERMISSION_REQUEST = 20201;
@@ -86,6 +86,8 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private ServiceConnection conn;
     private Callable onMapVisible;
     private int CURRENT_PATH;
+
+    private List<Runnable> buttonsActions = new ArrayList<>();
 
 
     private RapidFloatingActionHelper rfabHelper;
@@ -146,8 +148,6 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         view = inflater.inflate(R.layout.fragment_map, container, false);
 
         view.findViewById(R.id.mapFragment).setVisibility(View.INVISIBLE);
-        view.findViewById(R.id.heatMapToggle).setVisibility(View.GONE);
-        view.findViewById(R.id.wholePath).setVisibility((View.INVISIBLE));
 
         mapView = view.findViewById(R.id.mapFragment);
         mapView.onCreate(savedInstanceState);
@@ -166,11 +166,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             });
         });
 
-
-        view.findViewById(R.id.heatMapToggle).setOnClickListener(this);
-        view.findViewById(R.id.wholePath).setOnClickListener(this);
-        view.findViewById(R.id.myCurrentLocationToggle).setOnClickListener(this);
-        setHistoryRFAButton();
+        setMoreRFAButton();
 
         return view;
     }
@@ -183,7 +179,6 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             prevLocation = newLocation;
 
             view.findViewById(R.id.mapFragment).setVisibility(View.VISIBLE);
-            view.findViewById(R.id.heatMapToggle).setVisibility(View.VISIBLE);
             view.findViewById(R.id.heapMapLoadingSpinner).setVisibility(View.GONE);
 
             callOnMapVisible();
@@ -296,17 +291,6 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         mapView.onSaveInstanceState(outState);
     }
 
-    @Override
-    public void onClick(View view) {
-        if (view.getId() == R.id.heatMapToggle) {
-            toggleHeatMap();
-        } else if (view.getId() == R.id.wholePath) {
-            pathsHandler.seeWholePath(CURRENT_PATH);
-        } else if (view.getId() == R.id.myCurrentLocationToggle) {
-            setCameraToCurrentLocation();
-        }
-    }
-
     private void setCameraToCurrentLocation() {
         CameraPosition position = new CameraPosition.Builder()
                 .target(prevLocation)
@@ -332,19 +316,15 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             if (layer != null) {
                 if (VISIBLE.equals(layer.getVisibility().getValue())) {
                     layer.setProperties(visibility(NONE));
-                    showPathZoomOutButton(layerId, View.VISIBLE, INVISIBLE);
                 } else {
                     layer.setProperties(visibility(VISIBLE));
                     if (layerId.equals(YESTERDAY_PATH_LAYER_ID)) {
                         CURRENT_PATH = R.string.yesterday;
-                        showPathZoomOutButton(layerId, INVISIBLE, View.VISIBLE);
                         showToast();
                     } else if (layerId.equals(BEFORE_PATH_LAYER_ID)) {
                         CURRENT_PATH = R.string.before_yesterday;
-                        showPathZoomOutButton(layerId, INVISIBLE, View.VISIBLE);
                         showToast();
                     }
-
                     res.set(true);
                 }
             } else if (layerId.equals(YESTERDAY_PATH_LAYER_ID) || layerId.equals(BEFORE_PATH_LAYER_ID)){
@@ -357,12 +337,6 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private void showToast() {
         if (!TESTING_MODE) {
             Toast.makeText(getContext(), R.string.click_to_see_whole_path, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void showPathZoomOutButton(String layerId, int visibilityCheck, int buttonVisibility) {
-        if (!layerId.equals(HEATMAP_LAYER_ID) && visibilityCheck == view.findViewById(R.id.wholePath).getVisibility()) {
-            view.findViewById(R.id.wholePath).setVisibility(buttonVisibility);
         }
     }
 
@@ -379,37 +353,56 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     }
 
 
-    private void setHistoryRFAButton() {
-        RapidFloatingActionLayout rfaLayout = view.findViewById(R.id.history_rfal);
-        RapidFloatingActionButton rfaBtn = view.findViewById(R.id.history_rfab);
+    private void setMoreRFAButton() {
+        RapidFloatingActionLayout rfaLayout = view.findViewById(R.id.more_rfal);
+        RotatedRapidFloatingActionButton rfaBtn = view.findViewById(R.id.more_rfab);
+        rfaBtn.setMaxRotation(90f); // turn 1/4th of a circle
 
         RapidFloatingActionContentLabelList rfaContent = new RapidFloatingActionContentLabelList(getContext());
         rfaContent.setOnRapidFloatingActionContentLabelListListener(this);
         List<RFACLabelItem> items = new ArrayList<>();
-        addItems(items, "Yesterday path", 0xff056f00, 0xff0d5302, 0xff056f00, 0);
-        addItems(items, "Before yesterday path", 0xff283593, 0xff1a237e, 0xff283593, 1);
-
-        rfaContent
-                .setItems(items)
-                .setIconShadowColor(0xff888888)
-        ;
-        rfabHelper = new RapidFloatingActionHelper(
-                getContext(),
-                rfaLayout,
-                rfaBtn,
-                rfaContent
-        ).build();
+        setItems(items, new Item[] {
+                new Item(
+                        R.string.toggle_heatmap_label, R.drawable.visibility, R.color.colorAccent,
+                        this::toggleHeatMap),
+                new Item(
+                        R.string.my_location_label, R.drawable.my_location, R.color.colorAccent,
+                        this::setCameraToCurrentLocation),
+                new Item(
+                        R.string.focus_path_label, R.drawable.magnifier_minus_white, R.color.colorAccent,
+                        this::focusPath),
+                new Item(R.string.yesterday_label, R.drawable.calendar, R.color.colorAccent,
+                        () -> togglePath(R.string.yesterday)),
+                new Item(R.string.before_yesterday_label, R.drawable.calendar, R.color.colorAccent,
+                        () -> togglePath(R.string.before_yesterday))
+        });
+        rfaContent.setItems(items).setIconShadowColor(getContext().getColor(R.color.colorPrimary));
+        rfabHelper = new RapidFloatingActionHelper(getContext(), rfaLayout, rfaBtn, rfaContent).build();
     }
 
-    private void addItems(List<RFACLabelItem> items, String label, int normalColor, int pressedColor, int labelColor, int position) {
-        items.add(new RFACLabelItem<Integer>()
-                .setLabel(label)
-                .setResId(R.drawable.fab_history)
-                .setIconNormalColor(normalColor)
-                .setIconPressedColor(pressedColor)
-                .setLabelColor(labelColor)
-                .setWrapper(position)
-        );
+    private static class Item {
+        int label, icon, color;
+        Runnable callback;
+        Item(int label, int icon, int color, Runnable callback) {
+            this.label = label;
+            this.icon = icon;
+            this.color = color;
+            this.callback = callback;
+        }
+    }
+
+    private void setItems(List<RFACLabelItem> container, Item[] items) {
+        buttonsActions.clear();
+        int position = 0;
+        for (Item item : items) {
+            container.add(new RFACLabelItem<Integer>()
+                    .setLabel(getString(item.label))
+                    .setResId(item.icon)
+                    .setIconNormalColor(getContext().getColor(item.color))
+                    .setLabelColor(getContext().getColor(item.color))
+                    .setWrapper(position++));
+            buttonsActions.add(item.callback);
+        }
     }
 
     @Override
@@ -419,11 +412,20 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
     @Override
     public void onRFACItemIconClick(int position, RFACLabelItem item) {
-        int dayInt = position == 0 ? R.string.yesterday : R.string.before_yesterday;
-
-        togglePath(dayInt);
-
+        try {
+            buttonsActions.get(position).run();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         rfabHelper.toggleContent();
+    }
+
+    private void focusPath() {
+        try {
+            pathsHandler.seeWholePath(CURRENT_PATH);
+        } catch (Exception e) {
+            Toast.makeText(getActivity(), R.string.no_path_to_show, Toast.LENGTH_LONG).show();
+        }
     }
 
     private void callOnMapVisible() {

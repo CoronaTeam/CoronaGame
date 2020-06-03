@@ -109,10 +109,6 @@ public class ConcreteConnectivityBroker extends Observable implements Connectivi
 
     @Override
     public boolean hasPermissions(Provider provider) {
-        if (provider != GPS) {
-            throw new IllegalArgumentException();
-        }
-
         switch (provider) {
             case GPS:
                 return ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
@@ -120,7 +116,7 @@ public class ConcreteConnectivityBroker extends Observable implements Connectivi
                 // Always has Internet connection
                 return true;
             default:
-                throw new IllegalArgumentException("Invalid provider");
+                throw new IllegalArgumentException("Invalid provider: " + provider);
         }
 
     }

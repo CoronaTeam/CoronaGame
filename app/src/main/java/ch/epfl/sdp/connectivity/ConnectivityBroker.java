@@ -1,14 +1,13 @@
-package ch.epfl.sdp.location;
+package ch.epfl.sdp.connectivity;
 
 import android.app.Activity;
 import android.location.Location;
 import android.location.LocationListener;
 
 /**
- * Wrapper for LocationManager
- * Used to test functionality without android permissions to mock locations
+ * ConnectivityBroker provides information on the status of GPS and Wi-Fi/Mobile services
  */
-public interface LocationBroker {
+public interface ConnectivityBroker {
 
     boolean isProviderEnabled(Provider provider);
 
@@ -37,6 +36,6 @@ public interface LocationBroker {
 
     enum Provider {
         GPS,
-        NETWORK
+        INTERNET
     }
 }

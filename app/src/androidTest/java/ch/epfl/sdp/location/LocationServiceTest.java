@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.TestTools;
+import ch.epfl.sdp.connectivity.ConnectivityBroker;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.testActivities.DataExchangeActivity;
 
@@ -83,7 +84,7 @@ public class LocationServiceTest {
 
         exception.expect(IllegalArgumentException.class);
 
-        service.getBroker().requestLocationUpdates(LocationBroker.Provider.NETWORK, 1, 1, listener);
+        service.getBroker().requestLocationUpdates(ConnectivityBroker.Provider.INTERNET, 1, 1, listener);
     }
 
     @Test
@@ -93,9 +94,9 @@ public class LocationServiceTest {
         AtomicBoolean done = new AtomicBoolean(false);
 
         mActivityRule.runOnUiThread(() -> {
-            LocationBroker broker = mActivityRule.getActivity().getService().getBroker();
-            boolean hasPermissions = broker.hasPermissions(LocationBroker.Provider.GPS);
-            boolean registrationSucceeded = broker.requestLocationUpdates(LocationBroker.Provider.GPS, 1, 1, listener);
+            ConnectivityBroker broker = mActivityRule.getActivity().getService().getBroker();
+            boolean hasPermissions = broker.hasPermissions(ConnectivityBroker.Provider.GPS);
+            boolean registrationSucceeded = broker.requestLocationUpdates(ConnectivityBroker.Provider.GPS, 1, 1, listener);
             result.set(hasPermissions == registrationSucceeded);
             done.set(true);
         });
@@ -106,7 +107,7 @@ public class LocationServiceTest {
         assertThat(result.get(), equalTo(true));
 
         mActivityRule.runOnUiThread(() -> {
-            LocationBroker broker = mActivityRule.getActivity().getService().getBroker();
+            ConnectivityBroker broker = mActivityRule.getActivity().getService().getBroker();
             broker.removeUpdates(listener);
         });
 
@@ -119,9 +120,9 @@ public class LocationServiceTest {
         AtomicBoolean done = new AtomicBoolean(false);
 
         mActivityRule.runOnUiThread(() -> {
-            LocationBroker broker = mActivityRule.getActivity().getService().getBroker();
-            boolean hasPermission = broker.hasPermissions(LocationBroker.Provider.GPS);
-            Location loc = broker.getLastKnownLocation(LocationBroker.Provider.GPS);
+            ConnectivityBroker broker = mActivityRule.getActivity().getService().getBroker();
+            boolean hasPermission = broker.hasPermissions(ConnectivityBroker.Provider.GPS);
+            Location loc = broker.getLastKnownLocation(ConnectivityBroker.Provider.GPS);
 
             if (hasPermission) {
                 result.set(true);

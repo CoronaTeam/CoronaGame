@@ -7,13 +7,13 @@ import android.location.LocationManager;
 
 import androidx.test.rule.ActivityTestRule;
 
-import ch.epfl.sdp.location.LocationBroker;
+import ch.epfl.sdp.connectivity.ConnectivityBroker;
 import ch.epfl.sdp.testActivities.MapActivity;
 
-import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
+import static ch.epfl.sdp.connectivity.ConnectivityBroker.Provider.GPS;
 
 
-public class MockLocationBroker implements LocationBroker {
+public class MockConnectivityBroker implements ConnectivityBroker {
     private LocationListener listener = null;
 
     private Location fakeLocation;
@@ -21,7 +21,7 @@ public class MockLocationBroker implements LocationBroker {
 
     private ActivityTestRule<MapActivity> mActivityRule;
 
-    public MockLocationBroker(ActivityTestRule<MapActivity> activity) {
+    public MockConnectivityBroker(ActivityTestRule<MapActivity> activity) {
         mActivityRule = activity;
     }
 

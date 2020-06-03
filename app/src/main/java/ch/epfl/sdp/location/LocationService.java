@@ -73,7 +73,7 @@ public class LocationService extends Service implements LocationListener, Observ
     private static final int MIN_UP_INTERVAL_MILLIS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
     // This correspond to 6h divided by the DEMO_SPEEDUP constant
-    private static long alarmDelayMillis = 5_000 / getDemoSpeedup();
+    private static long alarmDelayMillis = 21_600_000 / getDemoSpeedup();
 
     private ConnectivityBroker broker;
     private PositionAggregator aggregator;

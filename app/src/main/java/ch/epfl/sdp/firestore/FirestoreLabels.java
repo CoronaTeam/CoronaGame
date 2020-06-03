@@ -6,6 +6,18 @@ public interface FirestoreLabels {
     // written here too (we have to progressively get rid of random Strings with Firestore paths
     // in the rest of the code)
 
+    // Users collection
+    String USERS_COLL = "Users";
+
+    // Users/[hashOfCarrier]/
+    String INFECTED_TAG = "Infected";
+
+    // History collection
+    //String HISTORY_COLL = "History/";
+
+    // History/[hashOfCarrier]/
+    //String HISTORY_POSITIONS_COLL =  "/Positions";
+
     // History collection
     String HISTORY_COLL = "History";
 
@@ -16,6 +28,8 @@ public interface FirestoreLabels {
     String LAST_POSITIONS_COLL = "LastPositions";
 
     // LastPositions/[hashOfCarrier]/
+    // and
+    // History/[hashOfCarrier]/Positions/[positionHash]/
     String GEOPOINT_TAG = "geoPoint";
     String TIMESTAMP_TAG = "timeStamp";
 

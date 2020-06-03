@@ -13,12 +13,6 @@ public interface FirestoreLabels {
     String INFECTED_TAG = "Infected";
 
     // History collection
-    //String HISTORY_COLL = "History/";
-
-    // History/[hashOfCarrier]/
-    //String HISTORY_POSITIONS_COLL =  "/Positions";
-
-    // History collection
     String HISTORY_COLL = "History";
 
     // History/[userID]/Positions

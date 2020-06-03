@@ -35,6 +35,8 @@ public class ConcreteFirestoreInteractor extends FirestoreInteractor {
                         doc -> {
                             if (doc.exists()) {
                                 return doc.getData();
+//                                Map<String,Object> docRes = doc.getData();
+//                                return docRes== null ? Collections.emptyMap() :docRes ; TODO: REMOVE
                             } else {
                                 // Document does not exist
                                 return Collections.emptyMap();

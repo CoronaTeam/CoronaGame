@@ -166,7 +166,8 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
     @Override
     public SortedMap<A, B> read() {
         if (isDeleted()) {
-            throw new IllegalStateException("Cannot read file after deletion");
+            return new TreeMap<>();
+//            throw new IllegalStateException("Cannot read file after deletion");
         }
         createFileIfAbsent(); // situation is : file is stored on the disk,
                                 // but this class has no pointer to this file -> create this pointer
@@ -184,7 +185,8 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
     @Override
     public SortedMap<A, B> filter(BiFunction<A, B, Boolean> rule) {
         if (isDeleted()) {
-            throw new IllegalStateException("Cannot filter on file after deletion");
+            return new TreeMap<>();
+//            throw new IllegalStateException("Cannot filter on file after deletion");
         }
         createFileIfAbsent();
         checkCacheStatus();

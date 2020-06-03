@@ -15,6 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.storage.ConcreteManager;
+import ch.epfl.sdp.storage.OldManager;
 import ch.epfl.sdp.storage.StorageManager;
 
 /**
@@ -65,7 +66,7 @@ public class Layman extends ObservableCarrier {
 
     private StorageManager<Date, Float> openStorageManager(String fileId) {
 
-        return new ConcreteManager<>(
+        return new OldManager<>(
                 CoronaGame.getContext(),
                 fileId + ".csv",
                 date -> {
@@ -96,14 +97,14 @@ public class Layman extends ObservableCarrier {
         if (probability < 0 || 1 < probability) {
             return false;
         }
-        if(when == null){
-            when = new Date();
-        }
-        // Include this update into the history
-        TreeMap toWrite;
-        toWrite = new TreeMap<>(Collections.singletonMap(when, probability));
-        infectionHistory.write(toWrite);
 
+        // Include this update into the history
+        //TODO :@Matteo what is wrong with those lines
+        try {
+            infectionHistory.write(new TreeMap<>(Collections.singletonMap(when, probability)));
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
         infectedWithProbability = probability;
         return true;
     }

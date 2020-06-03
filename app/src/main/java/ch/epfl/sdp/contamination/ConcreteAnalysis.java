@@ -169,6 +169,8 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
     @Override
     public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
 
+        CompletableFuture<Map<String, Object>> receiverCountTmp = receiver.getRecoveryCounter(me.getUniqueId());
+        
         CompletableFuture<Integer> recoveryCounter =
                 receiver.getRecoveryCounter(me.getUniqueId())
                         .thenApply(rc -> (int) (rc.getOrDefault(privateRecoveryCounter, 0)));

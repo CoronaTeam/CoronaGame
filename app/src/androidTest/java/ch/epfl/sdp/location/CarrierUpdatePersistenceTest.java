@@ -34,10 +34,13 @@ import ch.epfl.sdp.contamination.databaseIO.DataSender;
 import ch.epfl.sdp.contamination.databaseIO.PositionHistoryManager;
 import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.identity.DefaultAuthenticationManager;
+import ch.epfl.sdp.identity.fragment.AccountFragment;
 import ch.epfl.sdp.storage.ConcreteManager;
+import ch.epfl.sdp.storage.OldManager;
 import ch.epfl.sdp.storage.StorageManager;
 import ch.epfl.sdp.testActivities.DataExchangeActivity;
 
+import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.initSafeTest;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
@@ -77,6 +80,7 @@ public class CarrierUpdatePersistenceTest {
                 return fakeUserID;
             }
         };
+        AccountFragment.IN_TEST = true;
 
     }
 
@@ -103,7 +107,7 @@ public class CarrierUpdatePersistenceTest {
         initSafeTest(mActivityRule, true);
 
         iAmBob = new Layman(HEALTHY, fakeUserID);
-
+        iAmBob.deleteLocalProbabilityHistory();
         LocationService service = mActivityRule.getActivity().getService();
         originalAnalyst = service.getAnalyst();
         InfectionAnalyst fakeAnalyst = new ConcreteAnalysis(iAmBob, service.getReceiver());
@@ -119,10 +123,10 @@ public class CarrierUpdatePersistenceTest {
         mActivityRule.getActivity().getService().setAnalyst(originalAnalyst);
     }
 
-    @After
-    public void release() {
-        Intents.release();
-    }
+//    @After
+//    public void release() { done in another method
+//        Intents.release();
+//    }
 
     private void cleanFakeUserHistory() {
         // Delete existing file
@@ -152,7 +156,9 @@ public class CarrierUpdatePersistenceTest {
 
     @After
     public void stopLocationService() {
-        mActivityRule.getActivity().stopService(new Intent(mActivityRule.getActivity(), LocationService.class));
+//        ((DataExchangeActivity)(getActivity())).stopService(locaIntentWithAlarm);
+        ((DataExchangeActivity)(getActivity())).stopService(new Intent(mActivityRule.getActivity(), LocationService.class));
+        Intents.release();
     }
 
     private void startLocationServiceWithAlarm() {
@@ -237,6 +243,7 @@ public class CarrierUpdatePersistenceTest {
     }
 
     @Test
+
     public void carrierStatusIsStored() {
 
         LocationService service = mActivityRule.getActivity().getService();
@@ -310,7 +317,7 @@ public class CarrierUpdatePersistenceTest {
     }
 
     private StorageManager<Date, Float> initStorageManager() {
-        return new ConcreteManager<>(
+        return new OldManager<>(
                 mActivityRule.getActivity(),
                 AuthenticationManager.getUserId() + ".csv",
                 date -> {

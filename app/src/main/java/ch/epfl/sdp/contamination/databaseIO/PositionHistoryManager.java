@@ -27,20 +27,21 @@ import static ch.epfl.sdp.contamination.databaseIO.DataSender.MAX_CACHE_ENTRY_AG
  * Will only store the lattitude and longitude in the location
  * This class should not be made static for testing purpose.
  */
-public class PositionHistoryManager  {
+public final class PositionHistoryManager  {
     private static ConcreteManager<Date, Location> instance = null;
     private static void setHistoryManager(){
         if(instance!=null && !instance.isReadable()){
-            instance.delete();
-            instance = null;
+            instance.reset();
+//            instance = null;
         }
-        if(instance == null){
+        else if(instance == null){
             instance =  getNewManager();
 //            instance.read();
         }
     }
 
     private static ConcreteManager<Date, Location> getNewManager() {
+
         return new ConcreteManager<Date,Location>(CoronaGame.getContext(),
                 String.valueOf(AccountFragment.IN_TEST)+"_last_positions.csv",
                 date_position -> {

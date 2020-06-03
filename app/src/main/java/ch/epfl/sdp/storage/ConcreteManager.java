@@ -20,7 +20,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
- * Implements a StorageManager with cache (asynchronously preloaded)
+ * Implements a StorageManager with cache (asynchronously preloaded).
  *
  * @param <A> The type of the keys
  * @param <B> The type of the values
@@ -42,9 +42,9 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
 
     private boolean isDeleted(){
         //TODO: Log
-        Log.e("ConcreteManager",context.getFilesDir()+ filename );
-        File tmpDir = new File(context.getFilesDir()+ filename);
-        return tmpDir.isFile();
+        Log.e("ConcreteManager",context.getFilesDir()+ "/"+filename);
+        File tmpDir = new File(context.getFilesDir(), filename);
+        return ! tmpDir.isFile();
     }
 
     public ConcreteManager(Context context, String filename, Function<String, A> convertToA, Function<String, B> convertToB,String separator) {
@@ -73,7 +73,7 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
         });
     }
     private void createFileIfAbsent(){
-        if(!isDeleted()){
+        if(file!=null){
             return;
         }
         file = new File(context.getFilesDir(), filename);
@@ -168,7 +168,8 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
         if (isDeleted()) {
             throw new IllegalStateException("Cannot read file after deletion");
         }
-
+        createFileIfAbsent(); // situation is : file is stored on the disk,
+                                // but this class has no pointer to this file -> create this pointer
         checkCacheStatus();
 
         if (cache.isEmpty()) {
@@ -185,7 +186,7 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
         if (isDeleted()) {
             throw new IllegalStateException("Cannot filter on file after deletion");
         }
-
+        createFileIfAbsent();
         checkCacheStatus();
 
         if (cache.isEmpty()) {
@@ -207,15 +208,34 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
 
     @Override
     public void delete() {
+
         try {
             close();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             if (!isDeleted()) {
+                if(file == null){
+                    file = new File(context.getFilesDir(), filename);
+                }
                 file.delete();
             }
-//            isDeleted = true;
+//            file = null; -> should be useless to se it to null
+        }
+    }
+
+    @Override
+    public void reset() {
+        try{
+            close();
+        }catch(IOException e){
+            e.printStackTrace();
+        }finally {
+            file = null;
+            createFileIfAbsent();
+            if(!isReadable()){
+                delete();
+            }
         }
     }
 

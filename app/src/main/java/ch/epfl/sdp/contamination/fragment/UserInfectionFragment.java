@@ -29,13 +29,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.Carrier;
-import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
-import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.location.LocationService;
@@ -55,13 +52,11 @@ import static ch.epfl.sdp.utilities.Tools.checkNetworkStatus;
  * Allow the user to change his health status (infected / cured)
  */
 public class UserInfectionFragment extends Fragment implements View.OnClickListener, Observer {
-    private static final String TAG = "User Infection Activity";
     private Button infectionStatusButton;
     private TextView infectionStatusView;
     private TextView onlineStatusView;
     private Button refreshButton;
     private Account account;
-    private FirestoreInteractor fsi = new ConcreteFirestoreInteractor();
     private String userName;
     private View view;
     private LocationService service;
@@ -130,8 +125,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
          * (Intent, ServiceConnection, int):it requires the service to remain running until
          * stopService(Intent) is called, regardless of whether any clients are connected to it.
          */
-        //TODO: @Lucie do we need this ComponentName?
-        ComponentName myService = requireActivity().startService(new Intent(getContext(),
+        requireActivity().startService(new Intent(getContext(),
                 LocationService.class));
         sharedPref = requireActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE);
 
@@ -146,7 +140,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
 
         requireActivity().runOnUiThread(() -> {
             setInfectionColorAndMessage(me.getInfectionStatus() == INFECTED);
-            userInfectionProbability.setText(String.format("%s With probability: %f", me.getUniqueId(), me.getIllnessProbability()));
+            userInfectionProbability.setText(String.format(getString(R.string.with_proba)+" %f", me.getIllnessProbability()));
         });
     }
 
@@ -169,7 +163,8 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
             if (checkElapsedTimeSinceLastChange()) {
                 if (Tools.canAuthenticate(requireActivity())) {
                     biometricPrompt.authenticate(promptInfo);
-                    // TODO: @Lucie, after authentication when is executeHealthStatusChange called?
+                    // executeHealthStatusChange is called on authentication success
+                    // in onAuthenticationSucceeded of biometricPrompt
                 } else {
                     executeHealthStatusChange();
                 }
@@ -208,10 +203,9 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
             return true;
         } else {
             Date currentTime = Calendar.getInstance().getTime();
-            //TODO: what does this means?
-            //get 1 jan 1970 by default. It's definitely wrong but works as we want t check that
-            //the status has not been updated less than a day ago.
 
+            // lastStatusChange is 1 jan 1970 by default (value for Date(0)).
+            // This works as we want t check that the status has not been updated less than a day ago.
             Date lastStatusChange = new Date(sharedPref.getLong("lastStatusChange", 0));
             long difference = Math.abs(currentTime.getTime() - lastStatusChange.getTime());
             long differenceDays = difference / (24 * 60 * 60 * 1000);
@@ -235,23 +229,13 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     }
 
     private void sendRecoveryToFirebase() {
-        // TODO: @Lucie I think that doesn't upload anything to Firestore
+        // TODO: I think that doesn't upload anything to Firestore
+        // --->> Are you sure? From what I read on the doc,
+        //                      update method from DocumentReference updates on Firebase
         // TODO: [LOG]
         Log.e("RECOVERY_SENDER", account.getId());
         DocumentReference ref = documentReference(privateUserFolder, account.getId());
         ref.update(privateRecoveryCounter, FieldValue.increment(1));
-    }
-
-    private CompletableFuture<Boolean> retrieveUserInfectionStatus() {
-        return fsi.readDocument(documentReference("Users", userName))
-                .thenApply(stringObjectMap -> {
-                    Boolean infected = (Boolean) stringObjectMap.get("Infected");
-                    return infected == null ? false : infected;
-                }).exceptionally(e -> {
-                    Log.w(TAG, "Error retrieving infection status from " +
-                            "Firestore.", e);
-                    return null;
-                });
     }
 
     private void setInfectionColorAndMessage(boolean infected) {

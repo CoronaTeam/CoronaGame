@@ -117,7 +117,7 @@ public class AuthenticationFragment extends Fragment {
             updateUI(account);
         } catch (ApiException e) {
             if (e.getStatusCode() == 7) {
-                Toast.makeText(requireActivity(), "Please check your internet connection", Toast.LENGTH_LONG).show();
+                Toast.makeText(requireActivity(), R.string.pls_check_internet_co, Toast.LENGTH_LONG).show();
             }
 
             // The ApiException status code indicates the detailed failure reason.

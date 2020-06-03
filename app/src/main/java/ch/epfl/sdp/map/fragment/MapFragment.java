@@ -40,6 +40,7 @@ import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RapidFloating
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.epfl.sdp.BuildConfig;
 import ch.epfl.sdp.R;
@@ -49,6 +50,7 @@ import ch.epfl.sdp.location.LocationService;
 import ch.epfl.sdp.map.HeatMapHandler;
 import ch.epfl.sdp.map.PathsHandler;
 
+import static android.view.View.INVISIBLE;
 import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 import static ch.epfl.sdp.map.HeatMapHandler.HEATMAP_LAYER_ID;
 import static ch.epfl.sdp.map.PathsHandler.BEFORE_INFECTED_LAYER_ID;
@@ -131,7 +133,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         // bindService(Intent, ServiceConnection, int):
         // it requires the service to remain running until stopService(Intent) is called,
         // regardless of whether any clients are connected to it.
-        ComponentName myService = requireActivity().startService(new Intent(getContext(), LocationService.class));
+        requireActivity().startService(new Intent(getContext(), LocationService.class));
         requireActivity().bindService(new Intent(getContext(), LocationService.class), conn, Context.BIND_AUTO_CREATE);
 
         db = new ConcreteFirestoreInteractor();
@@ -158,7 +160,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
                 userLocation = positionMarkerManager.create(new CircleOptions()
                         .withLatLng(prevLocation));
 
-                updateUserMarkerPosition(prevLocation);
+                updateUserMarkerPosition(prevLocation, true);
                 heatMapHandler = new HeatMapHandler(classPointer, db, map);
                 pathsHandler = new PathsHandler(classPointer, map);
             });
@@ -177,7 +179,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     public void onLocationChanged(Location location) {
         if (locationBroker.hasPermissions(GPS)) {
             LatLng newLocation = new LatLng(location.getLatitude(), location.getLongitude());
-            updateUserMarkerPosition(newLocation);
+            updateUserMarkerPosition(newLocation, false);
             prevLocation = newLocation;
 
             view.findViewById(R.id.mapFragment).setVisibility(View.VISIBLE);
@@ -186,11 +188,11 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
             callOnMapVisible();
         } else {
-            Toast.makeText(requireActivity(), "Missing permission", Toast.LENGTH_LONG).show();
+            Toast.makeText(requireActivity(), R.string.missing_permission, Toast.LENGTH_LONG).show();
         }
     }
 
-    private void updateUserMarkerPosition(LatLng location) {
+    private void updateUserMarkerPosition(LatLng location, boolean initCamera) {
         // This method is where we update the marker position once we have new coordinates. First we
         // check if this is the first time we are executing this handler, the best way to do this is
         // check if marker is null
@@ -199,7 +201,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             userLocation.setLatLng(location);
             positionMarkerManager.update(userLocation);
 
-            if(Math.abs(prevLocation.getLatitude() - location.getLatitude()) +
+            if(initCamera || Math.abs(prevLocation.getLatitude() - location.getLatitude()) +
                     Math.abs(prevLocation.getLatitude() - location.getLatitude()) > MIN_LAT_LONG_CHANGE_RECENTER){
                 map.animateCamera(CameraUpdateFactory.newLatLng(location));
             }
@@ -318,29 +320,44 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         toggleLayer(HEATMAP_LAYER_ID);
     }
 
-    private void toggleLayer(String layerId) {
+    /**
+     * Make the layer visible/invisible on the map, according to its current visibility.
+     * @param layerId identifies the layer
+     * @return true if the layer is set to visible, false otherwise
+     */
+    private AtomicBoolean toggleLayer(String layerId) {
+        AtomicBoolean res = new AtomicBoolean();
         map.getStyle(style -> {
             Layer layer = style.getLayer(layerId);
             if (layer != null) {
                 if (VISIBLE.equals(layer.getVisibility().getValue())) {
                     layer.setProperties(visibility(NONE));
-                    showPathZoomOutButton(layerId, View.VISIBLE, View.INVISIBLE);
+                    showPathZoomOutButton(layerId, View.VISIBLE, INVISIBLE);
                 } else {
                     layer.setProperties(visibility(VISIBLE));
                     if (layerId.equals(YESTERDAY_PATH_LAYER_ID)) {
                         CURRENT_PATH = R.string.yesterday;
+                        showPathZoomOutButton(layerId, INVISIBLE, View.VISIBLE);
+                        showToast();
                     } else if (layerId.equals(BEFORE_PATH_LAYER_ID)) {
                         CURRENT_PATH = R.string.before_yesterday;
+                        showPathZoomOutButton(layerId, INVISIBLE, View.VISIBLE);
+                        showToast();
                     }
-                    if (!layerId.equals(HEATMAP_LAYER_ID)) {
-                        showPathZoomOutButton(layerId, View.INVISIBLE, View.VISIBLE);
-                    }
-                    if (!TESTING_MODE && !layerId.equals(HEATMAP_LAYER_ID)) {
-                        Toast.makeText(getContext(), "Click on the square to see the whole path", Toast.LENGTH_SHORT).show();
-                    }
+
+                    res.set(true);
                 }
+            } else if (layerId.equals(YESTERDAY_PATH_LAYER_ID) || layerId.equals(BEFORE_PATH_LAYER_ID)){
+                Toast.makeText(getActivity(), R.string.no_path_to_show, Toast.LENGTH_LONG).show();
             }
         });
+        return res;
+    }
+
+    private void showToast() {
+        if (!TESTING_MODE) {
+            Toast.makeText(getContext(), R.string.click_to_see_whole_path, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showPathZoomOutButton(String layerId, int visibilityCheck, int buttonVisibility) {
@@ -352,9 +369,13 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private void togglePath(int day) {
         String pathLayerId = day == R.string.yesterday ? YESTERDAY_PATH_LAYER_ID : BEFORE_PATH_LAYER_ID;
         String infectedLayerId = day == R.string.yesterday ? YESTERDAY_INFECTED_LAYER_ID : BEFORE_INFECTED_LAYER_ID;
-        toggleLayer(pathLayerId);
+        AtomicBoolean isVisible = toggleLayer(pathLayerId);
         toggleLayer(infectedLayerId);
-        pathsHandler.setCameraPosition(day);
+        // Don't make camera focus on path when clicking to disable its visibility
+        if (isVisible.get()) {
+            pathsHandler.setCameraPosition(day);
+        }
+
     }
 
 
@@ -451,15 +472,13 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
     @VisibleForTesting
     void resetPathsHandler(Callable onResetDone){
-        mapView.getMapAsync(mapboxMap -> {
-            mapboxMap.getStyle(style -> {
+        mapView.getMapAsync(mapboxMap -> mapboxMap.getStyle(style -> {
 
-                pathsHandler = new PathsHandler(classPointer, map);
-                try {
-                    onResetDone.call();
-                } catch (Exception ignore){}
-            });
-        });
+            pathsHandler = new PathsHandler(classPointer, map);
+            try {
+                onResetDone.call();
+            } catch (Exception ignore){}
+        }));
     }
 
     @VisibleForTesting

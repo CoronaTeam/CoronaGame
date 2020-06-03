@@ -4,6 +4,7 @@ import android.location.Location;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +12,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
+
+import static ch.epfl.sdp.identity.fragment.AccountFragment.IN_TEST;
 
 /**
  * @author lucas
@@ -55,7 +58,11 @@ public final class ConcretePositionAggregator implements PositionAggregator {
         class UpdatePosTask extends TimerTask {
             public void run() {
                 if (isOnline && newestLocation != null) {
-                    registerPosition(newestLocation, newestDate);
+                    if(!IN_TEST){
+                        registerPosition(newestLocation, Calendar.getInstance().getTime());
+                    }else{
+                        registerPosition(newestLocation, newestDate);
+                    }
                 }
             }
         }
@@ -71,6 +78,7 @@ public final class ConcretePositionAggregator implements PositionAggregator {
     }
 
     private void registerPosition(Location location, Date date) {
+
         if (location == null) {
             throw new IllegalArgumentException("Location should not be null");
         }
@@ -83,6 +91,7 @@ public final class ConcretePositionAggregator implements PositionAggregator {
             update();
             lastDate = roundedDate;
             ArrayList<Location> newList = new ArrayList<Location>();
+
             newList.add(location);
             buffer.put(roundedDate.getTime(), newList);
         }
@@ -93,6 +102,11 @@ public final class ConcretePositionAggregator implements PositionAggregator {
         if (location == null || date == null) {
             throw new IllegalArgumentException("Location or date should not be null !");
         }
+//        if(newestLocation == null){
+//            startTimer();
+//        }
+        //TODO:LOG[]
+        Log.e("POSITION_AGGREGATOR addPosition",location.toString());
         this.newestLocation = location;
         this.newestDate = date;
     }
@@ -104,6 +118,8 @@ public final class ConcretePositionAggregator implements PositionAggregator {
      * or if it just returns without doing anything.
      */
     private void update() {
+        //TODO:LOG
+        Log.e("POSITION_AGGREGATOR update",buffer.toString());
         if (lastDate != null) {
             List<Location> targetLocations = buffer.remove(lastDate.getTime());
             Location meanLocation = getMean(targetLocations);

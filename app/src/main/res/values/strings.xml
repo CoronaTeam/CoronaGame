@@ -147,4 +147,10 @@
     <string name="refresh_to_see_status">Refresh to see your status</string>
     <string name="infection_proba">Infection Probability</string>
     <string name="pls_check_internet_co">Please check your internet connection</string>
+
+    <string name="yesterday_label">Yesterday</string>
+    <string name="before_yesterday_label">Before yesterday</string>
+    <string name="toggle_heatmap_label">Toggle heatmap</string>
+    <string name="focus_path_label">Focus path</string>
+    <string name="my_location_label">My location</string>
 </resources>

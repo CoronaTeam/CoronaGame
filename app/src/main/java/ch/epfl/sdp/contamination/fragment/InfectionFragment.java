@@ -65,7 +65,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
 
         lastUpdateTime = System.currentTimeMillis();
 
-        infectionStatus.setText("Refresh to see your status");
+        infectionStatus.setText(R.string.refresh_to_see_status);
 
         service = new CompletableFuture<>();
 

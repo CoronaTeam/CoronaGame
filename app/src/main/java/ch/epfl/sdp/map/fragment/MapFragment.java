@@ -3,6 +3,7 @@ package ch.epfl.sdp.map.fragment;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.mapbox.mapboxsdk.Mapbox;
@@ -38,7 +40,10 @@ import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RFACLabelItem
 import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RapidFloatingActionContentLabelList;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -52,6 +57,7 @@ import ch.epfl.sdp.map.PathsHandler;
 
 import static ch.epfl.sdp.connectivity.ConnectivityBroker.Provider.GPS;
 import static android.view.View.INVISIBLE;
+import static ch.epfl.sdp.identity.fragment.AccountFragment.IN_TEST;
 import static ch.epfl.sdp.map.HeatMapHandler.HEATMAP_LAYER_ID;
 import static ch.epfl.sdp.map.PathsHandler.BEFORE_INFECTED_LAYER_ID;
 import static ch.epfl.sdp.map.PathsHandler.BEFORE_PATH_LAYER_ID;
@@ -220,10 +226,10 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
     private void goOnline() {
         if (connectivityBroker.isProviderEnabled(GPS) && connectivityBroker.hasPermissions(GPS)) {
-            connectivityBroker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, this);
+            connectivityBroker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, classPointer);
         } else if (connectivityBroker.isProviderEnabled(GPS)) {
             // Must ask for permissions
-            connectivityBroker.requestPermissions(requireActivity(), LOCATION_PERMISSION_REQUEST);
+            askGPSPermission();
         }
     }
 
@@ -432,6 +438,36 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             if (onMapVisible != null) {onMapVisible.call();}
             onMapVisible = null;
         } catch (Exception ignored) {
+        }
+    }
+
+    private void askGPSPermission(){
+        connectivityBroker.requestPermissions(requireActivity(), LOCATION_PERMISSION_REQUEST);
+        if (!connectivityBroker.hasPermissions(GPS)){
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setTitle("test")
+                    .setMessage("Enable the GPS, you Fuck")
+                    .setPositiveButton(android.R.string.ok,
+                            (dialog, id) -> goOnline())
+                    .setNegativeButton(android.R.string.no,
+                            (dialog, id) -> {
+                                requireActivity().finishAndRemoveTask();
+                                System.exit(0);
+                            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+
+            Timer updatePosTimer = new Timer();
+            class UpdatePosTask extends TimerTask {
+                public void run() {
+                    if(connectivityBroker.hasPermissions(GPS)){
+                        alertDialog.dismiss();
+                        updatePosTimer.cancel();
+                        goOnline();
+                    }
+                }
+            }
+            updatePosTimer.scheduleAtFixedRate(new UpdatePosTask(), 0, 100);
         }
     }
 

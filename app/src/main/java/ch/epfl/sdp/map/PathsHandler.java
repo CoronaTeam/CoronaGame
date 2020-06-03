@@ -53,7 +53,7 @@ import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
 import static ch.epfl.sdp.firestore.FirestoreLabels.HISTORY_COLL;
-import static ch.epfl.sdp.firestore.FirestoreLabels.HISTORY_POSITIONS_COLL;
+import static ch.epfl.sdp.firestore.FirestoreLabels.HISTORY_POSITIONS_DOC;
 import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
 import static ch.epfl.sdp.map.HeatMapHandler.adjustHeatMapColorRange;
 import static ch.epfl.sdp.map.HeatMapHandler.adjustHeatMapWeight;
@@ -116,7 +116,7 @@ public class PathsHandler {
     private CompletableFuture<Iterator<QueryDocumentSnapshot>> initFirestorePathRetrieval() {
         String userPath = getUserId(); //"USER_ID_X42"; coronaId: 109758096484534641167
         return FirestoreInteractor.taskToFuture(
-                collectionReference(HISTORY_COLL + userPath + HISTORY_POSITIONS_COLL)
+                collectionReference(HISTORY_COLL + "/" + userPath + "/" + HISTORY_POSITIONS_DOC)
                         .orderBy(TIMESTAMP_TAG).get())
                 .thenApply(collection -> {
                     if (collection.isEmpty()) {

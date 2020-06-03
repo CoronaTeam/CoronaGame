@@ -18,6 +18,8 @@ import ch.epfl.sdp.identity.fragment.AccountFragment;
 
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
+import static ch.epfl.sdp.firestore.FirestoreLabels.HISTORY_COLL;
+import static ch.epfl.sdp.firestore.FirestoreLabels.HISTORY_POSITIONS_DOC;
 import static ch.epfl.sdp.firestore.FirestoreLabels.INFECTION_STATUS_TAG;
 import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_COLL;
 import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
@@ -28,7 +30,7 @@ import static ch.epfl.sdp.identity.AuthenticationManager.getActivity;
  */
 public class ConcreteCachingDataSender implements CachingDataSender {
 
-    SortedMap<Date, Location> lastPositions;
+    private SortedMap<Date, Location> lastPositions;
     private GridFirestoreInteractor gridInteractor;
 
     public ConcreteCachingDataSender(GridFirestoreInteractor interactor) {
@@ -44,7 +46,7 @@ public class ConcreteCachingDataSender implements CachingDataSender {
     @Override
     public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
         location = CachingDataSender.roundLocation(location);
-        CompletableFuture<Void> lastPositionsFuture, gridWriteFuture;
+        CompletableFuture<Void> historyFuture, lastPositionsFuture, gridWriteFuture;
 
 
         refreshLastPositions(time, location);
@@ -57,12 +59,15 @@ public class ConcreteCachingDataSender implements CachingDataSender {
         element.put(TIMESTAMP_TAG, time.getTime());
         element.put(INFECTION_STATUS_TAG, carrier.getInfectionStatus());
 
+        historyFuture = gridInteractor.writeDocumentWithID(documentReference(
+                HISTORY_COLL + "/" + carrier.getUniqueId() + "/" + HISTORY_POSITIONS_DOC, "TS" + time.getTime()), element);
+
         lastPositionsFuture = gridInteractor.writeDocumentWithID(
                 documentReference(LAST_POSITIONS_COLL, AccountFragment.getAccount(getActivity()).getId()), element);
 
         gridWriteFuture = gridInteractor.gridWrite(location, String.valueOf(time.getTime()), carrier);
 
-        return CompletableFuture.allOf(lastPositionsFuture, gridWriteFuture);
+        return CompletableFuture.allOf(historyFuture, lastPositionsFuture, gridWriteFuture);
     }
 
     // Removes every locations older than PRE-SYMPTOMATIC_CONTAGION_TIME ms and adds a new position

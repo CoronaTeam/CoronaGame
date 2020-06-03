@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
-import ch.epfl.sdp.map.MockLocationBroker;
+import ch.epfl.sdp.map.MockConnectivityBroker;
 import ch.epfl.sdp.testActivities.MapActivity;
 
 import static androidx.test.espresso.Espresso.onView;
@@ -39,8 +39,7 @@ public class MapActivityTest {
     public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
     private MapFragment mapFragment;
     private AtomicInteger sentinel;
-    private MockLocationBroker mockLocationBroker;
-
+    private MockConnectivityBroker mockLocationBroker;
 
     @BeforeClass
     public static void preClassSetup() {
@@ -56,10 +55,10 @@ public class MapActivityTest {
 
     @Before
     public void setUp() throws Throwable {
-        mockLocationBroker = new MockLocationBroker(activityRule);
+        mockLocationBroker = new MockConnectivityBroker(activityRule);
         mockLocationBroker.setProviderStatus(true);
         mapFragment = (MapFragment) activityRule.getActivity().getFragment();
-        mapFragment.setLocationBroker(mockLocationBroker);
+        mapFragment.setConnectivityBroker(mockLocationBroker);
         sentinel = new AtomicInteger(0);
     }
 
@@ -168,9 +167,9 @@ public class MapActivityTest {
         sTestMapVisible(mapFragment, sentinel, mockLocationBroker, activityRule);
     }
 
-    static void sTestMapVisible(MapFragment mapFragment, AtomicInteger sentinel, MockLocationBroker mockLocationBroker, ActivityTestRule<MapActivity> activityRule) throws Throwable {
+    static void sTestMapVisible(MapFragment mapFragment, AtomicInteger sentinel, MockConnectivityBroker mockConnectivityBroker, ActivityTestRule<MapActivity> activityRule) throws Throwable {
         sTestMapLoadCorrectly(mapFragment, sentinel, activityRule);
-        mockLocationBroker.setFakeLocation(buildLocation(46, 55));
+        mockConnectivityBroker.setFakeLocation(buildLocation(46, 55));
         mapFragment.onMapVisible(sentinel::incrementAndGet);
         sWaitForSentinelAndSetToZero(sentinel);
         sleep(1000);

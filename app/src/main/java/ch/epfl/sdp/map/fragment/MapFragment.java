@@ -44,14 +44,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.epfl.sdp.BuildConfig;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.connectivity.ConnectivityBroker;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
-import ch.epfl.sdp.location.LocationBroker;
 import ch.epfl.sdp.location.LocationService;
 import ch.epfl.sdp.map.HeatMapHandler;
 import ch.epfl.sdp.map.PathsHandler;
 
+import static ch.epfl.sdp.connectivity.ConnectivityBroker.Provider.GPS;
 import static android.view.View.INVISIBLE;
-import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 import static ch.epfl.sdp.map.HeatMapHandler.HEATMAP_LAYER_ID;
 import static ch.epfl.sdp.map.PathsHandler.BEFORE_INFECTED_LAYER_ID;
 import static ch.epfl.sdp.map.PathsHandler.BEFORE_PATH_LAYER_ID;
@@ -76,7 +76,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     private PathsHandler pathsHandler;
     private MapView mapView;
     private MapboxMap map;
-    private LocationBroker locationBroker;
+    private ConnectivityBroker connectivityBroker;
     private LatLng prevLocation = new LatLng(0, 0);
     private ConcreteFirestoreInteractor db;
     private CircleManager positionMarkerManager;
@@ -118,14 +118,14 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         conn = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                locationBroker = ((LocationService.LocationBinder) service).getService().getBroker();
+                connectivityBroker = ((LocationService.LocationBinder) service).getService().getBroker();
                 goOnline();
             }
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
                 // TODO: Check in code that the service does not become null
-                locationBroker = null;
+                connectivityBroker = null;
             }
         };
 
@@ -177,7 +177,7 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
 
     @Override
     public void onLocationChanged(Location location) {
-        if (locationBroker.hasPermissions(GPS)) {
+        if (connectivityBroker.hasPermissions(GPS)) {
             LatLng newLocation = new LatLng(location.getLatitude(), location.getLongitude());
             updateUserMarkerPosition(newLocation, false);
             prevLocation = newLocation;
@@ -219,11 +219,11 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     }
 
     private void goOnline() {
-        if (locationBroker.isProviderEnabled(GPS) && locationBroker.hasPermissions(GPS)) {
-            locationBroker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, this);
-        } else if (locationBroker.isProviderEnabled(GPS)) {
+        if (connectivityBroker.isProviderEnabled(GPS) && connectivityBroker.hasPermissions(GPS)) {
+            connectivityBroker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, this);
+        } else if (connectivityBroker.isProviderEnabled(GPS)) {
             // Must ask for permissions
-            locationBroker.requestPermissions(requireActivity(), LOCATION_PERMISSION_REQUEST);
+            connectivityBroker.requestPermissions(requireActivity(), LOCATION_PERMISSION_REQUEST);
         }
     }
 
@@ -445,13 +445,13 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
     }
 
     @VisibleForTesting
-    void setLocationBroker(LocationBroker locationBroker) {
-        if (locationBroker != null && conn != null) {
+    void setConnectivityBroker(ConnectivityBroker connectivityBroker) {
+        if (connectivityBroker != null && conn != null) {
             requireActivity().unbindService(conn);
             requireActivity().stopService(new Intent(getContext(), LocationService.class));
             conn = null;
         }
-        this.locationBroker = locationBroker;
+        this.connectivityBroker = connectivityBroker;
         goOnline();
     }
 

@@ -65,7 +65,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
 
         lastUpdateTime = System.currentTimeMillis();
 
-        infectionStatus.setText("Refresh to see your status");
+        infectionStatus.setText(R.string.refresh_to_see_status);
 
         service = new CompletableFuture<>();
 
@@ -81,18 +81,15 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
             }
         };
 
-        getActivity().bindService(new Intent(getActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
+        requireActivity().bindService(new Intent(requireActivity(), LocationService.class), conn, BIND_AUTO_CREATE);
 
         return view;
     }
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.my_infection_refresh: {
-                onModelRefresh(view);
-            }
-            break;
+        if (view.getId() == R.id.my_infection_refresh) {
+            onModelRefresh(view);
         }
     }
 
@@ -104,11 +101,11 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
         LocationService locationService = service.join();
 
         // TODO: Which location?
-        locationService.getReceiver().getMyLastLocation(AccountFragment.getAccount(getActivity()))
+        locationService.getReceiver().getMyLastLocation(AccountFragment.getAccount(requireActivity()))
                 .thenApply(location -> locationService.getAnalyst().updateInfectionPredictions(location, refreshTime, new Date())
                         .thenAccept(todayInfectionMeetings -> {
                             //TODO: should run on UI thread?
-                            getActivity().runOnUiThread(() -> {
+                            requireActivity().runOnUiThread(() -> {
                                 infectionStatus.setText(R.string.infection_status_posted);
                                 uiHandler.post(() -> {
                                     InfectionAnalyst analyst = locationService.getAnalyst();
@@ -126,7 +123,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
         if (todayInfectionMeetings < 0) {
             throw new IllegalArgumentException();
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
 
         CharSequence first;
         CharSequence second;

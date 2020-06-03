@@ -109,5 +109,15 @@
     <string name="your_user_status_is_set_to_not_infected">Votre statut utilisateur est défini sur non-infecté(e)</string>
     <string name="profile_picture">Photo de profil</string>
     <string name="no_corresponding_path">Trajet inexistant</string>
-    <string name="delete_local_his">Efface l\'historique</string>
+    <string name="delete_local_his">Effacer l\'historique</string>
+    <string name="with_proba">Votre probabilité d\'infection :</string>
+    <string name="infected">Infecté(e)</string>
+    <string name="not_infected">Non infecté(e)</string>
+    <string name="no_path_to_show">Aucun trajet à montrer</string>
+    <string name="click_to_see_whole_path">Cliquer sur la loupe pour voir le trajet entier</string>
+    <string name="missing_permission">Permission manquante</string>
+    <string name="cannot_retr_pos_from_db">Chargement des positions impossible</string>
+    <string name="refresh_to_see_status">Rafraîchir pour voir votre statut</string>
+    <string name="infection_proba">Probabilité d\'infection</string>
+    <string name="pls_check_internet_co">Veuillez vérifier votre connexion sv)</string>
 </resources>

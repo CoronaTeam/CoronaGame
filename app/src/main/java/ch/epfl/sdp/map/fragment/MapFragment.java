@@ -3,7 +3,6 @@ package ch.epfl.sdp.map.fragment;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
@@ -40,7 +39,6 @@ import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RFACLabelItem
 import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RapidFloatingActionContentLabelList;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -55,9 +53,8 @@ import ch.epfl.sdp.location.LocationService;
 import ch.epfl.sdp.map.HeatMapHandler;
 import ch.epfl.sdp.map.PathsHandler;
 
-import static ch.epfl.sdp.connectivity.ConnectivityBroker.Provider.GPS;
 import static android.view.View.INVISIBLE;
-import static ch.epfl.sdp.identity.fragment.AccountFragment.IN_TEST;
+import static ch.epfl.sdp.connectivity.ConnectivityBroker.Provider.GPS;
 import static ch.epfl.sdp.map.HeatMapHandler.HEATMAP_LAYER_ID;
 import static ch.epfl.sdp.map.PathsHandler.BEFORE_INFECTED_LAYER_ID;
 import static ch.epfl.sdp.map.PathsHandler.BEFORE_PATH_LAYER_ID;
@@ -445,8 +442,8 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
         connectivityBroker.requestPermissions(requireActivity(), LOCATION_PERMISSION_REQUEST);
         if (!connectivityBroker.hasPermissions(GPS)){
             AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-            builder.setTitle("test")
-                    .setMessage("Enable the GPS, you Fuck")
+            builder.setTitle(R.string.missing_GPS_Perm_Dialog_title)
+                    .setMessage(R.string.missing_GPS_Perm_Dialog_text)
                     .setPositiveButton(android.R.string.ok,
                             (dialog, id) -> goOnline())
                     .setNegativeButton(android.R.string.no,
@@ -461,9 +458,11 @@ public class MapFragment extends Fragment implements LocationListener, View.OnCl
             class UpdatePosTask extends TimerTask {
                 public void run() {
                     if(connectivityBroker.hasPermissions(GPS)){
-                        alertDialog.dismiss();
-                        updatePosTimer.cancel();
-                        goOnline();
+                        classPointer.requireActivity().runOnUiThread(() -> {
+                            alertDialog.dismiss();
+                            updatePosTimer.cancel();
+                            goOnline();
+                        });
                     }
                 }
             }

@@ -120,4 +120,7 @@
     <string name="refresh_to_see_status">Rafraîchir pour voir votre statut</string>
     <string name="infection_proba">Probabilité d\'infection</string>
     <string name="pls_check_internet_co">Veuillez vérifier votre connexion sv)</string>
+    <string name="missing_GPS_Perm_Dialog_title">autorisation GPS manquante</string>
+    <string name="missing_GPS_Perm_Dialog_text">Vous avez refusé l\'autorisation GPS. L\'application
+    en a besoin pour fonctionner. Cliquez OUI puis autorisez ou cliquez annuler pour fermer l\'application</string>
 </resources>

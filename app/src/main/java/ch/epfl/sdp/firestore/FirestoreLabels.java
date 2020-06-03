@@ -18,6 +18,8 @@ public interface FirestoreLabels {
     // History/[hashOfCarrier]/
     String HISTORY_POSITIONS_COLL =  "/Positions";
 
+    String HISTORY_POSITIONS_DOC = "Positions";
+
     // LastPositions collection
     String LAST_POSITIONS_COLL = "LastPositions";
 

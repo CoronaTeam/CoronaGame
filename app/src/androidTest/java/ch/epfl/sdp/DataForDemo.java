@@ -26,7 +26,6 @@ import ch.epfl.sdp.contamination.databaseIO.ConcreteDataSender;
 import ch.epfl.sdp.contamination.databaseIO.GridFirestoreInteractor;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.location.LocationUtils;
-import ch.epfl.sdp.toDelete.PositionRecord;
 
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
@@ -199,10 +198,14 @@ public class DataForDemo {
         double longi = -73.0;//-118.39439114221236;
         for (double i = 0; i < 50 * 0.001; i = i + 0.001) {
             Location location = LocationUtils.buildLocation(lat + i, longi + i);
-            Map<String, Object> position = new HashMap();
-            position.put("Position", new PositionRecord(Timestamp.now(),
-                    new GeoPoint(location.getLatitude(), location.getLongitude())));
-            cfi.writeDocument(collectionReference("History/USER_PATH_DEMO2/Positions/"), position)
+            Map<String, Object> element = new HashMap<>();
+            element.put(GEOPOINT_TAG, new GeoPoint(
+                    location.getLatitude(),
+                    location.getLongitude()
+            ));
+            element.put(TIMESTAMP_TAG, Timestamp.now());
+            element.put(INFECTION_STATUS_TAG, Carrier.InfectionStatus.UNKNOWN);
+            cfi.writeDocument(collectionReference("History/USER_PATH_DEMO2/Positions/"), element)
                     .thenRun(() -> pathLoaded[0] = true)
                     .exceptionally(e -> {
                         pathLoaded[0] = false;
@@ -223,11 +226,15 @@ public class DataForDemo {
             double lat = point.latitude();
             double lon = point.longitude();
             //Location location = LocationUtils.buildLocation(lat, lon);
-            Map<String, Object> position = new HashMap();
             Timestamp timestamp = Timestamp.now();
-            position.put("Position", new PositionRecord(timestamp,
-                    new GeoPoint(lat, lon)));
-            cfi.writeDocument(collectionReference("History/THAT_BETTER_PATH/Positions/"), position)
+            Map<String, Object> element = new HashMap<>();
+            element.put(GEOPOINT_TAG, new GeoPoint(
+                    point.latitude(),
+                    point.longitude()
+            ));
+            element.put(TIMESTAMP_TAG, timestamp);
+            element.put(INFECTION_STATUS_TAG, Carrier.InfectionStatus.UNKNOWN);
+            cfi.writeDocument(collectionReference("History/THAT_BETTER_PATH/Positions/"), element)
                     .thenRun(() -> Log.d("BETTER PATH UPLOAD", "Success upload positions"))
                     .exceptionally(e -> {
                         Log.d("BETTER PATH UPLOAD", "Error uploading positions", e);

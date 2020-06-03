@@ -65,7 +65,7 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
         });
     }
     private void createFileIfAbsent(){
-        if(isDeleted=false){
+        if(!isDeleted){
             return;
         }
         file = new File(context.getFilesDir(), filename);
@@ -96,9 +96,7 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
 
     @Override
     public boolean write(SortedMap<A, B> payload) {
-        if (isDeleted) {
-            createFileIfAbsent();
-        }
+        createFileIfAbsent();
 
         try {
             if (writer == null) {

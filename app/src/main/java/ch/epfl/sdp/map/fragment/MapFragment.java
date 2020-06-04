@@ -373,7 +373,7 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
                         R.string.my_location_label, R.drawable.my_location, R.color.colorAccent,
                         this::setCameraToCurrentLocation),
                 new Item(
-                        R.string.focus_path_label, R.drawable.magnifier_minus_white, R.color.colorAccent,
+                        R.string.focus_path_label, R.drawable.search, R.color.colorAccent,
                         this::focusPath),
                 new Item(R.string.yesterday_label, R.drawable.calendar, R.color.colorAccent,
                         () -> togglePath(R.string.yesterday)),

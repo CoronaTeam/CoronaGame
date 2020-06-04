@@ -115,7 +115,7 @@ public class PathHandlerTest {
         }
     }
 
-    @Test()
+    @Test(timeout = 30000)
     public void pathGetsInstantiated() throws Throwable {
         activityRule.runOnUiThread(() -> mapFragment.getPathsHandler().onPathDataLoaded(sentinel::incrementAndGet));
         waitForSentinelAndSetToZero();

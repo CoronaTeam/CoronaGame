@@ -17,7 +17,6 @@ import java.util.concurrent.CompletableFuture;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.databaseIO.DataReceiver;
 import ch.epfl.sdp.contamination.fragment.InfectionFragment;
-import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.location.LocationService;
 import ch.epfl.sdp.testActivities.InfectionActivity;
 
@@ -79,7 +78,7 @@ public class InfectionActivityTest {
             }
 
             @Override
-            public CompletableFuture<Location> getMyLastLocation(Account account) {
+            public CompletableFuture<Location> getMyLastLocation(String accountId) {
                 return CompletableFuture.completedFuture(null);
 
             }

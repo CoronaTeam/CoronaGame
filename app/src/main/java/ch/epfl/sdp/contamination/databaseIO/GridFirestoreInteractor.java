@@ -9,7 +9,6 @@ import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
-import ch.epfl.sdp.identity.Account;
 
 import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_COLL;
 import static ch.epfl.sdp.firestore.FirestoreLabels.LIVE_GRID_COLL;
@@ -40,8 +39,8 @@ public class GridFirestoreInteractor extends ConcreteFirestoreInteractor {
         return readCollection(collectionReference(path));
     }
 
-    public CompletableFuture<Map<String, Object>> readLastLocation(Account account) {
-        return readDocument(documentReference(LAST_POSITIONS_COLL, account.getId()));
+    public CompletableFuture<Map<String, Object>> readLastLocation(String accountId) {
+        return readDocument(documentReference(LAST_POSITIONS_COLL, accountId));
     }
 
 

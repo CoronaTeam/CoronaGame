@@ -44,13 +44,13 @@ import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
 public class CarrierUpdatePersistenceTest {
 
     private static String fakeUserID = "THIS_IS_A_FAKE_ID";
     @Rule
     public final ActivityTestRule<DataExchangeActivity> mActivityRule = new ActivityTestRule<>(DataExchangeActivity.class);
-    Intent locaIntentWithAlarm;
     private ObservableCarrier iAmBob = new Layman(HEALTHY);
     private AtomicInteger sentinel;
     private InfectionAnalyst analystWithSentinel = new InfectionAnalyst() {
@@ -156,7 +156,7 @@ public class CarrierUpdatePersistenceTest {
     }
 
     private void startLocationServiceWithAlarm() {
-        locaIntentWithAlarm = new Intent(mActivityRule.getActivity(), LocationService.class);
+        Intent locaIntentWithAlarm = new Intent(mActivityRule.getActivity(), LocationService.class);
         locaIntentWithAlarm.putExtra(LocationService.ALARM_GOES_OFF, true);
         mActivityRule.getActivity().startService(locaIntentWithAlarm);
     }
@@ -214,11 +214,11 @@ public class CarrierUpdatePersistenceTest {
 
         useAnalystWithSentinel();
 
-        sentinel.set(0);
+        //sentinel.set(0);
 
         assertThat(sentinel.get(), equalTo(0));
 
-        LocationService.setAlarmDelay(2000);
+        LocationService.setAlarmDelay(200);
         startLocationServiceWithAlarm();
         
         Date now = new Date();
@@ -230,9 +230,11 @@ public class CarrierUpdatePersistenceTest {
             sleep();
         }
 
-        assertThat(sentinel.get(), equalTo(1));
-
         restoreRealAnalyst();
+
+        Log.e("CARRIER_UPDATE_PERSISTENCE_TES", "Sentinel = " + sentinel.get());
+
+        assertThat(sentinel.get(), greaterThanOrEqualTo(1));
 
         LocationService.setAlarmDelay(2000);
     }

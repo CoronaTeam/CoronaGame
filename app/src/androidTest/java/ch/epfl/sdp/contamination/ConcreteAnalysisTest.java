@@ -32,7 +32,6 @@ import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
 import ch.epfl.sdp.contamination.databaseIO.DataReceiver;
 import ch.epfl.sdp.contamination.fragment.InfectionFragment;
-import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.location.LocationService;
 import ch.epfl.sdp.testActivities.InfectionActivity;
 
@@ -119,7 +118,7 @@ public class ConcreteAnalysisTest {
         }
 
         @Override
-        public CompletableFuture<Location> getMyLastLocation(Account account) {
+        public CompletableFuture<Location> getMyLastLocation(String accountId) {
             return null;
         }
 
@@ -528,7 +527,7 @@ public class ConcreteAnalysisTest {
         }
 
         @Override
-        public CompletableFuture<Location> getMyLastLocation(Account account) {
+        public CompletableFuture<Location> getMyLastLocation(String accountId) {
             return CompletableFuture.completedFuture(myCurrentLocation);
         }
 

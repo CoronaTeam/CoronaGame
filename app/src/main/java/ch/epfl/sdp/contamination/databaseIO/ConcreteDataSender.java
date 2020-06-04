@@ -40,29 +40,35 @@ public class ConcreteDataSender implements DataSender {
     @Override
     public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
         location = DataSender.roundLocation(location);
-        storeLocationToCache(location,time);
+        try {
+            storeLocationToCache(location, time);
+        }
+        finally {
 
-        CompletableFuture<Void> historyFuture, lastPositionsFuture, gridWriteFuture;
+
+            CompletableFuture<Void> historyFuture, lastPositionsFuture, gridWriteFuture;
 
 
-        Map<String, Object> element = new HashMap<>();
-        element.put(GEOPOINT_TAG, new GeoPoint(
-                location.getLatitude(),
-                location.getLongitude()
-        ));
-        element.put(TIMESTAMP_TAG, time.getTime());
-        element.put(INFECTION_STATUS_TAG, carrier.getInfectionStatus());
+            Map<String, Object> element = new HashMap<>();
+            element.put(GEOPOINT_TAG, new GeoPoint(
+                    location.getLatitude(),
+                    location.getLongitude()
+            ));
+            element.put(TIMESTAMP_TAG, time.getTime());
+            element.put(INFECTION_STATUS_TAG, carrier.getInfectionStatus());
 
-        historyFuture = gridInteractor.writeDocumentWithID(documentReference(
-                HISTORY_COLL + "/" + carrier.getUniqueId() + "/" + HISTORY_POSITIONS_DOC, "TS" + time.getTime()), element);
+            historyFuture = gridInteractor.writeDocumentWithID(documentReference(
+                    HISTORY_COLL + "/" + carrier.getUniqueId() + "/" + HISTORY_POSITIONS_DOC, "TS" + time.getTime()), element);
 
-        lastPositionsFuture = gridInteractor.writeDocumentWithID(
-                documentReference(LAST_POSITIONS_COLL, AccountFragment.getAccount(getActivity()).getId()), element);
+            lastPositionsFuture = gridInteractor.writeDocumentWithID(
+                    documentReference(LAST_POSITIONS_COLL, AccountFragment.getAccount(getActivity()).getId()), element);
 
-        gridWriteFuture = gridInteractor.gridWrite(location, String.valueOf(time.getTime()), carrier);
+            gridWriteFuture = gridInteractor.gridWrite(location, String.valueOf(time.getTime()), carrier);
 
-        return CompletableFuture.allOf(historyFuture, lastPositionsFuture, gridWriteFuture);
+            return CompletableFuture.allOf(historyFuture, lastPositionsFuture, gridWriteFuture);
+        }
     }
+
     @VisibleForTesting
     public void storeLocationToCache(Location location, Date date){
         PositionHistoryManager.refreshLastPositions(date,location);

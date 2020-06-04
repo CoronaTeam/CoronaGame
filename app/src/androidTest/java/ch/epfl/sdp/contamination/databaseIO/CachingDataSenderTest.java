@@ -1,6 +1,7 @@
 package ch.epfl.sdp.contamination.databaseIO;
 
 import android.location.Location;
+import android.util.Log;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -10,9 +11,11 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.SortedMap;
 
+import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.identity.User;
+import ch.epfl.sdp.identity.fragment.AccountFragment;
 
 import static ch.epfl.sdp.TestTools.newLoc;
 import static ch.epfl.sdp.TestTools.sleep;
@@ -30,6 +33,7 @@ public class CachingDataSenderTest {
     public void init() {
         receiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
         sender = new ConcreteCachingDataSender(new GridFirestoreInteractor());
+        AccountFragment.IN_TEST = true;
     }
 
     @Test
@@ -83,5 +87,30 @@ public class CachingDataSenderTest {
         while (it.hasNext()) {
             assertTrue(it.next().getLatitude() == 1);
         }
+    }
+    @Test
+    public void cacheWorksIfUsedTwice(){
+        //During development, the above test failed if runed twice.
+        getLastPositionsReturnsCorrectWindowOfLocations();
+    }
+    @Test
+    public void stringToLocationWorks(){
+        Location loc1 = ConcreteCachingDataSender.stringToLocation("1.000,2.456");
+        assertEquals(loc1.getLatitude(),1.0,0.00001);
+        assertEquals(loc1.getLongitude(),2.456,0.00001);
+        loc1 = ConcreteCachingDataSender.stringToLocation("1.0001,2");
+        assertEquals(loc1.getLatitude(),1.0001,0.00001);
+        assertEquals(loc1.getLongitude(),2.0,0.00001);
+        loc1 = ConcreteCachingDataSender.stringToLocation("0.0,0.0");
+        assertEquals(loc1.getLatitude(),0.0,0.00001);
+        assertEquals(loc1.getLongitude(),0.0,0.00001);
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void stringToLocAcceptsOnlyTuples(){
+        ConcreteCachingDataSender.stringToLocation("1.235,2.235,6.5");
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void stringToLocRejectsNonNumberInput(){
+        ConcreteCachingDataSender.stringToLocation("IAmANumber,BelieveMe");
     }
 }

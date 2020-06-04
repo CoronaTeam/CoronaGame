@@ -123,6 +123,10 @@
     <string name="missing_GPS_Perm_Dialog_title">autorisation GPS manquante</string>
     <string name="missing_GPS_Perm_Dialog_text">Vous avez refusé l\'autorisation GPS. L\'application
     en a besoin pour fonctionner. Cliquez OUI puis autorisez ou cliquez annuler pour fermer l\'application</string>
-    <string name="internet_offline_msg">Vous êtes hors ligne</string>
-    <string name="background_protection_msg">Votre protection est encore activée</string>
-</resources>
+</resources><string name="internet_offline_msg">Vous êtes hors ligne</string>
+<string name="background_protection_msg">Votre protection est encore activée</string>
+<string name="yesterday_label">Hier</string>
+<string name="before_yesterday_label">Avant-hier</string>
+<string name="toggle_heatmap_label">Affichage heatmap</string>
+<string name="focus_path_label">Voir trajet</string>
+<string name="my_location_label">Ma position</string>

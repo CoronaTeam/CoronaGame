@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
+import ch.epfl.sdp.contamination.databaseIO.PositionHistoryManager;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
 
 import static ch.epfl.sdp.TestTools.equalLatLong;
@@ -86,6 +87,9 @@ public class ConcretePositionAggregatorTest {
         sleep(PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION + 1000 );
         Map<Date, Location> firebaseLoc = sender.getMap();
         assertNotNull(firebaseLoc);
+        
+        PositionHistoryManager.deleteLocalProbabilityHistory();
+
 
     }
 

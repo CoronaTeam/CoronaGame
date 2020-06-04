@@ -193,6 +193,9 @@ public class PathsHandler {
     public void seeWholePath(int day) {
         LatLngBounds latLngBounds = day == R.string.yesterday ? yesterdayLLB : beforeLLB;
 
+        if (latLngBounds == null)
+            throw new IllegalStateException();
+
         if (map != null) {
             map.easeCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 100), 2000);
         }

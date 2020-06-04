@@ -7,27 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".tabActivity.TabActivity">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/heatMapToggle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
-        android:layout_margin="@dimen/baseMargin"
-        android:clickable="true"
-        android:focusable="true"
-        app:srcCompat="@android:drawable/ic_menu_view" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/wholePath"
-        app:fabSize="mini"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|start"
-        android:layout_margin="@dimen/baseMargin"
-        android:clickable="true"
-        mapbox:srcCompat="@drawable/magnifier_minus_white"
-        android:focusable="true" />
-
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapFragment"
         android:layout_width="match_parent"
@@ -38,18 +17,7 @@
         app:layout_constraintTop_toTopOf="parent"
         mapbox:mapbox_cameraTargetLat="0.0"
         mapbox:mapbox_cameraTargetLng="0.0"
-        mapbox:mapbox_cameraZoom="11">
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/myCurrentLocationToggle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:layout_gravity="bottom|start"
-            android:layout_margin="@dimen/baseMargin"
-            mapbox:srcCompat="@android:drawable/ic_menu_mylocation"
-            android:focusable="true" />
-    </com.mapbox.mapboxsdk.maps.MapView>
+        mapbox:mapbox_cameraZoom="11" />
 
     <ProgressBar
         android:id="@+id/heapMapLoadingSpinner"
@@ -61,31 +29,24 @@
         />
 
     <com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout
-        android:id="@+id/history_rfal"
+        android:id="@+id/more_rfal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         mapbox:rfal_frame_color="#ffffff"
         mapbox:rfal_frame_alpha="0.7"
         >
 
-        <com.wangjie.rapidfloatingactionbutton.RapidFloatingActionButton
-            android:id="@+id/history_rfab"
-            android:layout_width="30dp"
-            android:layout_height="41dp"
+        <ch.epfl.sdp.utilities.RotatedRapidFloatingActionButton
+            android:id="@+id/more_rfab"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_gravity="bottom|end"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:padding="8dp"
-            mapbox:rfab_color_normal="#00cdbc"
-            mapbox:rfab_color_pressed="#56d3c9"
-            mapbox:rfab_drawable="@drawable/rfab__drawable_rfab_default"
-            mapbox:rfab_shadow_color="#999999"
-            mapbox:rfab_shadow_dx="0dp"
-            mapbox:rfab_shadow_dy="0dp"
-            mapbox:rfab_shadow_radius="1dp"
-            mapbox:rfab_size="normal" />
+            android:layout_marginEnd="@dimen/baseMargin"
+            android:layout_marginBottom="@dimen/baseMargin"
+            app:rfab_color_normal="@color/colorAccent"
+            app:rfab_drawable="@drawable/more_horizontal" />
 
     </com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout>
 

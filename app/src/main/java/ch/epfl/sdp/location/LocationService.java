@@ -20,6 +20,8 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.SetOptions;
@@ -57,6 +59,7 @@ import ch.epfl.sdp.identity.AuthenticationManager;
 
 import static ch.epfl.sdp.CoronaGame.getDemoSpeedup;
 import static ch.epfl.sdp.connectivity.ConnectivityBroker.Provider.GPS;
+import static ch.epfl.sdp.connectivity.ConnectivityBroker.Provider.INTERNET;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
@@ -65,7 +68,10 @@ import static ch.epfl.sdp.firestore.FirestoreInteractor.taskToFuture;
 public class LocationService extends Service implements LocationListener, Observer {
 
     public final static int LOCATION_PERMISSION_REQUEST = 20201;
+
     public static final String ALARM_GOES_OFF = "beeep!";
+    public static final String POISON_PILL = "dead!";
+
     public static final String INFECTION_PROBABILITY_PREF = "infectionProbability";
     public static final String INFECTION_STATUS_PREF = "infectionStatus";
     public static final String LAST_UPDATED_PREF = "lastUpdated";
@@ -74,6 +80,10 @@ public class LocationService extends Service implements LocationListener, Observ
     private static final int MIN_UP_INTERVAL_METERS = 5;
     // This correspond to 6h divided by the DEMO_SPEEDUP constant
     private static long alarmDelayMillis = 21_600_000 / getDemoSpeedup();
+
+    private int serviceNotificationId = -1;
+
+    private int boundActivities = 0;
 
     private ConnectivityBroker broker;
     private PositionAggregator aggregator;
@@ -87,8 +97,40 @@ public class LocationService extends Service implements LocationListener, Observ
 
     private boolean isAlarmSet = false;
 
+    PendingIntent alarmPending;
+    AlarmManager alarmManager;
+
     private Date lastUpdated;
     private InfectionAnalyst analyst;
+
+    private void showOfflineNotification() {
+        removeNotifications();
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CoronaGame.NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_offline)
+                .setContentTitle("Virus Tracker")
+                .setContentText(getString(R.string.internet_offline_msg))
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(getString(R.string.internet_offline_msg)))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        serviceNotificationId = (int) (Math.random() * 100);
+
+        NotificationManagerCompat.from(this).notify(serviceNotificationId, builder.build());
+    }
+
+    private final Observer internetObserver = new Observer() {
+        @Override
+        public void update(Observable o, Object arg) {
+            Log.e("LOCATION_SERVICE", "Showing service.......? " + ((boolean) arg));
+            if ((boolean) arg) {
+                removeNotifications();
+                showServiceNotification();
+            } else {
+                showOfflineNotification();
+            }
+        }
+    };
 
     public static void setAlarmDelay(int millisDelay) {
         alarmDelayMillis = millisDelay;
@@ -98,12 +140,12 @@ public class LocationService extends Service implements LocationListener, Observ
         Intent alarm = new Intent(this, LocationService.class);
         alarm.putExtra(ALARM_GOES_OFF, true);
 
-        PendingIntent pendingIntent = PendingIntent.getService(this, 0, alarm, 0);
-        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        manager.set(
+        alarmPending = PendingIntent.getService(this, 0, alarm, 0);
+        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(
                 AlarmManager.RTC,
                 System.currentTimeMillis() + alarmDelayMillis,
-                pendingIntent);
+                alarmPending);
 
         isAlarmSet = true;
     }
@@ -132,6 +174,41 @@ public class LocationService extends Service implements LocationListener, Observ
                 .commit();
     }
 
+    private boolean showServiceNotification() {
+
+        if (boundActivities > 0 || !broker.isProviderEnabled(INTERNET)) {
+            // Only show the notification when the UI is NOT running
+            return false;
+        }
+
+        removeNotifications();
+
+        Intent killIntent = new Intent(this, LocationService.class);
+        killIntent.putExtra(POISON_PILL, true);
+
+        PendingIntent pendingKill = PendingIntent.getService(this, 1, killIntent, 0);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CoronaGame.NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_protected)
+                .setContentTitle("Virus Tracker")
+                .setContentText(getString(R.string.background_protection_msg))
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(getString(R.string.background_protection_msg)))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .addAction(R.drawable.ic_pause, "PAUSE", pendingKill);
+
+
+        serviceNotificationId = (int) (Math.random() * 100);
+
+        NotificationManagerCompat.from(this).notify(serviceNotificationId, builder.build());
+
+        return true;
+    }
+
+    private void removeNotifications() {
+        NotificationManagerCompat.from(this).cancelAll();
+    }
+
     @Override
     public void onCreate() {
         gridInteractor = new GridFirestoreInteractor();
@@ -139,6 +216,9 @@ public class LocationService extends Service implements LocationListener, Observ
         receiver = new ConcreteDataReceiver(gridInteractor);
 
         broker = new ConcreteConnectivityBroker((LocationManager) this.getSystemService(Context.LOCATION_SERVICE), this);
+
+        // Observe Internet connection
+        ((ConcreteConnectivityBroker) broker).addObserver(internetObserver);
 
         sharedPref = this.getSharedPreferences(CoronaGame.SHARED_PREF_FILENAME, Context.MODE_PRIVATE);
 
@@ -169,28 +249,38 @@ public class LocationService extends Service implements LocationListener, Observ
             lastUpdated = l.getKey();
         }
 
-        // TODO: @Matteo decide how to treat timed-out requests
-        // TODO: Understant why, after history deletion, some position upload requests timeout
-        //operationFutures.forEach(CompletableFuture::join);
         for (CompletableFuture<Integer> future : operationFutures) {
             try {
                 future.get(1500, TimeUnit.MILLISECONDS);
             } catch (TimeoutException e) {
-                // TODO: [LOG]
-                Log.e("MODEL_UPDATE", "Request timed out");
+                Log.e("MODEL_UPDATE", "Infection model update timed out");
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
     }
 
+    private void stopService() {
+        isAlarmSet = true;
+        stopAggregator();
+        if (alarmManager != null) {
+            alarmManager.cancel(alarmPending);
+        }
+        // TODO: [LOG]
+        Log.e("LOCATION_SERVICE", "Kill message received");
+        stopSelf();
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && intent.hasExtra(ALARM_GOES_OFF)) {
-            isAlarmSet = false;
-
-            // It's time to run the model, starting from time 'lastUpdated';
-           new Thread(this::updateInfectionModel).start();
+        if (intent != null) {
+            if (intent.hasExtra(POISON_PILL)) {
+                stopService();
+            } else if (intent.hasExtra(ALARM_GOES_OFF)) {
+                isAlarmSet = false;
+                // It's time to run the model, starting from time 'lastUpdated';
+                new Thread(this::updateInfectionModel).start();
+            }
         }
 
         if (!isAlarmSet) {
@@ -223,14 +313,32 @@ public class LocationService extends Service implements LocationListener, Observ
     @Override
     public void update(Observable o, Object arg) {
         // Store updates to Carrier
-        locallyStoreCarrier();
-        AsyncTask.execute(() -> remotelyStoreCarrierStatus(analyst.getCarrier().getInfectionStatus()));
+        AsyncTask.execute(() -> {
+            locallyStoreCarrier();
+            remotelyStoreCarrierStatus(analyst.getCarrier().getInfectionStatus());
+        });
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        // Increment number of bound activities
+        boundActivities++;
+        // TODO: [LOG]
+        Log.e("LOCATION_SERVICE", "Unregister binding: " + boundActivities + " remaining");
+        if (boundActivities > 0) {
+            removeNotifications();
+        }
         return new LocationBinder();
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        boundActivities--;
+        // TODO: [LOG]
+        Log.e("LOCATION_SERVICE", "Unregister binding: " + boundActivities + " remaining");
+        showServiceNotification();
+        return super.onUnbind(intent);
     }
 
     private void displayToast(String message) {
@@ -241,7 +349,7 @@ public class LocationService extends Service implements LocationListener, Observ
     @Override
     public void onLocationChanged(Location location) {
         if (broker.hasPermissions(GPS)) {
-            aggregator.addPosition(location);
+            AsyncTask.execute(() -> aggregator.addPosition(location));
         } else {
             displayToast("Missing Location permission");
         }
@@ -263,7 +371,6 @@ public class LocationService extends Service implements LocationListener, Observ
     }
 
     private void stopAggregator() {
-
         displayToast(getString(R.string.aggregator_status_off));
         aggregator.updateToOffline();
     }
@@ -306,9 +413,6 @@ public class LocationService extends Service implements LocationListener, Observ
         return sender;
     }
 
-    // TODO: @Adrien, to reduce the number of VisibleForTesting functions, reset....() can be
-    // moved to tests files (and they can just use set...())
-
     @VisibleForTesting
     public void setSender(CachingDataSender sender) {
         this.sender = sender;
@@ -343,5 +447,13 @@ public class LocationService extends Service implements LocationListener, Observ
         private void stopAggregator() {
             LocationService.this.stopAggregator();
         }
+    }
+
+
+    @Override
+    public void onDestroy() {
+        Log.e("LOCATION_SERVICE", "Destroying service ...");
+        removeNotifications();
+        super.onDestroy();
     }
 }

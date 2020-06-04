@@ -2,7 +2,11 @@ package ch.epfl.sdp;
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,6 +17,8 @@ import org.jetbrains.annotations.NotNull;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import ch.epfl.sdp.location.LocationService;
+
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -20,6 +26,11 @@ public class CoronaGame extends Application implements Application.ActivityLifec
 
     public static final String SHARED_PREF_FILENAME = "coronagame_shared_pref";
     public static final DateFormat dateFormat = new SimpleDateFormat("E MMM dd hh:mm:ss zzz yyyy");
+
+    public static final String NOTIFICATION_CHANNEL_NAME = "SERVICE_NOTIFICATION";
+    public static final String NOTIFICATION_CHANNEL_DESC = "Status of LocationService";
+    public static final String NOTIFICATION_CHANNEL_ID = "LOCATION_SERVICE_CHANNEL";
+
     public static boolean IS_DEMO = FALSE;
     public static boolean IS_ONLINE = TRUE;
     public static boolean IS_NETWORK_DEBUG = FALSE;
@@ -44,11 +55,30 @@ public class CoronaGame extends Application implements Application.ActivityLifec
         return CoronaGame.context;
     }
 
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME, importance);
+            channel.setDescription(NOTIFICATION_CHANNEL_DESC);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
         registerActivityLifecycleCallbacks(this);
         CoronaGame.context = getApplicationContext();
+
+        // Init notification channel
+        createNotificationChannel();
+
+        startService(new Intent(this, LocationService.class));
     }
 
     @Override

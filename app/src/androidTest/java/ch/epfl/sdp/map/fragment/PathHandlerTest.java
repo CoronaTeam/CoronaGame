@@ -115,9 +115,9 @@ public class PathHandlerTest {
         }
     }
 
-    @Test(timeout = 20000)
-    public void pathGetsInstantiated() {
-        mapFragment.getPathsHandler().onPathDataLoaded(sentinel::incrementAndGet);
+    @Test()
+    public void pathGetsInstantiated() throws Throwable {
+        activityRule.runOnUiThread(() -> mapFragment.getPathsHandler().onPathDataLoaded(sentinel::incrementAndGet));
         waitForSentinelAndSetToZero();
     }
 
@@ -139,7 +139,7 @@ public class PathHandlerTest {
         assertEquals(expected, actual);
     }
 
-    @Test(timeout = 100000)
+    @Test(timeout = 30000)
     public void toggleYesterdayPathChangesVisibilityWhenNotEmpty() throws Throwable {
         yesterdayPathLayerIsSetWhenNotEmpty();
 
@@ -147,7 +147,7 @@ public class PathHandlerTest {
 
     }
 
-    @Test(timeout = 100000)
+    @Test(timeout = 30000)
     public void infectedLayerVisibilityChangesWhenNotEmpty() throws Throwable {
         yesterdayInfectedLayerIsSetWhenNotEmpty();
 
@@ -177,7 +177,7 @@ public class PathHandlerTest {
         assertEquals(exp_lon, act_lon, precision);
     }
 
-    @Test(timeout = 200000)
+    @Test(timeout = 40000)
     public void testsForNonEmptyPathAndInfected() throws Throwable {
         pathGetsInstantiated();
         yesterdayPathLayerIsSetWhenNotEmpty();
@@ -219,19 +219,19 @@ public class PathHandlerTest {
         onView(withId(R.id.wholePath)).check(matches(withEffectiveVisibility(visible)));
     }
 
-    @Test
+    @Test(timeout = 30000)
     public void seeWholePathButtonInvisibleWhenNoPath() throws Throwable {
         PathButtonTestBody(PathsHandler.TestOP.TEST_EMPTY_PATH, ViewMatchers.Visibility.INVISIBLE);
 
     }
 
-    @Test
+    @Test(timeout = 30000)
     public void seeWholePathButtonInvisibleByDefault() throws Throwable {
         testMapVisible();
         onView(withId(R.id.wholePath)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)));
     }
 
-    @Test
+    @Test(timeout = 35000)
     public void clickSeeWholePathMakeZoomAdjust() throws Throwable {
         pathGetsInstantiated();
 

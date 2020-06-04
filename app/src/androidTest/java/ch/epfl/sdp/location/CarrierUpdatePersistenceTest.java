@@ -38,6 +38,7 @@ import ch.epfl.sdp.storage.StorageManager;
 import ch.epfl.sdp.testActivities.DataExchangeActivity;
 
 import static ch.epfl.sdp.TestTools.initSafeTest;
+import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
@@ -226,6 +227,7 @@ public class CarrierUpdatePersistenceTest {
         mActivityRule.getActivity().getService().setSender(fakeSender);
 
         while (sentinel.get() == 0) {
+            sleep();
         }
 
         restoreRealAnalyst();

@@ -40,6 +40,7 @@ import ch.epfl.sdp.testActivities.DataExchangeActivity;
 
 import static ch.epfl.sdp.TestTools.getActivity;
 import static ch.epfl.sdp.TestTools.initSafeTest;
+import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.HEALTHY;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
@@ -276,6 +277,7 @@ public class CarrierUpdatePersistenceTest {
         mActivityRule.getActivity().getService().setSender(fakeSender);
         mActivityRule.getActivity().getService().setReceiver(fakeSender);
         while (sentinel.get() == 0) {
+            sleep();
         }
 
         assertThat(sentinel.get(), equalTo(1));

@@ -65,7 +65,7 @@ public class ConcreteCachingDataSender implements CachingDataSender {
     static Location stringToLocation(String s){
         String[] splitted = s.split(",");
         if(splitted.length!=2){
-            throw new IllegalArgumentException("The location string is wrong");
+            throw new IllegalArgumentException("The location string is not a tuple");
         }
         float n1;
         float n2;

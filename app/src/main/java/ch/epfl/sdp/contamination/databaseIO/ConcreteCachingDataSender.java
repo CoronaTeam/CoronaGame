@@ -1,6 +1,7 @@
 package ch.epfl.sdp.contamination.databaseIO;
 
 import android.location.Location;
+import android.util.Log;
 
 import androidx.annotation.VisibleForTesting;
 
@@ -49,7 +50,6 @@ public class ConcreteCachingDataSender implements CachingDataSender {
         this.positionHistory = initStorageManager();
     }
     private StorageManager<Date, Location> openStorageManager() {
-
         return new ConcreteManager<Date, Location>(
                 CoronaGame.getContext(),
                 "last_positions.csv",
@@ -59,14 +59,10 @@ public class ConcreteCachingDataSender implements CachingDataSender {
                     } catch (ParseException e) {
                         throw new IllegalArgumentException("The file specified has wrong format: field 'date_position'");
                     }
-                }, location->{
-
-                return stringToLocation(location);
-                }
+                }, ConcreteCachingDataSender::stringToLocation
         );
     }
-
-    private static Location stringToLocation(String s){
+    static Location stringToLocation(String s){
         String[] splitted = s.split(",");
         if(splitted.length!=2){
             throw new IllegalArgumentException("The location string is wrong");

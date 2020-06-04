@@ -24,7 +24,7 @@ public class CoronaGame extends Application implements Application.ActivityLifec
     public static boolean IS_ONLINE = TRUE;
     public static boolean IS_NETWORK_DEBUG = FALSE;
     private static Context context;
-    private static int DEMO_SPEEDUP = 1;
+    private static int DEMO_SPEEDUP = 20;
     private Activity currentActivity;
 
     public static int getDemoSpeedup() {

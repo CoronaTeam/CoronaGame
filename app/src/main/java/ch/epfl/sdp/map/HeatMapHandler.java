@@ -1,5 +1,6 @@
 package ch.epfl.sdp.map;
 
+import android.os.AsyncTask;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
@@ -30,7 +32,6 @@ import ch.epfl.sdp.map.fragment.MapFragment;
 
 import static ch.epfl.sdp.firestore.FirestoreInteractor.collectionReference;
 import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
-import static ch.epfl.sdp.firestore.FirestoreLabels.INFECTION_STATUS_TAG;
 import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_COLL;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.heatmapDensity;
@@ -53,17 +54,14 @@ public class HeatMapHandler {
     private static final String LASTPOSITIONS_SOURCE_ID = "lastPositions";
     private static final String HEATMAP_LAYER_SOURCE = "lastPositions";
     private MapFragment parentClass;
-    private ConcreteFirestoreInteractor db;
     private MapboxMap map;
     private Callable onHeatMapDataLoaded;
 
 
-    public HeatMapHandler(@NonNull MapFragment parentClass, @NonNull ConcreteFirestoreInteractor db,
-                          @NonNull MapboxMap map) {
+    public HeatMapHandler(@NonNull MapFragment parentClass, @NonNull MapboxMap map) {
         this.parentClass = parentClass;
-        this.db = db;
         this.map = map;
-        initQuery();
+        new DownloadHeatMapData().execute();
     }
 
     @NotNull
@@ -121,39 +119,6 @@ public class HeatMapHandler {
         );
     }
 
-    private void initQuery() {
-        db.readCollection(collectionReference(LAST_POSITIONS_COLL))
-                .thenAccept(this::createGeoJson)
-                .exceptionally(e -> {
-                    Toast.makeText(parentClass.requireActivity(), R.string.cannot_retr_pos_from_db, Toast.LENGTH_LONG).show();
-                    return null;
-                });
-    }
-
-    private void createGeoJson(@NotNull Map<String, Map<String, Object>> stringMapMap) {
-        List<Point> infectionHeatMapPoints = new ArrayList<>();
-        Set<Map.Entry<String, Map<String, Object>>> entrySet = stringMapMap.entrySet();
-
-        for (Map.Entry<String, Map<String, Object>> entry : entrySet) {
-            try {
-                GeoPoint geoPoint = (GeoPoint) entry.getValue().get(GEOPOINT_TAG);
-                infectionHeatMapPoints.add(Point.fromLngLat(
-                        geoPoint.getLongitude(),
-                        geoPoint.getLatitude()));
-            } catch (NullPointerException ignored) { }
-        }
-
-        GeoJsonSource lastPos = new GeoJsonSource(LASTPOSITIONS_SOURCE_ID,
-                FeatureCollection.fromFeatures(new Feature[]{Feature.fromGeometry(
-                        MultiPoint.fromLngLats(infectionHeatMapPoints)
-                )}));
-
-        map.getStyle(style -> {
-            style.addSource(lastPos);
-            addHeatmapLayer();
-        });
-    }
-
     private void addHeatmapLayer() {
         HeatmapLayer layer = new HeatmapLayer(HEATMAP_LAYER_ID, LASTPOSITIONS_SOURCE_ID);
 
@@ -190,4 +155,53 @@ public class HeatMapHandler {
             }
         });
     }
+
+    private class DownloadHeatMapData extends AsyncTask<Void, Integer, List<Point>> {
+
+        @Override
+        protected List<Point> doInBackground(Void... voids) {
+            Map<String, Map<String, Object>> lastPos;
+            try {
+                lastPos = new ConcreteFirestoreInteractor().readCollection(collectionReference(LAST_POSITIONS_COLL)).get();
+                return createGeoJson(lastPos);
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
+                parentClass.requireActivity().runOnUiThread(
+                        () -> Toast.makeText(parentClass.requireActivity(), R.string.cannot_retr_pos_from_db, Toast.LENGTH_LONG).show()
+                );
+            }
+            return null;
+        }
+
+        protected void onPostExecute(List<Point> result) {
+            GeoJsonSource heatmapPoints = new GeoJsonSource(LASTPOSITIONS_SOURCE_ID,
+                    FeatureCollection.fromFeatures(new Feature[]{Feature.fromGeometry(
+                            MultiPoint.fromLngLats(result)
+                    )}));
+
+            map.getStyle(style -> {
+                style.addSource(heatmapPoints);
+                addHeatmapLayer();
+            });
+        }
+
+
+        private List<Point> createGeoJson(@NotNull Map<String, Map<String, Object>> stringMapMap) {
+            List<Point> infectionHeatMapPoints = new ArrayList<>();
+            Set<Map.Entry<String, Map<String, Object>>> entrySet = stringMapMap.entrySet();
+
+            for (Map.Entry<String, Map<String, Object>> entry : entrySet) {
+                try {
+                    GeoPoint geoPoint = (GeoPoint) entry.getValue().get(GEOPOINT_TAG);
+                    infectionHeatMapPoints.add(Point.fromLngLat(
+                            geoPoint.getLongitude(),
+                            geoPoint.getLatitude()));
+                } catch (NullPointerException ignored) { }
+            }
+
+            return infectionHeatMapPoints;
+        }
+    }
+
 }
+

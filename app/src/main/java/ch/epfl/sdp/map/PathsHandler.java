@@ -3,7 +3,9 @@ package ch.epfl.sdp.map;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
@@ -34,16 +36,21 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.databaseIO.ConcreteDataReceiver;
 import ch.epfl.sdp.contamination.databaseIO.GridFirestoreInteractor;
+import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.firestore.FirestoreInteractor;
 import ch.epfl.sdp.identity.Account;
 import ch.epfl.sdp.identity.AuthenticationManager;
@@ -94,14 +101,9 @@ public class PathsHandler {
     private boolean pathLocationSet1; // yesterday
     private boolean pathLocationSet2; // before yesterday
 
-    private String yesterdayString;
-    private String beforeYesterdayString;
-
     private static final int ZOOM = 13;
     private MapboxMap map;
     private MapFragment parentClass;
-    private ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(
-            new GridFirestoreInteractor());
 
     private Callable onPathDataLoaded;
     private Boolean layersHaveBeenSet;
@@ -110,68 +112,117 @@ public class PathsHandler {
         this.map = map;
         this.parentClass = parentClass;
         layersHaveBeenSet = false;
-        setCalendar();
-        initFirestorePathRetrieval().thenAccept(this::getPathCoordinates);
+        new DownloadPathsData().execute();
     }
 
-    private CompletableFuture<Iterator<QueryDocumentSnapshot>> initFirestorePathRetrieval() {
-        String userPath = getUserId(); //"USER_ID_X42"; coronaId: 109758096484534641167
-        return FirestoreInteractor.taskToFuture(
-                collectionReference(HISTORY_COLL + "/" + userPath + "/" + HISTORY_POSITIONS_DOC)
-                        .orderBy(TIMESTAMP_TAG).get())
-                .thenApply(collection -> {
-                    if (collection.isEmpty()) {
-                        throw new RuntimeException("Collection doesn't contain any document");
-                    } else {
-                        return collection.iterator();
-                    }
-                })
-                .exceptionally(e -> Collections.emptyIterator());
-    }
+    enum PointsName {yesterdayPathCoordinates, beforeYesterdayPathCoordinates, yesterdayInfectedMet, beforeYesterdayInfectedMet}
+    private class DownloadPathsData extends AsyncTask<Void, Integer, Map<PointsName, List<Point>>> {
+        private ConcreteDataReceiver concreteDataReceiver;
+        private String yesterdayString;
+        private String beforeYesterdayString;
 
-    private void getPathCoordinates(Iterator<QueryDocumentSnapshot> iterator) {
-        initLists();
+        @Override
+        protected Map<PointsName, List<Point>> doInBackground(Void... voids) {
+            concreteDataReceiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
+            setCalendar();
+            String userPath = getUserId(); //"USER_ID_X42"; coronaId: 109758096484534641167
+            Iterator<QueryDocumentSnapshot> lastPos;
 
-        for (; iterator.hasNext(); ) {
-            QueryDocumentSnapshot qs = iterator.next();
             try {
-                GeoPoint geoPoint = (GeoPoint) qs.get(GEOPOINT_TAG);
-                double lat = geoPoint.getLatitude();
-                double lon = geoPoint.getLongitude();
-                Timestamp timestamp = (Timestamp) qs.get(TIMESTAMP_TAG);
-
-                String pathLocalDate = dateToSimpleString(timestamp.toDate());
-
-                if (pathLocalDate.equals(yesterdayString)) {
-                    yesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
-                    addInfectedMet(lat, lon, timestamp, yesterdayInfectedMet);
-                } else if (pathLocalDate.equals(beforeYesterdayString)) {
-                    beforeYesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
-                    addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
-                }
-            } catch (Exception e) {
-                Log.e("Exeption occured in document handler", e.getMessage());
+                lastPos = FirestoreInteractor.taskToFuture(
+                        collectionReference(HISTORY_COLL + "/" + userPath + "/" + HISTORY_POSITIONS_DOC)
+                                .orderBy(TIMESTAMP_TAG).get()).get(10, TimeUnit.SECONDS).iterator();
+                return getPathCoordinates(lastPos);
+            } catch (ExecutionException | InterruptedException | TimeoutException e) {
+                e.printStackTrace();
+                parentClass.requireActivity().runOnUiThread(
+                        () -> Toast.makeText(parentClass.requireActivity(), R.string.cannot_retr_pos_from_db, Toast.LENGTH_LONG).show()
+                );
             }
+            return null;
         }
-        setLayers();
-    }
 
-    private void setCalendar() {
-        Date rightNow = new Date(System.currentTimeMillis());
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(rightNow);
-        cal.add(Calendar.DAY_OF_MONTH, -1);
-        Date yes = cal.getTime();
-        cal.add(Calendar.DAY_OF_MONTH, -1);
-        Date bef = cal.getTime();
+        private Map<PointsName, List<Point>> getPathCoordinates(Iterator<QueryDocumentSnapshot> iterator) {
+            List<Point> yesterdayPathCoordinates = new ArrayList<>();
+            List<Point> beforeYesterdayPathCoordinates = new ArrayList<>();
+            List<Point> yesterdayInfectedMet = new ArrayList<>();
+            List<Point> beforeYesterdayInfectedMet = new ArrayList<>();
 
-        yesterdayString = dateToSimpleString(yes);
-        beforeYesterdayString = dateToSimpleString(bef);
+            for (; iterator.hasNext(); ) {
+                QueryDocumentSnapshot qs = iterator.next();
+                try {
+                    GeoPoint geoPoint = (GeoPoint) qs.get(GEOPOINT_TAG);
+                    double lat = geoPoint.getLatitude();
+                    double lon = geoPoint.getLongitude();
+                    Timestamp timestamp = (Timestamp) qs.get(TIMESTAMP_TAG);
+
+                    String pathLocalDate = dateToSimpleString(timestamp.toDate());
+
+                    if (pathLocalDate.equals(yesterdayString)) {
+                        yesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
+                        addInfectedMet(lat, lon, timestamp, yesterdayInfectedMet);
+                    } else if (pathLocalDate.equals(beforeYesterdayString)) {
+                        beforeYesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
+                        addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
+                    }
+                } catch (Exception e) {
+                    Log.e("Exeption occured in document handler", e.getMessage());
+                }
+            }
+
+            HashMap<PointsName, List<Point>> result = new HashMap<>();
+            result.put(PointsName.yesterdayPathCoordinates, yesterdayPathCoordinates);
+            result.put(PointsName.yesterdayInfectedMet, yesterdayInfectedMet);
+            result.put(PointsName.beforeYesterdayPathCoordinates, beforeYesterdayPathCoordinates);
+            result.put(PointsName.beforeYesterdayInfectedMet, beforeYesterdayInfectedMet);
+
+            return result;
+        }
+
+        private void addInfectedMet(double lat, double lon, Timestamp timestamp, List<Point> infected) {
+            Location location = LocationUtils.buildLocation(lat, lon);
+            concreteDataReceiver
+                    .getUserNearbyDuring(location, timestamp.toDate(), timestamp.toDate())
+                    .thenAccept(carrierIntegerMap -> {
+                        Carrier carrier;
+                        Point point;
+                        for (Map.Entry<Carrier, Integer> entry : carrierIntegerMap.entrySet()) {
+                            carrier = entry.getKey();
+                            if (carrier.getInfectionStatus().equals(INFECTED)) {
+                                point = Point.fromLngLat(lon, lat);
+                                infected.add(point);
+                            }
+                        }
+                    });
+        }
+
+        private void setCalendar() {
+            Date rightNow = new Date(System.currentTimeMillis());
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(rightNow);
+            cal.add(Calendar.DAY_OF_MONTH, -1);
+            Date yes = cal.getTime();
+            cal.add(Calendar.DAY_OF_MONTH, -1);
+            Date bef = cal.getTime();
+
+            yesterdayString = dateToSimpleString(yes);
+            beforeYesterdayString = dateToSimpleString(bef);
+        }
+
+        protected void onPostExecute(Map<PointsName, List<Point>> result) {
+            yesterdayPathCoordinates = result.get(PointsName.yesterdayPathCoordinates);
+            yesterdayInfectedMet = result.get(PointsName.yesterdayInfectedMet);
+            beforeYesterdayPathCoordinates = result.get(PointsName.beforeYesterdayPathCoordinates);
+            beforeYesterdayInfectedMet = result.get(PointsName.beforeYesterdayInfectedMet);
+
+            setLayers();
+        }
+
     }
 
     private String dateToSimpleString(Date date) {
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf =
-                new SimpleDateFormat("yyyy/MM/dd");
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
         return sdf.format(date);
     }
 
@@ -214,13 +265,6 @@ public class PathsHandler {
         return boundsBuilder.build();
     }
 
-    private void initLists() {
-        yesterdayPathCoordinates = new ArrayList<>();
-        beforeYesterdayPathCoordinates = new ArrayList<>();
-        yesterdayInfectedMet = new ArrayList<>();
-        beforeYesterdayInfectedMet = new ArrayList<>();
-    }
-
     private void setLayers() {
         setInfectedLayerIfNotEmpty(yesterdayInfectedMet, YESTERDAY_INFECTED_LAYER_ID, YESTERDAY_INFECTED_SOURCE_ID);
         setInfectedLayerIfNotEmpty(beforeYesterdayInfectedMet, BEFORE_INFECTED_LAYER_ID, BEFORE_INFECTED_SOURCE_ID);
@@ -249,23 +293,6 @@ public class PathsHandler {
             setInfectedPointsLayer(infectedLayerId, infectedSourceId,
                     infectedMet);
         }
-    }
-
-    private void addInfectedMet(double lat, double lon, Timestamp timestamp, List<Point> infected) {
-        Location location = LocationUtils.buildLocation(lat, lon);
-        concreteDataReceiver
-                .getUserNearbyDuring(location, timestamp.toDate(), timestamp.toDate())
-                .thenAccept(carrierIntegerMap -> {
-                    Carrier carrier;
-                    Point point;
-                    for (Map.Entry<Carrier, Integer> entry : carrierIntegerMap.entrySet()) {
-                        carrier = entry.getKey();
-                        if (carrier.getInfectionStatus().equals(INFECTED)) {
-                            point = Point.fromLngLat(lon, lat);
-                            infected.add(point);
-                        }
-                    }
-                });
     }
 
     private void setPathLayer(String layerId, String sourceId, List<Point> path) {

@@ -82,7 +82,6 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
     private MapboxMap map;
     private ConnectivityBroker connectivityBroker;
     private LatLng prevLocation = new LatLng(0, 0);
-    private ConcreteFirestoreInteractor db;
     private CircleManager positionMarkerManager;
     private Circle userLocation;
     private HeatMapHandler heatMapHandler;
@@ -142,8 +141,6 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
         requireActivity().startService(new Intent(getContext(), LocationService.class));
         requireActivity().bindService(new Intent(getContext(), LocationService.class), conn, Context.BIND_AUTO_CREATE);
 
-        db = new ConcreteFirestoreInteractor();
-
         // Mapbox access token is configured here. This needs to be called either in your application
         // object or in the same activity which contains the mapview.
         Mapbox.getInstance(requireActivity(), BuildConfig.mapboxAPIKey);
@@ -165,7 +162,7 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
                         .withLatLng(prevLocation));
 
                 updateUserMarkerPosition(prevLocation, true);
-                heatMapHandler = new HeatMapHandler(classPointer, db, map);
+                heatMapHandler = new HeatMapHandler(classPointer, map);
                 pathsHandler = new PathsHandler(classPointer, map);
             });
         });

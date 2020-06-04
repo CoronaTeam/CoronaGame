@@ -4,6 +4,7 @@ import android.location.Location;
 
 import androidx.annotation.VisibleForTesting;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.io.IOException;
@@ -111,7 +112,7 @@ public class ConcreteCachingDataSender implements CachingDataSender {
                 location.getLatitude(),
                 location.getLongitude()
         ));
-        element.put(TIMESTAMP_TAG, time.getTime());
+        element.put(TIMESTAMP_TAG, Timestamp.now());
         element.put(INFECTION_STATUS_TAG, carrier.getInfectionStatus());
 
         historyFuture = gridInteractor.writeDocumentWithID(documentReference(

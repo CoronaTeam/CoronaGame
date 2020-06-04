@@ -12,7 +12,6 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -57,7 +56,6 @@ public class ConcreteConnectivityBroker extends Observable implements Connectivi
         public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities networkCapabilities) {
             super.onCapabilitiesChanged(network, networkCapabilities);
             if (checkInternetConnection()) {
-                Log.e("BROKER", "Internet capabilities changed");
                 hasInternetConnection = true;
 
                 setChanged();
@@ -69,7 +67,6 @@ public class ConcreteConnectivityBroker extends Observable implements Connectivi
         public void onAvailable(@NonNull Network network) {
             super.onAvailable(network);
             if (checkInternetConnection()) {
-                Log.e("BROKER", "Internet available");
                 hasInternetConnection = true;
 
                 setChanged();
@@ -81,7 +78,6 @@ public class ConcreteConnectivityBroker extends Observable implements Connectivi
         public void onLost(@NonNull Network network) {
             super.onLost(network);
             if (!checkInternetConnection()) {
-                Log.e("BROKER", "Internet connection lost");
                 hasInternetConnection = false;
 
                 setChanged();

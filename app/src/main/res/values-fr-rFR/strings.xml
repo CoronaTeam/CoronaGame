@@ -3,7 +3,7 @@
     <string name="accountDetails">Détails du compte</string>
 
     <string name="aggregator_status_off">Zut! Vous êtes hors ligne</string>
-    <string name="aggregator_status_on">Vous êtes maintenant protégés</string>
+    <string name="aggregator_status_on">Vous êtes maintenant protégé</string>
 
     <string name="app_name">Virus Tracker</string>
 

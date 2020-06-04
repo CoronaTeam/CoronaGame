@@ -39,6 +39,4 @@ public interface PositionAggregator {
     void updateToOffline();
 
     void updateToOnline();
-
-    void stopAggregator();
 }

@@ -233,12 +233,6 @@ public class PathHandlerTest {
 
     }
 
-    @Test(timeout = 30000)
-    public void seeWholePathButtonInvisibleByDefault() throws Throwable {
-        testMapVisible();
-        onView(withId(R.id.wholePath)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)));
-    }
-
     @Test(timeout = 35000)
     public void clickSeeWholePathMakeZoomAdjust() throws Throwable {
         pathGetsInstantiated();

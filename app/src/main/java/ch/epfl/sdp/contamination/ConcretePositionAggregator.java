@@ -152,4 +152,9 @@ public final class ConcretePositionAggregator implements PositionAggregator {
     public void updateToOnline() {
         this.isOnline = true;
     }
+
+    @Override
+    public void stopAggregator() {
+        updatePosTimer.cancel();
+    }
 }

@@ -20,6 +20,8 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.SetOptions;
@@ -65,7 +67,10 @@ import static ch.epfl.sdp.firestore.FirestoreInteractor.taskToFuture;
 public class LocationService extends Service implements LocationListener, Observer {
 
     public final static int LOCATION_PERMISSION_REQUEST = 20201;
+
     public static final String ALARM_GOES_OFF = "beeep!";
+    public static final String POISON_PILL = "Dead!";
+
     public static final String INFECTION_PROBABILITY_PREF = "infectionProbability";
     public static final String INFECTION_STATUS_PREF = "infectionStatus";
     public static final String LAST_UPDATED_PREF = "lastUpdated";
@@ -73,7 +78,11 @@ public class LocationService extends Service implements LocationListener, Observ
     private static final int MIN_UP_INTERVAL_MILLIS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
     // This correspond to 6h divided by the DEMO_SPEEDUP constant
-    private static long alarmDelayMillis = 21_600_000 / getDemoSpeedup();
+    private static long alarmDelayMillis = 5_000 / getDemoSpeedup();
+
+    private int serviceNotificationId = -1;
+
+    private int boundActivities = 0;
 
     private ConnectivityBroker broker;
     private PositionAggregator aggregator;
@@ -87,6 +96,9 @@ public class LocationService extends Service implements LocationListener, Observ
 
     private boolean isAlarmSet = false;
 
+    PendingIntent alarmPending;
+    AlarmManager alarmManager;
+
     private Date lastUpdated;
     private InfectionAnalyst analyst;
 
@@ -98,12 +110,12 @@ public class LocationService extends Service implements LocationListener, Observ
         Intent alarm = new Intent(this, LocationService.class);
         alarm.putExtra(ALARM_GOES_OFF, true);
 
-        PendingIntent pendingIntent = PendingIntent.getService(this, 0, alarm, 0);
-        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        manager.set(
+        alarmPending = PendingIntent.getService(this, 0, alarm, 0);
+        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(
                 AlarmManager.RTC,
                 System.currentTimeMillis() + alarmDelayMillis,
-                pendingIntent);
+                alarmPending);
 
         isAlarmSet = true;
     }
@@ -130,6 +142,36 @@ public class LocationService extends Service implements LocationListener, Observ
                 .putInt(INFECTION_STATUS_PREF, me.getInfectionStatus().ordinal())
                 .putLong(LAST_UPDATED_PREF, lastUpdated.getTime())
                 .commit();
+    }
+
+    private void showServiceNotification() {
+        // Clear previous notifications
+        if (serviceNotificationId != -1) {
+            hideServiceNotification();
+        }
+
+        Intent killIntent = new Intent(this, LocationService.class);
+        killIntent.putExtra(POISON_PILL, true);
+
+        PendingIntent pendingKill = PendingIntent.getService(this, 1, killIntent, 0);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CoronaGame.NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_protected)
+                .setContentTitle("Virus Tracker")
+                .setContentText("Your protection is currently active. You can pause it anytime")
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText("Your protection is currently active. You can pause it anytime"))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .addAction(R.drawable.ic_pause, "PAUSE", pendingKill);
+
+
+        serviceNotificationId = (int) (Math.random() * 100);
+
+        NotificationManagerCompat.from(this).notify(serviceNotificationId, builder.build());
+    }
+
+    private void hideServiceNotification() {
+        NotificationManagerCompat.from(this).cancelAll();
     }
 
     @Override
@@ -169,9 +211,6 @@ public class LocationService extends Service implements LocationListener, Observ
             lastUpdated = l.getKey();
         }
 
-        // TODO: @Matteo decide how to treat timed-out requests
-        // TODO: Understant why, after history deletion, some position upload requests timeout
-        //operationFutures.forEach(CompletableFuture::join);
         for (CompletableFuture<Integer> future : operationFutures) {
             try {
                 future.get(1500, TimeUnit.MILLISECONDS);
@@ -186,11 +225,21 @@ public class LocationService extends Service implements LocationListener, Observ
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && intent.hasExtra(ALARM_GOES_OFF)) {
-            isAlarmSet = false;
-
-            // It's time to run the model, starting from time 'lastUpdated';
-           new Thread(this::updateInfectionModel).start();
+        if (intent != null) {
+            if (intent.hasExtra(POISON_PILL)) {
+                // TODO: [LOG]
+                    Log.e("LOCATION_SERVICE", "Received poison pill ................. DYING ..................");
+                isAlarmSet = true;
+                stopAggregator();
+                if (alarmManager != null) {
+                    alarmManager.cancel(alarmPending);
+                }
+                stopSelf();
+            } else if (intent.hasExtra(ALARM_GOES_OFF)) {
+                isAlarmSet = false;
+                // It's time to run the model, starting from time 'lastUpdated';
+                new Thread(this::updateInfectionModel).start();
+            }
         }
 
         if (!isAlarmSet) {
@@ -223,14 +272,34 @@ public class LocationService extends Service implements LocationListener, Observ
     @Override
     public void update(Observable o, Object arg) {
         // Store updates to Carrier
-        locallyStoreCarrier();
-        AsyncTask.execute(() -> remotelyStoreCarrierStatus(analyst.getCarrier().getInfectionStatus()));
+        AsyncTask.execute(() -> {
+            locallyStoreCarrier();
+            remotelyStoreCarrierStatus(analyst.getCarrier().getInfectionStatus());
+        });
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        // Increment number of bound activities
+        boundActivities++;
+        // TODO: [LOG]
+        Log.e("LOCATION_SERVICE", "Unregister binding: " + boundActivities + " remaining");
+        if (boundActivities > 0) {
+            hideServiceNotification();
+        }
         return new LocationBinder();
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        boundActivities--;
+        // TODO: [LOG]
+        Log.e("LOCATION_SERVICE", "Unregister binding: " + boundActivities + " remaining");
+        if (boundActivities == 0) {
+            showServiceNotification();
+        }
+        return super.onUnbind(intent);
     }
 
     private void displayToast(String message) {
@@ -241,7 +310,7 @@ public class LocationService extends Service implements LocationListener, Observ
     @Override
     public void onLocationChanged(Location location) {
         if (broker.hasPermissions(GPS)) {
-            aggregator.addPosition(location);
+            AsyncTask.execute(() -> aggregator.addPosition(location));
         } else {
             displayToast("Missing Location permission");
         }
@@ -263,7 +332,6 @@ public class LocationService extends Service implements LocationListener, Observ
     }
 
     private void stopAggregator() {
-
         displayToast(getString(R.string.aggregator_status_off));
         aggregator.updateToOffline();
     }
@@ -306,9 +374,6 @@ public class LocationService extends Service implements LocationListener, Observ
         return sender;
     }
 
-    // TODO: @Adrien, to reduce the number of VisibleForTesting functions, reset....() can be
-    // moved to tests files (and they can just use set...())
-
     @VisibleForTesting
     public void setSender(CachingDataSender sender) {
         this.sender = sender;
@@ -343,5 +408,13 @@ public class LocationService extends Service implements LocationListener, Observ
         private void stopAggregator() {
             LocationService.this.stopAggregator();
         }
+    }
+
+
+    @Override
+    public void onDestroy() {
+        Log.e("LOCATION_SERVICE", "Destroying...");
+        hideServiceNotification();
+        super.onDestroy();
     }
 }

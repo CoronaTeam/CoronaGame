@@ -57,6 +57,9 @@ public class PathHandlerTest {
     private boolean pathCoordIsEmpty;
     private boolean infectedCoordIsEmpty;
 
+    private final int FOCUS_PATH_BUTTON_POSITION = 2;
+    private final int YESTERDAY_PATH_BUTTON_POSITION = 3;
+
 
     @BeforeClass
     public static void preClassSetup() {
@@ -123,8 +126,8 @@ public class PathHandlerTest {
 
     @Test
     public void pathsButtonLayoutIsDisplayedWhenPressed() {
-        onView(withId(R.id.history_rfab)).perform(click());
-        onView(withId(R.id.history_rfal)).check(matches(isDisplayed()));
+        onView(withId(R.id.more_rfab)).perform(click());
+        onView(withId(R.id.more_rfal)).check(matches(isDisplayed()));
     }
 
     @Test(timeout = 8000)
@@ -216,19 +219,18 @@ public class PathHandlerTest {
 
         testMapVisible();
         clickToSeePath();
-        onView(withId(R.id.wholePath)).check(matches(withEffectiveVisibility(visible)));
+
+        onView(withId(R.id.more_rfab)).perform(click());
+        List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList)
+                mapFragment.getRfabHelper().obtainRFAContent()).getItems();
+        activityRule.runOnUiThread(
+                () -> mapFragment.onRFACItemIconClick(FOCUS_PATH_BUTTON_POSITION, pathItems.get(FOCUS_PATH_BUTTON_POSITION)));
     }
 
     @Test
     public void seeWholePathButtonInvisibleWhenNoPath() throws Throwable {
         PathButtonTestBody(PathsHandler.TestOP.TEST_EMPTY_PATH, ViewMatchers.Visibility.INVISIBLE);
 
-    }
-
-    @Test
-    public void seeWholePathButtonInvisibleByDefault() throws Throwable {
-        testMapVisible();
-        onView(withId(R.id.wholePath)).check(matches(withEffectiveVisibility(ViewMatchers.Visibility.INVISIBLE)));
     }
 
     @Test
@@ -248,7 +250,13 @@ public class PathHandlerTest {
         clickToSeePath();
 
         double zoom_before = mapFragment.getMap().getCameraPosition().zoom;
-        onView(withId(R.id.wholePath)).perform(click());
+
+        onView(withId(R.id.more_rfab)).perform(click());
+        List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList)
+                mapFragment.getRfabHelper().obtainRFAContent()).getItems();
+        activityRule.runOnUiThread(
+                () -> mapFragment.onRFACItemIconClick(FOCUS_PATH_BUTTON_POSITION, pathItems.get(FOCUS_PATH_BUTTON_POSITION)));
+
         sleep(5000);
         double zoom_after = mapFragment.getMap().getCameraPosition().zoom;
 
@@ -264,11 +272,12 @@ public class PathHandlerTest {
     }
 
     private void clickToSeePath() throws Throwable {
-        onView(withId(R.id.history_rfab)).perform(click());
+        onView(withId(R.id.more_rfab)).perform(click());
         List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList)
                 mapFragment.getRfabHelper().obtainRFAContent()).getItems();
 
-        activityRule.runOnUiThread(() -> mapFragment.onRFACItemIconClick(0, pathItems.get(0)));
+        activityRule.runOnUiThread(
+                () -> mapFragment.onRFACItemIconClick(YESTERDAY_PATH_BUTTON_POSITION, pathItems.get(YESTERDAY_PATH_BUTTON_POSITION)));
         sleep(15000);
     }
 
@@ -295,11 +304,11 @@ public class PathHandlerTest {
 
         testLayerVisibilityIfNotEmpty(NONE, coordListIsEmpty, layerId);
 
-        onView(withId(R.id.history_rfab)).perform(click());
+        onView(withId(R.id.more_rfab)).perform(click());
         List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList)
                 mapFragment.getRfabHelper().obtainRFAContent()).getItems();
         activityRule.runOnUiThread(() ->
-                mapFragment.onRFACItemIconClick(0, pathItems.get(0)));
+                mapFragment.onRFACItemIconClick(YESTERDAY_PATH_BUTTON_POSITION, pathItems.get(YESTERDAY_PATH_BUTTON_POSITION)));
 
         testLayerVisibilityIfNotEmpty(VISIBLE, coordListIsEmpty, layerId);
     }

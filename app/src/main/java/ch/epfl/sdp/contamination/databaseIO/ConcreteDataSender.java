@@ -16,6 +16,8 @@ import ch.epfl.sdp.identity.fragment.AccountFragment;
 
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 import static ch.epfl.sdp.firestore.FirestoreLabels.GEOPOINT_TAG;
+import static ch.epfl.sdp.firestore.FirestoreLabels.HISTORY_COLL;
+import static ch.epfl.sdp.firestore.FirestoreLabels.HISTORY_POSITIONS_DOC;
 import static ch.epfl.sdp.firestore.FirestoreLabels.INFECTION_STATUS_TAG;
 import static ch.epfl.sdp.firestore.FirestoreLabels.LAST_POSITIONS_COLL;
 import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
@@ -38,8 +40,10 @@ public class ConcreteDataSender implements DataSender {
     @Override
     public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
         location = DataSender.roundLocation(location);
-        CompletableFuture<Void> lastPositionsFuture, gridWriteFuture;
         storeLocationToCache(location,time);
+
+        CompletableFuture<Void> historyFuture, lastPositionsFuture, gridWriteFuture;
+
 
         Map<String, Object> element = new HashMap<>();
         element.put(GEOPOINT_TAG, new GeoPoint(
@@ -49,12 +53,15 @@ public class ConcreteDataSender implements DataSender {
         element.put(TIMESTAMP_TAG, time.getTime());
         element.put(INFECTION_STATUS_TAG, carrier.getInfectionStatus());
 
+        historyFuture = gridInteractor.writeDocumentWithID(documentReference(
+                HISTORY_COLL + "/" + carrier.getUniqueId() + "/" + HISTORY_POSITIONS_DOC, "TS" + time.getTime()), element);
+
         lastPositionsFuture = gridInteractor.writeDocumentWithID(
                 documentReference(LAST_POSITIONS_COLL, AccountFragment.getAccount(getActivity()).getId()), element);
 
         gridWriteFuture = gridInteractor.gridWrite(location, String.valueOf(time.getTime()), carrier);
 
-        return CompletableFuture.allOf(lastPositionsFuture, gridWriteFuture);
+        return CompletableFuture.allOf(historyFuture, lastPositionsFuture, gridWriteFuture);
     }
     @VisibleForTesting
     public void storeLocationToCache(Location location, Date date){

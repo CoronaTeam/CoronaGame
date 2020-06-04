@@ -259,7 +259,7 @@ public class CarrierUpdatePersistenceTest {
         restoreRealAnalyst();
     }
 
-    @Test(timeout = 10000)
+    @Test(timeout = 12000)
     public void alarmSetByServiceIsSuccessful() {
         useAnalystWithSentinel();
 
@@ -269,8 +269,7 @@ public class CarrierUpdatePersistenceTest {
 
         LocationService.setAlarmDelay(2000);
         startLocationServiceWithAlarm();
-
-
+        
         Date now = new Date();
         FakeDataExchanger fakeSender = new FakeDataExchanger();
         fakeSender.registerLocation(iAmBob, TestTools.newLoc(1, 1), now);

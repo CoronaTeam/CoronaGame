@@ -3,11 +3,14 @@ package ch.epfl.sdp.contamination;
 import android.location.Location;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
+
+import ch.epfl.sdp.identity.fragment.AccountFragment;
 
 import static ch.epfl.sdp.TestTools.equalLatLong;
 import static ch.epfl.sdp.TestTools.newLoc;
@@ -25,7 +28,7 @@ public class ConcretePositionAggregatorTest {
 
     @Before
     public void initTest() {
-        this.sender = new FakeDataExchanger();
+        AccountFragment.IN_TEST = true;
         this.aggregator = new ConcretePositionAggregator(sender, new Layman(HEALTHY), maxNumberOfLoc);
         aggregator.updateToOnline();
         timelap = PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION / maxNumberOfLoc;
@@ -69,6 +72,22 @@ public class ConcretePositionAggregatorTest {
         Map<Date, Location> res = sender.getMap();
         assertNull(res);
     }
+
+    @Test
+    @Ignore // this test takes 5 minutes to run
+    public void uploadsPositionAtStarting(){
+        //this test is here to catch the bug of the aggregator
+
+        AccountFragment.IN_TEST = false;
+        Location loc1 = newLoc(1,1);
+
+        aggregator.addPosition(loc1);
+        sleep(PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION + 1000 );
+        Map<Date, Location> firebaseLoc = sender.getMap();
+        assertNotNull(firebaseLoc);
+
+    }
+
 
     private void initTestMean(Date now, Date now1, Date now2) {
         Location l1 = newLoc(0, 0);

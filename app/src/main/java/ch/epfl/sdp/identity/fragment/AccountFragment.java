@@ -1,6 +1,5 @@
 package ch.epfl.sdp.identity.fragment;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -22,15 +21,12 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
 
 import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.identity.Account;
-import ch.epfl.sdp.identity.AccountAdapter;
 import ch.epfl.sdp.identity.AuthenticationManager;
-import ch.epfl.sdp.identity.User;
 import ch.epfl.sdp.location.LocationService;
 
 public class AccountFragment extends Fragment implements View.OnClickListener, MenuItem.OnMenuItemClickListener {
@@ -41,14 +37,6 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
 
     private ServiceConnection serviceConnection;
     private CompletableFuture<LocationService> locationService = new CompletableFuture<>();
-
-    public static Account getAccount(Activity activity) {
-        if (!IN_TEST) {
-            return new AccountAdapter(GoogleSignIn.getLastSignedInAccount(activity));
-        } else {
-            return new AccountAdapter(new User());
-        }
-    }
 
     @Nullable
     @Override

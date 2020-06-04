@@ -190,9 +190,7 @@ public class LocationService extends Service implements LocationListener, Observ
             isAlarmSet = false;
 
             // It's time to run the model, starting from time 'lastUpdated';
-            AsyncTask.execute(() -> {
-                updateInfectionModel();
-            });
+           new Thread(this::updateInfectionModel).start();
         }
 
         if (!isAlarmSet) {

@@ -1,28 +1,33 @@
 package ch.epfl.sdp.map;
 
+import android.Manifest;
 import android.app.Activity;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 
+import androidx.core.app.ActivityCompat;
 import androidx.test.rule.ActivityTestRule;
 
-import ch.epfl.sdp.location.LocationBroker;
+import ch.epfl.sdp.connectivity.ConnectivityBroker;
 import ch.epfl.sdp.testActivities.MapActivity;
 
-import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
+import static ch.epfl.sdp.connectivity.ConnectivityBroker.Provider.GPS;
 
 
-public class MockLocationBroker implements LocationBroker {
+public class MockConnectivityBroker implements ConnectivityBroker {
     private LocationListener listener = null;
 
     private Location fakeLocation;
-    private boolean fakeStatus = true;
+    private boolean fakeStatus;
+    private boolean GPSpermission;
 
     private ActivityTestRule<MapActivity> mActivityRule;
 
-    public MockLocationBroker(ActivityTestRule<MapActivity> activity) {
+    public MockConnectivityBroker(ActivityTestRule<MapActivity> activity) {
         mActivityRule = activity;
+        fakeStatus = true;
+        GPSpermission = true;
     }
 
 
@@ -65,13 +70,20 @@ public class MockLocationBroker implements LocationBroker {
         return fakeLocation;
     }
 
+    public void setGPSpermission(boolean permission){
+        GPSpermission = permission;
+    }
+
     @Override
     public boolean hasPermissions(Provider provider) {
-        return true;
+        return GPSpermission;
     }
 
     @Override
     public void requestPermissions(Activity activity, int requestCode) {
-        // Trivial since always has permissions
+        ActivityCompat.requestPermissions(
+                activity,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                requestCode);
     }
 }

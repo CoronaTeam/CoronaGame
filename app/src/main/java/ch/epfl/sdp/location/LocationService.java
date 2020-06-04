@@ -39,6 +39,8 @@ import java.util.concurrent.TimeoutException;
 
 import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.R;
+import ch.epfl.sdp.connectivity.ConcreteConnectivityBroker;
+import ch.epfl.sdp.connectivity.ConnectivityBroker;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.ConcreteAnalysis;
 import ch.epfl.sdp.contamination.ConcretePositionAggregator;
@@ -54,11 +56,11 @@ import ch.epfl.sdp.contamination.databaseIO.GridFirestoreInteractor;
 import ch.epfl.sdp.identity.AuthenticationManager;
 
 import static ch.epfl.sdp.CoronaGame.getDemoSpeedup;
+import static ch.epfl.sdp.connectivity.ConnectivityBroker.Provider.GPS;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.taskToFuture;
-import static ch.epfl.sdp.location.LocationBroker.Provider.GPS;
 
 public class LocationService extends Service implements LocationListener, Observer {
 
@@ -73,7 +75,7 @@ public class LocationService extends Service implements LocationListener, Observ
     // This correspond to 6h divided by the DEMO_SPEEDUP constant
     private static long alarmDelayMillis = 21_600_000 / getDemoSpeedup();
 
-    private LocationBroker broker;
+    private ConnectivityBroker broker;
     private PositionAggregator aggregator;
 
     private GridFirestoreInteractor gridInteractor;
@@ -87,8 +89,6 @@ public class LocationService extends Service implements LocationListener, Observ
 
     private Date lastUpdated;
     private InfectionAnalyst analyst;
-
-    private boolean hasGpsPermissions = false;
 
     public static void setAlarmDelay(int millisDelay) {
         alarmDelayMillis = millisDelay;
@@ -138,9 +138,7 @@ public class LocationService extends Service implements LocationListener, Observ
         sender = new ConcreteCachingDataSender(gridInteractor);
         receiver = new ConcreteDataReceiver(gridInteractor);
 
-        broker = new ConcreteLocationBroker((LocationManager) this.getSystemService(Context.LOCATION_SERVICE), this);
-
-        refreshPermissions();
+        broker = new ConcreteConnectivityBroker((LocationManager) this.getSystemService(Context.LOCATION_SERVICE), this);
 
         sharedPref = this.getSharedPreferences(CoronaGame.SHARED_PREF_FILENAME, Context.MODE_PRIVATE);
 
@@ -149,7 +147,7 @@ public class LocationService extends Service implements LocationListener, Observ
         analyst = new ConcreteAnalysis(me, receiver, sender);
         aggregator = new ConcretePositionAggregator(sender, me);
 
-        if (hasGpsPermissions) {
+        if (broker.hasPermissions(GPS)) {
             startAggregator();
         }
     }
@@ -242,17 +240,12 @@ public class LocationService extends Service implements LocationListener, Observ
         handler.post(() -> Toast.makeText(this.getApplicationContext(), message, Toast.LENGTH_LONG).show());
     }
 
-    private void refreshPermissions() {
-        hasGpsPermissions = broker.hasPermissions(GPS);
-    }
-
     @Override
     public void onLocationChanged(Location location) {
-        refreshPermissions();
-        if (hasGpsPermissions) {
+        if (broker.hasPermissions(GPS)) {
             aggregator.addPosition(location);
         } else {
-            displayToast("Missing permission");
+            displayToast("Missing Location permission");
         }
     }
 
@@ -280,8 +273,7 @@ public class LocationService extends Service implements LocationListener, Observ
     @Override
     public void onProviderEnabled(String provider) {
         if (provider.equals(LocationManager.GPS_PROVIDER)) {
-            refreshPermissions();
-            if (hasGpsPermissions) {
+            if (broker.hasPermissions(GPS)) {
                 startAggregator();
             }
         }
@@ -294,12 +286,12 @@ public class LocationService extends Service implements LocationListener, Observ
         }
     }
 
-    public LocationBroker getBroker() {
+    public ConnectivityBroker getBroker() {
         return broker;
     }
 
     @VisibleForTesting
-    public void setBroker(LocationBroker broker) {
+    public void setBroker(ConnectivityBroker broker) {
         this.broker = broker;
     }
 
@@ -339,7 +331,7 @@ public class LocationService extends Service implements LocationListener, Observ
         }
 
         public boolean hasGpsPermissions() {
-            return hasGpsPermissions;
+            return broker.hasPermissions(GPS);
         }
 
         public void requestGpsPermissions(Activity activity) {

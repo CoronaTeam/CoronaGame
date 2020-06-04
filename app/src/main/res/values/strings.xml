@@ -97,7 +97,7 @@
 
     <string name="signin_text">&#127880; Sign in with your Google account to begin!</string>
 
-    <string name="signout">SignOut</string>
+    <string name="signout">Sign out</string>
 
     <string name="since_last_month">Since last month</string>
 
@@ -131,8 +131,23 @@
 
     <string name="your_user_status_is_set_to_infected">Your user status is set to infected.</string>
     <string name="your_user_status_is_set_to_not_infected">Your user status is set to not infected.</string>
+    <string name="profile_picture">Profile picture</string>
+    <string name="placeholder" translatable="false">...</string>
     <string name="delete_local_his">Delete local history</string>
     <string name="no_corresponding_path">No corresponding path</string>
     <string name="yesterday" translatable="false">yesterday</string>
     <string name="before_yesterday" translatable="false">before yesterday</string>
+    <string name="with_proba">Your infection probability:</string>
+    <string name="infected">Infected</string>
+    <string name="not_infected">Not infected</string>
+    <string name="no_path_to_show">No path to show</string>
+    <string name="click_to_see_whole_path">Click on the magnifier to see the whole path</string>
+    <string name="missing_permission">Missing permission</string>
+    <string name="cannot_retr_pos_from_db">Cannot retrieve positions from database</string>
+    <string name="refresh_to_see_status">Refresh to see your status</string>
+    <string name="infection_proba">Infection Probability</string>
+    <string name="pls_check_internet_co">Please check your internet connection</string>
+    <string name="missing_GPS_Perm_Dialog_title">Missing permission</string>
+    <string name="missing_GPS_Perm_Dialog_text">You refused the GPS permission. The app need
+    it to work. Please press OK and allow the GPS or press cancel to close the app</string>
 </resources>

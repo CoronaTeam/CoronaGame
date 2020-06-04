@@ -9,7 +9,6 @@ import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -43,19 +42,8 @@ public class AuthenticationManagerTest {
     }
 
     @Test
-    @Ignore("Last name is in the same view in new UI")
-    public void lastNameIsDisplayed() {
-        onView(withId(R.id.lastName)).check(matches(withText(User.DEFAULT_FAMILY_NAME)));
-    }
-
-    @Test
     public void emailIsDisplayed() {
         onView(withId(R.id.email)).check(matches(withText(User.DEFAULT_EMAIL)));
-    }
-
-    @Test
-    public void userIdViewIsDisplayed() {
-        onView(withId(R.id.userIdView)).check(matches(withText(getActivity().getString(R.string.user_id, User.DEFAULT_USERID))));
     }
 
     @Test

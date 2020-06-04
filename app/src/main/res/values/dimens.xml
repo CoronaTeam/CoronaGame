@@ -1,1 +1,17 @@
-<resources></resources>
+<resources>
+
+    <dimen name="smallMargin">10dp</dimen>
+    <dimen name="baseMargin">20dp</dimen>
+    <dimen name="bigMargin">40dp</dimen>
+    <dimen name="hugeMargin">60dp</dimen>
+
+    <dimen name="basePadding">40dp</dimen>
+
+    <dimen name="baseElevation">30dp</dimen>
+
+    <dimen name="buttonSize">32dp</dimen>
+    <dimen name="pictureSize">96dp</dimen>
+
+    <dimen name="progressBarHeight">72dp</dimen>
+
+</resources>

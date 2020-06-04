@@ -96,7 +96,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
                 service = null;
             }
         };
-        getActivity().bindService(new Intent(getActivity(), LocationService.class), serviceConnection, BIND_AUTO_CREATE);
+        requireActivity().bindService(new Intent(requireActivity(), LocationService.class), serviceConnection, BIND_AUTO_CREATE);
     }
 
     private void initializeChart() {
@@ -138,13 +138,13 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     }
 
     private void setLimitLines() {
-        LimitLine ll1 = new LimitLine(1f, "Infected");
+        LimitLine ll1 = new LimitLine(1f, getString(R.string.infected));
         ll1.setLineWidth(2f);
         ll1.setLabelPosition(LimitLine.LimitLabelPosition.LEFT_BOTTOM);
         ll1.setLineColor(Color.RED);
         ll1.setTextSize(10f);
 
-        LimitLine ll2 = new LimitLine(0f, "Not infected");
+        LimitLine ll2 = new LimitLine(0f, getString(R.string.not_infected));
         ll2.setLineWidth(2f);
         ll2.setLabelPosition(LimitLine.LimitLabelPosition.LEFT_TOP);
         ll2.setLineColor(Color.GREEN);
@@ -173,7 +173,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
 
         ArrayList<Entry> values = new ArrayList<>();
 
-        Drawable drawable = getResources().getDrawable(R.drawable.ic_person, getContext().getTheme());
+        Drawable drawable = getResources().getDrawable(R.drawable.ic_person, requireContext().getTheme());
         boolean first = true;
         for (Map.Entry<Date, Float> entry : infectionHistory.entrySet()) {
             if (first) {
@@ -190,7 +190,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
 
         List<Entry> data = generateData();
 
-        getActivity().runOnUiThread(() -> {
+        requireActivity().runOnUiThread(() -> {
             if (chart.getData() != null) {
                 updateExistingDataSet(data);
             } else {
@@ -211,7 +211,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     }
 
     private void createNewDataSet(List<Entry> data) {
-        LineDataSet set1 = new LineDataSet(data, "Infection Probability");
+        LineDataSet set1 = new LineDataSet(data, getString(R.string.infection_proba));
         set1.setDrawIcons(false);
 
         set1.setColor(Color.BLACK);
@@ -227,7 +227,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
         set1.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
 
         set1.setDrawFilled(true);
-        set1.setFillDrawable(ContextCompat.getDrawable(getContext(), R.drawable.chart_fade));
+        set1.setFillDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.chart_fade));
 
         ArrayList<ILineDataSet> dataSets = new ArrayList<>();
         dataSets.add(set1);
@@ -259,7 +259,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     @Override
     public void onDestroy() {
         if (serviceConnection != null) {
-            getActivity().unbindService(serviceConnection);
+            requireActivity().unbindService(serviceConnection);
         }
         service.onDestroy();
         super.onDestroy();

@@ -40,14 +40,12 @@ import static ch.epfl.sdp.identity.AuthenticationManager.getActivity;
  */
 public class ConcreteCachingDataSender implements CachingDataSender {
 
-    private SortedMap<Date, Location> lastPositions;
     private GridFirestoreInteractor gridInteractor;
     private StorageManager<Date,Location> positionHistory;
     private ReentrantLock lock;
     public ConcreteCachingDataSender(GridFirestoreInteractor interactor) {
         this.lock = new ReentrantLock();
         this.gridInteractor = interactor;
-        this.lastPositions = new TreeMap<>();
         this.positionHistory = initStorageManager();
     }
     private StorageManager<Date, Location> openStorageManager() {

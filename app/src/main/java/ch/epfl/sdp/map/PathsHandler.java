@@ -3,6 +3,7 @@ package ch.epfl.sdp.map;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.location.Location;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
@@ -148,7 +149,8 @@ public class PathsHandler {
                     beforeYesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
                     addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
                 }
-            } catch (NullPointerException ignored) {
+            } catch (Exception e) {
+                Log.e("Exeption occured in document handler", e.getMessage());
             }
         }
         setLayers();

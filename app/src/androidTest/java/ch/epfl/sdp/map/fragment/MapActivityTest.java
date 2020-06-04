@@ -2,6 +2,9 @@ package ch.epfl.sdp.map.fragment;
 
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
+import androidx.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiSelector;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.style.layers.Layer;
@@ -26,11 +29,13 @@ import ch.epfl.sdp.testActivities.MapActivity;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.location.LocationUtils.buildLocation;
 import static ch.epfl.sdp.map.HeatMapHandler.HEATMAP_LAYER_ID;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
@@ -102,6 +107,29 @@ public class MapActivityTest {
 
         waitForSentinelAndSetToZero();
 
+    }
+
+    @Test(timeout = 35000)
+    /*
+    This test request a permission from the user and check that the dialog disappear when the user
+    click OK
+     */
+    public void testAuthorisationIsAsked() throws Throwable {
+        mockLocationBroker.setGPSpermission(false);
+        activityRule.runOnUiThread(() -> mapFragment.setConnectivityBroker(mockLocationBroker));
+        testMapLoadCorrectly();
+        sleep(3000);
+        UiDevice device = UiDevice.getInstance(getInstrumentation());
+        UiObject allowPermissions = device.findObject(new UiSelector()
+                .clickable(true)
+                .checkable(false)
+                .index(1));
+        if (allowPermissions.exists()) {
+            allowPermissions.click();
+            mockLocationBroker.setGPSpermission(true);
+        }
+        sleep(1000);
+        assertFalse(allowPermissions.exists());
     }
 
     @Test(timeout = 100000)

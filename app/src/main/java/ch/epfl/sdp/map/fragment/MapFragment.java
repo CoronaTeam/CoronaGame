@@ -18,6 +18,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.mapbox.mapboxsdk.Mapbox;
@@ -39,6 +40,8 @@ import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RapidFloating
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -51,6 +54,7 @@ import ch.epfl.sdp.map.HeatMapHandler;
 import ch.epfl.sdp.map.PathsHandler;
 import ch.epfl.sdp.utilities.RotatedRapidFloatingActionButton;
 
+import static android.view.View.INVISIBLE;
 import static ch.epfl.sdp.connectivity.ConnectivityBroker.Provider.GPS;
 import static ch.epfl.sdp.map.HeatMapHandler.HEATMAP_LAYER_ID;
 import static ch.epfl.sdp.map.PathsHandler.BEFORE_INFECTED_LAYER_ID;
@@ -215,10 +219,10 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
 
     private void goOnline() {
         if (connectivityBroker.isProviderEnabled(GPS) && connectivityBroker.hasPermissions(GPS)) {
-            connectivityBroker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, this);
+            connectivityBroker.requestLocationUpdates(GPS, MIN_UP_INTERVAL_MILLISECS, MIN_UP_INTERVAL_METERS, classPointer);
         } else if (connectivityBroker.isProviderEnabled(GPS)) {
             // Must ask for permissions
-            connectivityBroker.requestPermissions(requireActivity(), LOCATION_PERMISSION_REQUEST);
+            askGPSPermission();
         }
     }
 
@@ -434,6 +438,38 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
             if (onMapVisible != null) {onMapVisible.call();}
             onMapVisible = null;
         } catch (Exception ignored) {
+        }
+    }
+
+    private void askGPSPermission(){
+        connectivityBroker.requestPermissions(requireActivity(), LOCATION_PERMISSION_REQUEST);
+        if (!connectivityBroker.hasPermissions(GPS)){
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setTitle(R.string.missing_GPS_Perm_Dialog_title)
+                    .setMessage(R.string.missing_GPS_Perm_Dialog_text)
+                    .setPositiveButton(android.R.string.ok,
+                            (dialog, id) -> goOnline())
+                    .setNegativeButton(android.R.string.no,
+                            (dialog, id) -> {
+                                requireActivity().finishAndRemoveTask();
+                                System.exit(0);
+                            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+
+            Timer updatePosTimer = new Timer();
+            class UpdatePosTask extends TimerTask {
+                public void run() {
+                    if(connectivityBroker.hasPermissions(GPS)){
+                        classPointer.requireActivity().runOnUiThread(() -> {
+                            alertDialog.dismiss();
+                            updatePosTimer.cancel();
+                            goOnline();
+                        });
+                    }
+                }
+            }
+            updatePosTimer.scheduleAtFixedRate(new UpdatePosTask(), 0, 100);
         }
     }
 

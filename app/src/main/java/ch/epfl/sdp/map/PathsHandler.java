@@ -3,6 +3,7 @@ package ch.epfl.sdp.map;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.location.Location;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
@@ -148,7 +149,8 @@ public class PathsHandler {
                     beforeYesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
                     addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
                 }
-            } catch (NullPointerException ignored) {
+            } catch (Exception e) {
+                Log.e("Exeption occured in document handler", e.getMessage());
             }
         }
         setLayers();
@@ -163,8 +165,8 @@ public class PathsHandler {
         cal.add(Calendar.DAY_OF_MONTH, -1);
         Date bef = cal.getTime();
 
-        yesterdayString = dateToSimpleString(yes);//"2020/05/13"; //this is for demo only, should be replaced by: dateToSimpleString(yes);
-        beforeYesterdayString = dateToSimpleString(bef);//"2020/05/12";//this is for demo only, should be replaced by: dateToSimpleString(bef);
+        yesterdayString = dateToSimpleString(yes);
+        beforeYesterdayString = dateToSimpleString(bef);
     }
 
     private String dateToSimpleString(Date date) {
@@ -312,12 +314,6 @@ public class PathsHandler {
         }
         pathLocationSet1 = true;
     }
-
-    @VisibleForTesting
-    public static boolean TEST_EMPTY_PATH;
-
-    @VisibleForTesting
-    public static boolean TEST_NON_EMPTY_LIST;
 
     @VisibleForTesting
     public List<Point> getYesterdayPathCoordinates() {

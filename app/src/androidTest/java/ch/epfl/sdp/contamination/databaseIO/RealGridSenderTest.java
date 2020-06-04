@@ -80,7 +80,7 @@ public class RealGridSenderTest {
                 somewhereInTheWorld,
                 aLittleLater);
 
-        TestTools.sleep();
+        TestTools.sleep(3000);
 
         onView(withId(R.id.exchange_status)).check(matches(withText("EXCHANGE Succeeded")));
 

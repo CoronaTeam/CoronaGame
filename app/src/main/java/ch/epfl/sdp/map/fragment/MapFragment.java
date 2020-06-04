@@ -139,7 +139,6 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
         // bindService(Intent, ServiceConnection, int):
         // it requires the service to remain running until stopService(Intent) is called,
         // regardless of whether any clients are connected to it.
-        requireActivity().startService(new Intent(getContext(), LocationService.class));
         requireActivity().bindService(new Intent(getContext(), LocationService.class), conn, Context.BIND_AUTO_CREATE);
 
         db = new ConcreteFirestoreInteractor();
@@ -277,16 +276,20 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
     }
 
     @Override
-    public void onDestroy() {
-        mapView.onDestroy();
+    public void onDestroyView() {
+        super.onDestroyView();
 
         // Unbind service
         if (conn != null) {
             requireActivity().unbindService(conn);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        mapView.onDestroy();
 
         super.onDestroy();
-
     }
 
     @Override

@@ -64,6 +64,8 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     private BiometricPrompt.PromptInfo promptInfo;
     private SharedPreferences sharedPref;
 
+    private ServiceConnection serviceConnection;
+
     private TextView userInfectionProbability;
 
     @VisibleForTesting
@@ -106,7 +108,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
             this.biometricPrompt = biometricPromptBuilder(executor);
             this.promptInfo = promptInfoBuilder();
         }
-        ServiceConnection conn = new ServiceConnection() {
+        serviceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 UserInfectionFragment.this.service = ((LocationService.LocationBinder) service).getService();
@@ -129,9 +131,15 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
                 LocationService.class));
         sharedPref = requireActivity().getSharedPreferences("UserInfectionPrefFile", Context.MODE_PRIVATE);
 
-        requireActivity().bindService(new Intent(requireActivity(), LocationService.class), conn,
+        requireActivity().bindService(new Intent(requireActivity(), LocationService.class), serviceConnection,
                 BIND_AUTO_CREATE);
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        requireActivity().unbindService(serviceConnection);
     }
 
     @Override

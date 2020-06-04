@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
-import ch.epfl.sdp.identity.fragment.AccountFragment;
+import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.location.LocationService;
 
 import static android.content.Context.BIND_AUTO_CREATE;
@@ -101,7 +101,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
         LocationService locationService = service.join();
 
         // TODO: Which location?
-        locationService.getReceiver().getMyLastLocation(AccountFragment.getAccount(requireActivity()))
+        locationService.getReceiver().getMyLastLocation(AuthenticationManager.getUserId())
                 .thenApply(location -> locationService.getAnalyst().updateInfectionPredictions(location, refreshTime, new Date())
                         .thenAccept(todayInfectionMeetings -> {
                             //TODO: should run on UI thread?

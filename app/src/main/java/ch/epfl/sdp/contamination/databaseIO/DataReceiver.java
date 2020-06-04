@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.contamination.Carrier;
-import ch.epfl.sdp.identity.Account;
 
 public interface DataReceiver {
     /**
@@ -32,7 +31,7 @@ public interface DataReceiver {
     /**
      * @return : last location of the user using the app
      */
-    CompletableFuture<Location> getMyLastLocation(Account account);
+    CompletableFuture<Location> getMyLastLocation(String accountId);
 
 
 //    int getAndResetSickNeighbors(String userId);//,Callback<Map<String,Object>> callback);

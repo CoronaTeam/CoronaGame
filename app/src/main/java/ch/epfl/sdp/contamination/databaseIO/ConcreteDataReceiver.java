@@ -24,7 +24,6 @@ import java.util.stream.Stream;
 
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.Neighbor;
-import ch.epfl.sdp.identity.Account;
 
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.getTag;
@@ -134,8 +133,8 @@ public class ConcreteDataReceiver implements DataReceiver {
     }
 
     @Override
-    public CompletableFuture<Location> getMyLastLocation(Account account) {
-        return interactor.readLastLocation(account).thenApply(result -> {
+    public CompletableFuture<Location> getMyLastLocation(String accountId) {
+        return interactor.readLastLocation(accountId).thenApply(result -> {
             if (result.entrySet().iterator().hasNext()) {
                 GeoPoint geoPoint = getTag(result, GEOPOINT_TAG, GeoPoint.class);
                 Location location = new Location(LocationManager.GPS_PROVIDER);

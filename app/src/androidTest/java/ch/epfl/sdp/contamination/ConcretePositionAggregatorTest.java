@@ -29,6 +29,7 @@ public class ConcretePositionAggregatorTest {
     @Before
     public void initTest() {
         AccountFragment.IN_TEST = true;
+        this.sender = new FakeDataExchanger();
         this.aggregator = new ConcretePositionAggregator(sender, new Layman(HEALTHY), maxNumberOfLoc);
         aggregator.updateToOnline();
         timelap = PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION / maxNumberOfLoc;

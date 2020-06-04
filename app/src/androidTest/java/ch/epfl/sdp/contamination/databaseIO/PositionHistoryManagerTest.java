@@ -1,9 +1,7 @@
 package ch.epfl.sdp.contamination.databaseIO;
 
 import android.location.Location;
-import android.util.Log;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,12 +12,6 @@ import java.util.SortedMap;
 
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.Layman;
-import ch.epfl.sdp.contamination.databaseIO.ConcreteDataReceiver;
-import ch.epfl.sdp.contamination.databaseIO.ConcreteDataSender;
-import ch.epfl.sdp.contamination.databaseIO.DataReceiver;
-import ch.epfl.sdp.contamination.databaseIO.DataSender;
-import ch.epfl.sdp.contamination.databaseIO.GridFirestoreInteractor;
-import ch.epfl.sdp.contamination.databaseIO.PositionHistoryManager;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
 
 import static ch.epfl.sdp.TestTools.newLoc;

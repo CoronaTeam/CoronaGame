@@ -21,7 +21,6 @@ import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.identity.User;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
 import ch.epfl.sdp.location.LocationService;
-import ch.epfl.sdp.contamination.databaseIO.PositionHistoryManager;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;

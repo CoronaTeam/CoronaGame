@@ -1,21 +1,15 @@
 package ch.epfl.sdp.contamination.databaseIO;
 
 import android.location.Location;
-import android.util.Log;
 
 import androidx.annotation.VisibleForTesting;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
@@ -30,20 +24,38 @@ import static ch.epfl.sdp.contamination.databaseIO.DataSender.MAX_CACHE_ENTRY_AG
  */
 public final class PositionHistoryManager  {
     private static ConcreteManager<Date, Location> instance = null;
+    private static ReentrantLock lock = new ReentrantLock();
     private static void setHistoryManager(){
-        if(instance!=null && !instance.isReadable()){
-            //TODO:LOG
-            Log.e("carrierTest in PositionManager", "before reset");
-            instance.reset();
-        }
-        else if(instance == null){
-            //TODO:LOG
-            Log.e("carrierTest in PositionManager", "before getNew");
-            instance =  getNewManager();
-        }else{
-            //TODO:LOG
-            Log.e("carrierTest in PositionManager", "useless setHistory");
+        lock.lock();
+        try{
+            if(instance==null){
+                instance = getNewManager();
+                if(!instance.isReadable()){
+                    instance.delete();
+                    instance=getNewManager();
+                }
+            }
 
+//            if(instance!=null && !instance.isReadable()){
+//                //TODO:LOG
+//                Log.e("carrierTest in PositionManager", "before delete ln 38");
+//
+//                    instance.delete();
+//                    instance = null;
+//
+//            }
+//            else if(instance == null){
+//                //TODO:LOG
+//                Log.e("carrierTest in PositionManager", "before getNew");
+//                instance =  getNewManager();
+//                instance.read();
+//            }else{
+//                //TODO:LOG
+//                Log.e("carrierTest in PositionManager", "useless setHistory");
+//
+//            }
+        }finally {
+            lock.unlock();
         }
     }
 
@@ -92,6 +104,7 @@ public final class PositionHistoryManager  {
         if(location==null){
             return; //refresh with no location is useless
         }
+
         Location toStore = new Location("myFavoriteFakeProvider");
         toStore.reset();
         toStore.setLongitude(location.getLongitude());
@@ -99,17 +112,21 @@ public final class PositionHistoryManager  {
         if(time==null){
             time = new Date();
         }
+
         setHistoryManager();
         SortedMap<Date,Location> hist = new TreeMap();
 
         hist.put(time,toStore);
+        lock.lock();
 
-        instance.write(hist);
 
         try {
+            instance.write(hist);
             instance.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }finally {
+            lock.unlock();
         }
     }
     /**
@@ -117,25 +134,49 @@ public final class PositionHistoryManager  {
      * @return: positions send to firebase during the last UNINTENTIONAL_CONTAGION_TIME time.
      */
     protected static SortedMap<Date, Location> getLastPositions() {
+
         setHistoryManager();
         Date lastDate = new Date(System.currentTimeMillis()-MAX_CACHE_ENTRY_AGE);
-        SortedMap<Date,Location> lastPos = instance.filter((date, loc) -> ((Date)(date)).after(lastDate));
+        lock.lock();
+        SortedMap<Date,Location> lastPos;
+        try{
+            lastPos = instance.filter((date, loc) -> ((Date)(date)).after(lastDate));
+        }finally {
+            lock.unlock();
+
+        }
         return lastPos;
     }
 
     @VisibleForTesting
     public static void deleteLocalProbabilityHistory() {
-        //TODO:LOG
-        Log.e("carrierTest in PositionManager", "before setHistoryManager");
-        setHistoryManager();
-        // Delete the file
-        //TODO:LOG
-        Log.e("carrierTest in PositionManager", "before delete");
-        if(instance!=null){
-            instance.delete();
+        lock.lock();
+
+        try {
+            setHistoryManager();
+            // Delete current manager
+            if(instance!=null){
+                instance.delete();
+                instance = getNewManager();
+                instance.read();
+            }
+        } finally {
+            lock.unlock();
         }
-        //TODO:LOG
-        Log.e("carrierTest in PositionManager", "after delete");
+
+//        //TODO:LOG
+//        Log.e("carrierTest in PositionManager", "before setHistoryManager");
+//        lock.lock();
+//        setHistoryManager();
+//        // Delete the file
+//        //TODO:LOG
+//        Log.e("carrierTest in PositionManager", "before delete");
+//        if(instance!=null){
+//            instance.delete();
+//        }
+//        lock.unlock();
+//        //TODO:LOG
+//        Log.e("carrierTest in PositionManager", "after delete");
     }
 
 }

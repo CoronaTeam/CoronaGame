@@ -30,13 +30,11 @@ import ch.epfl.sdp.contamination.FakeDataExchanger;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
 import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.contamination.ObservableCarrier;
-import ch.epfl.sdp.contamination.databaseIO.DataSender;
 import ch.epfl.sdp.contamination.databaseIO.PositionHistoryManager;
 import ch.epfl.sdp.identity.AuthenticationManager;
 import ch.epfl.sdp.identity.DefaultAuthenticationManager;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
 import ch.epfl.sdp.storage.ConcreteManager;
-import ch.epfl.sdp.storage.OldManager;
 import ch.epfl.sdp.storage.StorageManager;
 import ch.epfl.sdp.testActivities.DataExchangeActivity;
 
@@ -362,7 +360,7 @@ public class CarrierUpdatePersistenceTest {
     }
 
     private StorageManager<Date, Float> initStorageManager() {
-        return new OldManager<>(
+        return new ConcreteManager<>(
                 mActivityRule.getActivity(),
                 AuthenticationManager.getUserId() + ".csv",
                 date -> {

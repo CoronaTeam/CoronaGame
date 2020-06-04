@@ -15,7 +15,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import ch.epfl.sdp.CoronaGame;
 import ch.epfl.sdp.storage.ConcreteManager;
-import ch.epfl.sdp.storage.OldManager;
 import ch.epfl.sdp.storage.StorageManager;
 
 /**
@@ -66,7 +65,7 @@ public class Layman extends ObservableCarrier {
 
     private StorageManager<Date, Float> openStorageManager(String fileId) {
 
-        return new OldManager<>(
+        return new ConcreteManager<>(
                 CoronaGame.getContext(),
                 fileId + ".csv",
                 date -> {

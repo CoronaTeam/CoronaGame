@@ -105,4 +105,12 @@ public class CachingDataSenderTest {
         assertEquals(loc1.getLatitude(),0.0,0.00001);
         assertEquals(loc1.getLongitude(),0.0,0.00001);
     }
+    @Test(expected = IllegalArgumentException.class)
+    public void stringToLocAcceptsOnlyTuples(){
+        ConcreteCachingDataSender.stringToLocation("1.235,2.235,6.5");
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void stringToLocRejectsNonNumberInput(){
+        ConcreteCachingDataSender.stringToLocation("IAmANumber,BelieveMe");
+    }
 }

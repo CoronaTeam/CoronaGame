@@ -67,8 +67,14 @@ public class ConcreteCachingDataSender implements CachingDataSender {
         if(splitted.length!=2){
             throw new IllegalArgumentException("The location string is wrong");
         }
-        float n1 = getNumberFromString(splitted[0]);
-        float n2 = getNumberFromString(splitted[1]);
+        float n1;
+        float n2;
+        try {
+             n1 = getNumberFromString(splitted[0]);
+             n2 = getNumberFromString(splitted[1]);
+        }catch(NumberFormatException e){
+            throw new IllegalArgumentException("The string given is not a tuple of floats");
+        }
         Location res = new Location("provider");
         res.reset();
         res.setLatitude(n1);

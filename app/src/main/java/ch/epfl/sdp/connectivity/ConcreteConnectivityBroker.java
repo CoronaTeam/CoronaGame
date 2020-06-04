@@ -11,16 +11,18 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.net.InetAddress;
 import java.util.Observable;
 
 import static android.content.Context.CONNECTIVITY_SERVICE;
 import static ch.epfl.sdp.connectivity.ConnectivityBroker.Provider.GPS;
-import static ch.epfl.sdp.connectivity.ConnectivityBroker.Provider.INTERNET;
 
 /**
  * Observable implementation of ConnectivityBroker
@@ -33,23 +35,58 @@ public class ConcreteConnectivityBroker extends Observable implements Connectivi
     private LocationManager locationManager;
     private Context context;
 
+    private boolean checkInternetConnection() {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo nInfo = cm.getActiveNetworkInfo();
+
+        boolean connectionAvailable = nInfo != null && nInfo.isAvailable() && nInfo.isConnected();
+
+        try {
+            InetAddress ipAddr = InetAddress.getByName("google.com");
+            //You can replace it with your name
+            return connectionAvailable && !ipAddr.equals("");
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private ConnectivityManager.NetworkCallback internetNetworkCallback = new ConnectivityManager.NetworkCallback() {
+
         @Override
         public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities networkCapabilities) {
             super.onCapabilitiesChanged(network, networkCapabilities);
-            if (networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+            if (checkInternetConnection()) {
+                Log.e("BROKER", "Internet capabilities changed");
                 hasInternetConnection = true;
 
-                notifyObservers(INTERNET);
+                setChanged();
+                notifyObservers(true);
+            }
+        }
+
+        @Override
+        public void onAvailable(@NonNull Network network) {
+            super.onAvailable(network);
+            if (checkInternetConnection()) {
+                Log.e("BROKER", "Internet available");
+                hasInternetConnection = true;
+
+                setChanged();
+                notifyObservers(true);
             }
         }
 
         @Override
         public void onLost(@NonNull Network network) {
             super.onLost(network);
-            hasInternetConnection = false;
+            if (!checkInternetConnection()) {
+                Log.e("BROKER", "Internet connection lost");
+                hasInternetConnection = false;
 
-            notifyObservers(INTERNET);
+                setChanged();
+                notifyObservers(false);
+            }
         }
     };
 
@@ -65,7 +102,6 @@ public class ConcreteConnectivityBroker extends Observable implements Connectivi
 
     @Override
     public boolean isProviderEnabled(@NonNull Provider provider) {
-        assert provider != null;
         switch (provider) {
             case GPS:
                 return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -79,7 +115,6 @@ public class ConcreteConnectivityBroker extends Observable implements Connectivi
     @SuppressLint("MissingPermission")
     @Override
     public boolean requestLocationUpdates(@NonNull Provider provider, long minTimeDelay, float minSpaceDist, LocationListener listener) {
-        assert provider != null;
         if (provider != GPS) {
             throw new IllegalArgumentException(String.format("Provider %s is not yet supported", provider));
         }
@@ -100,7 +135,6 @@ public class ConcreteConnectivityBroker extends Observable implements Connectivi
     @SuppressLint("MissingPermission")
     @Override
     public Location getLastKnownLocation(@NonNull Provider provider) {
-        assert provider != null;
         if (provider == GPS && hasPermissions(provider)) {
             return locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         }

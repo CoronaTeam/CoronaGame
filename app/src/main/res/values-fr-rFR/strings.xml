@@ -3,7 +3,7 @@
     <string name="accountDetails">Détails du compte</string>
 
     <string name="aggregator_status_off">Zut! Vous êtes hors ligne</string>
-    <string name="aggregator_status_on">Vous êtes maintenant en ligne</string>
+    <string name="aggregator_status_on">Vous êtes maintenant protégés</string>
 
     <string name="app_name">Virus Tracker</string>
 
@@ -123,4 +123,6 @@
     <string name="missing_GPS_Perm_Dialog_title">autorisation GPS manquante</string>
     <string name="missing_GPS_Perm_Dialog_text">Vous avez refusé l\'autorisation GPS. L\'application
     en a besoin pour fonctionner. Cliquez OUI puis autorisez ou cliquez annuler pour fermer l\'application</string>
+    <string name="internet_offline_msg">Vous êtes hors ligne</string>
+    <string name="background_protection_msg">Votre protection est encore activée</string>
 </resources>

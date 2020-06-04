@@ -59,6 +59,7 @@ import ch.epfl.sdp.identity.AuthenticationManager;
 
 import static ch.epfl.sdp.CoronaGame.getDemoSpeedup;
 import static ch.epfl.sdp.connectivity.ConnectivityBroker.Provider.GPS;
+import static ch.epfl.sdp.connectivity.ConnectivityBroker.Provider.INTERNET;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
@@ -69,7 +70,7 @@ public class LocationService extends Service implements LocationListener, Observ
     public final static int LOCATION_PERMISSION_REQUEST = 20201;
 
     public static final String ALARM_GOES_OFF = "beeep!";
-    public static final String POISON_PILL = "Dead!";
+    public static final String POISON_PILL = "dead!";
 
     public static final String INFECTION_PROBABILITY_PREF = "infectionProbability";
     public static final String INFECTION_STATUS_PREF = "infectionStatus";
@@ -78,7 +79,7 @@ public class LocationService extends Service implements LocationListener, Observ
     private static final int MIN_UP_INTERVAL_MILLIS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
     // This correspond to 6h divided by the DEMO_SPEEDUP constant
-    private static long alarmDelayMillis = 5_000 / getDemoSpeedup();
+    private static long alarmDelayMillis = 21_600_000 / getDemoSpeedup();
 
     private int serviceNotificationId = -1;
 
@@ -101,6 +102,35 @@ public class LocationService extends Service implements LocationListener, Observ
 
     private Date lastUpdated;
     private InfectionAnalyst analyst;
+
+    private void showOfflineNotification() {
+        removeNotifications();
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CoronaGame.NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_offline)
+                .setContentTitle("Virus Tracker")
+                .setContentText(getString(R.string.internet_offline_msg))
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(getString(R.string.internet_offline_msg)))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        serviceNotificationId = (int) (Math.random() * 100);
+
+        NotificationManagerCompat.from(this).notify(serviceNotificationId, builder.build());
+    }
+
+    private final Observer internetObserver = new Observer() {
+        @Override
+        public void update(Observable o, Object arg) {
+            Log.e("LOCATION_SERVICE", "Showing service.......? " + ((boolean) arg));
+            if ((boolean) arg) {
+                removeNotifications();
+                showServiceNotification();
+            } else {
+                showOfflineNotification();
+            }
+        }
+    };
 
     public static void setAlarmDelay(int millisDelay) {
         alarmDelayMillis = millisDelay;
@@ -144,11 +174,14 @@ public class LocationService extends Service implements LocationListener, Observ
                 .commit();
     }
 
-    private void showServiceNotification() {
-        // Clear previous notifications
-        if (serviceNotificationId != -1) {
-            hideServiceNotification();
+    private boolean showServiceNotification() {
+
+        if (boundActivities > 0 || !broker.isProviderEnabled(INTERNET)) {
+            // Only show the notification when the UI is NOT running
+            return false;
         }
+
+        removeNotifications();
 
         Intent killIntent = new Intent(this, LocationService.class);
         killIntent.putExtra(POISON_PILL, true);
@@ -158,9 +191,9 @@ public class LocationService extends Service implements LocationListener, Observ
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CoronaGame.NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_protected)
                 .setContentTitle("Virus Tracker")
-                .setContentText("Your protection is currently active. You can pause it anytime")
+                .setContentText(getString(R.string.background_protection_msg))
                 .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText("Your protection is currently active. You can pause it anytime"))
+                        .bigText(getString(R.string.background_protection_msg)))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .addAction(R.drawable.ic_pause, "PAUSE", pendingKill);
 
@@ -168,9 +201,11 @@ public class LocationService extends Service implements LocationListener, Observ
         serviceNotificationId = (int) (Math.random() * 100);
 
         NotificationManagerCompat.from(this).notify(serviceNotificationId, builder.build());
+
+        return true;
     }
 
-    private void hideServiceNotification() {
+    private void removeNotifications() {
         NotificationManagerCompat.from(this).cancelAll();
     }
 
@@ -181,6 +216,9 @@ public class LocationService extends Service implements LocationListener, Observ
         receiver = new ConcreteDataReceiver(gridInteractor);
 
         broker = new ConcreteConnectivityBroker((LocationManager) this.getSystemService(Context.LOCATION_SERVICE), this);
+
+        // Observe Internet connection
+        ((ConcreteConnectivityBroker) broker).addObserver(internetObserver);
 
         sharedPref = this.getSharedPreferences(CoronaGame.SHARED_PREF_FILENAME, Context.MODE_PRIVATE);
 
@@ -215,26 +253,29 @@ public class LocationService extends Service implements LocationListener, Observ
             try {
                 future.get(1500, TimeUnit.MILLISECONDS);
             } catch (TimeoutException e) {
-                // TODO: [LOG]
-                Log.e("MODEL_UPDATE", "Request timed out");
+                Log.e("MODEL_UPDATE", "Infection model update timed out");
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
     }
 
+    private void stopService() {
+        isAlarmSet = true;
+        stopAggregator();
+        if (alarmManager != null) {
+            alarmManager.cancel(alarmPending);
+        }
+        // TODO: [LOG]
+        Log.e("LOCATION_SERVICE", "Kill message received");
+        stopSelf();
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null) {
             if (intent.hasExtra(POISON_PILL)) {
-                // TODO: [LOG]
-                    Log.e("LOCATION_SERVICE", "Received poison pill ................. DYING ..................");
-                isAlarmSet = true;
-                stopAggregator();
-                if (alarmManager != null) {
-                    alarmManager.cancel(alarmPending);
-                }
-                stopSelf();
+                stopService();
             } else if (intent.hasExtra(ALARM_GOES_OFF)) {
                 isAlarmSet = false;
                 // It's time to run the model, starting from time 'lastUpdated';
@@ -286,7 +327,7 @@ public class LocationService extends Service implements LocationListener, Observ
         // TODO: [LOG]
         Log.e("LOCATION_SERVICE", "Unregister binding: " + boundActivities + " remaining");
         if (boundActivities > 0) {
-            hideServiceNotification();
+            removeNotifications();
         }
         return new LocationBinder();
     }
@@ -296,9 +337,7 @@ public class LocationService extends Service implements LocationListener, Observ
         boundActivities--;
         // TODO: [LOG]
         Log.e("LOCATION_SERVICE", "Unregister binding: " + boundActivities + " remaining");
-        if (boundActivities == 0) {
-            showServiceNotification();
-        }
+        showServiceNotification();
         return super.onUnbind(intent);
     }
 
@@ -413,8 +452,8 @@ public class LocationService extends Service implements LocationListener, Observ
 
     @Override
     public void onDestroy() {
-        Log.e("LOCATION_SERVICE", "Destroying...");
-        hideServiceNotification();
+        Log.e("LOCATION_SERVICE", "Destroying service ...");
+        removeNotifications();
         super.onDestroy();
     }
 }

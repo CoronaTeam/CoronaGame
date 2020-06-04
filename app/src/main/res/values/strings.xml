@@ -2,8 +2,8 @@
 <resources>
     <string name="accountDetails">Account details</string>
 
-    <string name="aggregator_status_off">Noo! You are offline</string>
-    <string name="aggregator_status_on">You are online now</string>
+    <string name="aggregator_status_off">Logging stopped</string>
+    <string name="aggregator_status_on">Logging positions</string>
 
     <string name="app_id" translatable="false">807375232223</string>
     <string name="app_name">Virus Tracker</string>
@@ -150,4 +150,6 @@
     <string name="missing_GPS_Perm_Dialog_title">Missing permission</string>
     <string name="missing_GPS_Perm_Dialog_text">You refused the GPS permission. The app need
     it to work. Please press OK and allow the GPS or press cancel to close the app</string>
+    <string name="internet_offline_msg">You are not connected to the Internet. You will not receive updates on your status</string>
+    <string name="background_protection_msg">Your protection is currently active in background. You can pause it anytime</string>
 </resources>

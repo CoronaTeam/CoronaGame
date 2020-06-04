@@ -12,7 +12,7 @@ import static ch.epfl.sdp.CoronaGame.getDemoSpeedup;
  * Then, is rounds this average to the nearest meter (i.e. rounding latitude/longitude to ex. 5 decimals), and sends this location along with the last time to a DataSender.
  **/
 public interface PositionAggregator {
-    int WINDOW_FOR_LOCATION_AGGREGATION = 5000 / getDemoSpeedup(); // [ms] This is the frequency with
+    int WINDOW_FOR_LOCATION_AGGREGATION = 300000 / getDemoSpeedup(); // [ms] This is the frequency with
     // which the (mean) position will be uploaded. actual : 5min
     int MAXIMAL_NUMBER_OF_LOCATIONS_PER_AGGREGATION = 10; //WINDOW_FOR_LOCATION_AGGREGATION/10000; // default : 1 location every 10 seconds
 

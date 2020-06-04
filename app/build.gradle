@@ -11,14 +11,6 @@ jacoco {
 }
 
 android {
-    signingConfigs {
-        release {
-            storeFile file('C:\\Users\\kblin\\Documents\\GitHub\\CoronaGame\\release-keystore.jks')
-            storePassword '2gQB%$38%%X8dFKB7a7*46iZ'
-            keyPassword 'H*d9RGw4B^h@x6*^3S@!*%oq'
-            keyAlias = 'release'
-        }
-    }
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
@@ -30,7 +22,6 @@ android {
         versionName "1.0"
         buildConfigField("String", "mapboxAPIKey", apikeyProperties['mapboxAPIKey'])
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        signingConfig signingConfigs.release
     }
 
 

@@ -8,6 +8,8 @@ import androidx.test.uiautomator.UiSelector;
 
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.style.layers.Layer;
+import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RFACLabelItem;
+import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RapidFloatingActionContentLabelList;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -16,6 +18,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ch.epfl.sdp.R;
@@ -45,6 +48,9 @@ public class MapActivityTest {
     private MapFragment mapFragment;
     private AtomicInteger sentinel;
     private MockConnectivityBroker mockLocationBroker;
+
+    private final int HEATMAP_TOGGLE_BUTTON_POSITION = 0;
+    private final int MY_LOCATION_BUTTON_POSITION = 1;
 
     @BeforeClass
     public static void preClassSetup() {
@@ -134,7 +140,12 @@ public class MapActivityTest {
         testLayerVisibility(VISIBLE, HEATMAP_LAYER_ID);
 
         waitForSentinelAndSetToZero();
-        onView(withId(R.id.heatMapToggle)).perform(click());
+
+        onView(withId(R.id.more_rfab)).perform(click());
+        List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList)
+                mapFragment.getRfabHelper().obtainRFAContent()).getItems();
+        activityRule.runOnUiThread(
+                () -> mapFragment.onRFACItemIconClick(HEATMAP_TOGGLE_BUTTON_POSITION, pathItems.get(HEATMAP_TOGGLE_BUTTON_POSITION)));
 
         testLayerVisibility(NONE, HEATMAP_LAYER_ID);
 
@@ -149,7 +160,12 @@ public class MapActivityTest {
         double exp_lat = circleLatLng.getLatitude();
         double exp_lon = circleLatLng.getLongitude();
 
-        onView(withId(R.id.myCurrentLocationToggle)).perform(click());
+        onView(withId(R.id.more_rfab)).perform(click());
+        List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList)
+                mapFragment.getRfabHelper().obtainRFAContent()).getItems();
+        activityRule.runOnUiThread(
+                () -> mapFragment.onRFACItemIconClick(MY_LOCATION_BUTTON_POSITION, pathItems.get(MY_LOCATION_BUTTON_POSITION)));
+
         sleep(5000);
 
         LatLng cameraLatLng = mapFragment.getMap().getCameraPosition().target;

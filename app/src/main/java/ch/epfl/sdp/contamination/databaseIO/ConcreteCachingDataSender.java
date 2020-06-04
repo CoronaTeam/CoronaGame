@@ -83,7 +83,7 @@ public class ConcreteCachingDataSender implements CachingDataSender {
         return res;
     }
 
-    private static float getNumberFromString(String s) {
+    private static float getNumberFromString(String s)throws NumberFormatException {
         s = s.replaceAll("[^\\d.]", "");
         return Float.parseFloat(s);
     }

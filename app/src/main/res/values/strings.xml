@@ -153,4 +153,7 @@
     <string name="toggle_heatmap_label">Toggle heatmap</string>
     <string name="focus_path_label">Focus path</string>
     <string name="my_location_label">My location</string>
+    <string name="missing_GPS_Perm_Dialog_title">Missing permission</string>
+    <string name="missing_GPS_Perm_Dialog_text">You refused the GPS permission. The app need
+    it to work. Please press OK and allow the GPS or press cancel to close the app</string>
 </resources>

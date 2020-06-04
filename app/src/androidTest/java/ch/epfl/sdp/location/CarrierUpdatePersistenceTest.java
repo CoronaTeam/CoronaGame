@@ -43,7 +43,7 @@ import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.INFECTED;
 import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
 public class CarrierUpdatePersistenceTest {
 
@@ -232,7 +232,7 @@ public class CarrierUpdatePersistenceTest {
 
         Log.e("CARRIER_UPDATE_PERSISTENCE_TES", "Sentinel = " + sentinel.get());
 
-        assertThat(sentinel.get(), greaterThan(1));
+        assertThat(sentinel.get(), greaterThanOrEqualTo(1));
 
         LocationService.setAlarmDelay(2000);
     }

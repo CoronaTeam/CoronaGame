@@ -313,12 +313,6 @@ public class PathsHandler {
     }
 
     @VisibleForTesting
-    public static boolean TEST_EMPTY_PATH;
-
-    @VisibleForTesting
-    public static boolean TEST_NON_EMPTY_LIST;
-
-    @VisibleForTesting
     public List<Point> getYesterdayPathCoordinates() {
         return yesterdayPathCoordinates;
     }

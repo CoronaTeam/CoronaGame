@@ -136,13 +136,10 @@ public class HeatMapHandler {
 
         for (Map.Entry<String, Map<String, Object>> entry : entrySet) {
             try {
-                if (entry.getValue().get(INFECTION_STATUS_TAG).equals("INFECTED")){
-                    GeoPoint geoPoint = (GeoPoint) entry.getValue().get(GEOPOINT_TAG);
-                    infectionHeatMapPoints.add(Point.fromLngLat(
-                            geoPoint.getLongitude(),
-                            geoPoint.getLatitude()
-                    ));
-                }
+                GeoPoint geoPoint = (GeoPoint) entry.getValue().get(GEOPOINT_TAG);
+                infectionHeatMapPoints.add(Point.fromLngLat(
+                        geoPoint.getLongitude(),
+                        geoPoint.getLatitude()));
             } catch (NullPointerException ignored) { }
         }
 

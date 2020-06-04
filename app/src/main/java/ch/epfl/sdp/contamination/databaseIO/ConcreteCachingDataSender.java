@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,8 +43,9 @@ public class ConcreteCachingDataSender implements CachingDataSender {
     private SortedMap<Date, Location> lastPositions;
     private GridFirestoreInteractor gridInteractor;
     private StorageManager<Date,Location> positionHistory;
-
+    private ReentrantLock lock;
     public ConcreteCachingDataSender(GridFirestoreInteractor interactor) {
+        this.lock = new ReentrantLock();
         this.gridInteractor = interactor;
         this.lastPositions = new TreeMap<>();
         this.positionHistory = initStorageManager();
@@ -128,15 +130,17 @@ public class ConcreteCachingDataSender implements CachingDataSender {
 
     // Removes every locations older than PRE-SYMPTOMATIC_CONTAGION_TIME ms and adds a new position
     private void refreshLastPositions(Date time, Location geoPoint) {
-        Date oldestDate = new Date(time.getTime() - MAX_CACHE_ENTRY_AGE);
         SortedMap<Date,Location> hist = new TreeMap();
-
         hist.put(time,geoPoint);
-        positionHistory.write(hist);
+        lock.lock();
         try {
+        positionHistory.write(hist);
+
             positionHistory.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }finally {
+            lock.unlock();
         }
 
     }
@@ -145,7 +149,13 @@ public class ConcreteCachingDataSender implements CachingDataSender {
     public SortedMap<Date, Location> getLastPositions() {
         // Return a copy of the cache to avoid conflicts
         Date lastDate = new Date(System.currentTimeMillis()-MAX_CACHE_ENTRY_AGE);
-        SortedMap<Date,Location> lastPos = positionHistory.filter((date, geoP) -> ((Date)(date)).after(lastDate));
+        SortedMap<Date,Location> lastPos;
+        lock.lock();
+        try{
+            lastPos = positionHistory.filter((date, geoP) -> ((Date)(date)).after(lastDate));
+        }finally {
+            lock.unlock();
+        }
         return lastPos;
     }
 }

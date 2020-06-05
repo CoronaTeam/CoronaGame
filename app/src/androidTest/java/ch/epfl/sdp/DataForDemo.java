@@ -10,6 +10,8 @@ import com.mapbox.geojson.Point;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -51,43 +53,8 @@ public class DataForDemo {
     private static final double DENSE_INITIAL_EPFL_LONGITUDE = 6.56600;
     private final Random r = new Random();
     private final GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
-    private final CachingDataSender dataSender = new ConcreteCachingDataSender(gridFirestoreInteractor) {
-        @Override
-        public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
-            return gridFirestoreInteractor.gridWrite(location, String.valueOf(time.getTime()),
-                    carrier)
-                    .whenComplete((res, thr) -> {
-                        if (thr == null) {
-                            System.out.println("location successfully added to firestore");
-                        } else {
-                            System.out.println("location could not be uploaded to firestore");
-                        }
-                    });
-        }
+    private final CachingDataSender dataSender = new ConcreteCachingDataSender(gridFirestoreInteractor);
 
-        @Override
-        public CompletableFuture<Void> sendAlert(String userId) {
-
-            return null;
-        }
-
-        @Override
-        public CompletableFuture<Void> sendAlert(String userId, float previousIllnessProbability) {
-
-            return null;
-        }
-
-        @Override
-        public CompletableFuture<Void> resetSickAlerts(String userId) {
-
-            return null;
-        }
-
-        @Override
-        public SortedMap<Date, Location> getLastPositions() {
-            return null;
-        }
-    };
     private final Date rightNow = new Date(System.currentTimeMillis());
 
     private List<Point> routeCoordinates;
@@ -95,6 +62,15 @@ public class DataForDemo {
 
     private double getRandomNumberBetweenBounds(double lower, double upper) {
         return r.nextDouble() * (upper - lower) + lower;
+    }
+
+
+    @Test
+    public void addInfectedPoints() throws ParseException {
+        Carrier carrier = new Layman(Carrier.InfectionStatus.INFECTED);
+        Location userLocation = newLoc(46.52383, 6.56564);
+        Date time = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse("04/06/2020 18:08:30");
+        dataSender.registerLocation(carrier, userLocation, time);
     }
 
     /**

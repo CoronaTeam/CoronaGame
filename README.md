@@ -1,4 +1,4 @@
-# Virus Tracker
+# <img src="app/src/main/ic_launcher-playstore.png" width="100" > Virus Tracker 
 Software Development Project 2020
 
 > The main goal is to help control the spread by having more insight on it.  

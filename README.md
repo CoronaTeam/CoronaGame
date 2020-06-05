@@ -5,6 +5,7 @@ Software Development Project 2020
 > It is made for everyone to use. 
 > The contamination analysis is mainly based on distance estimation between different users, and meeting occurrences with (potentially) infected users.  
 > We chose to make the app parametrizable with respect to the actual contamination factor and infection probability, as we can't pretend to know the actual numbers. 
+> NB: this app needs a GPS position to work properly, you won't be able to use it in a bunker!
 
  
 

@@ -62,47 +62,6 @@ public class MapActivityTest {
         MapFragment.TESTING_MODE = false;
     }
 
-    static void sTestLayerVisibility(String visibility, String layerId, MapFragment mapFragment, AtomicInteger sentinel, ActivityTestRule<MapActivity> activityRule) throws Throwable {
-        activityRule.runOnUiThread(() -> {
-            mapFragment.getMap().getStyle(style -> {
-                Layer layer = style.getLayer(layerId);
-                assertNotNull(layer);
-                assertEquals(visibility, layer.getVisibility().getValue());
-            });
-            sentinel.incrementAndGet();
-        });
-    }
-
-    static void sTestMapLoadCorrectly(MapFragment mapFragment, AtomicInteger sentinel, ActivityTestRule<MapActivity> activityRule) throws Throwable {
-        while (mapFragment.getMap() == null) {
-            sleep(500);
-        }
-
-        activityRule.runOnUiThread(() -> mapFragment.getMap().getStyle((s)
-                -> sentinel.incrementAndGet()));
-        // The sentinel value will only increase when the style has completely loaded
-
-        sWaitForSentinelAndSetToZero(sentinel);
-    }
-
-
-    ////////////////////////////////// Tests //////////////////////////////////////
-
-    static void sTestMapVisible(MapFragment mapFragment, AtomicInteger sentinel, MockConnectivityBroker mockConnectivityBroker, ActivityTestRule<MapActivity> activityRule) throws Throwable {
-        sTestMapLoadCorrectly(mapFragment, sentinel, activityRule);
-        mockConnectivityBroker.setFakeLocation(buildLocation(46, 55));
-        mapFragment.onMapVisible(sentinel::incrementAndGet);
-        sWaitForSentinelAndSetToZero(sentinel);
-        sleep(1000);
-    }
-
-    static void sWaitForSentinelAndSetToZero(AtomicInteger sentinel) {
-        while (sentinel.get() == 0) {
-            sleep(500);
-        }
-        sentinel.set(0);
-    }
-
     @Before
     public void setUp() throws Throwable {
         mockLocationBroker = new MockConnectivityBroker(activityRule);
@@ -122,28 +81,7 @@ public class MapActivityTest {
         sTestMapLoadCorrectly(mapFragment, sentinel, activityRule);
     }
 
-
-    ////////////////////////////////// Helper functions //////////////////////////////////////
-
-    @Test(timeout = 50000)
-    public void testHeatMapLoadCorrectly() throws Throwable {
-        testMapLoadCorrectly();
-
-        mockLocationBroker.setFakeLocation(buildLocation(46, 54));
-
-        while (mapFragment.getHeatMapHandler() == null) {
-            sleep(500);
-        }
-
-        activityRule.runOnUiThread(() -> mapFragment.getHeatMapHandler().onHeatMapDataLoaded(
-                sentinel::incrementAndGet));
-        // The sentinel value will only increase when the heatmap has completely loaded
-
-        activityRule.runOnUiThread(() -> mapFragment.getHeatMapHandler().onHeatMapDataLoaded(sentinel::incrementAndGet)); // The sentinel value will only increase when the heatmap has completely loaded
-
-        waitForSentinelAndSetToZero();
-
-    }
+    ////////////////////////////////// Tests //////////////////////////////////////
 
     @Test(timeout = 35000)
     /*
@@ -211,6 +149,66 @@ public class MapActivityTest {
         double precision = 1;
         assertEquals(exp_lat, act_lat, precision);
         assertEquals(exp_lon, act_lon, precision);
+    }
+
+    ////////////////////////////////// Helper functions //////////////////////////////////////
+
+    static void sTestMapVisible(MapFragment mapFragment, AtomicInteger sentinel, MockConnectivityBroker mockConnectivityBroker, ActivityTestRule<MapActivity> activityRule) throws Throwable {
+        sTestMapLoadCorrectly(mapFragment, sentinel, activityRule);
+        mockConnectivityBroker.setFakeLocation(buildLocation(46, 55));
+        mapFragment.onMapVisible(sentinel::incrementAndGet);
+        sWaitForSentinelAndSetToZero(sentinel);
+        sleep(1000);
+    }
+
+    static void sWaitForSentinelAndSetToZero(AtomicInteger sentinel) {
+        while (sentinel.get() == 0) {
+            sleep(500);
+        }
+        sentinel.set(0);
+    }
+
+    static void sTestLayerVisibility(String visibility, String layerId, MapFragment mapFragment, AtomicInteger sentinel, ActivityTestRule<MapActivity> activityRule) throws Throwable {
+        activityRule.runOnUiThread(() -> {
+            mapFragment.getMap().getStyle(style -> {
+                Layer layer = style.getLayer(layerId);
+                assertNotNull(layer);
+                assertEquals(visibility, layer.getVisibility().getValue());
+            });
+            sentinel.incrementAndGet();
+        });
+    }
+
+    static void sTestMapLoadCorrectly(MapFragment mapFragment, AtomicInteger sentinel, ActivityTestRule<MapActivity> activityRule) throws Throwable {
+        while (mapFragment.getMap() == null) {
+            sleep(500);
+        }
+
+        activityRule.runOnUiThread(() -> mapFragment.getMap().getStyle((s)
+                -> sentinel.incrementAndGet()));
+        // The sentinel value will only increase when the style has completely loaded
+
+        sWaitForSentinelAndSetToZero(sentinel);
+    }
+
+    @Test(timeout = 50000)
+    public void testHeatMapLoadCorrectly() throws Throwable {
+        testMapLoadCorrectly();
+
+        mockLocationBroker.setFakeLocation(buildLocation(46, 54));
+
+        while (mapFragment.getHeatMapHandler() == null) {
+            sleep(500);
+        }
+
+        activityRule.runOnUiThread(() -> mapFragment.getHeatMapHandler().onHeatMapDataLoaded(
+                sentinel::incrementAndGet));
+        // The sentinel value will only increase when the heatmap has completely loaded
+
+        activityRule.runOnUiThread(() -> mapFragment.getHeatMapHandler().onHeatMapDataLoaded(sentinel::incrementAndGet)); // The sentinel value will only increase when the heatmap has completely loaded
+
+        waitForSentinelAndSetToZero();
+
     }
 
     private void testLayerVisibility(String visibility) throws Throwable {

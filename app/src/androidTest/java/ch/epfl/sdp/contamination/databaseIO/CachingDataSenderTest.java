@@ -24,8 +24,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class CachingDataSenderTest {
-    DataReceiver receiver;
-    CachingDataSender sender;
+    private DataReceiver receiver;
+    private CachingDataSender sender;
 
     @Before
     public void init() {

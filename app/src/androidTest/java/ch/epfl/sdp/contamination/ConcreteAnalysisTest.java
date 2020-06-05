@@ -63,21 +63,21 @@ import static org.junit.Assert.assertSame;
 
 public class ConcreteAnalysisTest {
 
-    static HashMap<String, Float> recentSickMeetingCounter = new HashMap<>();
-    static Layman man1;
-    static Layman man2;
-    static Layman man3;
-    static Layman man4;
-    static SortedMap<Date, Location> lastPositions;
-    static Set<Carrier> peopleAround;
-    static Map<Long, Carrier> rangePeople;
-    static Map<GeoPoint, Map<Long, Set<Carrier>>> city = new HashMap<>();
-    static int recoveryCounter;
+    private static HashMap<String, Float> recentSickMeetingCounter = new HashMap<>();
+    private static Layman man1;
+    private static Layman man2;
+    private static Layman man3;
+    private static Layman man4;
+    private static SortedMap<Date, Location> lastPositions;
+    private static Set<Carrier> peopleAround;
+    private static Map<Long, Carrier> rangePeople;
+    private static Map<GeoPoint, Map<Long, Set<Carrier>>> city = new HashMap<>();
+    private static int recoveryCounter;
     @Rule
     public final ActivityTestRule<InfectionActivity> mActivityRule = new ActivityTestRule<>(InfectionActivity.class);
-    Location testLocation = buildLocation(65, 63);
-    Date testDate = new Date(System.currentTimeMillis());
-    DataReceiver mockReceiver = new DataReceiver() {
+    private Location testLocation = buildLocation(65, 63);
+    private Date testDate = new Date(System.currentTimeMillis());
+    private DataReceiver mockReceiver = new DataReceiver() {
         @Override
         public CompletableFuture<Set<Carrier>> getUserNearby(Location location, Date date) {
             HashSet<Carrier> res = new HashSet<>();
@@ -139,7 +139,7 @@ public class ConcreteAnalysisTest {
             }
         }
     };
-    CachingDataSender sender = new FakeCachingDataSender() {
+    private CachingDataSender sender = new FakeCachingDataSender() {
         @Override
         public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
             fakeFirebaseStore.put(time, location);

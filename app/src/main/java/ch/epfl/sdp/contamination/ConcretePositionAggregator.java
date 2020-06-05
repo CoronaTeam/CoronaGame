@@ -19,7 +19,7 @@ import static ch.epfl.sdp.identity.fragment.AccountFragment.IN_TEST;
  * @author lucas
  */
 public final class ConcretePositionAggregator implements PositionAggregator {
-    HashMap<Long, List<Location>> buffer;
+    private HashMap<Long, List<Location>> buffer;
     private int timelapBetweenNewLocationRegistration;
     private Date lastDate;
     private Location newestLocation;

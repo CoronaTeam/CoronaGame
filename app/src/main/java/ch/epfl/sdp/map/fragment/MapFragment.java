@@ -71,7 +71,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 public class MapFragment extends Fragment implements LocationListener, RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener {
 
     //TODO: some constant are dupicated from locationService
-    public final static int LOCATION_PERMISSION_REQUEST = 20201;
+    private final static int LOCATION_PERMISSION_REQUEST = 20201;
     private static final int MIN_UP_INTERVAL_MILLISECS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
     private static final double MIN_LAT_LONG_CHANGE_RECENTER = 1;

@@ -45,16 +45,16 @@ public class GridSenderTest {
 
     @Rule
     public final ActivityTestRule<DataExchangeActivity> mActivityRule = new ActivityTestRule<>(DataExchangeActivity.class);
-    final long rangeStart = 1585223373883L;
-    final long rangeEnd = 1585223373963L;
-    final long outsideRange = 1585223373983L;
+    private final long rangeStart = 1585223373883L;
+    private final long rangeEnd = 1585223373963L;
+    private final long outsideRange = 1585223373983L;
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-    Handler uiHandler;
+    private Handler uiHandler;
 
-    Consumer<Void> writeSuccessToUi;
-    Function<Throwable, Void> writeFailureToUi;
+    private Consumer<Void> writeSuccessToUi;
+    private Function<Throwable, Void> writeFailureToUi;
     @Mock
     Map.Entry<String, Map<String, Object>> stringMapEntry;
     @Mock

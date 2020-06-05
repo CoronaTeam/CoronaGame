@@ -67,10 +67,10 @@ import static ch.epfl.sdp.firestore.FirestoreInteractor.taskToFuture;
 
 public class LocationService extends Service implements LocationListener, Observer {
 
-    public final static int LOCATION_PERMISSION_REQUEST = 20201;
+    private final static int LOCATION_PERMISSION_REQUEST = 20201;
 
     public static final String ALARM_GOES_OFF = "beeep!";
-    public static final String POISON_PILL = "dead!";
+    private static final String POISON_PILL = "dead!";
 
     public static final String INFECTION_PROBABILITY_PREF = "infectionProbability";
     public static final String INFECTION_STATUS_PREF = "infectionStatus";
@@ -95,8 +95,8 @@ public class LocationService extends Service implements LocationListener, Observ
 
     private boolean isAlarmSet = false;
 
-    PendingIntent alarmPending;
-    AlarmManager alarmManager;
+    private PendingIntent alarmPending;
+    private AlarmManager alarmManager;
 
     private Date lastUpdated;
     private InfectionAnalyst analyst;
@@ -162,7 +162,7 @@ public class LocationService extends Service implements LocationListener, Observ
         return carrier;
     }
 
-    public void locallyStoreCarrier() {
+    private void locallyStoreCarrier() {
         Carrier me = analyst.getCarrier();
 
         SharedPreferences.Editor editor = sharedPref.edit();

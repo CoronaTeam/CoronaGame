@@ -83,7 +83,7 @@ public class ConcreteDataReceiver implements DataReceiver {
         return validTimes;
     }
 
-    public Map<Carrier, Integer> collectCarriersMetDuringInterval(Stream<Map<String, Map<String, Object>>> results) {
+    private Map<Carrier, Integer> collectCarriersMetDuringInterval(Stream<Map<String, Map<String, Object>>> results) {
 
         Map<Carrier, Integer> metDuringInterval = new HashMap<>();
         results.forEach(res -> {

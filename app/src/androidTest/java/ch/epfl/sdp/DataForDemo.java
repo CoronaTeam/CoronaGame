@@ -93,7 +93,7 @@ public class DataForDemo {
     private List<Point> routeCoordinates;
     private int[] infectedOnRoute;
 
-    double getRandomNumberBetweenBounds(double lower, double upper) {
+    private double getRandomNumberBetweenBounds(double lower, double upper) {
         return r.nextDouble() * (upper - lower) + lower;
     }
 

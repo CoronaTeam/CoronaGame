@@ -37,8 +37,8 @@ public class RealGridSenderTest {
     @Rule
     public final ActivityTestRule<DataExchangeActivity> mActivityRule = new ActivityTestRule<>(DataExchangeActivity.class);
 
-    Consumer<Void> writeSuccessToUi;
-    Function<Throwable, Void> writeFailureToUi;
+    private Consumer<Void> writeSuccessToUi;
+    private Function<Throwable, Void> writeFailureToUi;
 
     @Before
     public void setupTests() {

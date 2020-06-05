@@ -18,8 +18,8 @@ import static ch.epfl.sdp.firestore.FirestoreLabels.publicAlertAttribute;
 import static org.junit.Assert.assertEquals;
 
 public class DataReceiverTest {
-    DataReceiver receiver;
-    ConcreteCachingDataSender sender;
+    private DataReceiver receiver;
+    private ConcreteCachingDataSender sender;
 
     @Before
     public void init() {

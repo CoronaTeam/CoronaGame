@@ -10,7 +10,7 @@ import ch.epfl.sdp.identity.fragment.AccountFragment;
 import static org.junit.Assert.assertEquals;
 
 public class AccountAdapterTest {
-    AccountAdapter userAdapter;
+    private AccountAdapter userAdapter;
 
     //    AccountFactory googleFactory;  NOT TESTABLE (sorry)
     @Before

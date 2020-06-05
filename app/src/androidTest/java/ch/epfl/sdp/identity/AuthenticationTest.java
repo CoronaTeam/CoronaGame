@@ -42,7 +42,7 @@ public class AuthenticationTest {
 
     @Test(expected = IllegalStateException.class)
     public void onActivityResultThrowsExceptionOnWrongRequestCode() {
-        ((AuthenticationFragment) (activityRule.getActivity().getFragment())).onActivityResult(AuthenticationFragment.RC_SIGN_IN - 1, 0, null);
+        activityRule.getActivity().getFragment().onActivityResult(AuthenticationFragment.RC_SIGN_IN - 1, 0, null);
     }
 
     @Test(expected = Test.None.class)

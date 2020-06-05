@@ -150,7 +150,7 @@ public class ConcreteCachingDataSender implements CachingDataSender {
         SortedMap<Date,Location> lastPos;
         lock.lock();
         try{
-            lastPos = positionHistory.filter((date, geoP) -> ((Date)(date)).after(lastDate));
+            lastPos = positionHistory.filter((date, geoP) -> date.after(lastDate));
         }finally {
             lock.unlock();
         }

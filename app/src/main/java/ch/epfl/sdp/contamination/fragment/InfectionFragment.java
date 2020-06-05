@@ -153,7 +153,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
                 second = getText(R.string.several_infection_dialog_message2);
 
         }
-        builder.setMessage((String) first + (todayInfectionMeetings == 0 ? "" : todayInfectionMeetings) + (String) second)
+        builder.setMessage((String) first + (todayInfectionMeetings == 0 ? "" : todayInfectionMeetings) + second)
                 .setTitle(title);
         AlertDialog dialog = builder.create();
         dialog.show();

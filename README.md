@@ -17,7 +17,10 @@ Once you log into  the app, you can see 3 different tabs: Map, Status & Account.
 Is a... map containing 5 feature buttons described below.
 
 * Toggle heatmap: show infected areas around you. If you zoom in/out too much, you won't be able to see it anymore. That way, you cannot see the precise location of infected users (privacy friendly). Here's how it looks like:
-<img src="Screenshot_1591386066.png" width="100" >
+
+<p align="center">
+<img src="Screenshot_1591386066.png" width="200" >
+</p>
 
 * My location: when your fingers got lost on the map, click to see where you are on the map. 
 
@@ -26,6 +29,7 @@ Is a... map containing 5 feature buttons described below.
 * Yesterday: click here to see your path from yesterday. 
 
 * Before yesterday: click here to see your path from the day before yesterday. 
+
 
 <p align="center">
   <img src="Screenshot_1591385996.png" width="300" >

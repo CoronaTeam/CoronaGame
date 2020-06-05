@@ -50,48 +50,47 @@ public class ConcreteConnectivityBroker extends Observable implements Connectivi
         }
     }
 
-    private ConnectivityManager.NetworkCallback internetNetworkCallback = new ConnectivityManager.NetworkCallback() {
-
-        @Override
-        public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities networkCapabilities) {
-            super.onCapabilitiesChanged(network, networkCapabilities);
-            if (checkInternetConnection()) {
-                hasInternetConnection = true;
-
-                setChanged();
-                notifyObservers(true);
-            }
-        }
-
-        @Override
-        public void onAvailable(@NonNull Network network) {
-            super.onAvailable(network);
-            if (checkInternetConnection()) {
-                hasInternetConnection = true;
-
-                setChanged();
-                notifyObservers(true);
-            }
-        }
-
-        @Override
-        public void onLost(@NonNull Network network) {
-            super.onLost(network);
-            if (!checkInternetConnection()) {
-                hasInternetConnection = false;
-
-                setChanged();
-                notifyObservers(false);
-            }
-        }
-    };
-
     public ConcreteConnectivityBroker(LocationManager locationManager, Context context) {
         this.locationManager = locationManager;
         this.context = context;
 
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(CONNECTIVITY_SERVICE);
         if (cm != null) {
+            ConnectivityManager.NetworkCallback internetNetworkCallback = new ConnectivityManager.NetworkCallback() {
+
+                @Override
+                public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities networkCapabilities) {
+                    super.onCapabilitiesChanged(network, networkCapabilities);
+                    if (checkInternetConnection()) {
+                        hasInternetConnection = true;
+
+                        setChanged();
+                        notifyObservers(true);
+                    }
+                }
+
+                @Override
+                public void onAvailable(@NonNull Network network) {
+                    super.onAvailable(network);
+                    if (checkInternetConnection()) {
+                        hasInternetConnection = true;
+
+                        setChanged();
+                        notifyObservers(true);
+                    }
+                }
+
+                @Override
+                public void onLost(@NonNull Network network) {
+                    super.onLost(network);
+                    if (!checkInternetConnection()) {
+                        hasInternetConnection = false;
+
+                        setChanged();
+                        notifyObservers(false);
+                    }
+                }
+            };
             cm.registerDefaultNetworkCallback(internetNetworkCallback);
         }
     }

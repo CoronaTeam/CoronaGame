@@ -29,7 +29,6 @@ public class FirebaseOfflineCacheTest {
     public GrantPermissionRule internetPermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.INTERNET);
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private String localChanges = "local changes 29 avril";
 
     @Before
     public void setUp() {
@@ -48,6 +47,7 @@ public class FirebaseOfflineCacheTest {
         db.disableNetwork()
                 .addOnCompleteListener(task -> System.out.println("NETWORK ACCESS IS DISABLED"));
         // write operation to Firestore that is queued when offline
+        String localChanges = "local changes 29 avril";
         db.collection("Tests")
                 .document("LocalChangeSyncTest")
                 .update("locallyChangedValue", localChanges);

@@ -49,8 +49,6 @@ import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
 public class DataForDemo {
     private static double DENSE_INITIAL_EPFL_LATITUDE = 46.51800;
     private static double DENSE_INITIAL_EPFL_LONGITUDE = 6.56600;
-    private static double SPARSE_INITIAL_EPFL_LATITUDE = 46.51900;
-    private static double SPARSE_INITIAL_EPFL_LONGITUDE = 6.56700;
     private Random r = new Random();
     private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
     private CachingDataSender dataSender = new ConcreteCachingDataSender(gridFirestoreInteractor) {
@@ -133,6 +131,8 @@ public class DataForDemo {
         // there are 2 infected people in this location, and 3 healthy
 
         // infected at coordinate (0, 0) of the square
+        double SPARSE_INITIAL_EPFL_LONGITUDE = 6.56700;
+        double SPARSE_INITIAL_EPFL_LATITUDE = 46.51900;
         carrierAndPositionCreationUpload(Carrier.InfectionStatus.INFECTED, 1,
                 SPARSE_INITIAL_EPFL_LATITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
                 SPARSE_INITIAL_EPFL_LONGITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),

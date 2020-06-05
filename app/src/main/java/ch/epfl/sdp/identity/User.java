@@ -20,7 +20,6 @@ public class User implements Account {
     private String playerId;
     private String userID;
     private int age;
-    private boolean infected;
 
 
     public User(String dName, String fName, String email, Uri photoUrl, String userID, int age, boolean infected) {
@@ -30,7 +29,6 @@ public class User implements Account {
         this.photoUrl = photoUrl;
         this.userID = userID;
         this.age = age;
-        this.infected = infected;
     }
 
     public User() {

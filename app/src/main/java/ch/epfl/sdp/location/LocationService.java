@@ -88,8 +88,6 @@ public class LocationService extends Service implements LocationListener, Observ
     private ConnectivityBroker broker;
     private PositionAggregator aggregator;
 
-    private GridFirestoreInteractor gridInteractor;
-
     private SharedPreferences sharedPref;
 
     private DataReceiver receiver;
@@ -211,7 +209,7 @@ public class LocationService extends Service implements LocationListener, Observ
 
     @Override
     public void onCreate() {
-        gridInteractor = new GridFirestoreInteractor();
+        GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor();
         sender = new ConcreteCachingDataSender(gridInteractor);
         receiver = new ConcreteDataReceiver(gridInteractor);
 

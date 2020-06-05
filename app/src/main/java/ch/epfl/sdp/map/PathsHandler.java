@@ -387,7 +387,8 @@ public class PathsHandler {
     @VisibleForTesting
     public enum TestOP {TEST_NON_EMPTY_LIST, TEST_EMPTY_PATH}
 
-    private class DownloadPathsData extends AsyncTask<Void, Integer, Map<PointsName, List<Point>>> {
+    private class DownloadPathsData extends AsyncTask<Void, Integer, Map<PointsName,
+            List<Point>>> {
         private ConcreteDataReceiver concreteDataReceiver;
         private String yesterdayString;
         private String beforeYesterdayString;

@@ -10,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
 
@@ -117,7 +120,13 @@ public final class ConcretePositionAggregator implements PositionAggregator {
             // TODO: [LOG]
             Log.e("POSITION_AGGREGATOR", "New position committed");
             // Perform potentially long-running operation on a different thread
-            cachingDataSender.registerLocation(carrier, meanLocation, lastDate);
+            try {
+                cachingDataSender.registerLocation(carrier, meanLocation, lastDate).get(2, TimeUnit.SECONDS);
+            } catch (TimeoutException e) {
+                Log.e("POSITION_AGGREGATOR", "Location upload timed out");
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
             // TODO: [LOG]
             Log.e("POSITION_AGGREGATOR", meanLocation.toString() + " with date : " + lastDate.getTime());
             Log.e("POSITION_AGGREGATOR", "Upload performed");

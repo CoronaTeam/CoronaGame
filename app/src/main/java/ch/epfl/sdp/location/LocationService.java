@@ -171,7 +171,7 @@ public class LocationService extends Service implements LocationListener, Observ
         editor.putFloat(INFECTION_PROBABILITY_PREF, me.getIllnessProbability())
                 .putInt(INFECTION_STATUS_PREF, me.getInfectionStatus().ordinal())
                 .putLong(LAST_UPDATED_PREF, lastUpdated.getTime())
-                .commit();
+                .apply();
     }
 
     private boolean showServiceNotification() {
@@ -251,7 +251,7 @@ public class LocationService extends Service implements LocationListener, Observ
 
         for (CompletableFuture<Integer> future : operationFutures) {
             try {
-                future.get(1500, TimeUnit.MILLISECONDS);
+                future.get(2, TimeUnit.SECONDS);
             } catch (TimeoutException e) {
                 Log.e("MODEL_UPDATE", "Infection model update timed out");
             } catch (InterruptedException | ExecutionException e) {
@@ -298,7 +298,7 @@ public class LocationService extends Service implements LocationListener, Observ
         Map<String, Object> userPayload = new HashMap<>();
         userPayload.put("Infected", isInfected);
 
-        String userId = AuthenticationManager.getAccount(CoronaGame.getContext()).getId();
+        String userId = AuthenticationManager.getUserId();
 
         // TODO: [LOG]
         Log.e("ACCOUNT_NAME", userId);
@@ -312,10 +312,19 @@ public class LocationService extends Service implements LocationListener, Observ
 
     @Override
     public void update(Observable o, Object arg) {
+
+        InfectionStatus infectionStatus = analyst.getCarrier().getInfectionStatus();
+
         // Store updates to Carrier
         AsyncTask.execute(() -> {
             locallyStoreCarrier();
-            remotelyStoreCarrierStatus(analyst.getCarrier().getInfectionStatus());
+            try {
+                remotelyStoreCarrierStatus(infectionStatus).get(2, TimeUnit.SECONDS);
+            } catch (TimeoutException e) {
+                Log.e("LOCATION_SERVICE", "Remote update of carrier status timed out");
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
         });
     }
 

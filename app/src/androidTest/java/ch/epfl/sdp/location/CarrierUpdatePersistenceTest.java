@@ -220,7 +220,7 @@ public class CarrierUpdatePersistenceTest {
 
         LocationService.setAlarmDelay(200);
         startLocationServiceWithAlarm();
-        
+
         Date now = new Date();
         CachingDataSender fakeSender = new FakeCachingDataSender();
         fakeSender.registerLocation(iAmBob, TestTools.newLoc(1, 1), now);

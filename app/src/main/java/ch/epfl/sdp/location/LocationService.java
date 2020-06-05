@@ -1,6 +1,5 @@
 package ch.epfl.sdp.location;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -67,14 +66,12 @@ import static ch.epfl.sdp.firestore.FirestoreInteractor.taskToFuture;
 
 public class LocationService extends Service implements LocationListener, Observer {
 
-    private final static int LOCATION_PERMISSION_REQUEST = 20201;
-
     public static final String ALARM_GOES_OFF = "beeep!";
-    private static final String POISON_PILL = "dead!";
-
     public static final String INFECTION_PROBABILITY_PREF = "infectionProbability";
     public static final String INFECTION_STATUS_PREF = "infectionStatus";
     public static final String LAST_UPDATED_PREF = "lastUpdated";
+    private final static int LOCATION_PERMISSION_REQUEST = 20201;
+    private static final String POISON_PILL = "dead!";
     //TODO: should we accelerate also the interval between requests to location update?
     private static final int MIN_UP_INTERVAL_MILLIS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
@@ -86,20 +83,28 @@ public class LocationService extends Service implements LocationListener, Observ
     private int boundActivities = 0;
 
     private ConnectivityBroker broker;
+    private final Observer internetObserver = (o, arg) -> {
+        Log.e("LOCATION_SERVICE", "Showing service.......? " + ((boolean) arg));
+        if ((boolean) arg) {
+            removeNotifications();
+            showServiceNotification();
+        } else {
+            showOfflineNotification();
+        }
+    };
     private PositionAggregator aggregator;
-
     private SharedPreferences sharedPref;
-
     private DataReceiver receiver;
     private CachingDataSender sender;
-
     private boolean isAlarmSet = false;
-
     private PendingIntent alarmPending;
     private AlarmManager alarmManager;
-
     private Date lastUpdated;
     private InfectionAnalyst analyst;
+
+    public static void setAlarmDelay(int millisDelay) {
+        alarmDelayMillis = millisDelay;
+    }
 
     private void showOfflineNotification() {
         removeNotifications();
@@ -115,20 +120,6 @@ public class LocationService extends Service implements LocationListener, Observ
         serviceNotificationId = (int) (Math.random() * 100);
 
         NotificationManagerCompat.from(this).notify(serviceNotificationId, builder.build());
-    }
-
-    private final Observer internetObserver = (o, arg) -> {
-        Log.e("LOCATION_SERVICE", "Showing service.......? " + ((boolean) arg));
-        if ((boolean) arg) {
-            removeNotifications();
-            showServiceNotification();
-        } else {
-            showOfflineNotification();
-        }
-    };
-
-    public static void setAlarmDelay(int millisDelay) {
-        alarmDelayMillis = millisDelay;
     }
 
     private void setModelUpdateAlarm() {
@@ -417,17 +408,16 @@ public class LocationService extends Service implements LocationListener, Observ
         this.receiver = receiver;
     }
 
-    public class LocationBinder extends android.os.Binder {
-        public LocationService getService() {
-            return LocationService.this;
-        }
-    }
-
-
     @Override
     public void onDestroy() {
         Log.e("LOCATION_SERVICE", "Destroying service ...");
         removeNotifications();
         super.onDestroy();
+    }
+
+    public class LocationBinder extends android.os.Binder {
+        public LocationService getService() {
+            return LocationService.this;
+        }
     }
 }

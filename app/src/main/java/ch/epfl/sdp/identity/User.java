@@ -10,8 +10,8 @@ public class User implements Account {
     public static final String DEFAULT_DISPLAY_NAME = "MyDisplayName";
     public static final String DEFAULT_FAMILY_NAME = "MyFamilyName";
     public static final String DEFAULT_EMAIL = "MyEmal@epfl.ch";
-    public static String DEFAULT_USERID = "USER_ID_X42";
     public static final Uri DEFAULT_URI = Uri.parse("https://upload.wikimedia.org/wikipedia/commons/9/9a/Gull_portrait_ca_usa.jpg");
+    public static String DEFAULT_USERID = "USER_ID_X42";
     private final String displayName;
     private final String familyName;
     private final String email;

@@ -2,8 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:gravity="center">
+    android:gravity="center"
+    android:orientation="vertical">
 
     <Button
         android:id="@+id/infectionStatusButton"
@@ -16,7 +16,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/your_user_status_is_set_to_not_infected"
-        android:textColor="@color/colorGreenCured"/>
+        android:textColor="@color/colorGreenCured" />
 
     <TextView
         android:id="@+id/onlineStatusView"

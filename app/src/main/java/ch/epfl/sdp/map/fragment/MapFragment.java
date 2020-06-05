@@ -77,6 +77,7 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
     private static final double MIN_LAT_LONG_CHANGE_RECENTER = 1;
     @VisibleForTesting
     static boolean TESTING_MODE;
+    private final List<Runnable> buttonsActions = new ArrayList<>();
     private PathsHandler pathsHandler;
     private MapView mapView;
     private MapboxMap map;
@@ -90,7 +91,6 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
     private ServiceConnection conn;
     private Callable onMapVisible;
     private int CURRENT_PATH;
-    private final List<Runnable> buttonsActions = new ArrayList<>();
     private RapidFloatingActionHelper rfabHelper;
     private View view;
 

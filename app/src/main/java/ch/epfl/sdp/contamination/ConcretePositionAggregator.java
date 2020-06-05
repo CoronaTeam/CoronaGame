@@ -56,9 +56,9 @@ public final class ConcretePositionAggregator implements PositionAggregator {
         class UpdatePosTask extends TimerTask {
             public void run() {
                 if (isOnline && newestLocation != null) {
-                    if(!IN_TEST){
+                    if (!IN_TEST) {
                         registerPosition(newestLocation, Calendar.getInstance().getTime());
-                    }else{
+                    } else {
                         registerPosition(newestLocation, newestDate);
                     }
                 }

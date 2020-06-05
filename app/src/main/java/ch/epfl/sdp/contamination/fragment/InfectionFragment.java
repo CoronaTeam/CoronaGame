@@ -37,13 +37,11 @@ import static android.content.Context.BIND_AUTO_CREATE;
  */
 public class InfectionFragment extends Fragment implements View.OnClickListener {
 
+    private final Handler uiHandler;
     private TextView infectionStatus;
     private ProgressBar infectionProbability;
     private long lastUpdateTime;
-
     private CompletableFuture<LocationService> service;
-
-    private final Handler uiHandler;
 
     public InfectionFragment(Handler uiHandler) {
         this.uiHandler = uiHandler;

@@ -74,13 +74,14 @@ public class ConcreteDataReceiver implements DataReceiver {
     private Set<Long> filterValidTimes(long startDate, long endDate, Map<String, Map<String, Object>> snapshot) {
         Set<Long> validTimes = new HashSet<>();
         for (Map.Entry<String, Map<String, Object>> q : snapshot.entrySet()) {
-            try{
+            try {
                 long time = Long.decode(getTag(q.getValue(), UNIXTIME_TAG, String.class));
 
                 if (startDate <= time && time <= endDate) {
                     validTimes.add(time);
                 }
-            }catch (NumberFormatException ignore){}
+            } catch (NumberFormatException ignore) {
+            }
         }
         return validTimes;
     }

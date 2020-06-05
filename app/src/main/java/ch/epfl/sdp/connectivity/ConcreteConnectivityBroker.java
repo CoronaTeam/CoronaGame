@@ -29,26 +29,9 @@ import static ch.epfl.sdp.connectivity.ConnectivityBroker.Provider.GPS;
  */
 public class ConcreteConnectivityBroker extends Observable implements ConnectivityBroker {
 
-    private boolean hasInternetConnection = false;
-
     private final LocationManager locationManager;
     private final Context context;
-
-    private boolean checkInternetConnection() {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo nInfo = cm.getActiveNetworkInfo();
-
-        boolean connectionAvailable = nInfo != null && nInfo.isAvailable() && nInfo.isConnected();
-
-        try {
-            InetAddress ipAddress = InetAddress.getByName("google.com");
-            //You can replace it with your name
-            return connectionAvailable && !ipAddress.equals("");
-
-        } catch (Exception e) {
-            return false;
-        }
-    }
+    private boolean hasInternetConnection = false;
 
     public ConcreteConnectivityBroker(LocationManager locationManager, Context context) {
         this.locationManager = locationManager;
@@ -92,6 +75,22 @@ public class ConcreteConnectivityBroker extends Observable implements Connectivi
                 }
             };
             cm.registerDefaultNetworkCallback(internetNetworkCallback);
+        }
+    }
+
+    private boolean checkInternetConnection() {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo nInfo = cm.getActiveNetworkInfo();
+
+        boolean connectionAvailable = nInfo != null && nInfo.isAvailable() && nInfo.isConnected();
+
+        try {
+            InetAddress ipAddress = InetAddress.getByName("google.com");
+            //You can replace it with your name
+            return connectionAvailable && !ipAddress.equals("");
+
+        } catch (Exception e) {
+            return false;
         }
     }
 

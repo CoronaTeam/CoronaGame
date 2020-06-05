@@ -5,37 +5,37 @@
     android:orientation="vertical">
 
     <LinearLayout
-        style="@style/Card"
         android:id="@+id/chartCard"
+        style="@style/Card"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:orientation="vertical"
-        android:layout_weight="1" >
+        android:layout_weight="1"
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/infection_probability"
-            android:textAppearance="@style/TextAppearance.AppCompat.Headline"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/smallMargin"
             android:text="@string/since_last_month"
-            android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            android:layout_marginBottom="@dimen/smallMargin"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Small" />
 
         <fragment
-            android:name="ch.epfl.sdp.contamination.fragment.InfectionProbabilityChartFragment"
             android:id="@+id/infectionProbabilityChartFragment"
+            android:name="ch.epfl.sdp.contamination.fragment.InfectionProbabilityChartFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
     </LinearLayout>
 
     <fragment
-        android:name="ch.epfl.sdp.contamination.fragment.UserInfectionFragment"
         android:id="@+id/userInfectionFragment"
+        android:name="ch.epfl.sdp.contamination.fragment.UserInfectionFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/baseMargin" />

@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/profileCard"
+        style="@style/Card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        style="@style/Card">
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
             android:id="@+id/moreButton"
@@ -53,24 +52,24 @@
         android:id="@+id/profileView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/profileCard"
+        android:overScrollMode="always"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:overScrollMode="always">
+        app:layout_constraintTop_toBottomOf="@+id/profileCard">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:padding="@dimen/basePadding">
 
             <TextView
                 android:id="@+id/accountDetails"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/accountDetails"
                 android:layout_marginBottom="@dimen/baseMargin"
-                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-                />
+                android:text="@string/accountDetails"
+                android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -79,9 +78,9 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/baseMargin"
                     android:text="@string/email"
-                    android:textStyle="bold"
-                    android:layout_marginEnd="@dimen/baseMargin"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/email"

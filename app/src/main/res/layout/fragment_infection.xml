@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
@@ -11,22 +9,22 @@
         android:id="@+id/my_infection_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/placeholder"/>
+        android:text="@string/placeholder" />
 
     <ProgressBar
         android:id="@+id/my_infection_probability"
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="match_parent"
-        android:layout_margin="@dimen/basePadding"
         android:layout_height="@dimen/progressBarHeight"
+        android:layout_margin="@dimen/basePadding"
         android:indeterminate="false"
         android:max="100"
         android:progress="63"
-        android:progressTint="@color/colorAccent"/>
+        android:progressTint="@color/colorAccent" />
 
     <Button
         android:id="@+id/my_infection_refresh"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/refresh"/>
+        android:text="@string/refresh" />
 </LinearLayout>

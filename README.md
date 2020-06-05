@@ -24,7 +24,7 @@ Is a... map containing 5 feature buttons described below.
 
 * My location: when your fingers got lost on the map, click to see where you are on the map. 
 
-* Whole path: you are able to see the paths you made yesterday and the day before it, to have more insight on which infected areas you've been close too. This button allows you to show the whole path on the map, from starting point to ending point. NB: you need to have clicked on a path to show first (see next 2 buttons). 
+* Whole path: to have more insight on which infected areas you've been close too, you are able to see the paths you made yesterday and the day before it. This button allows you to show the whole path on the map, from starting point to ending point. NB: you need to have clicked on a path to show first (see next 2 buttons). 
 
 * Yesterday: click here to see your path from yesterday. 
 
@@ -45,7 +45,7 @@ It contains a graph showing your infection probability, and a button to report y
 </p>
 
 ### Account
-Contains your user informations and the tab where you can sign out and clear your history. 
+Contains your user informations. This is where you can sign out and clear your history. 
 
 ## Little story about the name CoronaGame
 > CoronaGame was the initial name for a virus spreading game, supposed to help creating a model for virus spreading. Given the rapid evolution of the current coronavirus situation, we chose to adapt and created Virus Tracker. 

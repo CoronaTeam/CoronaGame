@@ -114,11 +114,9 @@ public final class ConcretePositionAggregator implements PositionAggregator {
         if (lastDate != null) {
             List<Location> targetLocations = buffer.remove(lastDate.getTime());
             Location meanLocation = getMean(targetLocations);
-            // TODO: [LOG]
             Log.e("POSITION_AGGREGATOR", "New position committed");
             // Perform potentially long-running operation on a different thread
             cachingDataSender.registerLocation(carrier, meanLocation, lastDate);
-            // TODO: [LOG]
             Log.e("POSITION_AGGREGATOR", meanLocation.toString() + " with date : " + lastDate.getTime());
             Log.e("POSITION_AGGREGATOR", "Upload performed");
 

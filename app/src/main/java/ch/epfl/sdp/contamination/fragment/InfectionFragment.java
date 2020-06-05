@@ -101,7 +101,6 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
 
         LocationService locationService = service.join();
 
-        // TODO: Which location?
         try {
             locationService.getReceiver()
                     .getMyLastLocation(AuthenticationManager.getUserId())
@@ -119,7 +118,6 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
                     }))
                     .get(2, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
-            // TODO: [LOG]
             Log.e("INFECTION_CHART", "Refresh timed out...");
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();

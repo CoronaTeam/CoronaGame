@@ -157,37 +157,6 @@ public class GridSenderTest {
                 });
     }
 
-    //TODO restore
-    /*private void setFakeReceiver(Location testLocation) {
-        resetRealSenderAndReceiver();
-
-        ((ConcreteDataReceiver) mActivityRule.getActivity().getService().getReceiver())
-            .setInteractor(new MockGridInteractor() {
-
-            @Override
-            public void getTimes(Location location, QueryHandler handler) {
-                if (location != testLocation) {
-                    handler.onFailure();
-                } else {
-                    handler.onSuccess(timesListSnapshot);
-                }
-            }
-
-            @Override
-            public void read(Location location, long time, QueryHandler handler) {
-                if (location != testLocation) {
-                    handler.onFailure();
-                } else {
-                    if (time == rangeStart) {
-                        handler.onSuccess(firstPeriodSnapshot);
-                    } else if (time == rangeEnd) {
-                        handler.onSuccess(secondPeriodSnapshot);
-                    }
-                }
-            }
-        });
-    }*/
-
     private void setFakeReceiver(Location testLocation) {
     }
 
@@ -231,7 +200,6 @@ public class GridSenderTest {
 
     static class MockGridInteractor extends GridFirestoreInteractor {
 
-        // TODO: GridFirestoreInteractor should become an interface too
         MockGridInteractor() {
             super();
         }

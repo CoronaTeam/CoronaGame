@@ -31,6 +31,4 @@ public class DataReceiverTest {
         sleep();
     }
 
-    //TODO: test with a non-empty fake grid
-
 }

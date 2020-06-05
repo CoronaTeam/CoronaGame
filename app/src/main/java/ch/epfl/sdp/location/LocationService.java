@@ -72,7 +72,6 @@ public class LocationService extends Service implements LocationListener, Observ
     public static final String LAST_UPDATED_PREF = "lastUpdated";
     private final static int LOCATION_PERMISSION_REQUEST = 20201;
     private static final String POISON_PILL = "dead!";
-    //TODO: should we accelerate also the interval between requests to location update?
     private static final int MIN_UP_INTERVAL_MILLIS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
     // This correspond to 6h divided by the DEMO_SPEEDUP constant
@@ -226,7 +225,6 @@ public class LocationService extends Service implements LocationListener, Observ
     private void updateInfectionModel() {
         SortedMap<Date, Location> locations = sender.getLastPositions().tailMap(lastUpdated);
 
-        // TODO: [LOG]
         Log.e("POSITION_ITERATOR", Integer.toString(locations.size()));
         List<CompletableFuture<Integer>> operationFutures = new ArrayList<>();
 
@@ -252,7 +250,6 @@ public class LocationService extends Service implements LocationListener, Observ
         if (alarmManager != null) {
             alarmManager.cancel(alarmPending);
         }
-        // TODO: [LOG]
         Log.e("LOCATION_SERVICE", "Kill message received");
         stopSelf();
     }
@@ -270,7 +267,6 @@ public class LocationService extends Service implements LocationListener, Observ
         }
 
         if (!isAlarmSet) {
-            // TODO: [LOG]
             Log.e("LOCATION_SERVICE", "Setting alarm");
             // Create next alarm
             setModelUpdateAlarm();
@@ -286,7 +282,6 @@ public class LocationService extends Service implements LocationListener, Observ
 
         String userId = AuthenticationManager.getAccount(CoronaGame.getContext()).getId();
 
-        // TODO: [LOG]
         Log.e("ACCOUNT_NAME", userId);
 
         DocumentReference userRef = documentReference("Users", userId);
@@ -310,7 +305,6 @@ public class LocationService extends Service implements LocationListener, Observ
     public IBinder onBind(Intent intent) {
         // Increment number of bound activities
         boundActivities++;
-        // TODO: [LOG]
         Log.e("LOCATION_SERVICE", "Unregister binding: " + boundActivities + " remaining");
         if (boundActivities > 0) {
             removeNotifications();
@@ -321,7 +315,6 @@ public class LocationService extends Service implements LocationListener, Observ
     @Override
     public boolean onUnbind(Intent intent) {
         boundActivities--;
-        // TODO: [LOG]
         Log.e("LOCATION_SERVICE", "Unregister binding: " + boundActivities + " remaining");
         showServiceNotification();
         return super.onUnbind(intent);

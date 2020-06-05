@@ -70,7 +70,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
  */
 public class MapFragment extends Fragment implements LocationListener, RapidFloatingActionContentLabelList.OnRapidFloatingActionContentLabelListListener {
 
-    //TODO: some constant are dupicated from locationService
+    // FIXME: some constant are dupicated from locationService
     private final static int LOCATION_PERMISSION_REQUEST = 20201;
     private static final int MIN_UP_INTERVAL_MILLISECS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
@@ -124,7 +124,7 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
 
             @Override
             public void onServiceDisconnected(ComponentName name) {
-                // TODO: Check in code that the service does not become null
+                // FIXME: Check in code that the service does not become null
                 connectivityBroker = null;
             }
         };

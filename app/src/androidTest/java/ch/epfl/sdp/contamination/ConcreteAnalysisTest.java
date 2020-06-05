@@ -339,7 +339,6 @@ public class ConcreteAnalysisTest {
         clickBack(2500);
         onView(withId(R.id.my_infection_status)).check(matches(withText("UNKNOWN")));
 
-        // TODO: Restore original components
         service.setReceiver(originalReceiver);
         service.setAnalyst(originalAnalyst);
 

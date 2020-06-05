@@ -95,7 +95,6 @@ public class Layman extends ObservableCarrier {
         }
 
         // Include this update into the history
-        //TODO :@Matteo what is wrong with those lines
         try {
             infectionHistory.write(new TreeMap<>(Collections.singletonMap(when, probability)));
         } catch (NullPointerException e) {

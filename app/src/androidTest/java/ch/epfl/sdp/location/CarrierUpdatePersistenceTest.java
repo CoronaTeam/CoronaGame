@@ -114,8 +114,7 @@ public class CarrierUpdatePersistenceTest {
 
     @After
     public void resetAnalyst() {
-        // TODO: @Adrien this mechanism can be refactored into a new method resetAnalysts() to
-        // be placed in some test file
+
         mActivityRule.getActivity().getService().setAnalyst(originalAnalyst);
     }
 

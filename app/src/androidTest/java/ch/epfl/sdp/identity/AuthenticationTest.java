@@ -32,7 +32,7 @@ public class AuthenticationTest {
         AuthenticationManager.signOut(activityRule.getActivity()); // fixes Auth skip to TabActivity
     }
 
-    @Test(expected = Test.None.class) //expect no error
+    @Test() //expect no error
     public void signInButtonIsDisplayedAndClickable() {
         onView(ViewMatchers.withId(R.id.sign_in_button)).check(matches(isDisplayed()));
         onView(withId(R.id.sign_in_button)).perform(click());
@@ -45,7 +45,7 @@ public class AuthenticationTest {
         ((AuthenticationFragment) (activityRule.getActivity().getFragment())).onActivityResult(AuthenticationFragment.RC_SIGN_IN - 1, 0, null);
     }
 
-    @Test(expected = Test.None.class)
+    @Test()
     public void onActivityResultThrowsNoExceptionOnRightRequestCode() {
         activityRule.getActivity().getFragment().onActivityResult(AuthenticationFragment.RC_SIGN_IN, 0, null);
     }

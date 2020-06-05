@@ -16,7 +16,8 @@ Once you log into  the app, you can see 3 different tabs: Map, Status & Account.
 ### Map
 Is a... map containing 5 feature buttons described below.
 
-* Toggle heatmap: show infected areas around you. If you zoom in/out too much, you won't be able to see it anymore. That way, you cannot see the precise location of infected users (privacy friendly). 
+* Toggle heatmap: show infected areas around you. If you zoom in/out too much, you won't be able to see it anymore. That way, you cannot see the precise location of infected users (privacy friendly). Here's how it looks like:
+<img src="Screenshot_1591386066.png" width="100" >
 
 * My location: when your fingers got lost on the map, click to see where you are on the map. 
 
@@ -42,12 +43,10 @@ It contains a graph showing your infection probability, and a button to report y
 ### Account
 Contains your user informations and the tab where you can sign out and clear your history. 
 
-<p align="center">
-  <img src="Screenshot_1591386066.png" width="300" >
-</p>
-
 ## Little story about the name CoronaGame
 > CoronaGame was the initial name for a virus spreading game, supposed to help creating a model for virus spreading. Given the rapid evolution of the current coronavirus situation, we chose to adapt and created Virus Tracker. 
+
+
 
 <!--Badges-->
 [![Build Status](https://api.cirrus-ci.com/github/CoronaTeam/CoronaGame.svg)](https://cirrus-ci.com/github/CoronaTeam/CoronaGame)

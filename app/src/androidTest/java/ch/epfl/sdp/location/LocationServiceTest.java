@@ -140,7 +140,7 @@ public class LocationServiceTest {
     }
 
     @Test
-    public void canStopAggregator() throws Throwable {
+    public void canStopAggregator() {
         mActivityRule.getActivity().getService().onProviderDisabled(LocationManager.GPS_PROVIDER);
         // TODO: This test should check the effects of the operation
         mActivityRule.finishActivity();

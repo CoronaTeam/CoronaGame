@@ -32,7 +32,7 @@ public class AuthenticationManagerTest {
     public final ActivityTestRule<AccountActivity> activityRule = new ActivityTestRule<AccountActivity>(AccountActivity.class);
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         initSafeTest(activityRule, true);
     }
 
@@ -67,7 +67,7 @@ public class AuthenticationManagerTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         Intents.release();
     }
 

@@ -27,7 +27,7 @@ public class AuthenticationTest {
     public final ActivityTestRule<Authentication> activityRule = new ActivityTestRule<>(Authentication.class);
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         initSafeTest(activityRule, true);
         AuthenticationManager.signOut(activityRule.getActivity()); // fixes Auth skip to TabActivity
     }
@@ -57,7 +57,7 @@ public class AuthenticationTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         Intents.release();
     }
 }

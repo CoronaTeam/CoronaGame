@@ -29,7 +29,7 @@ public class TabActivityTest {
     public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
 
     @Before
-    public void setUp() throws Throwable {
+    public void setUp() {
     }
 
     @After

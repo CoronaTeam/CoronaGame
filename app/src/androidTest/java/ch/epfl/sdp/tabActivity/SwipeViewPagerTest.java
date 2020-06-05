@@ -23,9 +23,6 @@ public class SwipeViewPagerTest {
 
     private SwipeViewPager swipeViewPager;
 
-    @Mock
-    private AttributeSet attributes;
-
     @Before
     public void setup() {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();

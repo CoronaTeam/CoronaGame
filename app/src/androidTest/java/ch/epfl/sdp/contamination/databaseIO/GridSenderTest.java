@@ -56,10 +56,6 @@ public class GridSenderTest {
     private Consumer<Void> writeSuccessToUi;
     private Function<Throwable, Void> writeFailureToUi;
     @Mock
-    Map.Entry<String, Map<String, Object>> stringMapEntry;
-    @Mock
-    private Map<String, Map<String, Object>> stringMapMap;
-    @Mock
     private QuerySnapshot firstPeriodSnapshot;
     @Mock
     private QuerySnapshot secondPeriodSnapshot;
@@ -78,10 +74,6 @@ public class GridSenderTest {
 
     @Before
     public void setupMockito() {
-        /*when(stringMapMap.entrySet()).thenReturn(Collections.singleton(stringMapEntry));
-        when(stringMapEntry.getValue().get("infectionStatus")).thenReturn(Carrier.InfectionStatus.HEALTHY.toString());
-        when(stringMapEntry.getValue().get("illnessProbability")).thenReturn(0.5d);*/
-
         when(firstPeriodSnapshot.iterator()).thenReturn(Collections.singletonList(firstPeriodDocumentSnapshot).iterator());
         when(secondPeriodSnapshot.iterator()).thenReturn(Collections.singletonList(secondPeriodDocumentSnapshot).iterator());
         when(firstPeriodDocumentSnapshot.get("infectionStatus")).thenReturn(Carrier.InfectionStatus.HEALTHY.toString());

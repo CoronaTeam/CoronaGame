@@ -42,8 +42,6 @@ public class LocationServiceTest {
 
     private AtomicBoolean registered;
 
-    private Location beenThere = TestTools.newLoc(13, 78);
-    private Date now = new Date();
     private final LocationListener listener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {

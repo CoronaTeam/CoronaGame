@@ -1,6 +1,5 @@
 package ch.epfl.sdp.map.fragment;
 
-import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -202,11 +201,11 @@ public class PathHandlerTest {
 
     @Test
     public void seeWholePathButtonAppearsWhenSeeingNonEmptyPath() throws Throwable {
-        PathButtonTestBody(PathsHandler.TestOP.TEST_NON_EMPTY_LIST, ViewMatchers.Visibility.VISIBLE);
+        PathButtonTestBody(PathsHandler.TestOP.TEST_NON_EMPTY_LIST);
 
     }
 
-    private void PathButtonTestBody(PathsHandler.TestOP testNonEmptyList, ViewMatchers.Visibility visible) throws Throwable {
+    private void PathButtonTestBody(PathsHandler.TestOP testNonEmptyList) throws Throwable {
         pathGetsInstantiated();
         activityRule.runOnUiThread(() -> {
             mapFragment.getPathsHandler().resetPaths(testNonEmptyList,
@@ -226,7 +225,7 @@ public class PathHandlerTest {
 
     @Test(timeout = 30000)
     public void seeWholePathButtonInvisibleWhenNoPath() throws Throwable {
-        PathButtonTestBody(PathsHandler.TestOP.TEST_EMPTY_PATH, ViewMatchers.Visibility.INVISIBLE);
+        PathButtonTestBody(PathsHandler.TestOP.TEST_EMPTY_PATH);
 
     }
 

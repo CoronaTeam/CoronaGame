@@ -151,7 +151,7 @@
     <string name="yesterday_label">Yesterday</string>
     <string name="before_yesterday_label">Before yesterday</string>
     <string name="toggle_heatmap_label">Toggle heatmap</string>
-    <string name="focus_path_label">Focus path</string>
+    <string name="focus_path_label">Whole path</string>
     <string name="my_location_label">My location</string>
     <string name="missing_GPS_Perm_Dialog_title">Missing permission</string>
     <string name="missing_GPS_Perm_Dialog_text">You refused the GPS permission. The app need

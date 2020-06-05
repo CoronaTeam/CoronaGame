@@ -21,6 +21,9 @@ import androidx.fragment.app.Fragment;
 
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.InfectionAnalyst;
@@ -101,22 +104,30 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
         LocationService locationService = service.join();
 
         // TODO: Which location?
-        locationService.getReceiver().getMyLastLocation(AuthenticationManager.getUserId())
-                .thenApply(location -> locationService.getAnalyst().updateInfectionPredictions(location, refreshTime, new Date())
-                        .thenAccept(todayInfectionMeetings -> {
-                            //TODO: should run on UI thread?
-                            requireActivity().runOnUiThread(() -> {
-                                infectionStatus.setText(R.string.infection_status_posted);
-                                uiHandler.post(() -> {
-                                    InfectionAnalyst analyst = locationService.getAnalyst();
-                                    infectionStatus.setText(analyst.getCarrier().getInfectionStatus().toString());
-                                    infectionProbability.setProgress(Math.round(analyst.getCarrier().getIllnessProbability() * 100));
-                                    Log.e("PROB:", analyst.getCarrier().getIllnessProbability() + "");
-                                    displayAlert(todayInfectionMeetings);
-                                });
+        try {
+            locationService.getReceiver()
+                    .getMyLastLocation(AuthenticationManager.getUserId())
+                    .thenCompose(location ->
+                            locationService.getAnalyst().updateInfectionPredictions(location, refreshTime, new Date()))
+                    .thenAccept(todayInfectionMeetings -> {
+                        requireActivity().runOnUiThread(() -> {
+                            infectionStatus.setText(R.string.infection_status_posted);
+                            uiHandler.post(() -> {
+                                InfectionAnalyst analyst = locationService.getAnalyst();
+                                infectionStatus.setText(analyst.getCarrier().getInfectionStatus().toString());
+                                infectionProbability.setProgress(Math.round(analyst.getCarrier().getIllnessProbability() * 100));
+                                Log.e("PROB:", analyst.getCarrier().getIllnessProbability() + "");
+                                displayAlert(todayInfectionMeetings);
                             });
-                        })
-                        .join());
+                        });
+                    })
+                    .get(2, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            // TODO: [LOG]
+            Log.e("INFECTION_CHART", "Refresh timed out...");
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void displayAlert(int todayInfectionMeetings) {

@@ -29,7 +29,7 @@ import static org.junit.Assert.assertSame;
 
 public class AuthenticationManagerTest {
     @Rule
-    public final ActivityTestRule<AccountActivity> activityRule = new ActivityTestRule<AccountActivity>(AccountActivity.class);
+    public final ActivityTestRule<AccountActivity> activityRule = new ActivityTestRule<>(AccountActivity.class);
 
     @Before
     public void setUp() {

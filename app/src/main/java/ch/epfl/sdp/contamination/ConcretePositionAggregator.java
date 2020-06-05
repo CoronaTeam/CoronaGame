@@ -88,7 +88,7 @@ public final class ConcretePositionAggregator implements PositionAggregator {
         } else {
             update();
             lastDate = roundedDate;
-            ArrayList<Location> newList = new ArrayList<Location>();
+            ArrayList<Location> newList = new ArrayList<>();
 
             newList.add(location);
             buffer.put(roundedDate.getTime(), newList);

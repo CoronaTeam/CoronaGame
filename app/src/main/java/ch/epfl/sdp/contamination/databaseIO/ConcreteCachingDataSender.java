@@ -44,7 +44,7 @@ public class ConcreteCachingDataSender implements CachingDataSender {
         this.positionHistory = initStorageManager();
     }
     private StorageManager<Date, Location> openStorageManager() {
-        return new ConcreteManager<Date, Location>(
+        return new ConcreteManager<>(
                 CoronaGame.getContext(),
                 "last_positions.csv",
                 date_position -> {

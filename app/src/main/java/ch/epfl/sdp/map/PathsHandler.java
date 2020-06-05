@@ -245,8 +245,13 @@ public class PathsHandler {
 
     private void addInfectedMet(double lat, double lon, Timestamp timestamp, List<Point> infected) {
         Location location = LocationUtils.buildLocation(lat, lon);
+        Date endDate;
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(timestamp.toDate());
+        cal.add(Calendar.SECOND, 60);
+        endDate = cal.getTime();
         concreteDataReceiver
-                .getUserNearbyDuring(location, timestamp.toDate(), timestamp.toDate())
+                .getUserNearbyDuring(location, timestamp.toDate(), endDate)
                 .thenAccept(carrierIntegerMap -> {
                     Carrier carrier;
                     Point point;

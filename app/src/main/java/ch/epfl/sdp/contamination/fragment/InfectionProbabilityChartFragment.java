@@ -86,7 +86,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 InfectionProbabilityChartFragment.this.service = ((LocationService.LocationBinder) service).getService();
-                ((Layman) InfectionProbabilityChartFragment.this.service.getAnalyst().getCarrier()).addObserver(InfectionProbabilityChartFragment.this);
+                InfectionProbabilityChartFragment.this.service.getAnalyst().getCarrier().addObserver(InfectionProbabilityChartFragment.this);
                 updateData();
             }
 

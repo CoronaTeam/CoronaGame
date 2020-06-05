@@ -50,8 +50,8 @@ Contains your user informations. This is where you can sign out and clear your h
 ## Example for the contamination detection process
 If you take a walk with a sick person you'll get sick too (probability 1). On the other hand, if that person was not known sick and got diagnosed sick the next day, your probability of being sick will increase (not necessarily to 1). 
 > NB: 
-- The transmission of the sickness-probability is proportional to the sickness-probability of the users.
-- If you get cured, your probability of infection decreases again.
+> - The transmission of the sickness-probability is proportional to the sickness-probability of the users.
+> - If you get cured your probability of infection decreases again, taking into account an immunity factor.
 
 ## Little story about the name CoronaGame
 > CoronaGame was the initial name for a virus spreading game, supposed to help creating a model for virus spreading. Given the rapid evolution of the current coronavirus situation, we chose to adapt and created Virus Tracker. 

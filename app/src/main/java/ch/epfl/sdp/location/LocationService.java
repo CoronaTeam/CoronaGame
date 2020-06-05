@@ -390,11 +390,6 @@ public class LocationService extends Service implements LocationListener, Observ
         return broker;
     }
 
-    @VisibleForTesting
-    public void setBroker(ConnectivityBroker broker) {
-        this.broker = broker;
-    }
-
     public InfectionAnalyst getAnalyst() {
         return analyst;
     }
@@ -425,22 +420,6 @@ public class LocationService extends Service implements LocationListener, Observ
     public class LocationBinder extends android.os.Binder {
         public LocationService getService() {
             return LocationService.this;
-        }
-
-        public boolean hasGpsPermissions() {
-            return broker.hasPermissions(GPS);
-        }
-
-        public void requestGpsPermissions(Activity activity) {
-            broker.requestPermissions(activity, LOCATION_PERMISSION_REQUEST);
-        }
-
-        public boolean startAggregator() {
-            return LocationService.this.startAggregator();
-        }
-
-        private void stopAggregator() {
-            LocationService.this.stopAggregator();
         }
     }
 

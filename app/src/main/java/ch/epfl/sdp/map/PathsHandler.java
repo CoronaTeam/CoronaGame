@@ -76,7 +76,7 @@ public class PathsHandler {
     private static final String BEFORE_INFECTED_SOURCE_ID = "points-source-two";
     private static final String YESTERDAY_PATH_SOURCE_ID = "line-source-one";
     private static final String BEFORE_PATH_SOURCE_ID = "line-source-two";
-    private static final int ZOOM = 13;
+    private static final int ZOOM = 16;
     private final MapboxMap map;
     private final MapFragment parentClass;
     private final ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(

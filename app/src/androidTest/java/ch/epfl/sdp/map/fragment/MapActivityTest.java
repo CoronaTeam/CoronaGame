@@ -32,7 +32,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.location.LocationUtils.buildLocation;
-import static ch.epfl.sdp.map.HeatMapHandler.HEATMAP_LAYER_ID;
 import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
 import static com.mapbox.mapboxsdk.style.layers.Property.VISIBLE;
 import static junit.framework.Assert.assertFalse;
@@ -137,7 +136,7 @@ public class MapActivityTest {
 
         testHeatMapLoadCorrectly();
 
-        testLayerVisibility(VISIBLE, HEATMAP_LAYER_ID);
+        testLayerVisibility(VISIBLE);
 
         waitForSentinelAndSetToZero();
 
@@ -147,7 +146,7 @@ public class MapActivityTest {
         activityRule.runOnUiThread(
                 () -> mapFragment.onRFACItemIconClick(HEATMAP_TOGGLE_BUTTON_POSITION, pathItems.get(HEATMAP_TOGGLE_BUTTON_POSITION)));
 
-        testLayerVisibility(NONE, HEATMAP_LAYER_ID);
+        testLayerVisibility(NONE);
 
         waitForSentinelAndSetToZero();
     }
@@ -180,8 +179,8 @@ public class MapActivityTest {
 
     ////////////////////////////////// Helper functions //////////////////////////////////////
 
-    private void testLayerVisibility(String visibility, String layerId) throws Throwable {
-        sTestLayerVisibility(visibility, layerId, mapFragment, sentinel, activityRule);
+    private void testLayerVisibility(String visibility) throws Throwable {
+        sTestLayerVisibility(visibility, ch.epfl.sdp.map.HeatMapHandler.HEATMAP_LAYER_ID, mapFragment, sentinel, activityRule);
     }
 
     static void sTestLayerVisibility(String visibility, String layerId, MapFragment mapFragment, AtomicInteger sentinel, ActivityTestRule<MapActivity> activityRule) throws Throwable {

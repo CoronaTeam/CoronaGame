@@ -365,17 +365,17 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
         List<RFACLabelItem> items = new ArrayList<>();
         setItems(items, new Item[]{
                 new Item(
-                        R.string.toggle_heatmap_label, R.drawable.visibility, R.color.colorAccent,
+                        R.string.toggle_heatmap_label, R.drawable.visibility,
                         this::toggleHeatMap),
                 new Item(
-                        R.string.my_location_label, R.drawable.my_location, R.color.colorAccent,
+                        R.string.my_location_label, R.drawable.my_location,
                         this::setCameraToCurrentLocation),
                 new Item(
-                        R.string.focus_path_label, R.drawable.search, R.color.colorAccent,
+                        R.string.focus_path_label, R.drawable.search,
                         this::focusPath),
-                new Item(R.string.yesterday_label, R.drawable.calendar, R.color.colorAccent,
+                new Item(R.string.yesterday_label, R.drawable.calendar,
                         () -> togglePath(R.string.yesterday)),
-                new Item(R.string.before_yesterday_label, R.drawable.calendar, R.color.colorAccent,
+                new Item(R.string.before_yesterday_label, R.drawable.calendar,
                         () -> togglePath(R.string.before_yesterday))
         });
         rfaContent.setItems(items).setIconShadowColor(getContext().getColor(R.color.colorPrimary));
@@ -523,10 +523,10 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
         int label, icon, color;
         Runnable callback;
 
-        Item(int label, int icon, int color, Runnable callback) {
+        Item(int label, int icon, Runnable callback) {
             this.label = label;
             this.icon = icon;
-            this.color = color;
+            this.color = R.color.colorAccent;
             this.callback = callback;
         }
     }

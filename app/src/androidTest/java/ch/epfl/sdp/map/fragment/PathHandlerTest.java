@@ -182,10 +182,8 @@ public class PathHandlerTest {
         yesterdayPathLayerIsSetWhenNotEmpty();
         yesterdayInfectedLayerIsSetWhenNotEmpty();
 
-        activityRule.runOnUiThread(() -> {
-            mapFragment.getPathsHandler().resetPaths(PathsHandler.TestOP.TEST_NON_EMPTY_LIST,
-                    () -> sentinel.incrementAndGet());
-        });
+        activityRule.runOnUiThread(() -> mapFragment.getPathsHandler().resetPaths(PathsHandler.TestOP.TEST_NON_EMPTY_LIST,
+                () -> sentinel.incrementAndGet()));
         waitForSentinelAndSetToZero();
 
         if (pathCoordIsEmpty) {
@@ -207,10 +205,8 @@ public class PathHandlerTest {
 
     private void PathButtonTestBody(PathsHandler.TestOP testNonEmptyList) throws Throwable {
         pathGetsInstantiated();
-        activityRule.runOnUiThread(() -> {
-            mapFragment.getPathsHandler().resetPaths(testNonEmptyList,
-                    () -> sentinel.incrementAndGet());
-        });
+        activityRule.runOnUiThread(() -> mapFragment.getPathsHandler().resetPaths(testNonEmptyList,
+                () -> sentinel.incrementAndGet()));
         waitForSentinelAndSetToZero();
 
         testMapVisible();
@@ -233,10 +229,8 @@ public class PathHandlerTest {
     public void clickSeeWholePathMakeZoomAdjust() throws Throwable {
         pathGetsInstantiated();
 
-        activityRule.runOnUiThread(() -> {
-            mapFragment.getPathsHandler().resetPaths(PathsHandler.TestOP.TEST_NON_EMPTY_LIST,
-                    () -> sentinel.incrementAndGet());
-        });
+        activityRule.runOnUiThread(() -> mapFragment.getPathsHandler().resetPaths(PathsHandler.TestOP.TEST_NON_EMPTY_LIST,
+                () -> sentinel.incrementAndGet()));
         waitForSentinelAndSetToZero();
 
         testMapVisible();

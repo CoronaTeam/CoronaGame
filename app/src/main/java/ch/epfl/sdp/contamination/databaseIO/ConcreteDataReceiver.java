@@ -125,7 +125,7 @@ public class ConcreteDataReceiver implements DataReceiver {
 
                     return carriersForTimeSlice.thenApply(ignoredVoid -> {
                         // Create a Map containing all the Carriers met during this interval
-                        Stream<Map<String, Map<String, Object>>> results = metDuringSlices.stream().map(ft -> ft.join());
+                        Stream<Map<String, Map<String, Object>>> results = metDuringSlices.stream().map(CompletableFuture::join);
                         return collectCarriersMetDuringInterval(results);
                     });
                 })

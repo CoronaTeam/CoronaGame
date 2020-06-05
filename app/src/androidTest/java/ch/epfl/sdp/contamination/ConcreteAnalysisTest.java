@@ -429,9 +429,7 @@ public class ConcreteAnalysisTest {
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver, sender);
         sender.sendAlert(me.getUniqueId());
         sender.sendAlert(me.getUniqueId(), 0.4f);
-        analyst.updateInfectionPredictions(null, null, null).thenAccept(res -> {
-            assertEquals(1.6 * Math.pow(IMMUNITY_FACTOR, recoveryCounter) * TRANSMISSION_FACTOR, me.getIllnessProbability(), 0.00001f);
-        });
+        analyst.updateInfectionPredictions(null, null, null).thenAccept(res -> assertEquals(1.6 * Math.pow(IMMUNITY_FACTOR, recoveryCounter) * TRANSMISSION_FACTOR, me.getIllnessProbability(), 0.00001f));
     }
 
     @Test

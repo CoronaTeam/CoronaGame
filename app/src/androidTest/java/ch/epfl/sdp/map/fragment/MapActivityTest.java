@@ -100,9 +100,7 @@ public class MapActivityTest {
                 sentinel::incrementAndGet));
         // The sentinel value will only increase when the heatmap has completely loaded
 
-        activityRule.runOnUiThread(() -> {
-            mapFragment.getHeatMapHandler().onHeatMapDataLoaded(sentinel::incrementAndGet);
-        }); // The sentinel value will only increase when the heatmap has completely loaded
+        activityRule.runOnUiThread(() -> mapFragment.getHeatMapHandler().onHeatMapDataLoaded(sentinel::incrementAndGet)); // The sentinel value will only increase when the heatmap has completely loaded
 
         waitForSentinelAndSetToZero();
 

@@ -117,16 +117,13 @@ public class LocationService extends Service implements LocationListener, Observ
         NotificationManagerCompat.from(this).notify(serviceNotificationId, builder.build());
     }
 
-    private final Observer internetObserver = new Observer() {
-        @Override
-        public void update(Observable o, Object arg) {
-            Log.e("LOCATION_SERVICE", "Showing service.......? " + ((boolean) arg));
-            if ((boolean) arg) {
-                removeNotifications();
-                showServiceNotification();
-            } else {
-                showOfflineNotification();
-            }
+    private final Observer internetObserver = (o, arg) -> {
+        Log.e("LOCATION_SERVICE", "Showing service.......? " + ((boolean) arg));
+        if ((boolean) arg) {
+            removeNotifications();
+            showServiceNotification();
+        } else {
+            showOfflineNotification();
         }
     };
 

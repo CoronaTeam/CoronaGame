@@ -41,9 +41,9 @@ public class ConcreteConnectivityBroker extends Observable implements Connectivi
         boolean connectionAvailable = nInfo != null && nInfo.isAvailable() && nInfo.isConnected();
 
         try {
-            InetAddress ipAddr = InetAddress.getByName("google.com");
+            InetAddress ipAddress = InetAddress.getByName("google.com");
             //You can replace it with your name
-            return connectionAvailable && !ipAddr.equals("");
+            return connectionAvailable && !ipAddress.equals("");
 
         } catch (Exception e) {
             return false;

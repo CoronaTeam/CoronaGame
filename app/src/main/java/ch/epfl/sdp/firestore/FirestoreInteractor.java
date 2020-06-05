@@ -16,9 +16,6 @@ import java.util.concurrent.CompletableFuture;
 public abstract class FirestoreInteractor {
     private static final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
-    // TODO: @Ulysse, @Adrien, @Kevin, @Lucas, @Lucie use this function to get something from
-    // maps returned by Firestore
-
     /**
      * Retrieves information taken from Firestore and stored in the map 'fields'
      *

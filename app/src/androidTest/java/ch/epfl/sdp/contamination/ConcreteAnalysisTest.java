@@ -250,7 +250,7 @@ public class ConcreteAnalysisTest {
     public void infectionProbabilityIsUpdated() throws Throwable {
         recoveryCounter = 0;
         CityDataReceiver cityReceiver = new CityDataReceiver();
-        ObservableCarrier me = new Layman(HEALTHY, "TESTUSER");
+        ObservableCarrier me = new Layman(HEALTHY, "TEST_USER");
 
         InfectionFragment fragment = ((InfectionFragment) mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
 
@@ -364,14 +364,14 @@ public class ConcreteAnalysisTest {
     public void observersKnowIfStatusChanged() {
         AtomicInteger counter = new AtomicInteger(0);
 
-        Observer fakeOserver = (o, arg) -> {
+        Observer fakeObserver = (o, arg) -> {
             if (((Optional<Float>) arg).isPresent()) {
                 counter.incrementAndGet();
             }
         };
 
         ObservableCarrier me = new Layman(HEALTHY);
-        me.addObserver(fakeOserver);
+        me.addObserver(fakeObserver);
 
         // No status change
         assertTrue(me.evolveInfection(new Date(), HEALTHY, me.getIllnessProbability()));
@@ -433,7 +433,7 @@ public class ConcreteAnalysisTest {
     }
 
     @Test
-    public void decreaseSickProbaWhenRecovered() {
+    public void decreaseSickProbabilityWhenRecovered() {
         recoveryCounter = 2;
         CityDataReceiver cityReceiver = new CityDataReceiver();
         ObservableCarrier me = new Layman(HEALTHY);

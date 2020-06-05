@@ -217,9 +217,9 @@ public class DataForDemo {
         ConcreteFirestoreInteractor cfi = new ConcreteFirestoreInteractor();
         final boolean[] pathLoaded = new boolean[1];
         double lat = 50.0;//33.39767645465177;
-        double longi = -73.0;//-118.39439114221236;
+        double longitude = -73.0;//-118.39439114221236;
         for (double i = 0; i < 50 * 0.001; i = i + 0.001) {
-            Location location = LocationUtils.buildLocation(lat + i, longi + i);
+            Location location = LocationUtils.buildLocation(lat + i, longitude + i);
             Map<String, Object> element = new HashMap<>();
             element.put(GEOPOINT_TAG, new GeoPoint(
                     location.getLatitude(),

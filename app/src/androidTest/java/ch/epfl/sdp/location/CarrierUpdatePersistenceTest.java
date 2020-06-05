@@ -156,9 +156,9 @@ public class CarrierUpdatePersistenceTest {
     }
 
     private void startLocationServiceWithAlarm() {
-        Intent locaIntentWithAlarm = new Intent(mActivityRule.getActivity(), LocationService.class);
-        locaIntentWithAlarm.putExtra(LocationService.ALARM_GOES_OFF, true);
-        mActivityRule.getActivity().startService(locaIntentWithAlarm);
+        Intent locationIntentWithAlarm = new Intent(mActivityRule.getActivity(), LocationService.class);
+        locationIntentWithAlarm.putExtra(LocationService.ALARM_GOES_OFF, true);
+        mActivityRule.getActivity().startService(locationIntentWithAlarm);
     }
 
     private void useAnalystWithSentinel() {

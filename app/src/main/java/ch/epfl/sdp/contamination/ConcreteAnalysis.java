@@ -24,9 +24,6 @@ import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
 import static ch.epfl.sdp.firestore.FirestoreLabels.privateRecoveryCounter;
 import static ch.epfl.sdp.firestore.FirestoreLabels.publicAlertAttribute;
 
-
-// TODO: @Ulysse, @Adrien, @Kevin, @Lucas, @Lucie: general info on ConcreteAnalysis
-
 /**
  * Concrete implementation of InfectionAnalyst, which can be observed
  * It models the evolution of the disease.

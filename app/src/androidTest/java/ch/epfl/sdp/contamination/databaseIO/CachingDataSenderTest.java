@@ -89,7 +89,7 @@ public class CachingDataSenderTest {
 
     @Test
     public void cacheWorksIfUsedTwice() {
-        //During development, the above test failed if runed twice.
+        //During development, the above test failed if run twice.
         getLastPositionsReturnsCorrectWindowOfLocations();
     }
 

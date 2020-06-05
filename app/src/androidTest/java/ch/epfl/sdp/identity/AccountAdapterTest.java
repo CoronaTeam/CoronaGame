@@ -27,7 +27,7 @@ public class AccountAdapterTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void throwsExceptionIfgoogleAccountIsNullForCreation() {
+    public void throwsExceptionIfGoogleAccountIsNullForCreation() {
         GoogleSignInAccount nullUser = null;
         new AccountAdapter(nullUser);
     }

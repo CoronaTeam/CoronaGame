@@ -148,7 +148,7 @@ public class PathsHandler {
                     addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
                 }
             } catch (Exception e) {
-                Log.e("Exeption occured in document handler", e.getMessage());
+                Log.e("Exception occurred in document handler", e.getMessage());
             }
         }
         setLayers();
@@ -438,7 +438,7 @@ public class PathsHandler {
                         addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
                     }
                 } catch (Exception e) {
-                    Log.e("Exeption occured in document handler", e.getMessage());
+                    Log.e("Exception occurred in document handler", e.getMessage());
                 }
             }
 

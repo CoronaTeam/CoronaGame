@@ -57,15 +57,15 @@ public class ConcreteCachingDataSender implements CachingDataSender {
         );
     }
     static Location stringToLocation(String s){
-        String[] splitted = s.split(",");
-        if(splitted.length!=2){
+        String[] split = s.split(",");
+        if(split.length!=2){
             throw new IllegalArgumentException("The location string is not a tuple");
         }
         float n1;
         float n2;
         try {
-             n1 = getNumberFromString(splitted[0]);
-             n2 = getNumberFromString(splitted[1]);
+             n1 = getNumberFromString(split[0]);
+             n2 = getNumberFromString(split[1]);
         }catch(NumberFormatException e){
             throw new IllegalArgumentException("The string given is not a tuple of floats");
         }

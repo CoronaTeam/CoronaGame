@@ -54,8 +54,8 @@ public class PathHandlerTest {
     private MapFragment mapFragment;
     private AtomicInteger sentinel;
     private MockConnectivityBroker mockConnectivityBroker;
-    private boolean pathCoordIsEmpty;
-    private boolean infectedCoordIsEmpty;
+    private boolean pathCoordinatesIsEmpty;
+    private boolean infectedCoordinatesIsEmpty;
 
     @BeforeClass
     public static void preClassSetup() {
@@ -96,9 +96,9 @@ public class PathHandlerTest {
 
         if (!mapFragment.getPathsHandler().getYesterdayPathCoordinates().isEmpty()) {
             testLayerIsSet(YESTERDAY_PATH_LAYER_ID);
-            pathCoordIsEmpty = false;
+            pathCoordinatesIsEmpty = false;
         } else {
-            pathCoordIsEmpty = true;
+            pathCoordinatesIsEmpty = true;
         }
     }
 
@@ -108,9 +108,9 @@ public class PathHandlerTest {
 
         if (!mapFragment.getPathsHandler().getYesterdayInfectedMet().isEmpty()) {
             testLayerIsSet(YESTERDAY_INFECTED_LAYER_ID);
-            infectedCoordIsEmpty = false;
+            infectedCoordinatesIsEmpty = false;
         } else {
-            infectedCoordIsEmpty = true;
+            infectedCoordinatesIsEmpty = true;
         }
     }
 
@@ -142,7 +142,7 @@ public class PathHandlerTest {
     public void toggleYesterdayPathChangesVisibilityWhenNotEmpty() throws Throwable {
         yesterdayPathLayerIsSetWhenNotEmpty();
 
-        testClickChangesVisibility(pathCoordIsEmpty, YESTERDAY_PATH_LAYER_ID);
+        testClickChangesVisibility(pathCoordinatesIsEmpty, YESTERDAY_PATH_LAYER_ID);
 
     }
 
@@ -150,7 +150,7 @@ public class PathHandlerTest {
     public void infectedLayerVisibilityChangesWhenNotEmpty() throws Throwable {
         yesterdayInfectedLayerIsSetWhenNotEmpty();
 
-        testClickChangesVisibility(infectedCoordIsEmpty, YESTERDAY_INFECTED_LAYER_ID);
+        testClickChangesVisibility(infectedCoordinatesIsEmpty, YESTERDAY_INFECTED_LAYER_ID);
     }
 
     @Test
@@ -186,12 +186,12 @@ public class PathHandlerTest {
                 () -> sentinel.incrementAndGet()));
         waitForSentinelAndSetToZero();
 
-        if (pathCoordIsEmpty) {
+        if (pathCoordinatesIsEmpty) {
             toggleYesterdayPathChangesVisibilityWhenNotEmpty();
             cameraTargetsPathWhenToggle();
         }
 
-        if (infectedCoordIsEmpty) {
+        if (infectedCoordinatesIsEmpty) {
             infectedLayerVisibilityChangesWhenNotEmpty();
         }
 
@@ -286,13 +286,13 @@ public class PathHandlerTest {
         }
     }
 
-    private void testClickChangesVisibility(boolean coordListIsEmpty, String layerId) throws Throwable {
+    private void testClickChangesVisibility(boolean coordinatesListIsEmpty, String layerId) throws Throwable {
         mockConnectivityBroker.setFakeLocation(buildLocation(46, 55));
 
         mapFragment.onMapVisible(() -> sentinel.incrementAndGet());
         waitForSentinelAndSetToZero();
 
-        testLayerVisibilityIfNotEmpty(NONE, coordListIsEmpty, layerId);
+        testLayerVisibilityIfNotEmpty(NONE, coordinatesListIsEmpty, layerId);
 
         onView(withId(R.id.more_rfab)).perform(click());
         List<RFACLabelItem> pathItems = ((RapidFloatingActionContentLabelList)
@@ -300,7 +300,7 @@ public class PathHandlerTest {
         activityRule.runOnUiThread(() ->
                 mapFragment.onRFACItemIconClick(YESTERDAY_PATH_BUTTON_POSITION, pathItems.get(YESTERDAY_PATH_BUTTON_POSITION)));
 
-        testLayerVisibilityIfNotEmpty(VISIBLE, coordListIsEmpty, layerId);
+        testLayerVisibilityIfNotEmpty(VISIBLE, coordinatesListIsEmpty, layerId);
     }
 
     private void waitForSentinelAndSetToZero() {

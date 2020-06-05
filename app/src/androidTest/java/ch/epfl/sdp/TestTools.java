@@ -78,15 +78,15 @@ public interface TestTools {
 
     /**
      *
-     * @param lati
-     * @param longi
+     * @param latitude
+     * @param longitude
      * @return
      */
-    static Location newLoc(double lati, double longi) {
+    static Location newLoc(double latitude, double longitude) {
         Location res = new Location("provider");
         res.reset();
-        res.setLatitude(lati);
-        res.setLongitude(longi);
+        res.setLatitude(latitude);
+        res.setLongitude(longitude);
         return res;
     }
 

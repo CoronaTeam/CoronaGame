@@ -99,8 +99,6 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         checkOnline();
 
         account = AuthenticationManager.getAccount(requireActivity());
-        String userName = account.getDisplayName();
-
 
         Executor executor = ContextCompat.getMainExecutor(requireActivity());
         if (Tools.canAuthenticate(requireActivity())) {

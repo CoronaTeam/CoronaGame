@@ -47,6 +47,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import ch.epfl.sdp.BuildConfig;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.connectivity.ConnectivityBroker;
+import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.location.LocationService;
 import ch.epfl.sdp.map.HeatMapHandler;
 import ch.epfl.sdp.map.PathsHandler;

@@ -116,7 +116,4 @@ public class CoronaGame extends Application implements Application.ActivityLifec
 
     }
 
-    public Activity getCurrentActivity() {
-        return currentActivity;
-    }
 }

@@ -48,12 +48,12 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
 public class CarrierUpdatePersistenceTest {
 
-    private static String fakeUserID = "THIS_IS_A_FAKE_ID";
+    private static final String fakeUserID = "THIS_IS_A_FAKE_ID";
     @Rule
     public final ActivityTestRule<DataExchangeActivity> mActivityRule = new ActivityTestRule<>(DataExchangeActivity.class);
     private ObservableCarrier iAmBob = new Layman(HEALTHY);
     private AtomicInteger sentinel;
-    private InfectionAnalyst analystWithSentinel = new InfectionAnalyst() {
+    private final InfectionAnalyst analystWithSentinel = new InfectionAnalyst() {
         @Override
         public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
             sentinel.incrementAndGet();

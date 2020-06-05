@@ -44,8 +44,8 @@ import static android.content.Context.BIND_AUTO_CREATE;
 
 public class InfectionProbabilityChartFragment extends Fragment implements OnChartValueSelectedListener, Observer {
 
-    private static long DATA_TIME_SCALE = 1000L;
-    private static float DATA_TIME_GRANULARITY = (float) (1000L * 60L * 60L * 24L) / DATA_TIME_SCALE; // one day in ms
+    private static final long DATA_TIME_SCALE = 1000L;
+    private static final float DATA_TIME_GRANULARITY = (float) (1000L * 60L * 60L * 24L) / DATA_TIME_SCALE; // one day in ms
     private LineChart chart;
     private LocationService service;
     private ServiceConnection serviceConnection;

@@ -97,9 +97,9 @@ public class PathsHandler {
     private boolean pathLocationSet2; // before yesterday
     private String yesterdayString;
     private String beforeYesterdayString;
-    private MapboxMap map;
-    private MapFragment parentClass;
-    private ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(
+    private final MapboxMap map;
+    private final MapFragment parentClass;
+    private final ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(
             new GridFirestoreInteractor());
     private Callable onPathDataLoaded;
     private Boolean layersHaveBeenSet;

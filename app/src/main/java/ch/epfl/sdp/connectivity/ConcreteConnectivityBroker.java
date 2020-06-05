@@ -31,8 +31,8 @@ public class ConcreteConnectivityBroker extends Observable implements Connectivi
 
     private boolean hasInternetConnection = false;
 
-    private LocationManager locationManager;
-    private Context context;
+    private final LocationManager locationManager;
+    private final Context context;
 
     private boolean checkInternetConnection() {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);

@@ -90,7 +90,7 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
     private ServiceConnection conn;
     private Callable onMapVisible;
     private int CURRENT_PATH;
-    private List<Runnable> buttonsActions = new ArrayList<>();
+    private final List<Runnable> buttonsActions = new ArrayList<>();
     private RapidFloatingActionHelper rfabHelper;
     private View view;
 
@@ -520,8 +520,10 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
     }
 
     private static class Item {
-        int label, icon, color;
-        Runnable callback;
+        final int label;
+        final int icon;
+        final int color;
+        final Runnable callback;
 
         Item(int label, int icon, Runnable callback) {
             this.label = label;

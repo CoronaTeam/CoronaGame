@@ -63,7 +63,7 @@ import static org.junit.Assert.assertSame;
 
 public class ConcreteAnalysisTest {
 
-    private static HashMap<String, Float> recentSickMeetingCounter = new HashMap<>();
+    private static final HashMap<String, Float> recentSickMeetingCounter = new HashMap<>();
     private static Layman man1;
     private static Layman man2;
     private static Layman man3;
@@ -71,13 +71,13 @@ public class ConcreteAnalysisTest {
     private static SortedMap<Date, Location> lastPositions;
     private static Set<Carrier> peopleAround;
     private static Map<Long, Carrier> rangePeople;
-    private static Map<GeoPoint, Map<Long, Set<Carrier>>> city = new HashMap<>();
+    private static final Map<GeoPoint, Map<Long, Set<Carrier>>> city = new HashMap<>();
     private static int recoveryCounter;
     @Rule
     public final ActivityTestRule<InfectionActivity> mActivityRule = new ActivityTestRule<>(InfectionActivity.class);
-    private Location testLocation = buildLocation(65, 63);
-    private Date testDate = new Date(System.currentTimeMillis());
-    private DataReceiver mockReceiver = new DataReceiver() {
+    private final Location testLocation = buildLocation(65, 63);
+    private final Date testDate = new Date(System.currentTimeMillis());
+    private final DataReceiver mockReceiver = new DataReceiver() {
         @Override
         public CompletableFuture<Set<Carrier>> getUserNearby(Location location, Date date) {
             HashSet<Carrier> res = new HashSet<>();
@@ -139,7 +139,7 @@ public class ConcreteAnalysisTest {
             }
         }
     };
-    private CachingDataSender sender = new FakeCachingDataSender() {
+    private final CachingDataSender sender = new FakeCachingDataSender() {
         @Override
         public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
             fakeFirebaseStore.put(time, location);

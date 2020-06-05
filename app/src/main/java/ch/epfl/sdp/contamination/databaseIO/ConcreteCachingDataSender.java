@@ -36,8 +36,8 @@ import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
 public class ConcreteCachingDataSender implements CachingDataSender {
 
     private GridFirestoreInteractor gridInteractor;
-    private StorageManager<Date,Location> positionHistory;
-    private ReentrantLock lock;
+    private final StorageManager<Date,Location> positionHistory;
+    private final ReentrantLock lock;
     public ConcreteCachingDataSender(GridFirestoreInteractor interactor) {
         this.lock = new ReentrantLock();
         this.gridInteractor = interactor;

@@ -47,11 +47,11 @@ import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
  */
 @Ignore("This is not a proper test, it is used for testing and demos, but it does not test anything, only generates data.")
 public class DataForDemo {
-    private static double DENSE_INITIAL_EPFL_LATITUDE = 46.51800;
-    private static double DENSE_INITIAL_EPFL_LONGITUDE = 6.56600;
-    private Random r = new Random();
-    private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
-    private CachingDataSender dataSender = new ConcreteCachingDataSender(gridFirestoreInteractor) {
+    private static final double DENSE_INITIAL_EPFL_LATITUDE = 46.51800;
+    private static final double DENSE_INITIAL_EPFL_LONGITUDE = 6.56600;
+    private final Random r = new Random();
+    private final GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
+    private final CachingDataSender dataSender = new ConcreteCachingDataSender(gridFirestoreInteractor) {
         @Override
         public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
             return gridFirestoreInteractor.gridWrite(location, String.valueOf(time.getTime()),
@@ -88,7 +88,7 @@ public class DataForDemo {
             return null;
         }
     };
-    private Date rightNow = new Date(System.currentTimeMillis());
+    private final Date rightNow = new Date(System.currentTimeMillis());
 
     private List<Point> routeCoordinates;
     private int[] infectedOnRoute;

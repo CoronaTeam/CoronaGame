@@ -43,7 +43,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
 
     private CompletableFuture<LocationService> service;
 
-    private Handler uiHandler;
+    private final Handler uiHandler;
 
     public InfectionFragment(Handler uiHandler) {
         this.uiHandler = uiHandler;

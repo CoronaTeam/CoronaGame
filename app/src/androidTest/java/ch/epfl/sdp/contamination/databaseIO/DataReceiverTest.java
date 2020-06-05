@@ -40,8 +40,8 @@ public class DataReceiverTest {
     }
 
     static class FakeGridInteractor extends GridFirestoreInteractor {
-        private Map<Location, String> locationData;
-        private Map<String, Integer> meetings;
+        private final Map<Location, String> locationData;
+        private final Map<String, Integer> meetings;
 
         public FakeGridInteractor() {
             super();

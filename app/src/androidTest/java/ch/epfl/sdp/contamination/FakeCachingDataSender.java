@@ -18,7 +18,7 @@ import ch.epfl.sdp.identity.User;
  */
 public class FakeCachingDataSender implements CachingDataSender {
 
-    HashMap<Date, Location> fakeFirebaseStore;
+    final HashMap<Date, Location> fakeFirebaseStore;
     private String userID;
 
     public FakeCachingDataSender() {

@@ -38,13 +38,13 @@ public class LocationServiceTest {
     public final ActivityTestRule<DataExchangeActivity> mActivityRule = new ActivityTestRule<>(DataExchangeActivity.class);
 
     @Rule
-    public ExpectedException exception = ExpectedException.none();
+    public final ExpectedException exception = ExpectedException.none();
 
     private AtomicBoolean registered;
 
     private Location beenThere = TestTools.newLoc(13, 78);
     private Date now = new Date();
-    private LocationListener listener = new LocationListener() {
+    private final LocationListener listener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
             registered.set(true);

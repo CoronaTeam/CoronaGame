@@ -31,7 +31,7 @@ public class CoronaGame extends Application implements Application.ActivityLifec
     private static final String NOTIFICATION_CHANNEL_DESC = "Status of LocationService";
     public static final String NOTIFICATION_CHANNEL_ID = "LOCATION_SERVICE_CHANNEL";
 
-    public static boolean IS_DEMO = FALSE;
+    public static final boolean IS_DEMO = FALSE;
     public static boolean IS_ONLINE = TRUE;
     public static boolean IS_NETWORK_DEBUG = FALSE;
     private static Context context;

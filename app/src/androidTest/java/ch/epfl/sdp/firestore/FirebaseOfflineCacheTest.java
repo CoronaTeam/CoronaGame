@@ -28,7 +28,7 @@ public class FirebaseOfflineCacheTest {
     @Rule
     public GrantPermissionRule internetPermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.INTERNET);
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Before
     public void setUp() {

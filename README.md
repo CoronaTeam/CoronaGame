@@ -1,8 +1,6 @@
 # CoronaGame
 Software Development Project 2020
 
-What is this app? How does it do it? For who? For when? Why? 
-
 CoronaGame was the initial name for a virus spreading game, supposed to help creating a model for virus spreading. Given the rapid evolution of the current coronavirus situation, we chose to adapt and created Virus Tracker. 
 
  

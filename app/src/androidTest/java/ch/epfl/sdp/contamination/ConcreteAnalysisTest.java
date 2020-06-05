@@ -474,7 +474,7 @@ public class ConcreteAnalysisTest {
         assertTrue(me.getIllnessProbability() < threshold);
     }
 
-    class CityDataReceiver implements DataReceiver {
+    static class CityDataReceiver implements DataReceiver {
         Location myCurrentLocation;
 
         @Override

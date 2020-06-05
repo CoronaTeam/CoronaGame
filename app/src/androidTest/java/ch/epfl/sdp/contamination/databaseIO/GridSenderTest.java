@@ -237,7 +237,7 @@ public class GridSenderTest {
         TestTools.sleep(1000);
     }
 
-    class MockGridInteractor extends GridFirestoreInteractor {
+    static class MockGridInteractor extends GridFirestoreInteractor {
 
         // TODO: GridFirestoreInteractor should become an interface too
         MockGridInteractor() {

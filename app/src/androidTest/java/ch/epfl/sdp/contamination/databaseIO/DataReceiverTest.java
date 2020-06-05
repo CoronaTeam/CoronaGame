@@ -39,7 +39,7 @@ public class DataReceiverTest {
         sleep();
     }
 
-    class FakeGridInteractor extends GridFirestoreInteractor {
+    static class FakeGridInteractor extends GridFirestoreInteractor {
         private Map<Location, String> locationData;
         private Map<String, Integer> meetings;
 

@@ -112,7 +112,7 @@ public class ConcreteCachingDataSender implements CachingDataSender {
                 location.getLatitude(),
                 location.getLongitude()
         ));
-        element.put(TIMESTAMP_TAG, Timestamp.now());
+        element.put(TIMESTAMP_TAG, new Timestamp(time));
         element.put(INFECTION_STATUS_TAG, carrier.getInfectionStatus());
 
         historyFuture = gridInteractor.writeDocumentWithID(documentReference(

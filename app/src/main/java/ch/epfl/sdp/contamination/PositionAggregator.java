@@ -14,7 +14,7 @@ import static ch.epfl.sdp.CoronaGame.getDemoSpeedup;
 public interface PositionAggregator {
     int WINDOW_FOR_LOCATION_AGGREGATION = 20_000 / getDemoSpeedup(); // [ms] This is the frequency with
     // which the (mean) position will be uploaded. actual : 2min30
-    int MAXIMAL_NUMBER_OF_LOCATIONS_PER_AGGREGATION = 10; //WINDOW_FOR_LOCATION_AGGREGATION/10000; // default : 1 location every 10 seconds
+    int MAXIMAL_NUMBER_OF_LOCATIONS_PER_AGGREGATION = 2; //WINDOW_FOR_LOCATION_AGGREGATION/10000; // default : 1 location every 10 seconds
 
     static Date getWindowForDate(Date date) {
         long time = date.getTime();

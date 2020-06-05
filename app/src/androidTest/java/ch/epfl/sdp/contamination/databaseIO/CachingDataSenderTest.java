@@ -81,9 +81,9 @@ public class CachingDataSenderTest {
         SortedMap<Date, Location> res = sender.getLastPositions();
         Collection<Location> val = res.values();
         Iterator<Location> it = val.iterator();
-        assertTrue(val.size() == 1);
+        assertEquals(1, val.size());
         while (it.hasNext()) {
-            assertTrue(it.next().getLatitude() == 1);
+            assertEquals(1, it.next().getLatitude(), 0.0);
         }
     }
 

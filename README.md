@@ -57,7 +57,7 @@ If you take a walk with a sick person you'll get sick too (probability 1). On th
 > CoronaGame was the initial name for a virus spreading game, supposed to help creating a model for virus spreading. Given the rapid evolution of the current coronavirus situation, we chose to adapt and created Virus Tracker. 
 
 ## Demo
-[Click to see the video!](https://www.youtube.com/watch?v=CGv0vAj9LQk&feature=youtu.be)
+[Click to see the video!](https://www.youtube.com/watch?v=WAPRaSdV124&feature=youtu.be)
 
 
 

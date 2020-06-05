@@ -22,7 +22,7 @@ public class MockConnectivityBroker implements ConnectivityBroker {
     private boolean fakeStatus;
     private boolean GPSpermission;
 
-    private ActivityTestRule<MapActivity> mActivityRule;
+    private final ActivityTestRule<MapActivity> mActivityRule;
 
     public MockConnectivityBroker(ActivityTestRule<MapActivity> activity) {
         mActivityRule = activity;

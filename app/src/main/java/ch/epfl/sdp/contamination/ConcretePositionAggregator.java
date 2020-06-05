@@ -19,7 +19,7 @@ import static ch.epfl.sdp.identity.fragment.AccountFragment.IN_TEST;
  * @author lucas
  */
 public final class ConcretePositionAggregator implements PositionAggregator {
-    HashMap<Long, List<Location>> buffer;
+    private HashMap<Long, List<Location>> buffer;
     private int timelapBetweenNewLocationRegistration;
     private Date lastDate;
     private Location newestLocation;
@@ -88,7 +88,7 @@ public final class ConcretePositionAggregator implements PositionAggregator {
         } else {
             update();
             lastDate = roundedDate;
-            ArrayList<Location> newList = new ArrayList<Location>();
+            ArrayList<Location> newList = new ArrayList<>();
 
             newList.add(location);
             buffer.put(roundedDate.getTime(), newList);

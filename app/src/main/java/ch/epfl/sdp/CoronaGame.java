@@ -27,11 +27,11 @@ public class CoronaGame extends Application implements Application.ActivityLifec
     public static final String SHARED_PREF_FILENAME = "coronagame_shared_pref";
     public static final DateFormat dateFormat = new SimpleDateFormat("E MMM dd hh:mm:ss zzz yyyy");
 
-    public static final String NOTIFICATION_CHANNEL_NAME = "SERVICE_NOTIFICATION";
-    public static final String NOTIFICATION_CHANNEL_DESC = "Status of LocationService";
+    private static final String NOTIFICATION_CHANNEL_NAME = "SERVICE_NOTIFICATION";
+    private static final String NOTIFICATION_CHANNEL_DESC = "Status of LocationService";
     public static final String NOTIFICATION_CHANNEL_ID = "LOCATION_SERVICE_CHANNEL";
 
-    public static boolean IS_DEMO = FALSE;
+    public static final boolean IS_DEMO = FALSE;
     public static boolean IS_ONLINE = TRUE;
     public static boolean IS_NETWORK_DEBUG = FALSE;
     private static Context context;
@@ -116,7 +116,4 @@ public class CoronaGame extends Application implements Application.ActivityLifec
 
     }
 
-    public Activity getCurrentActivity() {
-        return currentActivity;
-    }
 }

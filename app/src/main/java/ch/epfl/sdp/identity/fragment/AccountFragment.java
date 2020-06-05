@@ -98,10 +98,7 @@ public class AccountFragment extends Fragment implements View.OnClickListener, M
     private void getAndShowAccountInfo(Account acct) {
         if (acct != null) {
             String personName = acct.getDisplayName();
-            //  String personGivenName = acct.getGivenName();
-            String personFamilyName = acct.getFamilyName();
             String personEmail = acct.getEmail();
-            String personId = acct.getId(); // Use this in order to uniquely identify people
             Uri personPhoto = acct.getPhotoUrl();
 
             name.setText(personName);

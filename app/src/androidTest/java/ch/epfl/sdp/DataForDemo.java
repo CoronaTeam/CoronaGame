@@ -47,13 +47,11 @@ import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
  */
 @Ignore("This is not a proper test, it is used for testing and demos, but it does not test anything, only generates data.")
 public class DataForDemo {
-    private static double DENSE_INITIAL_EPFL_LATITUDE = 46.51800;
-    private static double DENSE_INITIAL_EPFL_LONGITUDE = 6.56600;
-    private static double SPARSE_INITIAL_EPFL_LATITUDE = 46.51900;
-    private static double SPARSE_INITIAL_EPFL_LONGITUDE = 6.56700;
-    private Random r = new Random();
-    private GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
-    private CachingDataSender dataSender = new ConcreteCachingDataSender(gridFirestoreInteractor) {
+    private static final double DENSE_INITIAL_EPFL_LATITUDE = 46.51800;
+    private static final double DENSE_INITIAL_EPFL_LONGITUDE = 6.56600;
+    private final Random r = new Random();
+    private final GridFirestoreInteractor gridFirestoreInteractor = new GridFirestoreInteractor();
+    private final CachingDataSender dataSender = new ConcreteCachingDataSender(gridFirestoreInteractor) {
         @Override
         public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
             return gridFirestoreInteractor.gridWrite(location, String.valueOf(time.getTime()),
@@ -90,12 +88,12 @@ public class DataForDemo {
             return null;
         }
     };
-    private Date rightNow = new Date(System.currentTimeMillis());
+    private final Date rightNow = new Date(System.currentTimeMillis());
 
     private List<Point> routeCoordinates;
     private int[] infectedOnRoute;
 
-    double getRandomNumberBetweenBounds(double lower, double upper) {
+    private double getRandomNumberBetweenBounds(double lower, double upper) {
         return r.nextDouble() * (upper - lower) + lower;
     }
 
@@ -133,6 +131,8 @@ public class DataForDemo {
         // there are 2 infected people in this location, and 3 healthy
 
         // infected at coordinate (0, 0) of the square
+        double SPARSE_INITIAL_EPFL_LONGITUDE = 6.56700;
+        double SPARSE_INITIAL_EPFL_LATITUDE = 46.51900;
         carrierAndPositionCreationUpload(Carrier.InfectionStatus.INFECTED, 1,
                 SPARSE_INITIAL_EPFL_LATITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
                 SPARSE_INITIAL_EPFL_LONGITUDE + getRandomNumberBetweenBounds(-0.01, 0.01),
@@ -217,9 +217,9 @@ public class DataForDemo {
         ConcreteFirestoreInteractor cfi = new ConcreteFirestoreInteractor();
         final boolean[] pathLoaded = new boolean[1];
         double lat = 50.0;//33.39767645465177;
-        double longi = -73.0;//-118.39439114221236;
+        double longitude = -73.0;//-118.39439114221236;
         for (double i = 0; i < 50 * 0.001; i = i + 0.001) {
-            Location location = LocationUtils.buildLocation(lat + i, longi + i);
+            Location location = LocationUtils.buildLocation(lat + i, longitude + i);
             Map<String, Object> element = new HashMap<>();
             element.put(GEOPOINT_TAG, new GeoPoint(
                     location.getLatitude(),

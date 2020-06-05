@@ -4,6 +4,7 @@ import android.location.Location;
 
 import androidx.annotation.VisibleForTesting;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
 
 import java.io.IOException;
@@ -36,15 +37,15 @@ import static ch.epfl.sdp.firestore.FirestoreLabels.TIMESTAMP_TAG;
 public class ConcreteCachingDataSender implements CachingDataSender {
 
     private GridFirestoreInteractor gridInteractor;
-    private StorageManager<Date,Location> positionHistory;
-    private ReentrantLock lock;
+    private final StorageManager<Date,Location> positionHistory;
+    private final ReentrantLock lock;
     public ConcreteCachingDataSender(GridFirestoreInteractor interactor) {
         this.lock = new ReentrantLock();
         this.gridInteractor = interactor;
         this.positionHistory = initStorageManager();
     }
     private StorageManager<Date, Location> openStorageManager() {
-        return new ConcreteManager<Date, Location>(
+        return new ConcreteManager<>(
                 CoronaGame.getContext(),
                 "last_positions.csv",
                 date_position -> {
@@ -57,15 +58,15 @@ public class ConcreteCachingDataSender implements CachingDataSender {
         );
     }
     static Location stringToLocation(String s){
-        String[] splitted = s.split(",");
-        if(splitted.length!=2){
+        String[] split = s.split(",");
+        if(split.length!=2){
             throw new IllegalArgumentException("The location string is not a tuple");
         }
         float n1;
         float n2;
         try {
-             n1 = getNumberFromString(splitted[0]);
-             n2 = getNumberFromString(splitted[1]);
+             n1 = getNumberFromString(split[0]);
+             n2 = getNumberFromString(split[1]);
         }catch(NumberFormatException e){
             throw new IllegalArgumentException("The string given is not a tuple of floats");
         }
@@ -111,7 +112,7 @@ public class ConcreteCachingDataSender implements CachingDataSender {
                 location.getLatitude(),
                 location.getLongitude()
         ));
-        element.put(TIMESTAMP_TAG, time.getTime());
+        element.put(TIMESTAMP_TAG, Timestamp.now());
         element.put(INFECTION_STATUS_TAG, carrier.getInfectionStatus());
 
         historyFuture = gridInteractor.writeDocumentWithID(documentReference(
@@ -149,7 +150,7 @@ public class ConcreteCachingDataSender implements CachingDataSender {
         SortedMap<Date,Location> lastPos;
         lock.lock();
         try{
-            lastPos = positionHistory.filter((date, geoP) -> ((Date)(date)).after(lastDate));
+            lastPos = positionHistory.filter((date, geoP) -> date.after(lastDate));
         }finally {
             lock.unlock();
         }

@@ -48,12 +48,12 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
 public class CarrierUpdatePersistenceTest {
 
-    private static String fakeUserID = "THIS_IS_A_FAKE_ID";
+    private static final String fakeUserID = "THIS_IS_A_FAKE_ID";
     @Rule
     public final ActivityTestRule<DataExchangeActivity> mActivityRule = new ActivityTestRule<>(DataExchangeActivity.class);
     private ObservableCarrier iAmBob = new Layman(HEALTHY);
     private AtomicInteger sentinel;
-    private InfectionAnalyst analystWithSentinel = new InfectionAnalyst() {
+    private final InfectionAnalyst analystWithSentinel = new InfectionAnalyst() {
         @Override
         public CompletableFuture<Integer> updateInfectionPredictions(Location location, Date startTime, Date endTime) {
             sentinel.incrementAndGet();
@@ -156,9 +156,9 @@ public class CarrierUpdatePersistenceTest {
     }
 
     private void startLocationServiceWithAlarm() {
-        Intent locaIntentWithAlarm = new Intent(mActivityRule.getActivity(), LocationService.class);
-        locaIntentWithAlarm.putExtra(LocationService.ALARM_GOES_OFF, true);
-        mActivityRule.getActivity().startService(locaIntentWithAlarm);
+        Intent locationIntentWithAlarm = new Intent(mActivityRule.getActivity(), LocationService.class);
+        locationIntentWithAlarm.putExtra(LocationService.ALARM_GOES_OFF, true);
+        mActivityRule.getActivity().startService(locationIntentWithAlarm);
     }
 
     private void useAnalystWithSentinel() {

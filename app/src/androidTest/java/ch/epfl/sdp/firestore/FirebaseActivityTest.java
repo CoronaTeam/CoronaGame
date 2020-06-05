@@ -32,7 +32,6 @@ public class FirebaseActivityTest {
     @Rule
     public GrantPermissionRule internetPermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.INTERNET);
-    private ConnectivityManager cm;
 
     @Before
     public void setUp() {

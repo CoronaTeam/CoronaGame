@@ -6,7 +6,8 @@ import ch.epfl.sdp.identity.fragment.AccountFragment;
 import ch.epfl.sdp.utilities.SingleFragmentActivity;
 
 /**
- * Class AccounteGettingactivity : once logged in google, this class will be able to retrieve given user information.
+ * Class AccountActivity : once logged in google, this class will be able to retrieve given user
+ * information.
  *
  * @author lucas
  */

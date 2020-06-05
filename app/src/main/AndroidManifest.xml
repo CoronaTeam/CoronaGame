@@ -60,13 +60,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".toDelete.GpsActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
         <activity android:name=".firestore.FirebaseActivity">
             <intent-filter>
                 <action android:name="applicationB.intent.action.Launch" />
@@ -91,13 +84,6 @@
 
         <activity
             android:name=".testActivities.InfectionActivity">
-            <intent-filter>
-                <action android:name="applicationB.intent.action.Launch" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity android:name=".toDelete.HistoryActivity" >
             <intent-filter>
                 <action android:name="applicationB.intent.action.Launch" />
                 <category android:name="android.intent.category.DEFAULT" />

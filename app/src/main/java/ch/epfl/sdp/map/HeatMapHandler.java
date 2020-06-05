@@ -52,9 +52,9 @@ public class HeatMapHandler {
     public static final String HEATMAP_LAYER_ID = "lastPositions-heat";
     private static final String LASTPOSITIONS_SOURCE_ID = "lastPositions";
     private static final String HEATMAP_LAYER_SOURCE = "lastPositions";
-    private MapFragment parentClass;
-    private ConcreteFirestoreInteractor db;
-    private MapboxMap map;
+    private final MapFragment parentClass;
+    private final ConcreteFirestoreInteractor db;
+    private final MapboxMap map;
     private Callable onHeatMapDataLoaded;
 
 

@@ -26,9 +26,9 @@ import ch.epfl.sdp.tabActivity.TabActivity;
 public class AuthenticationFragment extends Fragment {
 
     public static final int RC_SIGN_IN = 0; //any number, but common for the app
-    private static Class NEXT_ACTIVITY = TabActivity.class;
-    GoogleSignInClient googleSignInClient;
-    View signIn;// error prone line if View is replaced by Button
+    private static final Class NEXT_ACTIVITY = TabActivity.class;
+    private GoogleSignInClient googleSignInClient;
+    private View signIn;// error prone line if View is replaced by Button
 
     public static void signInComplete(Activity activity) {
         Intent intent = new Intent(activity, NEXT_ACTIVITY);// New activity

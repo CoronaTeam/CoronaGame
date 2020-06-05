@@ -14,10 +14,7 @@ import java.util.concurrent.CompletableFuture;
  * utilities.
  */
 public abstract class FirestoreInteractor {
-    public static final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-
-    // TODO: @Ulysse, @Adrien, @Kevin, @Lucas, @Lucie use this function to get something from
-    // maps returned by Firestore
+    private static final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
     /**
      * Retrieves information taken from Firestore and stored in the map 'fields'
@@ -57,8 +54,8 @@ public abstract class FirestoreInteractor {
             }
         } else {
             CompletableFuture<T> future = new CompletableFuture<>();
-            task.addOnSuccessListener(value -> future.complete(value))
-                    .addOnFailureListener(ex -> future.completeExceptionally(ex));
+            task.addOnSuccessListener(future::complete)
+                    .addOnFailureListener(future::completeExceptionally);
             return future;
         }
     }

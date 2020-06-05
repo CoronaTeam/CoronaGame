@@ -43,7 +43,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
 
     private CompletableFuture<LocationService> service;
 
-    private Handler uiHandler;
+    private final Handler uiHandler;
 
     public InfectionFragment(Handler uiHandler) {
         this.uiHandler = uiHandler;
@@ -109,18 +109,16 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
                     .getMyLastLocation(AuthenticationManager.getUserId())
                     .thenCompose(location ->
                             locationService.getAnalyst().updateInfectionPredictions(location, refreshTime, new Date()))
-                    .thenAccept(todayInfectionMeetings -> {
-                        requireActivity().runOnUiThread(() -> {
-                            infectionStatus.setText(R.string.infection_status_posted);
-                            uiHandler.post(() -> {
-                                InfectionAnalyst analyst = locationService.getAnalyst();
-                                infectionStatus.setText(analyst.getCarrier().getInfectionStatus().toString());
-                                infectionProbability.setProgress(Math.round(analyst.getCarrier().getIllnessProbability() * 100));
-                                Log.e("PROB:", analyst.getCarrier().getIllnessProbability() + "");
-                                displayAlert(todayInfectionMeetings);
-                            });
+                    .thenAccept(todayInfectionMeetings -> requireActivity().runOnUiThread(() -> {
+                        infectionStatus.setText(R.string.infection_status_posted);
+                        uiHandler.post(() -> {
+                            InfectionAnalyst analyst = locationService.getAnalyst();
+                            infectionStatus.setText(analyst.getCarrier().getInfectionStatus().toString());
+                            infectionProbability.setProgress(Math.round(analyst.getCarrier().getIllnessProbability() * 100));
+                            Log.e("PROB:", analyst.getCarrier().getIllnessProbability() + "");
+                            displayAlert(todayInfectionMeetings);
                         });
-                    })
+                    }))
                     .get(2, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
             // TODO: [LOG]
@@ -153,7 +151,7 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
                 second = getText(R.string.several_infection_dialog_message2);
 
         }
-        builder.setMessage((String) first + (todayInfectionMeetings == 0 ? "" : todayInfectionMeetings) + (String) second)
+        builder.setMessage((String) first + (todayInfectionMeetings == 0 ? "" : todayInfectionMeetings) + second)
                 .setTitle(title);
         AlertDialog dialog = builder.create();
         dialog.show();

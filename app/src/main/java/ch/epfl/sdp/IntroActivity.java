@@ -16,10 +16,10 @@ import ch.epfl.sdp.identity.fragment.AuthenticationFragment;
 
 public class IntroActivity extends AppIntro {
 
-    private static int BG_COLOR = Color.rgb(255, 255, 255);
-    private static int TITLE_COLOR = Color.rgb(0, 0, 0);
-    private static int DESC_COLOR = Color.rgb(30, 30, 30);
-    private static Slide[] slides = {
+    private static final int BG_COLOR = Color.rgb(255, 255, 255);
+    private static final int TITLE_COLOR = Color.rgb(0, 0, 0);
+    private static final int DESC_COLOR = Color.rgb(30, 30, 30);
+    private static final Slide[] slides = {
             new Slide(
                     R.string.intro_page1_title,
                     R.string.intro_page1_description,

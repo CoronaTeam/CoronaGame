@@ -30,7 +30,6 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static ch.epfl.sdp.TestTools.sleep;
 import static ch.epfl.sdp.location.LocationUtils.buildLocation;
@@ -49,6 +48,8 @@ public class PathHandlerTest {
 
     @Rule
     public final ActivityTestRule<MapActivity> activityRule = new ActivityTestRule<>(MapActivity.class);
+    private final int FOCUS_PATH_BUTTON_POSITION = 2;
+    private final int YESTERDAY_PATH_BUTTON_POSITION = 3;
     @Rule
     public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
     private MapFragment mapFragment;
@@ -56,10 +57,6 @@ public class PathHandlerTest {
     private MockConnectivityBroker mockConnectivityBroker;
     private boolean pathCoordIsEmpty;
     private boolean infectedCoordIsEmpty;
-
-    private final int FOCUS_PATH_BUTTON_POSITION = 2;
-    private final int YESTERDAY_PATH_BUTTON_POSITION = 3;
-
 
     @BeforeClass
     public static void preClassSetup() {
@@ -317,7 +314,7 @@ public class PathHandlerTest {
         sWaitForSentinelAndSetToZero(sentinel);
     }
 
-    private void testMapLoadCorrectly() throws Throwable{
+    private void testMapLoadCorrectly() throws Throwable {
         sTestMapLoadCorrectly(mapFragment, sentinel, activityRule);
     }
 

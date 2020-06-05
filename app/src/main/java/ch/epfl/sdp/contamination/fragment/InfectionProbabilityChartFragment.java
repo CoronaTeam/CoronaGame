@@ -38,7 +38,6 @@ import java.util.Observable;
 import java.util.Observer;
 
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.location.LocationService;
 
 import static android.content.Context.BIND_AUTO_CREATE;

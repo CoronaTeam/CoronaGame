@@ -3,7 +3,9 @@ package ch.epfl.sdp.map;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
@@ -34,11 +36,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.contamination.Carrier;
@@ -68,41 +74,33 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
  * as well as points of met infected users.
  */
 public class PathsHandler {
-    private static final String YESTERDAY_INFECTED_SOURCE_ID = "points-source-one";
-    private static final String BEFORE_INFECTED_SOURCE_ID = "points-source-two";
     public static final String YESTERDAY_INFECTED_LAYER_ID = "pointslayer-one";
     public static final String BEFORE_INFECTED_LAYER_ID = "pointslayer-two";
-
-    private static final String YESTERDAY_PATH_SOURCE_ID = "line-source-one";
-    private static final String BEFORE_PATH_SOURCE_ID = "line-source-two";
     public static final String YESTERDAY_PATH_LAYER_ID = "linelayer-one";
     public static final String BEFORE_PATH_LAYER_ID = "linelayer-two";
-
+    private static final String YESTERDAY_INFECTED_SOURCE_ID = "points-source-one";
+    private static final String BEFORE_INFECTED_SOURCE_ID = "points-source-two";
+    private static final String YESTERDAY_PATH_SOURCE_ID = "line-source-one";
+    private static final String BEFORE_PATH_SOURCE_ID = "line-source-two";
+    private static final int ZOOM = 13;
     private List<Point> yesterdayPathCoordinates;
     private List<Point> beforeYesterdayPathCoordinates;
     private List<Point> yesterdayInfectedMet;
     private List<Point> beforeYesterdayInfectedMet;
-
     private double latitudeYesterday;
     private double latitudeBefore;
     private double longitudeYesterday;
     private double longitudeBefore;
-
     private LatLngBounds yesterdayLLB;
     private LatLngBounds beforeLLB;
-
     private boolean pathLocationSet1; // yesterday
     private boolean pathLocationSet2; // before yesterday
-
     private String yesterdayString;
     private String beforeYesterdayString;
-
-    private static final int ZOOM = 13;
     private MapboxMap map;
     private MapFragment parentClass;
     private ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(
             new GridFirestoreInteractor());
-
     private Callable onPathDataLoaded;
     private Boolean layersHaveBeenSet;
 
@@ -206,7 +204,7 @@ public class PathsHandler {
                 beforeYesterdayPathCoordinates;
         LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
 
-        for (int i = 0; i<pathCoord.size(); ++i) {
+        for (int i = 0; i < pathCoord.size(); ++i) {
             double lat = pathCoord.get(i).latitude();
             double lon = pathCoord.get(i).longitude();
             boundsBuilder.include(new LatLng(lat, lon));
@@ -346,10 +344,7 @@ public class PathsHandler {
     }
 
     @VisibleForTesting
-    public enum TestOP {TEST_NON_EMPTY_LIST, TEST_EMPTY_PATH}
-
-    @VisibleForTesting
-    public void resetPaths(TestOP testOP, Callable onResetDone){ // assumes the class has loaded
+    public void resetPaths(TestOP testOP, Callable onResetDone) { // assumes the class has loaded
         map.getStyle(style -> {
             style.removeLayer(BEFORE_INFECTED_LAYER_ID);
             style.removeLayer(BEFORE_PATH_LAYER_ID);
@@ -363,13 +358,16 @@ public class PathsHandler {
 
             try {
                 onResetDone.call();
-            } catch (Exception ignore) {}
+            } catch (Exception ignore) {
+            }
         });
     }
 
     private void callPathDataLoaded() {
         try {
-            if(onPathDataLoaded != null) {onPathDataLoaded.call();}
+            if (onPathDataLoaded != null) {
+                onPathDataLoaded.call();
+            }
             onPathDataLoaded = null;
         } catch (Exception ignored) {
         }
@@ -379,9 +377,118 @@ public class PathsHandler {
     public void onPathDataLoaded(Callable func) {
         onPathDataLoaded = func;
 
-        if (layersHaveBeenSet){
+        if (layersHaveBeenSet) {
             callPathDataLoaded();
         }
+    }
+
+    enum PointsName {yesterdayPathCoordinates, beforeYesterdayPathCoordinates, yesterdayInfectedMet, beforeYesterdayInfectedMet}
+
+    @VisibleForTesting
+    public enum TestOP {TEST_NON_EMPTY_LIST, TEST_EMPTY_PATH}
+
+    private class DownloadPathsData extends AsyncTask<Void, Integer, Map<PointsName, List<Point>>> {
+        private ConcreteDataReceiver concreteDataReceiver;
+        private String yesterdayString;
+        private String beforeYesterdayString;
+
+        @Override
+        protected Map<PointsName, List<Point>> doInBackground(Void... voids) {
+            concreteDataReceiver = new ConcreteDataReceiver(new GridFirestoreInteractor());
+            setCalendar();
+            String userPath = getUserId(); //"USER_ID_X42"; coronaId: 109758096484534641167
+            Iterator<QueryDocumentSnapshot> lastPos;
+
+            try {
+                lastPos = FirestoreInteractor.taskToFuture(
+                        collectionReference(HISTORY_COLL + "/" + userPath + "/" + HISTORY_POSITIONS_DOC)
+                                .orderBy(TIMESTAMP_TAG).get()).get(10, TimeUnit.SECONDS).iterator();
+                return getPathCoordinates(lastPos);
+            } catch (ExecutionException | InterruptedException | TimeoutException e) {
+                e.printStackTrace();
+                parentClass.requireActivity().runOnUiThread(
+                        () -> Toast.makeText(parentClass.requireActivity(), R.string.cannot_retr_pos_from_db, Toast.LENGTH_LONG).show()
+                );
+            }
+            return null;
+        }
+
+        private Map<PointsName, List<Point>> getPathCoordinates(Iterator<QueryDocumentSnapshot> iterator) {
+            List<Point> yesterdayPathCoordinates = new ArrayList<>();
+            List<Point> beforeYesterdayPathCoordinates = new ArrayList<>();
+            List<Point> yesterdayInfectedMet = new ArrayList<>();
+            List<Point> beforeYesterdayInfectedMet = new ArrayList<>();
+
+            for (; iterator.hasNext(); ) {
+                QueryDocumentSnapshot qs = iterator.next();
+                try {
+                    GeoPoint geoPoint = (GeoPoint) qs.get(GEOPOINT_TAG);
+                    double lat = geoPoint.getLatitude();
+                    double lon = geoPoint.getLongitude();
+                    Timestamp timestamp = (Timestamp) qs.get(TIMESTAMP_TAG);
+
+                    String pathLocalDate = dateToSimpleString(timestamp.toDate());
+
+                    if (pathLocalDate.equals(yesterdayString)) {
+                        yesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
+                        addInfectedMet(lat, lon, timestamp, yesterdayInfectedMet);
+                    } else if (pathLocalDate.equals(beforeYesterdayString)) {
+                        beforeYesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
+                        addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
+                    }
+                } catch (Exception e) {
+                    Log.e("Exeption occured in document handler", e.getMessage());
+                }
+            }
+
+            HashMap<PointsName, List<Point>> result = new HashMap<>();
+            result.put(PointsName.yesterdayPathCoordinates, yesterdayPathCoordinates);
+            result.put(PointsName.yesterdayInfectedMet, yesterdayInfectedMet);
+            result.put(PointsName.beforeYesterdayPathCoordinates, beforeYesterdayPathCoordinates);
+            result.put(PointsName.beforeYesterdayInfectedMet, beforeYesterdayInfectedMet);
+
+            return result;
+        }
+
+        private void addInfectedMet(double lat, double lon, Timestamp timestamp, List<Point> infected) {
+            Location location = LocationUtils.buildLocation(lat, lon);
+            concreteDataReceiver
+                    .getUserNearbyDuring(location, timestamp.toDate(), timestamp.toDate())
+                    .thenAccept(carrierIntegerMap -> {
+                        Carrier carrier;
+                        Point point;
+                        for (Map.Entry<Carrier, Integer> entry : carrierIntegerMap.entrySet()) {
+                            carrier = entry.getKey();
+                            if (carrier.getInfectionStatus().equals(INFECTED)) {
+                                point = Point.fromLngLat(lon, lat);
+                                infected.add(point);
+                            }
+                        }
+                    });
+        }
+
+        private void setCalendar() {
+            Date rightNow = new Date(System.currentTimeMillis());
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(rightNow);
+            cal.add(Calendar.DAY_OF_MONTH, -1);
+            Date yes = cal.getTime();
+            cal.add(Calendar.DAY_OF_MONTH, -1);
+            Date bef = cal.getTime();
+
+            yesterdayString = dateToSimpleString(yes);
+            beforeYesterdayString = dateToSimpleString(bef);
+        }
+
+        protected void onPostExecute(Map<PointsName, List<Point>> result) {
+            yesterdayPathCoordinates = result.get(PointsName.yesterdayPathCoordinates);
+            yesterdayInfectedMet = result.get(PointsName.yesterdayInfectedMet);
+            beforeYesterdayPathCoordinates = result.get(PointsName.beforeYesterdayPathCoordinates);
+            beforeYesterdayInfectedMet = result.get(PointsName.beforeYesterdayInfectedMet);
+
+            setLayers();
+        }
+
     }
 
 }

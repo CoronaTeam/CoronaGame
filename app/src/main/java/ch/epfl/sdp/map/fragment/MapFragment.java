@@ -32,7 +32,6 @@ import com.mapbox.mapboxsdk.plugins.annotation.Circle;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleManager;
 import com.mapbox.mapboxsdk.plugins.annotation.CircleOptions;
 import com.mapbox.mapboxsdk.style.layers.Layer;
-import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionButton;
 import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionHelper;
 import com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout;
 import com.wangjie.rapidfloatingactionbutton.contentimpl.labellist.RFACLabelItem;
@@ -48,13 +47,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import ch.epfl.sdp.BuildConfig;
 import ch.epfl.sdp.R;
 import ch.epfl.sdp.connectivity.ConnectivityBroker;
-import ch.epfl.sdp.firestore.ConcreteFirestoreInteractor;
 import ch.epfl.sdp.location.LocationService;
 import ch.epfl.sdp.map.HeatMapHandler;
 import ch.epfl.sdp.map.PathsHandler;
 import ch.epfl.sdp.utilities.RotatedRapidFloatingActionButton;
 
-import static android.view.View.INVISIBLE;
 import static ch.epfl.sdp.connectivity.ConnectivityBroker.Provider.GPS;
 import static ch.epfl.sdp.map.HeatMapHandler.HEATMAP_LAYER_ID;
 import static ch.epfl.sdp.map.PathsHandler.BEFORE_INFECTED_LAYER_ID;
@@ -77,6 +74,8 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
     private static final int MIN_UP_INTERVAL_MILLISECS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
     private static final double MIN_LAT_LONG_CHANGE_RECENTER = 1;
+    @VisibleForTesting
+    static boolean TESTING_MODE;
     private PathsHandler pathsHandler;
     private MapView mapView;
     private MapboxMap map;
@@ -90,16 +89,9 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
     private ServiceConnection conn;
     private Callable onMapVisible;
     private int CURRENT_PATH;
-
     private List<Runnable> buttonsActions = new ArrayList<>();
-
-
     private RapidFloatingActionHelper rfabHelper;
-
     private View view;
-
-    @VisibleForTesting
-    static boolean TESTING_MODE;
 
     @VisibleForTesting
     public void onLayerLoaded(Callable func, String layerId) {
@@ -113,7 +105,8 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
     private void callDataLoaded(Callable func) {
         try {
             func.call();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     @Nullable
@@ -199,8 +192,8 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
             userLocation.setLatLng(location);
             positionMarkerManager.update(userLocation);
 
-            if(initCamera || Math.abs(prevLocation.getLatitude() - location.getLatitude()) +
-                    Math.abs(prevLocation.getLatitude() - location.getLatitude()) > MIN_LAT_LONG_CHANGE_RECENTER){
+            if (initCamera || Math.abs(prevLocation.getLatitude() - location.getLatitude()) +
+                    Math.abs(prevLocation.getLatitude() - location.getLatitude()) > MIN_LAT_LONG_CHANGE_RECENTER) {
                 map.animateCamera(CameraUpdateFactory.newLatLng(location));
             }
         }
@@ -313,6 +306,7 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
 
     /**
      * Make the layer visible/invisible on the map, according to its current visibility.
+     *
      * @param layerId identifies the layer
      * @return true if the layer is set to visible, false otherwise
      */
@@ -334,7 +328,7 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
                     }
                     res.set(true);
                 }
-            } else if (layerId.equals(YESTERDAY_PATH_LAYER_ID) || layerId.equals(BEFORE_PATH_LAYER_ID)){
+            } else if (layerId.equals(YESTERDAY_PATH_LAYER_ID) || layerId.equals(BEFORE_PATH_LAYER_ID)) {
                 Toast.makeText(getActivity(), R.string.no_path_to_show, Toast.LENGTH_LONG).show();
             }
         });
@@ -368,7 +362,7 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
         RapidFloatingActionContentLabelList rfaContent = new RapidFloatingActionContentLabelList(getContext());
         rfaContent.setOnRapidFloatingActionContentLabelListListener(this);
         List<RFACLabelItem> items = new ArrayList<>();
-        setItems(items, new Item[] {
+        setItems(items, new Item[]{
                 new Item(
                         R.string.toggle_heatmap_label, R.drawable.visibility, R.color.colorAccent,
                         this::toggleHeatMap),
@@ -385,17 +379,6 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
         });
         rfaContent.setItems(items).setIconShadowColor(getContext().getColor(R.color.colorPrimary));
         rfabHelper = new RapidFloatingActionHelper(getContext(), rfaLayout, rfaBtn, rfaContent).build();
-    }
-
-    private static class Item {
-        int label, icon, color;
-        Runnable callback;
-        Item(int label, int icon, int color, Runnable callback) {
-            this.label = label;
-            this.icon = icon;
-            this.color = color;
-            this.callback = callback;
-        }
     }
 
     private void setItems(List<RFACLabelItem> container, Item[] items) {
@@ -438,15 +421,17 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
     private void callOnMapVisible() {
 
         try {
-            if (onMapVisible != null) {onMapVisible.call();}
+            if (onMapVisible != null) {
+                onMapVisible.call();
+            }
             onMapVisible = null;
         } catch (Exception ignored) {
         }
     }
 
-    private void askGPSPermission(){
+    private void askGPSPermission() {
         connectivityBroker.requestPermissions(requireActivity(), LOCATION_PERMISSION_REQUEST);
-        if (!connectivityBroker.hasPermissions(GPS)){
+        if (!connectivityBroker.hasPermissions(GPS)) {
             AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
             builder.setTitle(R.string.missing_GPS_Perm_Dialog_title)
                     .setMessage(R.string.missing_GPS_Perm_Dialog_text)
@@ -463,7 +448,7 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
             Timer updatePosTimer = new Timer();
             class UpdatePosTask extends TimerTask {
                 public void run() {
-                    if(connectivityBroker.hasPermissions(GPS)){
+                    if (connectivityBroker.hasPermissions(GPS)) {
                         classPointer.requireActivity().runOnUiThread(() -> {
                             alertDialog.dismiss();
                             updatePosTimer.cancel();
@@ -512,13 +497,14 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
     }
 
     @VisibleForTesting
-    void resetPathsHandler(Callable onResetDone){
+    void resetPathsHandler(Callable onResetDone) {
         mapView.getMapAsync(mapboxMap -> mapboxMap.getStyle(style -> {
 
             pathsHandler = new PathsHandler(classPointer, map);
             try {
                 onResetDone.call();
-            } catch (Exception ignore){}
+            } catch (Exception ignore) {
+            }
         }));
     }
 
@@ -530,5 +516,17 @@ public class MapFragment extends Fragment implements LocationListener, RapidFloa
     @VisibleForTesting
     LatLng getUserLocation() {
         return userLocation.getLatLng();
+    }
+
+    private static class Item {
+        int label, icon, color;
+        Runnable callback;
+
+        Item(int label, int icon, int color, Runnable callback) {
+            this.label = label;
+            this.icon = icon;
+            this.color = color;
+            this.callback = callback;
+        }
     }
 }

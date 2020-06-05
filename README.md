@@ -47,6 +47,11 @@ It contains a graph showing your infection probability, and a button to report y
 ### Account
 Contains your user informations. This is where you can sign out and clear your history. 
 
+## Example for the contamination detection process
+If you take a walk with a sick person you'll get sick too (probability 1). On the other hand, if that person was not known sick and got diagnosed sick the next day, your probability of being sick will increase (not necessarily to 1). 
+> NB: * the transmission of the sickness-probability is proportional to the sickness-probability of the users.
+      * if you get cured, your probability of infection decreases again.
+
 ## Little story about the name CoronaGame
 > CoronaGame was the initial name for a virus spreading game, supposed to help creating a model for virus spreading. Given the rapid evolution of the current coronavirus situation, we chose to adapt and created Virus Tracker. 
 

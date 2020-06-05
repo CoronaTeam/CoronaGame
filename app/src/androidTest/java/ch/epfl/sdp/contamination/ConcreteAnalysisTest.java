@@ -64,6 +64,7 @@ import static org.junit.Assert.assertSame;
 public class ConcreteAnalysisTest {
 
     private static final HashMap<String, Float> recentSickMeetingCounter = new HashMap<>();
+    private static final Map<GeoPoint, Map<Long, Set<Carrier>>> city = new HashMap<>();
     private static Layman man1;
     private static Layman man2;
     private static Layman man3;
@@ -71,7 +72,6 @@ public class ConcreteAnalysisTest {
     private static SortedMap<Date, Location> lastPositions;
     private static Set<Carrier> peopleAround;
     private static Map<Long, Carrier> rangePeople;
-    private static final Map<GeoPoint, Map<Long, Set<Carrier>>> city = new HashMap<>();
     private static int recoveryCounter;
     @Rule
     public final ActivityTestRule<InfectionActivity> mActivityRule = new ActivityTestRule<>(InfectionActivity.class);
@@ -339,7 +339,6 @@ public class ConcreteAnalysisTest {
         clickBack(2500);
         onView(withId(R.id.my_infection_status)).check(matches(withText("UNKNOWN")));
 
-        // TODO: Restore original components
         service.setReceiver(originalReceiver);
         service.setAnalyst(originalAnalyst);
 

@@ -1,6 +1,5 @@
 package ch.epfl.sdp.location;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -67,39 +66,44 @@ import static ch.epfl.sdp.firestore.FirestoreInteractor.taskToFuture;
 
 public class LocationService extends Service implements LocationListener, Observer {
 
-    private final static int LOCATION_PERMISSION_REQUEST = 20201;
-
     public static final String ALARM_GOES_OFF = "beeep!";
-    private static final String POISON_PILL = "dead!";
-
     public static final String INFECTION_PROBABILITY_PREF = "infectionProbability";
     public static final String INFECTION_STATUS_PREF = "infectionStatus";
     public static final String LAST_UPDATED_PREF = "lastUpdated";
-    //TODO: should we accelerate also the interval between requests to location update?
+    private final static int LOCATION_PERMISSION_REQUEST = 20201;
+    private static final String POISON_PILL = "dead!";
     private static final int MIN_UP_INTERVAL_MILLIS = 1000;
     private static final int MIN_UP_INTERVAL_METERS = 5;
     // This correspond to 6h divided by the DEMO_SPEEDUP constant
-    private static long alarmDelayMillis = 21_600_000 / getDemoSpeedup();
+    private static long alarmDelayMillis = 40_000 / getDemoSpeedup();
 
     private int serviceNotificationId = -1;
 
     private int boundActivities = 0;
 
     private ConnectivityBroker broker;
+    private final Observer internetObserver = (o, arg) -> {
+        Log.e("LOCATION_SERVICE", "Showing service.......? " + ((boolean) arg));
+        if ((boolean) arg) {
+            removeNotifications();
+            showServiceNotification();
+        } else {
+            showOfflineNotification();
+        }
+    };
     private PositionAggregator aggregator;
-
     private SharedPreferences sharedPref;
-
     private DataReceiver receiver;
     private CachingDataSender sender;
-
     private boolean isAlarmSet = false;
-
     private PendingIntent alarmPending;
     private AlarmManager alarmManager;
-
     private Date lastUpdated;
     private InfectionAnalyst analyst;
+
+    public static void setAlarmDelay(int millisDelay) {
+        alarmDelayMillis = millisDelay;
+    }
 
     private void showOfflineNotification() {
         removeNotifications();
@@ -115,20 +119,6 @@ public class LocationService extends Service implements LocationListener, Observ
         serviceNotificationId = (int) (Math.random() * 100);
 
         NotificationManagerCompat.from(this).notify(serviceNotificationId, builder.build());
-    }
-
-    private final Observer internetObserver = (o, arg) -> {
-        Log.e("LOCATION_SERVICE", "Showing service.......? " + ((boolean) arg));
-        if ((boolean) arg) {
-            removeNotifications();
-            showServiceNotification();
-        } else {
-            showOfflineNotification();
-        }
-    };
-
-    public static void setAlarmDelay(int millisDelay) {
-        alarmDelayMillis = millisDelay;
     }
 
     private void setModelUpdateAlarm() {
@@ -235,7 +225,6 @@ public class LocationService extends Service implements LocationListener, Observ
     private void updateInfectionModel() {
         SortedMap<Date, Location> locations = sender.getLastPositions().tailMap(lastUpdated);
 
-        // TODO: [LOG]
         Log.e("POSITION_ITERATOR", Integer.toString(locations.size()));
         List<CompletableFuture<Integer>> operationFutures = new ArrayList<>();
 
@@ -261,7 +250,6 @@ public class LocationService extends Service implements LocationListener, Observ
         if (alarmManager != null) {
             alarmManager.cancel(alarmPending);
         }
-        // TODO: [LOG]
         Log.e("LOCATION_SERVICE", "Kill message received");
         stopSelf();
     }
@@ -279,7 +267,6 @@ public class LocationService extends Service implements LocationListener, Observ
         }
 
         if (!isAlarmSet) {
-            // TODO: [LOG]
             Log.e("LOCATION_SERVICE", "Setting alarm");
             // Create next alarm
             setModelUpdateAlarm();
@@ -295,7 +282,6 @@ public class LocationService extends Service implements LocationListener, Observ
 
         String userId = AuthenticationManager.getAccount(CoronaGame.getContext()).getId();
 
-        // TODO: [LOG]
         Log.e("ACCOUNT_NAME", userId);
 
         DocumentReference userRef = documentReference("Users", userId);
@@ -319,7 +305,6 @@ public class LocationService extends Service implements LocationListener, Observ
     public IBinder onBind(Intent intent) {
         // Increment number of bound activities
         boundActivities++;
-        // TODO: [LOG]
         Log.e("LOCATION_SERVICE", "Unregister binding: " + boundActivities + " remaining");
         if (boundActivities > 0) {
             removeNotifications();
@@ -330,7 +315,6 @@ public class LocationService extends Service implements LocationListener, Observ
     @Override
     public boolean onUnbind(Intent intent) {
         boundActivities--;
-        // TODO: [LOG]
         Log.e("LOCATION_SERVICE", "Unregister binding: " + boundActivities + " remaining");
         showServiceNotification();
         return super.onUnbind(intent);
@@ -417,17 +401,16 @@ public class LocationService extends Service implements LocationListener, Observ
         this.receiver = receiver;
     }
 
-    public class LocationBinder extends android.os.Binder {
-        public LocationService getService() {
-            return LocationService.this;
-        }
-    }
-
-
     @Override
     public void onDestroy() {
         Log.e("LOCATION_SERVICE", "Destroying service ...");
         removeNotifications();
         super.onDestroy();
+    }
+
+    public class LocationBinder extends android.os.Binder {
+        public LocationService getService() {
+            return LocationService.this;
+        }
     }
 }

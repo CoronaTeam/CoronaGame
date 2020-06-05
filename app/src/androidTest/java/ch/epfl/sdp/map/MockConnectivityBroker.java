@@ -16,13 +16,11 @@ import static ch.epfl.sdp.connectivity.ConnectivityBroker.Provider.GPS;
 
 
 public class MockConnectivityBroker implements ConnectivityBroker {
+    private final ActivityTestRule<MapActivity> mActivityRule;
     private LocationListener listener = null;
-
     private Location fakeLocation;
     private boolean fakeStatus;
     private boolean GPSpermission;
-
-    private final ActivityTestRule<MapActivity> mActivityRule;
 
     public MockConnectivityBroker(ActivityTestRule<MapActivity> activity) {
         mActivityRule = activity;
@@ -70,7 +68,7 @@ public class MockConnectivityBroker implements ConnectivityBroker {
         return fakeLocation;
     }
 
-    public void setGPSpermission(boolean permission){
+    public void setGPSpermission(boolean permission) {
         GPSpermission = permission;
     }
 

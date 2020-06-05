@@ -78,7 +78,6 @@ public class ProbabilityStorageTest {
         StorageManager<Integer, Double> manager = getIntDoubleManager();
         manager.delete();
 
-        //TODO: Matteo should we remove that?
         Map<Integer, Double> res = manager.read();
     }
 
@@ -99,7 +98,6 @@ public class ProbabilityStorageTest {
         StorageManager<Integer, Double> manager = getIntDoubleManager();
         manager.delete();
 
-        //TODO: Matteo should we remove that?
         Map<Integer, Double> res = manager.filter((a, b) -> false);
     }
 

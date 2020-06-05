@@ -90,7 +90,6 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
         // Weight the addition of infection probability according to the relative
         float newWeight = meeting.getValue().floatValue() / cumulativeSocialTime;
 
-        // TODO: [LOG]
         Log.e("INFECTION_PROCESS", "newWeight: " + newWeight);
         Log.e("INFECTION_PROCESS", "newContribution:" + newWeight * meeting.getKey().getIllnessProbability() * TRANSMISSION_FACTOR);
 
@@ -130,14 +129,12 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
         assert aroundMe != null;
 
         for (Carrier imThere : aroundMe.keySet()) {
-            // TODO: [LOG]
             Log.e("AROUND_ME", imThere.getUniqueId() + ": " + imThere.getInfectionStatus() + ", " + imThere.getIllnessProbability());
         }
 
         Map<Carrier, Integer> contactsWithDuration = new HashMap<>();
 
 
-        // TODO: Exclude Me from dangerous people
         for (Map.Entry<? extends Carrier, Integer> person : aroundMe.entrySet()) {
             if (!person.getKey().getUniqueId().equals(me.getUniqueId())) {
                 // MODEL: Meeting periods are considered to be multiples of WINDOW_FOR_LOCATION_AGGREGATION
@@ -146,7 +143,6 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
             }
         }
 
-        // TODO: [LOG]
         Log.e("IDENTIFY_SUSPECTS", contactsWithDuration.size() + " suspects");
 
         return contactsWithDuration;
@@ -173,7 +169,6 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
         CompletableFuture<Map<Carrier, Integer>> peopleAroundMe =
                 receiver.getUserNearbyDuring(location, startTime, endTime);
 
-        // TODO: [LOG]
         Log.e("PEOPLE_AROUND_ME", "Searching for neighbors...");
         //Log.e("PEOPLE_AROUND_ME", "Neighbours found (" + peopleAroundMe.join().size() + ")");
 
@@ -213,7 +208,6 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
         })));
 
         // Tell those user that they have been close to you
-        // TODO: @Lucas discuss whether considering only the previous Illness probability is good
         userIds.forEach(u -> cachedSender.sendAlert(u, previousIllnessProbability));
     }
 
@@ -221,7 +215,7 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
     public void update(Observable o, Object arg) {
         Optional<Float> probabilityIfStatusChanged = (Optional<Float>) arg;
 
-        // TODO: @Lucas, before alerts where sent when updateStatus() was called. That missed
+        // @Lucas, before alerts where sent when updateStatus() was called. That missed
         // changes made directly to the Carrier. Hence, now the Carrier notify ConcreteAnalysis (calls update())
         // when its status change. To adapt tests, you have then to directly modify 'me' status
 

@@ -1,7 +1,6 @@
 package ch.epfl.sdp.firestore;
 
 import android.content.pm.PackageManager;
-import android.net.ConnectivityManager;
 import android.util.Log;
 
 import androidx.core.content.ContextCompat;

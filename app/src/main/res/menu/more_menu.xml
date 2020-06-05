@@ -1,7 +1,8 @@
-<menu
-    xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/button_sign_out"
-        android:title="@string/signout"/>
-    <item android:id="@+id/button_delete_local_history"
-    android:title="@string/delete_local_his"/>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/button_sign_out"
+        android:title="@string/signout" />
+    <item
+        android:id="@+id/button_delete_local_history"
+        android:title="@string/delete_local_his" />
 </menu>

@@ -19,8 +19,7 @@ import ch.epfl.sdp.identity.fragment.AccountFragment;
 
 public interface DefaultAuthenticationManager {
 
-    // TODO: @Lucas
-    /* TODO : REMOVE THIS METHOD AS SOON AS WE DO A GET_CONTEXT OR THAT IT IS NOT USED ANYMORE
+    /*
     This method was found on the internet for getting the current activity
     */
     default Activity getActivity() {

@@ -11,7 +11,7 @@ public interface InfectionAnalyst {
 
     // MODEL: Staying close to an infected person for a time period longer than this
     // implies to be considered INFECTED (with probability =1)
-    int WINDOW_FOR_INFECTION_DETECTION = 1200000 / getDemoSpeedup(); //[ms]
+    int WINDOW_FOR_INFECTION_DETECTION = 300000 / getDemoSpeedup(); //[ms]
 
     // MODEL: Being ill with a probability higher than this means becoming marked as INFECTED
     float CERTAINTY_APPROXIMATION_THRESHOLD = 0.9f;
@@ -27,7 +27,7 @@ public interface InfectionAnalyst {
     float TRANSMISSION_FACTOR = .1f;
 
     //MODEL: This parameters models how long we are contagious before we remark our illness
-    int PRESYMPTOMATIC_CONTAGION_TIME = 86400000 / getDemoSpeedup(); //[ms] actual : 24 hours
+    int PRESYMPTOMATIC_CONTAGION_TIME = 43200000 / getDemoSpeedup(); //[ms] actual : 12 hours
 
     //MODEL: This parameter models the immunity gain by a person who has been cured against the disease, 0 = 100% immune, 1 = 0% immune
     float IMMUNITY_FACTOR = 0.3f;

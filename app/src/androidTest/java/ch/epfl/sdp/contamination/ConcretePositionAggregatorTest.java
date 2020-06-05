@@ -29,7 +29,7 @@ public class ConcretePositionAggregatorTest {
     public void initTest() {
         AccountFragment.IN_TEST = true;
         this.sender = new FakeCachingDataSender();
-        int maxNumberOfLoc = 1000;
+        int maxNumberOfLoc = 66;//1000;
         this.aggregator = new ConcretePositionAggregator(sender, new Layman(HEALTHY), maxNumberOfLoc);
         aggregator.updateToOnline();
         timelap = PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION / maxNumberOfLoc;
@@ -76,14 +76,14 @@ public class ConcretePositionAggregatorTest {
 
     @Test
     @Ignore // this test takes 5 minutes to run
-    public void uploadsPositionAtStarting(){
+    public void uploadsPositionAtStarting() {
         //this test is here to catch the bug of the aggregator
 
         AccountFragment.IN_TEST = false;
-        Location loc1 = newLoc(1,1);
+        Location loc1 = newLoc(1, 1);
 
         aggregator.addPosition(loc1);
-        sleep(PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION + 1000 );
+        sleep(PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION + 1000);
         Map<Date, Location> firebaseLoc = sender.getMap();
         assertNotNull(firebaseLoc);
 

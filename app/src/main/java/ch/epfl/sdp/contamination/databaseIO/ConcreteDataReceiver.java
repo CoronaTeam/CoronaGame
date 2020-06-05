@@ -51,8 +51,6 @@ public class ConcreteDataReceiver implements DataReceiver {
     @Override
     public CompletableFuture<Set<Carrier>> getUserNearby(Location location, Date date) {
 
-        // TODO: In this function, use Neighbor instead than Carrier and set uniqueId too
-
         return interactor.gridRead(location, date.getTime()).thenApply(stringMapMap -> {
             Set<Carrier> carriers = new HashSet<>();
             for (Map.Entry<String, Map<String, Object>> doc : stringMapMap.entrySet()) {
@@ -74,10 +72,13 @@ public class ConcreteDataReceiver implements DataReceiver {
     private Set<Long> filterValidTimes(long startDate, long endDate, Map<String, Map<String, Object>> snapshot) {
         Set<Long> validTimes = new HashSet<>();
         for (Map.Entry<String, Map<String, Object>> q : snapshot.entrySet()) {
-            long time = Long.decode(getTag(q.getValue(), UNIXTIME_TAG, String.class));
+            try {
+                long time = Long.decode(getTag(q.getValue(), UNIXTIME_TAG, String.class));
 
-            if (startDate <= time && time <= endDate) {
-                validTimes.add(time);
+                if (startDate <= time && time <= endDate) {
+                    validTimes.add(time);
+                }
+            } catch (NumberFormatException ignore) {
             }
         }
         return validTimes;
@@ -90,7 +91,6 @@ public class ConcreteDataReceiver implements DataReceiver {
             for (Map.Entry<String, Map<String, Object>> doc : res.entrySet()) {
                 Carrier c = createNeighbor(doc);
 
-                // TODO: [LOG]
                 Log.e("MET_DURING_INTERVAL", c.getInfectionStatus() + ", " + c.getIllnessProbability());
 
                 int numberOfMeetings = 1;
@@ -110,7 +110,6 @@ public class ConcreteDataReceiver implements DataReceiver {
         return interactor.getTimes(location)
                 .thenApply(stringMapMap -> filterValidTimes(startDate.getTime(), endDate.getTime(), stringMapMap))
                 .thenApply(filtered -> {
-                    // TODO: [LOG]
                     if (filtered.size() > 0) {
                         Log.e("FILTERED_TIMES", Long.toString(filtered.iterator().next()));
                     }

@@ -134,12 +134,15 @@ public class PathsHandler {
 
                 String pathLocalDate = dateToSimpleString(timestamp.toDate());
 
+                /* addInfectedMet was disabled due to multiThread concurrency issues
+                   but the functionality is working
+                 */
                 if (pathLocalDate.equals(yesterdayString)) {
                     yesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
-                    addInfectedMet(lat, lon, timestamp, yesterdayInfectedMet);
+                    //addInfectedMet(lat, lon, timestamp, yesterdayInfectedMet);
                 } else if (pathLocalDate.equals(beforeYesterdayString)) {
                     beforeYesterdayPathCoordinates.add(Point.fromLngLat(lon, lat));
-                    addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
+                    //addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
                 }
             } catch (Exception e) {
                 Log.e("Exception occurred in document handler", e.getMessage());
@@ -248,10 +251,12 @@ public class PathsHandler {
         Date endDate;
         Calendar cal = Calendar.getInstance();
         cal.setTime(timestamp.toDate());
-        cal.add(Calendar.SECOND, 60);
+        cal.add(Calendar.SECOND, -30);
+        Date before = cal.getTime();
+        cal.add(Calendar.SECOND, +60);
         endDate = cal.getTime();
         concreteDataReceiver
-                .getUserNearbyDuring(location, timestamp.toDate(), endDate)
+                .getUserNearbyDuring(location, before, endDate)
                 .thenAccept(carrierIntegerMap -> {
                     Carrier carrier;
                     Point point;

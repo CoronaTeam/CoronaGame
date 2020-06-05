@@ -145,7 +145,7 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
 
         requireActivity().runOnUiThread(() -> {
             setInfectionColorAndMessage(me.getInfectionStatus() == INFECTED);
-            userInfectionProbability.setText(String.format(getString(R.string.with_proba)+" %f", me.getIllnessProbability()));
+            userInfectionProbability.setText(String.format(getString(R.string.with_proba) + " %f", me.getIllnessProbability()));
         });
     }
 
@@ -234,10 +234,6 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     }
 
     private void sendRecoveryToFirebase() {
-        // TODO: I think that doesn't upload anything to Firestore
-        // --->> Are you sure? From what I read on the doc,
-        //                      update method from DocumentReference updates on Firebase
-        // TODO: [LOG]
         Log.e("RECOVERY_SENDER", account.getId());
         DocumentReference ref = documentReference(privateUserFolder, account.getId());
         ref.update(privateRecoveryCounter, FieldValue.increment(1));

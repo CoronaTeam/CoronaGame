@@ -22,11 +22,6 @@ import ch.epfl.sdp.identity.User;
 import ch.epfl.sdp.identity.fragment.AccountFragment;
 import ch.epfl.sdp.location.LocationService;
 
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static ch.epfl.sdp.firestore.FirestoreInteractor.documentReference;
 import static ch.epfl.sdp.firestore.FirestoreLabels.privateRecoveryCounter;
 import static ch.epfl.sdp.firestore.FirestoreLabels.privateUserFolder;
@@ -77,7 +72,6 @@ public interface TestTools {
     }
 
     /**
-     *
      * @param latitude
      * @param longitude
      * @return
@@ -91,7 +85,6 @@ public interface TestTools {
     }
 
     /**
-     *
      * @param loc1
      * @param loc2
      * @return

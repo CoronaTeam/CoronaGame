@@ -128,11 +128,7 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
         while (!loadingCache.get()) {
         }
 
-        if (!cacheOk.get()) {
-            return false;
-        }
-
-        return true;
+        return cacheOk.get();
     }
 
     @Override

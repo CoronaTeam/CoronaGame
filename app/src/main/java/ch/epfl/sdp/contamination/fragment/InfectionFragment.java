@@ -37,13 +37,11 @@ import static android.content.Context.BIND_AUTO_CREATE;
  */
 public class InfectionFragment extends Fragment implements View.OnClickListener {
 
+    private final Handler uiHandler;
     private TextView infectionStatus;
     private ProgressBar infectionProbability;
     private long lastUpdateTime;
-
     private CompletableFuture<LocationService> service;
-
-    private final Handler uiHandler;
 
     public InfectionFragment(Handler uiHandler) {
         this.uiHandler = uiHandler;
@@ -103,7 +101,6 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
 
         LocationService locationService = service.join();
 
-        // TODO: Which location?
         try {
             locationService.getReceiver()
                     .getMyLastLocation(AuthenticationManager.getUserId())
@@ -121,7 +118,6 @@ public class InfectionFragment extends Fragment implements View.OnClickListener 
                     }))
                     .get(2, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
-            // TODO: [LOG]
             Log.e("INFECTION_CHART", "Refresh timed out...");
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();

@@ -53,7 +53,6 @@ public class GridFirestoreInteractor extends ConcreteFirestoreInteractor {
         Map<String, Object> timeMap = new HashMap<>();
         timeMap.put(UNIXTIME_TAG, time);
 
-        // TODO: [LOG]
         Log.e("POSITION_UPLOAD", getGridId(location));
 
         return writeDocumentWithID(

@@ -18,8 +18,6 @@ import ch.epfl.sdp.location.LocationService;
 
 public class DataExchangeActivity extends AppCompatActivity {
 
-    // TODO: This activity will be converted into a Service
-
     @VisibleForTesting
     public TextView exchangeStatus;
     @VisibleForTesting

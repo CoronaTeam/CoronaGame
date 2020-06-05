@@ -24,17 +24,15 @@
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:indeterminate="true"
         android:layout_gravity="center"
-        />
+        android:indeterminate="true" />
 
     <com.wangjie.rapidfloatingactionbutton.RapidFloatingActionLayout
         android:id="@+id/more_rfal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        mapbox:rfal_frame_color="#ffffff"
         mapbox:rfal_frame_alpha="0.7"
-        >
+        mapbox:rfal_frame_color="#ffffff">
 
         <ch.epfl.sdp.utilities.RotatedRapidFloatingActionButton
             android:id="@+id/more_rfab"

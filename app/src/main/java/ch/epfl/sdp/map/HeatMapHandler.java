@@ -136,14 +136,15 @@ public class HeatMapHandler {
 
         for (Map.Entry<String, Map<String, Object>> entry : entrySet) {
             try {
-                if (entry.getValue().get(INFECTION_STATUS_TAG).equals("INFECTED")){
+                if (entry.getValue().get(INFECTION_STATUS_TAG).equals("INFECTED")) {
                     GeoPoint geoPoint = (GeoPoint) entry.getValue().get(GEOPOINT_TAG);
                     infectionHeatMapPoints.add(Point.fromLngLat(
                             geoPoint.getLongitude(),
                             geoPoint.getLatitude()
                     ));
                 }
-            } catch (NullPointerException ignored) { }
+            } catch (NullPointerException ignored) {
+            }
         }
 
         GeoJsonSource lastPos = new GeoJsonSource(LASTPOSITIONS_SOURCE_ID,
@@ -177,7 +178,9 @@ public class HeatMapHandler {
 
     private void callHeatmapDataLoaded() {
         try {
-            if(onHeatMapDataLoaded != null) {onHeatMapDataLoaded.call();}
+            if (onHeatMapDataLoaded != null) {
+                onHeatMapDataLoaded.call();
+            }
             onHeatMapDataLoaded = null;
         } catch (Exception ignored) {
         }

@@ -11,7 +11,6 @@ import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
 import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
-import ch.epfl.sdp.identity.User;
 
 /**
  * This class, made to make testing other classes convenient, simulates the behavior of a regular

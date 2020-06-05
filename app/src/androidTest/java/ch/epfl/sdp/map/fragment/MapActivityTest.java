@@ -42,14 +42,13 @@ public class MapActivityTest {
 
     @Rule
     public final ActivityTestRule<MapActivity> activityRule = new ActivityTestRule<>(MapActivity.class);
+    private final int HEATMAP_TOGGLE_BUTTON_POSITION = 0;
+    private final int MY_LOCATION_BUTTON_POSITION = 1;
     @Rule
     public GrantPermissionRule locationPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION);
     private MapFragment mapFragment;
     private AtomicInteger sentinel;
     private MockConnectivityBroker mockLocationBroker;
-
-    private final int HEATMAP_TOGGLE_BUTTON_POSITION = 0;
-    private final int MY_LOCATION_BUTTON_POSITION = 1;
 
     @BeforeClass
     public static void preClassSetup() {
@@ -77,34 +76,12 @@ public class MapActivityTest {
         sentinel = new AtomicInteger(0);
     }
 
-
-    ////////////////////////////////// Tests //////////////////////////////////////
-
-
     @Test(timeout = 30000)
-    public void testMapLoadCorrectly() throws Throwable{
+    public void testMapLoadCorrectly() throws Throwable {
         sTestMapLoadCorrectly(mapFragment, sentinel, activityRule);
     }
 
-    @Test(timeout = 50000)
-    public void testHeatMapLoadCorrectly() throws Throwable {
-        testMapLoadCorrectly();
-
-        mockLocationBroker.setFakeLocation(buildLocation(46, 54));
-
-        while (mapFragment.getHeatMapHandler() == null) {
-            sleep(500);
-        }
-
-        activityRule.runOnUiThread(() -> mapFragment.getHeatMapHandler().onHeatMapDataLoaded(
-                sentinel::incrementAndGet));
-        // The sentinel value will only increase when the heatmap has completely loaded
-
-        activityRule.runOnUiThread(() -> mapFragment.getHeatMapHandler().onHeatMapDataLoaded(sentinel::incrementAndGet)); // The sentinel value will only increase when the heatmap has completely loaded
-
-        waitForSentinelAndSetToZero();
-
-    }
+    ////////////////////////////////// Tests //////////////////////////////////////
 
     @Test(timeout = 35000)
     /*
@@ -174,11 +151,21 @@ public class MapActivityTest {
         assertEquals(exp_lon, act_lon, precision);
     }
 
-
     ////////////////////////////////// Helper functions //////////////////////////////////////
 
-    private void testLayerVisibility(String visibility) throws Throwable {
-        sTestLayerVisibility(visibility, ch.epfl.sdp.map.HeatMapHandler.HEATMAP_LAYER_ID, mapFragment, sentinel, activityRule);
+    static void sTestMapVisible(MapFragment mapFragment, AtomicInteger sentinel, MockConnectivityBroker mockConnectivityBroker, ActivityTestRule<MapActivity> activityRule) throws Throwable {
+        sTestMapLoadCorrectly(mapFragment, sentinel, activityRule);
+        mockConnectivityBroker.setFakeLocation(buildLocation(46, 55));
+        mapFragment.onMapVisible(sentinel::incrementAndGet);
+        sWaitForSentinelAndSetToZero(sentinel);
+        sleep(1000);
+    }
+
+    static void sWaitForSentinelAndSetToZero(AtomicInteger sentinel) {
+        while (sentinel.get() == 0) {
+            sleep(500);
+        }
+        sentinel.set(0);
     }
 
     static void sTestLayerVisibility(String visibility, String layerId, MapFragment mapFragment, AtomicInteger sentinel, ActivityTestRule<MapActivity> activityRule) throws Throwable {
@@ -204,27 +191,36 @@ public class MapActivityTest {
         sWaitForSentinelAndSetToZero(sentinel);
     }
 
+    @Test(timeout = 50000)
+    public void testHeatMapLoadCorrectly() throws Throwable {
+        testMapLoadCorrectly();
+
+        mockLocationBroker.setFakeLocation(buildLocation(46, 54));
+
+        while (mapFragment.getHeatMapHandler() == null) {
+            sleep(500);
+        }
+
+        activityRule.runOnUiThread(() -> mapFragment.getHeatMapHandler().onHeatMapDataLoaded(
+                sentinel::incrementAndGet));
+        // The sentinel value will only increase when the heatmap has completely loaded
+
+        activityRule.runOnUiThread(() -> mapFragment.getHeatMapHandler().onHeatMapDataLoaded(sentinel::incrementAndGet)); // The sentinel value will only increase when the heatmap has completely loaded
+
+        waitForSentinelAndSetToZero();
+
+    }
+
+    private void testLayerVisibility(String visibility) throws Throwable {
+        sTestLayerVisibility(visibility, ch.epfl.sdp.map.HeatMapHandler.HEATMAP_LAYER_ID, mapFragment, sentinel, activityRule);
+    }
+
     private void testMapVisible() throws Throwable {
         sTestMapVisible(mapFragment, sentinel, mockLocationBroker, activityRule);
     }
 
-    static void sTestMapVisible(MapFragment mapFragment, AtomicInteger sentinel, MockConnectivityBroker mockConnectivityBroker, ActivityTestRule<MapActivity> activityRule) throws Throwable {
-        sTestMapLoadCorrectly(mapFragment, sentinel, activityRule);
-        mockConnectivityBroker.setFakeLocation(buildLocation(46, 55));
-        mapFragment.onMapVisible(sentinel::incrementAndGet);
-        sWaitForSentinelAndSetToZero(sentinel);
-        sleep(1000);
-    }
-
     private void waitForSentinelAndSetToZero() {
         sWaitForSentinelAndSetToZero(sentinel);
-    }
-
-    static void sWaitForSentinelAndSetToZero(AtomicInteger sentinel) {
-        while (sentinel.get() == 0) {
-            sleep(500);
-        }
-        sentinel.set(0);
     }
 
 }

@@ -24,21 +24,18 @@ Is a... map containing 5 feature buttons described below.
 
 * Before yesterday: click here to see your path from the day before yesterday. 
 
-![img1](Screenshot_1591385996.png)
-![](Screenshot_1591385996.png | width=100)
+![img1](Screenshot_1591385996.png 100x20)
 
 ### Status
 Concerns the user infection status.
 It contains a graph showing your infection probability, and a button to report your infection. You are allowed to change your infection status at most once per day. 
 
-![img2](Screenshot_1591385876.png)
-![](Screenshot_1591385876.png | width=100)
+![img2](Screenshot_1591385876.png 100x20)
 
 ### Account
 Contains your user informations and the tab where you can sign out and clear your history. 
 
-![img3](Screenshot_1591386066.png)
-![](Screenshot_1591386066.png | width=100)
+![img3](Screenshot_1591386066.png 100x20)
 
 ## Little story about the name CoronaGame
 > CoronaGame was the initial name for a virus spreading game, supposed to help creating a model for virus spreading. Given the rapid evolution of the current coronavirus situation, we chose to adapt and created Virus Tracker. 

@@ -21,7 +21,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class ConcretePositionAggregatorTest {
-    private final int maxNumberOfLoc = 1000;
     private ConcretePositionAggregator aggregator;
     private FakeCachingDataSender sender;
     private int timelap;
@@ -30,6 +29,7 @@ public class ConcretePositionAggregatorTest {
     public void initTest() {
         AccountFragment.IN_TEST = true;
         this.sender = new FakeCachingDataSender();
+        int maxNumberOfLoc = 1000;
         this.aggregator = new ConcretePositionAggregator(sender, new Layman(HEALTHY), maxNumberOfLoc);
         aggregator.updateToOnline();
         timelap = PositionAggregator.WINDOW_FOR_LOCATION_AGGREGATION / maxNumberOfLoc;

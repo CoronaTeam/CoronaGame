@@ -18,13 +18,13 @@ import static ch.epfl.sdp.firestore.FirestoreLabels.UNIXTIME_TAG;
 public class GridFirestoreInteractor extends ConcreteFirestoreInteractor {
 
     // MODEL: Round the location to the 3th decimal digit
-    public static final int COORDINATE_PRECISION = 1000;
+    private static final int COORDINATE_PRECISION = 1000;
 
     public GridFirestoreInteractor() {
         super();
     }
 
-    String getGridId(Location location) {
+    private String getGridId(Location location) {
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
 

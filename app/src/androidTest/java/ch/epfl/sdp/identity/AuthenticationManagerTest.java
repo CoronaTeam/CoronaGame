@@ -29,10 +29,10 @@ import static org.junit.Assert.assertSame;
 
 public class AuthenticationManagerTest {
     @Rule
-    public final ActivityTestRule<AccountActivity> activityRule = new ActivityTestRule<AccountActivity>(AccountActivity.class);
+    public final ActivityTestRule<AccountActivity> activityRule = new ActivityTestRule<>(AccountActivity.class);
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         initSafeTest(activityRule, true);
     }
 
@@ -67,7 +67,7 @@ public class AuthenticationManagerTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         Intents.release();
     }
 

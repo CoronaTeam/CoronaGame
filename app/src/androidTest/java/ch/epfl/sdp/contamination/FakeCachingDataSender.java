@@ -14,16 +14,15 @@ import ch.epfl.sdp.contamination.databaseIO.CachingDataSender;
 import ch.epfl.sdp.identity.User;
 
 /**
- * This class, made to make testing other classes convenient, simulates the behavior of a regular datasender to firestore, but store info locally
+ * This class, made to make testing other classes convenient, simulates the behavior of a regular
+ * dataSender to firestore, but store info locally
  */
 public class FakeCachingDataSender implements CachingDataSender {
 
-    HashMap<Date, Location> fakeFirebaseStore;
-    private String userID;
+    final HashMap<Date, Location> fakeFirebaseStore;
 
     public FakeCachingDataSender() {
         this.fakeFirebaseStore = new HashMap<>();
-        String userID = User.DEFAULT_USERID;
     }
 
     /**

@@ -59,10 +59,10 @@ public class TabActivity extends AppCompatActivity {
         }
     }
 
-    public class TabPagerAdapter extends FragmentPagerAdapter {
+    class TabPagerAdapter extends FragmentPagerAdapter {
         private final Tab[] tabs;
 
-        public TabPagerAdapter(@NonNull FragmentManager fm, int behavior, Tab[] tabs) {
+        TabPagerAdapter(@NonNull FragmentManager fm, int behavior, Tab[] tabs) {
             super(fm, behavior);
             this.tabs = tabs;
         }

@@ -14,10 +14,8 @@ public class LocationUtils {
         l.setLatitude(latitude);
         l.setLongitude(longitude);
         l.setTime(System.currentTimeMillis());
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
-            // Also need to set the et field
-            l.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());
-        }
+        // Also need to set the et field
+        l.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());
         l.setAltitude(400);
         l.setAccuracy(1);
         return l;

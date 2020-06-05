@@ -24,7 +24,7 @@ public class IntroActivityTest {
     public final ActivityTestRule<IntroActivity> activityRule = new ActivityTestRule<>(IntroActivity.class);
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         initSafeTest(activityRule, true);
     }
 
@@ -38,7 +38,7 @@ public class IntroActivityTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         Intents.release();
     }
 }

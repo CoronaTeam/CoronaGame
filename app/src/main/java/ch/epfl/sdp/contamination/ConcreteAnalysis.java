@@ -24,9 +24,6 @@ import static ch.epfl.sdp.contamination.Carrier.InfectionStatus.UNKNOWN;
 import static ch.epfl.sdp.firestore.FirestoreLabels.privateRecoveryCounter;
 import static ch.epfl.sdp.firestore.FirestoreLabels.publicAlertAttribute;
 
-
-// TODO: @Ulysse, @Adrien, @Kevin, @Lucas, @Lucie: general info on ConcreteAnalysis
-
 /**
  * Concrete implementation of InfectionAnalyst, which can be observed
  * It models the evolution of the disease.
@@ -208,14 +205,12 @@ public class ConcreteAnalysis implements InfectionAnalyst, Observer {
 
         //2: Ask firebase who was there
         Set<String> userIds = new HashSet<>();
-        lastPositions.forEach((date, location) -> receiver.getUserNearby(location, date).thenAccept(around -> {
-            around.forEach(neighbor -> {
-                // Inform once only non-INFECTED users
-                if (neighbor.getInfectionStatus() != INFECTED) {
-                    userIds.add(neighbor.getUniqueId());
-                }
-            });
-        }));
+        lastPositions.forEach((date, location) -> receiver.getUserNearby(location, date).thenAccept(around -> around.forEach(neighbor -> {
+            // Inform once only non-INFECTED users
+            if (neighbor.getInfectionStatus() != INFECTED) {
+                userIds.add(neighbor.getUniqueId());
+            }
+        })));
 
         // Tell those user that they have been close to you
         // TODO: @Lucas discuss whether considering only the previous Illness probability is good

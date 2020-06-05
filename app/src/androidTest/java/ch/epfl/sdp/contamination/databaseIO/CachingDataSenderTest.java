@@ -1,7 +1,6 @@
 package ch.epfl.sdp.contamination.databaseIO;
 
 import android.location.Location;
-import android.util.Log;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +10,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.SortedMap;
 
-import ch.epfl.sdp.TestTools;
 import ch.epfl.sdp.contamination.Carrier;
 import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.identity.User;
@@ -26,8 +24,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class CachingDataSenderTest {
-    DataReceiver receiver;
-    CachingDataSender sender;
+    private DataReceiver receiver;
+    private CachingDataSender sender;
 
     @Before
     public void init() {
@@ -83,34 +81,38 @@ public class CachingDataSenderTest {
         SortedMap<Date, Location> res = sender.getLastPositions();
         Collection<Location> val = res.values();
         Iterator<Location> it = val.iterator();
-        assertTrue(val.size() == 1);
+        assertEquals(1, val.size());
         while (it.hasNext()) {
-            assertTrue(it.next().getLatitude() == 1);
+            assertEquals(1, it.next().getLatitude(), 0.0);
         }
     }
+
     @Test
-    public void cacheWorksIfUsedTwice(){
-        //During development, the above test failed if runed twice.
+    public void cacheWorksIfUsedTwice() {
+        //During development, the above test failed if run twice.
         getLastPositionsReturnsCorrectWindowOfLocations();
     }
+
     @Test
-    public void stringToLocationWorks(){
+    public void stringToLocationWorks() {
         Location loc1 = ConcreteCachingDataSender.stringToLocation("1.000,2.456");
-        assertEquals(loc1.getLatitude(),1.0,0.00001);
-        assertEquals(loc1.getLongitude(),2.456,0.00001);
+        assertEquals(loc1.getLatitude(), 1.0, 0.00001);
+        assertEquals(loc1.getLongitude(), 2.456, 0.00001);
         loc1 = ConcreteCachingDataSender.stringToLocation("1.0001,2");
-        assertEquals(loc1.getLatitude(),1.0001,0.00001);
-        assertEquals(loc1.getLongitude(),2.0,0.00001);
+        assertEquals(loc1.getLatitude(), 1.0001, 0.00001);
+        assertEquals(loc1.getLongitude(), 2.0, 0.00001);
         loc1 = ConcreteCachingDataSender.stringToLocation("0.0,0.0");
-        assertEquals(loc1.getLatitude(),0.0,0.00001);
-        assertEquals(loc1.getLongitude(),0.0,0.00001);
+        assertEquals(loc1.getLatitude(), 0.0, 0.00001);
+        assertEquals(loc1.getLongitude(), 0.0, 0.00001);
     }
+
     @Test(expected = IllegalArgumentException.class)
-    public void stringToLocAcceptsOnlyTuples(){
+    public void stringToLocAcceptsOnlyTuples() {
         ConcreteCachingDataSender.stringToLocation("1.235,2.235,6.5");
     }
+
     @Test(expected = IllegalArgumentException.class)
-    public void stringToLocRejectsNonNumberInput(){
+    public void stringToLocRejectsNonNumberInput() {
         ConcreteCachingDataSender.stringToLocation("IAmANumber,BelieveMe");
     }
 }

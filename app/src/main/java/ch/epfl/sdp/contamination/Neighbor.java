@@ -10,9 +10,9 @@ import java.util.Map;
  */
 public class Neighbor implements Carrier {
 
-    private float infectionProbability;
-    private InfectionStatus infectionStatus;
-    private String uniqueId;
+    private final float infectionProbability;
+    private final InfectionStatus infectionStatus;
+    private final String uniqueId;
 
     public Neighbor(InfectionStatus st, float prob, String uid) {
         infectionStatus = st;

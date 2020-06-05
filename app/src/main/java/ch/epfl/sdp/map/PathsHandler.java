@@ -68,41 +68,33 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
  * as well as points of met infected users.
  */
 public class PathsHandler {
-    private static final String YESTERDAY_INFECTED_SOURCE_ID = "points-source-one";
-    private static final String BEFORE_INFECTED_SOURCE_ID = "points-source-two";
     public static final String YESTERDAY_INFECTED_LAYER_ID = "pointslayer-one";
     public static final String BEFORE_INFECTED_LAYER_ID = "pointslayer-two";
-
-    private static final String YESTERDAY_PATH_SOURCE_ID = "line-source-one";
-    private static final String BEFORE_PATH_SOURCE_ID = "line-source-two";
     public static final String YESTERDAY_PATH_LAYER_ID = "linelayer-one";
     public static final String BEFORE_PATH_LAYER_ID = "linelayer-two";
-
+    private static final String YESTERDAY_INFECTED_SOURCE_ID = "points-source-one";
+    private static final String BEFORE_INFECTED_SOURCE_ID = "points-source-two";
+    private static final String YESTERDAY_PATH_SOURCE_ID = "line-source-one";
+    private static final String BEFORE_PATH_SOURCE_ID = "line-source-two";
+    private static final int ZOOM = 13;
+    private final MapboxMap map;
+    private final MapFragment parentClass;
+    private final ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(
+            new GridFirestoreInteractor());
     private List<Point> yesterdayPathCoordinates;
     private List<Point> beforeYesterdayPathCoordinates;
     private List<Point> yesterdayInfectedMet;
     private List<Point> beforeYesterdayInfectedMet;
-
     private double latitudeYesterday;
     private double latitudeBefore;
     private double longitudeYesterday;
     private double longitudeBefore;
-
     private LatLngBounds yesterdayLLB;
     private LatLngBounds beforeLLB;
-
     private boolean pathLocationSet1; // yesterday
     private boolean pathLocationSet2; // before yesterday
-
     private String yesterdayString;
     private String beforeYesterdayString;
-
-    private static final int ZOOM = 13;
-    private MapboxMap map;
-    private MapFragment parentClass;
-    private ConcreteDataReceiver concreteDataReceiver = new ConcreteDataReceiver(
-            new GridFirestoreInteractor());
-
     private Callable onPathDataLoaded;
     private Boolean layersHaveBeenSet;
 
@@ -150,7 +142,7 @@ public class PathsHandler {
                     addInfectedMet(lat, lon, timestamp, beforeYesterdayInfectedMet);
                 }
             } catch (Exception e) {
-                Log.e("Exeption occured in document handler", e.getMessage());
+                Log.e("Exception occurred in document handler", e.getMessage());
             }
         }
         setLayers();
@@ -206,7 +198,7 @@ public class PathsHandler {
                 beforeYesterdayPathCoordinates;
         LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
 
-        for (int i = 0; i<pathCoord.size(); ++i) {
+        for (int i = 0; i < pathCoord.size(); ++i) {
             double lat = pathCoord.get(i).latitude();
             double lon = pathCoord.get(i).longitude();
             boundsBuilder.include(new LatLng(lat, lon));
@@ -351,10 +343,7 @@ public class PathsHandler {
     }
 
     @VisibleForTesting
-    public enum TestOP {TEST_NON_EMPTY_LIST, TEST_EMPTY_PATH}
-
-    @VisibleForTesting
-    public void resetPaths(TestOP testOP, Callable onResetDone){ // assumes the class has loaded
+    public void resetPaths(TestOP testOP, Callable onResetDone) { // assumes the class has loaded
         map.getStyle(style -> {
             style.removeLayer(BEFORE_INFECTED_LAYER_ID);
             style.removeLayer(BEFORE_PATH_LAYER_ID);
@@ -368,13 +357,16 @@ public class PathsHandler {
 
             try {
                 onResetDone.call();
-            } catch (Exception ignore) {}
+            } catch (Exception ignore) {
+            }
         });
     }
 
     private void callPathDataLoaded() {
         try {
-            if(onPathDataLoaded != null) {onPathDataLoaded.call();}
+            if (onPathDataLoaded != null) {
+                onPathDataLoaded.call();
+            }
             onPathDataLoaded = null;
         } catch (Exception ignored) {
         }
@@ -384,9 +376,11 @@ public class PathsHandler {
     public void onPathDataLoaded(Callable func) {
         onPathDataLoaded = func;
 
-        if (layersHaveBeenSet){
+        if (layersHaveBeenSet) {
             callPathDataLoaded();
         }
     }
 
+    @VisibleForTesting
+    public enum TestOP {TEST_NON_EMPTY_LIST, TEST_EMPTY_PATH}
 }

@@ -118,8 +118,6 @@ public class ConcreteManager<A extends Comparable<A>, B> implements StorageManag
                 cache.put(key, value);
             }
             return true;
-        } catch (IOException e) {
-            return false;
         } catch (Exception e) {
             return false;
         }

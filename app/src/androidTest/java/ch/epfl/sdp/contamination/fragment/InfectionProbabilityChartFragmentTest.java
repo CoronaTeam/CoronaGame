@@ -22,14 +22,12 @@ public class InfectionProbabilityChartFragmentTest {
     @Rule
     public final ActivityTestRule<InfectionProbabilityChartFragmentActivity> activityRule =
             new ActivityTestRule<>(InfectionProbabilityChartFragmentActivity.class);
-    private InfectionProbabilityChartFragment fragment;
 
     @Before
     public void setUp() {
         initSafeTest(activityRule, true);
         sleep(1001);
-        fragment =
-                ((InfectionProbabilityChartFragment) activityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
+        InfectionProbabilityChartFragment fragment = ((InfectionProbabilityChartFragment) activityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
         sleep(1000);
     }
 

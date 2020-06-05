@@ -38,16 +38,14 @@ import java.util.Observable;
 import java.util.Observer;
 
 import ch.epfl.sdp.R;
-import ch.epfl.sdp.contamination.Layman;
 import ch.epfl.sdp.location.LocationService;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 
 public class InfectionProbabilityChartFragment extends Fragment implements OnChartValueSelectedListener, Observer {
 
-    private static long DATA_TIME_SCALE = 1000L;
-    private static float DATA_TIME_GRANULARITY = (float) (1000L * 60L * 60L * 24L) / DATA_TIME_SCALE; // one day in ms
-    private View view;
+    private static final long DATA_TIME_SCALE = 1000L;
+    private static final float DATA_TIME_GRANULARITY = (float) (1000L * 60L * 60L * 24L) / DATA_TIME_SCALE; // one day in ms
     private LineChart chart;
     private LocationService service;
     private ServiceConnection serviceConnection;
@@ -71,7 +69,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        view = inflater.inflate(R.layout.fragment_infection_probability_chart, container, false);
+        View view = inflater.inflate(R.layout.fragment_infection_probability_chart, container, false);
 
         chart = view.findViewById(R.id.infectionProbabilityChart);
 
@@ -87,7 +85,7 @@ public class InfectionProbabilityChartFragment extends Fragment implements OnCha
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 InfectionProbabilityChartFragment.this.service = ((LocationService.LocationBinder) service).getService();
-                ((Layman) InfectionProbabilityChartFragment.this.service.getAnalyst().getCarrier()).addObserver(InfectionProbabilityChartFragment.this);
+                InfectionProbabilityChartFragment.this.service.getAnalyst().getCarrier().addObserver(InfectionProbabilityChartFragment.this);
                 updateData();
             }
 

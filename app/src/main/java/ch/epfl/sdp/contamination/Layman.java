@@ -37,9 +37,6 @@ public class Layman extends ObservableCarrier {
 
     private String uniqueID;
 
-    public Layman() {
-    }
-
     public Layman(InfectionStatus initialStatus) {
         this(initialStatus, initialStatus == InfectionStatus.INFECTED ? 1 : 0);
     }

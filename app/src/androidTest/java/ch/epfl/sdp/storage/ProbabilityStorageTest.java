@@ -29,8 +29,8 @@ public class ProbabilityStorageTest {
     @Rule
     public final ActivityTestRule<IntroActivity> mActivityRule = new ActivityTestRule<>(IntroActivity.class);
     @Rule
-    public ExpectedException testException = ExpectedException.none();
-    private DateFormat format = new SimpleDateFormat("E MMM dd HH:mm:ss zzz yyyy");
+    public final ExpectedException testException = ExpectedException.none();
+    private final DateFormat format = new SimpleDateFormat("E MMM dd HH:mm:ss zzz yyyy");
 
     @BeforeClass
     public static void DeleteTestFile() {
@@ -78,6 +78,7 @@ public class ProbabilityStorageTest {
         StorageManager<Integer, Double> manager = getIntDoubleManager();
         manager.delete();
 
+        //TODO: Matteo should we remove that?
         Map<Integer, Double> res = manager.read();
     }
 
@@ -98,6 +99,7 @@ public class ProbabilityStorageTest {
         StorageManager<Integer, Double> manager = getIntDoubleManager();
         manager.delete();
 
+        //TODO: Matteo should we remove that?
         Map<Integer, Double> res = manager.filter((a, b) -> false);
     }
 

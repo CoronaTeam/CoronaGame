@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public class FakeAnalyst implements InfectionAnalyst {
     static int infectMeets = 0;
-    ObservableCarrier carrier;
+    private final ObservableCarrier carrier;
 
     public FakeAnalyst(ObservableCarrier originalCarrier) {
         carrier = originalCarrier;

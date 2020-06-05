@@ -57,7 +57,6 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
     private TextView onlineStatusView;
     private Button refreshButton;
     private Account account;
-    private String userName;
     private View view;
     private LocationService service;
     private BiometricPrompt biometricPrompt;
@@ -100,8 +99,6 @@ public class UserInfectionFragment extends Fragment implements View.OnClickListe
         checkOnline();
 
         account = AuthenticationManager.getAccount(requireActivity());
-        userName = account.getDisplayName();
-
 
         Executor executor = ContextCompat.getMainExecutor(requireActivity());
         if (Tools.canAuthenticate(requireActivity())) {

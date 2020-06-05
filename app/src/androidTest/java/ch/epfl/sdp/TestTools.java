@@ -61,12 +61,6 @@ public interface TestTools {
         return AuthenticationManager.getActivity();
     }
 
-    static void clickAndCheck(int buttonID, int UIelementID) {
-        onView(withId(buttonID)).perform(click());
-        sleep();
-        onView(withId(UIelementID)).check(matches(isDisplayed()));
-    }
-
     static void sleep(int milliseconds) {
         try {
             Thread.sleep(milliseconds);
@@ -83,27 +77,31 @@ public interface TestTools {
     }
 
     /**
-     * Rounds a double to 5 digits after the comma
      *
-     * @param
+     * @param latitude
+     * @param longitude
      * @return
      */
-
-
-    static Location newLoc(double lati, double longi) {
+    static Location newLoc(double latitude, double longitude) {
         Location res = new Location("provider");
         res.reset();
-        res.setLatitude(lati);
-        res.setLongitude(longi);
+        res.setLatitude(latitude);
+        res.setLongitude(longitude);
         return res;
     }
 
+    /**
+     *
+     * @param loc1
+     * @param loc2
+     * @return
+     */
     static boolean equalLatLong(Location loc1, Location loc2) {
         return loc1.getLatitude() == loc2.getLatitude() && loc1.getLongitude() == loc2.getLongitude();
     }
 
     /**
-     * Use with parcymony !
+     * Use with parsimony !
      *
      * @param res
      * @return
@@ -123,11 +121,17 @@ public interface TestTools {
         service.setSender(new ConcreteCachingDataSender(gridInteractor));
     }
 
+    /**
+     *
+     */
     static void resetSickCounter() {
         DocumentReference ref = documentReference(privateUserFolder, User.DEFAULT_USERID);
         ref.update(privateRecoveryCounter, FieldValue.delete());
     }
 
+    /**
+     *
+     */
     static void clickBack() {
         clickBack(1000);
     }

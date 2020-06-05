@@ -24,8 +24,8 @@ public interface CachingDataSender {
 
     int MAX_CACHE_ENTRY_AGE = InfectionAnalyst.PRESYMPTOMATIC_CONTAGION_TIME;
 
-    static double roundCoordinate(double coor) {
-        return (double) Math.round(coor * ROUNDING_FACTOR) / ROUNDING_FACTOR;//fast rounding to 5 digits
+    static double roundCoordinate(double coordinates) {
+        return (double) Math.round(coordinates * ROUNDING_FACTOR) / ROUNDING_FACTOR;//fast rounding to 5 digits
     }
 
     /**

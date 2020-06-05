@@ -21,15 +21,11 @@ import static org.junit.Assert.assertFalse;
 @RunWith(AndroidJUnit4.class)
 public class SwipeViewPagerTest {
 
-    private Context context;
     private SwipeViewPager swipeViewPager;
-
-    @Mock
-    private AttributeSet attributes;
 
     @Before
     public void setup() {
-        context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         swipeViewPager = new SwipeViewPager(context, null);
     }
 

@@ -27,12 +27,12 @@ public class AuthenticationTest {
     public final ActivityTestRule<Authentication> activityRule = new ActivityTestRule<>(Authentication.class);
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         initSafeTest(activityRule, true);
         AuthenticationManager.signOut(activityRule.getActivity()); // fixes Auth skip to TabActivity
     }
 
-    @Test(expected = Test.None.class) //expect no error
+    @Test() //expect no error
     public void signInButtonIsDisplayedAndClickable() {
         onView(ViewMatchers.withId(R.id.sign_in_button)).check(matches(isDisplayed()));
         onView(withId(R.id.sign_in_button)).perform(click());
@@ -42,10 +42,10 @@ public class AuthenticationTest {
 
     @Test(expected = IllegalStateException.class)
     public void onActivityResultThrowsExceptionOnWrongRequestCode() {
-        ((AuthenticationFragment) (activityRule.getActivity().getFragment())).onActivityResult(AuthenticationFragment.RC_SIGN_IN - 1, 0, null);
+        activityRule.getActivity().getFragment().onActivityResult(AuthenticationFragment.RC_SIGN_IN - 1, 0, null);
     }
 
-    @Test(expected = Test.None.class)
+    @Test()
     public void onActivityResultThrowsNoExceptionOnRightRequestCode() {
         activityRule.getActivity().getFragment().onActivityResult(AuthenticationFragment.RC_SIGN_IN, 0, null);
     }
@@ -57,7 +57,7 @@ public class AuthenticationTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         Intents.release();
     }
 }

@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public class ConcreteFirestoreInteractor extends FirestoreInteractor {
 
-    public static Map<String, Map<String, Object>> parseCollection(QuerySnapshot collection) {
+    private static Map<String, Map<String, Object>> parseCollection(QuerySnapshot collection) {
         List<DocumentSnapshot> list = collection.getDocuments();
         Map<String, Map<String, Object>> result = new HashMap<>();
         for (DocumentSnapshot doc : list) {

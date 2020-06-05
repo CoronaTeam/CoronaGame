@@ -37,8 +37,8 @@ public class RealGridSenderTest {
     @Rule
     public final ActivityTestRule<DataExchangeActivity> mActivityRule = new ActivityTestRule<>(DataExchangeActivity.class);
 
-    Consumer<Void> writeSuccessToUi;
-    Function<Throwable, Void> writeFailureToUi;
+    private Consumer<Void> writeSuccessToUi;
+    private Function<Throwable, Void> writeFailureToUi;
 
     @Before
     public void setupTests() {
@@ -114,7 +114,7 @@ public class RealGridSenderTest {
     }
 
     @Test
-    public void dataReallyComeAndGoFromServer() throws Throwable {
+    public void dataReallyComeAndGoFromServer() {
         // The following test uses the actual Firestore
         TestTools.resetLocationServiceStatus(mActivityRule.getActivity().getService());
 
@@ -136,7 +136,7 @@ public class RealGridSenderTest {
                 });
     }
 
-    private CompletableFuture<Map<Carrier, Integer>> getBackRangeData(Location somewhere, Date rangeStart, Date rangeEnd) throws Throwable {
+    private CompletableFuture<Map<Carrier, Integer>> getBackRangeData(Location somewhere, Date rangeStart, Date rangeEnd) {
         return mActivityRule.getActivity().getService().getReceiver()
                 .getUserNearbyDuring(somewhere, rangeStart, rangeEnd);
     }

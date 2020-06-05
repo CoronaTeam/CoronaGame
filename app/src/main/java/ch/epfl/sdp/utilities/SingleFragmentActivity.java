@@ -15,7 +15,7 @@ public abstract class SingleFragmentActivity extends FragmentActivity {
         return getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
     }
 
-    protected int getLayoutResId() {
+    private int getLayoutResId() {
         return R.layout.activity_fragment;
     }
 

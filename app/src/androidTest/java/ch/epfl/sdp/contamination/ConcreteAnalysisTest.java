@@ -63,21 +63,21 @@ import static org.junit.Assert.assertSame;
 
 public class ConcreteAnalysisTest {
 
-    static HashMap<String, Float> recentSickMeetingCounter = new HashMap<>();
-    static Layman man1;
-    static Layman man2;
-    static Layman man3;
-    static Layman man4;
-    static SortedMap<Date, Location> lastPositions;
-    static Set<Carrier> peopleAround;
-    static Map<Long, Carrier> rangePeople;
-    static Map<GeoPoint, Map<Long, Set<Carrier>>> city = new HashMap<>();
-    static int recoveryCounter;
+    private static final HashMap<String, Float> recentSickMeetingCounter = new HashMap<>();
+    private static Layman man1;
+    private static Layman man2;
+    private static Layman man3;
+    private static Layman man4;
+    private static SortedMap<Date, Location> lastPositions;
+    private static Set<Carrier> peopleAround;
+    private static Map<Long, Carrier> rangePeople;
+    private static final Map<GeoPoint, Map<Long, Set<Carrier>>> city = new HashMap<>();
+    private static int recoveryCounter;
     @Rule
     public final ActivityTestRule<InfectionActivity> mActivityRule = new ActivityTestRule<>(InfectionActivity.class);
-    Location testLocation = buildLocation(65, 63);
-    Date testDate = new Date(System.currentTimeMillis());
-    DataReceiver mockReceiver = new DataReceiver() {
+    private final Location testLocation = buildLocation(65, 63);
+    private final Date testDate = new Date(System.currentTimeMillis());
+    private final DataReceiver mockReceiver = new DataReceiver() {
         @Override
         public CompletableFuture<Set<Carrier>> getUserNearby(Location location, Date date) {
             HashSet<Carrier> res = new HashSet<>();
@@ -139,7 +139,7 @@ public class ConcreteAnalysisTest {
             }
         }
     };
-    CachingDataSender sender = new FakeCachingDataSender() {
+    private final CachingDataSender sender = new FakeCachingDataSender() {
         @Override
         public CompletableFuture<Void> registerLocation(Carrier carrier, Location location, Date time) {
             fakeFirebaseStore.put(time, location);
@@ -250,7 +250,7 @@ public class ConcreteAnalysisTest {
     public void infectionProbabilityIsUpdated() throws Throwable {
         recoveryCounter = 0;
         CityDataReceiver cityReceiver = new CityDataReceiver();
-        ObservableCarrier me = new Layman(HEALTHY, "TESTUSER");
+        ObservableCarrier me = new Layman(HEALTHY, "TEST_USER");
 
         InfectionFragment fragment = ((InfectionFragment) mActivityRule.getActivity().getSupportFragmentManager().findFragmentById(R.id.fragmentContainer));
 
@@ -364,14 +364,14 @@ public class ConcreteAnalysisTest {
     public void observersKnowIfStatusChanged() {
         AtomicInteger counter = new AtomicInteger(0);
 
-        Observer fakeOserver = (o, arg) -> {
+        Observer fakeObserver = (o, arg) -> {
             if (((Optional<Float>) arg).isPresent()) {
                 counter.incrementAndGet();
             }
         };
 
         ObservableCarrier me = new Layman(HEALTHY);
-        me.addObserver(fakeOserver);
+        me.addObserver(fakeObserver);
 
         // No status change
         assertTrue(me.evolveInfection(new Date(), HEALTHY, me.getIllnessProbability()));
@@ -429,13 +429,11 @@ public class ConcreteAnalysisTest {
         InfectionAnalyst analyst = new ConcreteAnalysis(me, mockReceiver, sender);
         sender.sendAlert(me.getUniqueId());
         sender.sendAlert(me.getUniqueId(), 0.4f);
-        analyst.updateInfectionPredictions(null, null, null).thenAccept(res -> {
-            assertEquals(1.6 * Math.pow(IMMUNITY_FACTOR, recoveryCounter) * TRANSMISSION_FACTOR, me.getIllnessProbability(), 0.00001f);
-        });
+        analyst.updateInfectionPredictions(null, null, null).thenAccept(res -> assertEquals(1.6 * Math.pow(IMMUNITY_FACTOR, recoveryCounter) * TRANSMISSION_FACTOR, me.getIllnessProbability(), 0.00001f));
     }
 
     @Test
-    public void decreaseSickProbaWhenRecovered() {
+    public void decreaseSickProbabilityWhenRecovered() {
         recoveryCounter = 2;
         CityDataReceiver cityReceiver = new CityDataReceiver();
         ObservableCarrier me = new Layman(HEALTHY);
@@ -474,7 +472,7 @@ public class ConcreteAnalysisTest {
         assertTrue(me.getIllnessProbability() < threshold);
     }
 
-    class CityDataReceiver implements DataReceiver {
+    static class CityDataReceiver implements DataReceiver {
         Location myCurrentLocation;
 
         @Override

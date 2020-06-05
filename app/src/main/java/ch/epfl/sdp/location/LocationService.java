@@ -67,10 +67,10 @@ import static ch.epfl.sdp.firestore.FirestoreInteractor.taskToFuture;
 
 public class LocationService extends Service implements LocationListener, Observer {
 
-    public final static int LOCATION_PERMISSION_REQUEST = 20201;
+    private final static int LOCATION_PERMISSION_REQUEST = 20201;
 
     public static final String ALARM_GOES_OFF = "beeep!";
-    public static final String POISON_PILL = "dead!";
+    private static final String POISON_PILL = "dead!";
 
     public static final String INFECTION_PROBABILITY_PREF = "infectionProbability";
     public static final String INFECTION_STATUS_PREF = "infectionStatus";
@@ -88,8 +88,6 @@ public class LocationService extends Service implements LocationListener, Observ
     private ConnectivityBroker broker;
     private PositionAggregator aggregator;
 
-    private GridFirestoreInteractor gridInteractor;
-
     private SharedPreferences sharedPref;
 
     private DataReceiver receiver;
@@ -97,8 +95,8 @@ public class LocationService extends Service implements LocationListener, Observ
 
     private boolean isAlarmSet = false;
 
-    PendingIntent alarmPending;
-    AlarmManager alarmManager;
+    private PendingIntent alarmPending;
+    private AlarmManager alarmManager;
 
     private Date lastUpdated;
     private InfectionAnalyst analyst;
@@ -119,16 +117,13 @@ public class LocationService extends Service implements LocationListener, Observ
         NotificationManagerCompat.from(this).notify(serviceNotificationId, builder.build());
     }
 
-    private final Observer internetObserver = new Observer() {
-        @Override
-        public void update(Observable o, Object arg) {
-            Log.e("LOCATION_SERVICE", "Showing service.......? " + ((boolean) arg));
-            if ((boolean) arg) {
-                removeNotifications();
-                showServiceNotification();
-            } else {
-                showOfflineNotification();
-            }
+    private final Observer internetObserver = (o, arg) -> {
+        Log.e("LOCATION_SERVICE", "Showing service.......? " + ((boolean) arg));
+        if ((boolean) arg) {
+            removeNotifications();
+            showServiceNotification();
+        } else {
+            showOfflineNotification();
         }
     };
 
@@ -164,7 +159,7 @@ public class LocationService extends Service implements LocationListener, Observ
         return carrier;
     }
 
-    public void locallyStoreCarrier() {
+    private void locallyStoreCarrier() {
         Carrier me = analyst.getCarrier();
 
         SharedPreferences.Editor editor = sharedPref.edit();
@@ -211,7 +206,7 @@ public class LocationService extends Service implements LocationListener, Observ
 
     @Override
     public void onCreate() {
-        gridInteractor = new GridFirestoreInteractor();
+        GridFirestoreInteractor gridInteractor = new GridFirestoreInteractor();
         sender = new ConcreteCachingDataSender(gridInteractor);
         receiver = new ConcreteDataReceiver(gridInteractor);
 
@@ -395,11 +390,6 @@ public class LocationService extends Service implements LocationListener, Observ
         return broker;
     }
 
-    @VisibleForTesting
-    public void setBroker(ConnectivityBroker broker) {
-        this.broker = broker;
-    }
-
     public InfectionAnalyst getAnalyst() {
         return analyst;
     }
@@ -430,22 +420,6 @@ public class LocationService extends Service implements LocationListener, Observ
     public class LocationBinder extends android.os.Binder {
         public LocationService getService() {
             return LocationService.this;
-        }
-
-        public boolean hasGpsPermissions() {
-            return broker.hasPermissions(GPS);
-        }
-
-        public void requestGpsPermissions(Activity activity) {
-            broker.requestPermissions(activity, LOCATION_PERMISSION_REQUEST);
-        }
-
-        public boolean startAggregator() {
-            return LocationService.this.startAggregator();
-        }
-
-        private void stopAggregator() {
-            LocationService.this.stopAggregator();
         }
     }
 

@@ -45,20 +45,16 @@ public class GridSenderTest {
 
     @Rule
     public final ActivityTestRule<DataExchangeActivity> mActivityRule = new ActivityTestRule<>(DataExchangeActivity.class);
-    final long rangeStart = 1585223373883L;
-    final long rangeEnd = 1585223373963L;
-    final long outsideRange = 1585223373983L;
+    private final long rangeStart = 1585223373883L;
+    private final long rangeEnd = 1585223373963L;
+    private final long outsideRange = 1585223373983L;
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-    Handler uiHandler;
+    private Handler uiHandler;
 
-    Consumer<Void> writeSuccessToUi;
-    Function<Throwable, Void> writeFailureToUi;
-    @Mock
-    Map.Entry<String, Map<String, Object>> stringMapEntry;
-    @Mock
-    private Map<String, Map<String, Object>> stringMapMap;
+    private Consumer<Void> writeSuccessToUi;
+    private Function<Throwable, Void> writeFailureToUi;
     @Mock
     private QuerySnapshot firstPeriodSnapshot;
     @Mock
@@ -78,10 +74,6 @@ public class GridSenderTest {
 
     @Before
     public void setupMockito() {
-        /*when(stringMapMap.entrySet()).thenReturn(Collections.singleton(stringMapEntry));
-        when(stringMapEntry.getValue().get("infectionStatus")).thenReturn(Carrier.InfectionStatus.HEALTHY.toString());
-        when(stringMapEntry.getValue().get("illnessProbability")).thenReturn(0.5d);*/
-
         when(firstPeriodSnapshot.iterator()).thenReturn(Collections.singletonList(firstPeriodDocumentSnapshot).iterator());
         when(secondPeriodSnapshot.iterator()).thenReturn(Collections.singletonList(secondPeriodDocumentSnapshot).iterator());
         when(firstPeriodDocumentSnapshot.get("infectionStatus")).thenReturn(Carrier.InfectionStatus.HEALTHY.toString());
@@ -237,7 +229,7 @@ public class GridSenderTest {
         TestTools.sleep(1000);
     }
 
-    class MockGridInteractor extends GridFirestoreInteractor {
+    static class MockGridInteractor extends GridFirestoreInteractor {
 
         // TODO: GridFirestoreInteractor should become an interface too
         MockGridInteractor() {
